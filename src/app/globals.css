@@ -116,7 +116,74 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html,
   body {
     @apply bg-background text-foreground;
+    /* Mobile: prevent text size adjust on orientation change */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    /* Prevent iOS rubber-band overscroll */
+    overscroll-behavior-y: none;
+  }
+  body {
+    /* Respect iOS notch / Android nav bar */
+    padding:
+      env(safe-area-inset-top)
+      env(safe-area-inset-right)
+      env(safe-area-inset-bottom)
+      env(safe-area-inset-left);
+    /* Prevent tap highlight on touch devices */
+    -webkit-tap-highlight-color: transparent;
+    /* Better font rendering on mobile */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  /* Disable iOS double-tap zoom on interactive elements */
+  button,
+  a,
+  [role="button"] {
+    touch-action: manipulation;
+  }
+  /* Custom scrollbar (matches mobile aesthetics) */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: oklch(0.7 0 0 / 30%);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.7 0 0 / 50%);
+  }
+  .dark ::-webkit-scrollbar-thumb {
+    background: oklch(0.5 0 0 / 40%);
+  }
+}
+
+/* Safe-area-aware padding utilities (use on bottom nav, headers, etc.) */
+@layer utilities {
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .pl-safe {
+    padding-left: env(safe-area-inset-left);
+  }
+  .pr-safe {
+    padding-right: env(safe-area-inset-right);
+  }
+  .min-h-screen-safe {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  .h-screen-safe {
+    height: 100vh;
+    height: 100dvh;
   }
 }
