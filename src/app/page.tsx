@@ -16,7 +16,6 @@ import { DictionaryScreen } from "@/components/lexora/screens/dictionary-screen"
 import { CollectionsScreen } from "@/components/lexora/screens/collections-screen";
 import { MoreScreen } from "@/components/lexora/screens/more-screen";
 import { useAppStore } from "@/lib/app-store";
-import { useHaptics } from "@/hooks/use-haptics";
 import {
   trendingTags,
   wordOfTheDay,
@@ -40,7 +39,7 @@ export default function Home() {
     <div className="min-h-screen-safe flex flex-col bg-background">
       <LexoraHeader />
 
-      <main className="flex-1 flex flex-col gap-6 pb-32 px-5">
+      <main className="flex-1 flex flex-col gap-4 pb-24 px-4">
         {/* Sub-header for non-home tabs */}
         {tabMeta[activeTab] && (
           <div className="pt-2 pb-1">
@@ -49,11 +48,11 @@ export default function Home() {
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25 }}
-              className="font-display text-2xl font-semibold text-foreground"
+              className="font-display text-xl font-semibold text-foreground"
             >
               {tabMeta[activeTab].title}
             </motion.h1>
-            <p className="font-body text-xs text-muted-foreground mt-0.5">
+            <p className="font-body text-[11px] text-muted-foreground mt-0.5">
               {tabMeta[activeTab].subtitle}
             </p>
           </div>
@@ -63,37 +62,39 @@ export default function Home() {
           {activeTab === "home" && (
             <motion.div
               key="home"
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.22 }}
-              className="flex flex-col gap-6 -mx-5"
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.2 }}
+              className="flex flex-col gap-4 -mx-4"
             >
-              <Hero />
+              <div className="px-4">
+                <Hero />
+              </div>
 
-              <div className="px-5 flex flex-col gap-4">
+              <div className="px-4 -mt-6 relative z-10 flex flex-col gap-3">
                 <FloatingSearchBar />
                 <TrendingTagRow tags={trendingTags} />
               </div>
 
-              <div className="px-5">
+              <div className="px-4">
                 <WordOfTheDayCard word={wordOfTheDay} />
               </div>
 
-              <section className="flex flex-col gap-3">
-                <div className="px-5">
+              <section className="flex flex-col gap-2">
+                <div className="px-4">
                   <SectionHeader
                     title="Explore by Category"
                     actionLabel="View all"
                   />
                 </div>
-                <div className="flex gap-3 overflow-x-auto no-scrollbar px-5">
+                <div className="flex gap-2 overflow-x-auto no-scrollbar px-4">
                   {categories.map((c, i) => (
                     <motion.div
                       key={c.id}
-                      initial={{ opacity: 0, x: 12 }}
+                      initial={{ opacity: 0, x: 8 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.05 * i, duration: 0.3 }}
+                      transition={{ delay: 0.04 * i, duration: 0.25 }}
                     >
                       <CategoryCard category={c} />
                     </motion.div>
@@ -101,20 +102,20 @@ export default function Home() {
                 </div>
               </section>
 
-              <section className="flex flex-col gap-3">
-                <div className="px-5">
+              <section className="flex flex-col gap-2">
+                <div className="px-4">
                   <SectionHeader
                     title="From the Library"
-                    actionLabel="View all articles"
+                    actionLabel="View all"
                   />
                 </div>
-                <div className="flex gap-3 overflow-x-auto no-scrollbar px-5">
+                <div className="flex gap-2 overflow-x-auto no-scrollbar px-4">
                   {articles.map((a, i) => (
                     <motion.div
                       key={a.id}
-                      initial={{ opacity: 0, x: 12 }}
+                      initial={{ opacity: 0, x: 8 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.05 * i, duration: 0.3 }}
+                      transition={{ delay: 0.04 * i, duration: 0.25 }}
                     >
                       <ArticleCard article={a} />
                     </motion.div>
@@ -127,10 +128,10 @@ export default function Home() {
           {activeTab === "dictionary" && (
             <motion.div
               key="dictionary"
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.22 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.2 }}
             >
               <DictionaryScreen />
             </motion.div>
@@ -139,10 +140,10 @@ export default function Home() {
           {activeTab === "collections" && (
             <motion.div
               key="collections"
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.22 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.2 }}
             >
               <CollectionsScreen />
             </motion.div>
@@ -151,10 +152,10 @@ export default function Home() {
           {activeTab === "more" && (
             <motion.div
               key="more"
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.22 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.2 }}
             >
               <MoreScreen />
             </motion.div>

@@ -30,8 +30,8 @@ export function BottomNav({ className }: { className?: string }) {
         className
       )}
     >
-      <div className="px-4 pb-3 pt-2 pointer-events-auto">
-        <div className="paper-surface border border-border rounded-[28px] shadow-float px-2 py-1.5">
+      <div className="px-4 pb-2 pt-1 pointer-events-auto">
+        <div className="paper-surface border border-border rounded-full shadow-float px-1 py-0.5">
           <ul className="flex items-stretch justify-between">
             {items.map((item) => {
               const isActive = item.key === active;
@@ -46,9 +46,9 @@ export function BottomNav({ className }: { className?: string }) {
                         haptic("medium");
                         openSearch();
                       }}
-                      className="-mt-6 w-14 h-14 grid place-items-center rounded-full bg-primary dark:bg-accent text-primary-foreground dark:text-accent-foreground border-4 border-background shadow-float active:scale-95 transition-transform"
+                      className="-mt-4 w-10 h-10 grid place-items-center rounded-full bg-primary dark:bg-accent text-primary-foreground dark:text-accent-foreground border-2 border-background shadow-float active:scale-95 transition-transform"
                     >
-                      <Search className="w-6 h-6" strokeWidth={2} />
+                      <Search className="w-4 h-4" strokeWidth={2} />
                     </button>
                   </li>
                 );
@@ -66,7 +66,7 @@ export function BottomNav({ className }: { className?: string }) {
                   >
                     <Icon
                       className={cn(
-                        "w-5 h-5",
+                        "w-[16px] h-[16px]",
                         isActive
                           ? "text-primary dark:text-accent"
                           : "text-muted-foreground"
@@ -76,7 +76,7 @@ export function BottomNav({ className }: { className?: string }) {
                     />
                     <span
                       className={cn(
-                        "text-[10px] font-body",
+                        "text-[8px] font-body leading-none",
                         isActive
                           ? "text-primary dark:text-accent font-medium"
                           : "text-muted-foreground"
@@ -85,7 +85,7 @@ export function BottomNav({ className }: { className?: string }) {
                       {item.label}
                     </span>
                     {isActive && (
-                      <span className="w-1 h-1 rounded-full bg-primary dark:bg-accent" />
+                      <span className="w-0.5 h-0.5 rounded-full bg-primary dark:bg-accent" />
                     )}
                   </button>
                 </li>

@@ -19,7 +19,7 @@ export function TrendingTagRow({
   return (
     <div
       className={cn(
-        "flex gap-2.5 overflow-x-auto no-scrollbar -mx-5 px-5",
+        "flex gap-2 overflow-x-auto no-scrollbar -mx-5 px-5",
         className
       )}
     >
@@ -31,7 +31,7 @@ export function TrendingTagRow({
             const entry = getWordById(t.wordId);
             if (entry) openWord(entry);
           }}
-          className="shrink-0 px-3.5 py-1.5 rounded-full bg-card border border-border text-xs font-body text-foreground/80 active:scale-95 transition-transform"
+          className="shrink-0 px-3 py-1 rounded-full bg-card border border-border text-[12px] font-body text-foreground/70 active:scale-95 transition-transform"
         >
           {t.label}
         </button>
@@ -39,9 +39,9 @@ export function TrendingTagRow({
       <button
         aria-label="More tags"
         onClick={() => haptic("light")}
-        className="shrink-0 w-9 h-9 grid place-items-center rounded-full bg-card border border-border text-foreground/60 active:scale-95 transition-transform"
+        className="shrink-0 w-7 h-7 grid place-items-center rounded-full bg-card border border-border text-foreground/50 active:scale-95 transition-transform"
       >
-        <LayoutGrid className="w-4 h-4" strokeWidth={1.75} />
+        <LayoutGrid className="w-3.5 h-3.5" strokeWidth={1.75} />
       </button>
     </div>
   );

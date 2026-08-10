@@ -23,32 +23,26 @@ export function FloatingSearchBar({
         openSearch();
       }}
       className={cn(
-        "relative paper-surface border border-border rounded-3xl shadow-card overflow-hidden w-full text-left active:scale-[0.99] transition-transform",
+        "relative w-full flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-card border border-border shadow-card text-left active:scale-[0.99] transition-transform",
         className
       )}
       aria-label="Open search"
     >
-      <div className="flex items-center gap-3 px-4 py-3.5">
-        <Search
-          className="w-5 h-5 text-foreground/60 shrink-0"
-          strokeWidth={1.75}
-        />
-        <span className="flex-1 text-sm font-body text-muted-foreground/70">
-          {placeholder}
-        </span>
-        <span
-          aria-hidden
-          className="w-8 h-8 grid place-items-center rounded-full text-foreground/60"
-        >
-          <Camera className="w-[18px] h-[18px]" strokeWidth={1.75} />
-        </span>
-        <span
-          aria-hidden
-          className="w-8 h-8 grid place-items-center rounded-full text-foreground/60"
-        >
-          <Mic className="w-[18px] h-[18px]" strokeWidth={1.75} />
-        </span>
-      </div>
+      <Search
+        className="w-4 h-4 text-foreground/50 shrink-0"
+        strokeWidth={1.75}
+      />
+      <span className="flex-1 text-[13px] font-body text-muted-foreground/70">
+        {placeholder}
+      </span>
+      <Camera
+        className="w-4 h-4 text-foreground/40 shrink-0"
+        strokeWidth={1.75}
+      />
+      <Mic
+        className="w-4 h-4 text-foreground/40 shrink-0"
+        strokeWidth={1.75}
+      />
     </button>
   );
 }

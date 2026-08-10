@@ -23,85 +23,73 @@ export function WordOfTheDayCard({
         openWord(word);
       }}
       className={cn(
-        "relative overflow-hidden rounded-2xl shadow-card border border-border bg-primary cursor-pointer active:scale-[0.99] transition-transform",
+        "relative overflow-hidden rounded-2xl shadow-card border border-border cursor-pointer active:scale-[0.99] transition-transform flex",
         className
       )}
     >
-      {/* Watercolour background — fades into primary on the left for text legibility */}
-      <img
-        src="/illustrations/wotd-bg-light.png"
-        alt=""
-        aria-hidden
-        className="absolute inset-0 w-full h-full object-cover dark:hidden fade-edges-l"
-      />
-      <img
-        src="/illustrations/wotd-bg-dark.png"
-        alt=""
-        aria-hidden
-        className="absolute inset-0 w-full h-full object-cover hidden dark:block fade-edges-l"
-      />
-      {/* Left-side color wash so text is readable on top of the image */}
-      <div
-        className="absolute inset-0 bg-primary dark:bg-background"
-        style={{
-          maskImage:
-            "linear-gradient(to right, #000 0%, #000 38%, transparent 60%)",
-          WebkitMaskImage:
-            "linear-gradient(to right, #000 0%, #000 38%, transparent 60%)",
-        }}
-      />
-
-      <div className="relative grid grid-cols-[42%_58%] min-h-[180px]">
-        {/* Left panel: word info */}
-        <div className="flex flex-col justify-center gap-1.5 p-5 min-w-0">
-          <div className="flex items-center gap-1.5 text-highlight dark:text-accent">
-            <Leaf className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} />
-            <span className="font-body text-[10px] font-semibold tracking-[0.16em] uppercase">
-              Word of the Day
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5 min-w-0">
-            <h3 className="font-display text-[19px] font-semibold text-primary-foreground dark:text-foreground leading-tight break-words">
-              {word.word}
-            </h3>
-            <button
-              aria-label={`Listen to ${word.word}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                haptic("light");
-              }}
-              className="shrink-0 w-7 h-7 grid place-items-center rounded-full text-primary-foreground/80 dark:text-foreground/80 active:scale-95 transition-transform"
-            >
-              <Volume2 className="w-4 h-4" strokeWidth={1.75} />
-            </button>
-          </div>
-          <p className="font-body italic text-[11px] text-primary-foreground/70 dark:text-foreground/70 break-words">
-            {word.phonetic}
-          </p>
-          <p className="font-body text-xs text-primary-foreground/80 dark:text-foreground/80">
-            {word.partOfSpeech}
-          </p>
+      {/* Left panel: solid sage green with word info */}
+      <div className="relative w-[45%] bg-primary dark:bg-background p-4 flex flex-col justify-center gap-1 min-w-0 shrink-0 z-10">
+        <div className="flex items-center gap-1 text-highlight dark:text-accent">
+          <Leaf className="w-3 h-3 shrink-0" strokeWidth={1.75} />
+          <span className="font-body text-[9px] font-semibold tracking-[0.14em] uppercase">
+            Word of the Day
+          </span>
         </div>
+        <div className="flex items-center gap-1 min-w-0">
+          <h3 className="font-display text-[17px] font-semibold text-primary-foreground dark:text-foreground leading-tight break-words">
+            {word.word}
+          </h3>
+          <button
+            aria-label={`Listen to ${word.word}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              haptic("light");
+            }}
+            className="shrink-0 w-6 h-6 grid place-items-center rounded-full text-primary-foreground/70 dark:text-foreground/70 active:scale-95 transition-transform"
+          >
+            <Volume2 className="w-3.5 h-3.5" strokeWidth={1.75} />
+          </button>
+        </div>
+        <p className="font-body italic text-[10px] text-primary-foreground/60 dark:text-foreground/60 break-words">
+          {word.phonetic}
+        </p>
+        <p className="font-body text-[11px] text-primary-foreground/70 dark:text-foreground/70 lowercase">
+          {word.partOfSpeech}
+        </p>
+      </div>
 
-        {/* Right panel: definition */}
-        <div className="relative flex flex-col justify-between gap-2 p-5 min-w-0">
-          {/* Scrim so definition text stays legible over the watercolour */}
-          <div
-            className="absolute inset-0 bg-gradient-to-br from-primary/85 via-primary/55 to-primary/25 dark:from-background/90 dark:via-background/60 dark:to-background/25"
-            aria-hidden
-          />
+      {/* Right panel: watercolour image with definition overlay */}
+      <div className="relative w-[55%] min-w-0">
+        <img
+          src="/illustrations/wotd-bg-light.png"
+          alt=""
+          aria-hidden
+          className="absolute inset-0 w-full h-full object-cover dark:hidden"
+        />
+        <img
+          src="/illustrations/wotd-bg-dark.png"
+          alt=""
+          aria-hidden
+          className="absolute inset-0 w-full h-full object-cover hidden dark:block"
+        />
+        {/* Scrim so definition text stays legible over the watercolour */}
+        <div
+          className="absolute inset-0 bg-gradient-to-br from-primary/70 via-primary/35 to-primary/10 dark:from-background/80 dark:via-background/45 dark:to-background/15"
+          aria-hidden
+        />
+        <div className="relative h-full flex flex-col justify-between gap-1.5 p-4 min-h-[140px]">
           <p
-            className="relative font-long text-[13px] leading-relaxed text-primary-foreground dark:text-foreground line-clamp-4"
+            className="font-long text-[12px] leading-relaxed text-primary-foreground dark:text-foreground line-clamp-3"
             style={{ textShadow: "0 1px 3px rgba(0,0,0,0.45)" }}
           >
             {word.definitions[0]}
           </p>
           <span
-            className="relative self-end inline-flex items-center gap-1 text-xs font-body font-medium text-highlight dark:text-accent"
+            className="self-end inline-flex items-center gap-1 text-[11px] font-body font-medium text-highlight dark:text-accent"
             style={{ textShadow: "0 1px 2px rgba(0,0,0,0.4)" }}
           >
             Explore more
-            <ArrowRight className="w-3.5 h-3.5" strokeWidth={2} />
+            <ArrowRight className="w-3 h-3" strokeWidth={2} />
           </span>
         </div>
       </div>

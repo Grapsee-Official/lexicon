@@ -25,18 +25,18 @@ export function ThemeToggle({ className }: { className?: string }) {
         setTheme(isDark ? "light" : "dark");
       }}
       className={cn(
-        "w-9 h-9 grid place-items-center rounded-full border border-border bg-card/50 text-foreground/80 active:scale-95 transition-transform",
+        "w-8 h-8 grid place-items-center rounded-full border border-border bg-card/50 text-foreground/70 active:scale-95 transition-transform",
         className
       )}
     >
       {mounted ? (
         isDark ? (
-          <Sun className="w-4 h-4" strokeWidth={1.75} />
+          <Sun className="w-[15px] h-[15px]" strokeWidth={1.75} />
         ) : (
-          <Moon className="w-4 h-4" strokeWidth={1.75} />
+          <Moon className="w-[15px] h-[15px]" strokeWidth={1.75} />
         )
       ) : (
-        <span className="w-4 h-4" />
+        <span className="w-[15px] h-[15px]" />
       )}
     </button>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { Sprout } from "lucide-react";
 import { useHaptics } from "@/hooks/use-haptics";
 import { useAppStore } from "@/lib/app-store";
 import { cn } from "@/lib/utils";
@@ -14,54 +14,47 @@ export function Hero({
   const openSearch = useAppStore((s) => s.openSearch);
 
   return (
-    <section className={cn("relative", className)}>
-      {/* Watercolour backdrop */}
-      <div className="absolute inset-0 -z-10 overflow-hidden rounded-3xl">
+    <section
+      className={cn("relative overflow-hidden rounded-2xl", className)}
+      onClick={() => {
+        haptic("light");
+        openSearch();
+      }}
+    >
+      {/* Prominent watercolour backdrop — the image IS the hero */}
+      <div className="absolute inset-0">
         <img
           src="/illustrations/hero-light.png"
           alt=""
           aria-hidden
-          className="w-full h-full object-cover dark:hidden fade-edges"
+          className="w-full h-full object-cover dark:hidden"
         />
         <img
           src="/illustrations/hero-dark.png"
           alt=""
           aria-hidden
-          className="w-full h-full object-cover hidden dark:block fade-edges"
+          className="w-full h-full object-cover hidden dark:block"
         />
       </div>
 
-      <div className="px-5 pt-6 pb-7">
-        <motion.h1
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="font-display text-[34px] leading-[1.1] font-semibold text-foreground tracking-tight max-w-[16ch]"
-        >
+      {/* Left-side gradient scrim so text is readable over the image.
+          Stronger on left, fades right — text sits on the left half. */}
+      <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-background/10 dark:from-background dark:via-background/70 dark:to-transparent" />
+      {/* Bottom fade so the hero blends into the page below */}
+      <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-background to-transparent" />
+
+      {/* Text overlay — small, gentle, left-aligned */}
+      <div className="relative px-4 pt-6 pb-12 max-w-[60%]">
+        <h1 className="font-display text-[24px] leading-[1.15] font-semibold text-foreground tracking-tight">
           Discover the World of{" "}
-          <span className="text-primary dark:text-accent">Words</span>
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-          className="mt-3 font-body text-sm leading-relaxed text-foreground/70 max-w-[36ch]"
-        >
-          A timeless dictionary crafted for curious minds. Explore meanings,
-          origins, and stories behind every word.
-        </motion.p>
-        <motion.button
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-          onClick={() => {
-            haptic("medium");
-            openSearch();
-          }}
-          className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary dark:bg-accent text-primary-foreground dark:text-accent-foreground text-xs font-body font-medium shadow-card active:scale-95 transition-transform"
-        >
-          Begin your journey
-        </motion.button>
+          <span className="text-primary dark:text-accent inline-flex items-center gap-1">
+            Words
+            <Sprout className="w-4 h-4 text-highlight dark:text-accent" strokeWidth={1.75} />
+          </span>
+        </h1>
+        <p className="mt-1.5 font-body text-[12px] leading-relaxed text-foreground/55 max-w-[28ch]">
+          A timeless dictionary crafted for curious minds.
+        </p>
       </div>
     </section>
   );
