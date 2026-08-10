@@ -22,7 +22,7 @@ export function CategoryCard({
         setActiveTab("dictionary");
       }}
       className={cn(
-        "shrink-0 w-24 flex flex-col items-center text-center gap-1.5 p-2 rounded-xl bg-card border border-border shadow-card active:scale-95 transition-transform",
+        "shrink-0 w-20 flex flex-col items-center text-center gap-1 p-2 rounded-xl bg-card border border-border shadow-card active:scale-95 transition-transform",
         className
       )}
     >
@@ -34,11 +34,11 @@ export function CategoryCard({
           loading="lazy"
         />
       </div>
-      <div className="flex flex-col gap-0.5 w-full">
-        <h4 className="font-display text-[12px] font-semibold text-foreground leading-tight truncate">
+      <div className="flex flex-col gap-0.5 w-full items-center">
+        <h4 className="font-display text-[11px] font-semibold text-foreground leading-tight">
           {category.title}
         </h4>
-        <p className="font-body text-[9px] text-muted-foreground leading-tight truncate">
+        <p className="font-body text-[8px] text-muted-foreground leading-tight">
           {category.subtitle}
         </p>
       </div>

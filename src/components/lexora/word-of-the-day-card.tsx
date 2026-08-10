@@ -72,21 +72,26 @@ export function WordOfTheDayCard({
           aria-hidden
           className="absolute inset-0 w-full h-full object-cover hidden dark:block"
         />
-        {/* Scrim so definition text stays legible over the watercolour */}
+        {/* Scrim so definition text stays legible over the watercolour.
+            Heavier and more uniform so text is always readable. */}
         <div
-          className="absolute inset-0 bg-gradient-to-br from-primary/70 via-primary/35 to-primary/10 dark:from-background/80 dark:via-background/45 dark:to-background/15"
+          className="absolute inset-0 bg-primary/85 dark:bg-background/90"
           aria-hidden
         />
-        <div className="relative h-full flex flex-col justify-between gap-1.5 p-4 min-h-[140px]">
+        <div
+          className="absolute inset-0 bg-gradient-to-br from-primary/40 via-transparent to-transparent dark:from-background/40"
+          aria-hidden
+        />
+        <div className="relative h-full flex flex-col justify-between gap-2 p-4 min-h-[140px]">
           <p
             className="font-long text-[12px] leading-relaxed text-primary-foreground dark:text-foreground line-clamp-3"
-            style={{ textShadow: "0 1px 3px rgba(0,0,0,0.45)" }}
+            style={{ textShadow: "0 1px 3px rgba(0,0,0,0.5)" }}
           >
             {word.definitions[0]}
           </p>
           <span
             className="self-end inline-flex items-center gap-1 text-[11px] font-body font-medium text-highlight dark:text-accent"
-            style={{ textShadow: "0 1px 2px rgba(0,0,0,0.4)" }}
+            style={{ textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}
           >
             Explore more
             <ArrowRight className="w-3 h-3" strokeWidth={2} />

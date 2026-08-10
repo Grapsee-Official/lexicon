@@ -174,3 +174,41 @@ Stage Summary:
 - All font sizes reduced ~20% across the board.
 - Both light and dark modes verified by VLM as polished and correct.
 - Remaining minor VLM notes (header "stacked vertically", "N" badge) are perception artifacts from the QA tool, not real UI bugs.
+
+---
+Task ID: LAYOUT-FIX-1
+Agent: Z.ai Code (main)
+Task: User feedback round 2: "every single element wrong, position, sections, everything looks off". Exhaustive screenshot research and complete layout rebuild.
+
+Work Log:
+- Did exhaustive VLM analysis of ALL user screenshots: full home (light+dark), color palette, brand board, header crop, article list crop, category section crop, trending tags crop.
+- KEY FINDINGS (from VLM cross-referencing multiple screenshots):
+  * HEADER was CENTERED in my build but design is LEFT-aligned: [hamburger][logo icon][Lexora text + tagline] ... [bell][avatar]. Confirmed by both light and dark screenshot analysis.
+  * HERO was in a rounded card with padding in my build but design is EDGE-TO-EEDGE (full width, no rounded corners, no padding). 35-40% screen height. Text overlaid on LEFT, upper-left quadrant.
+  * SEARCH BAR was sitting below hero in my build but design has it OVERLAPPING the hero bottom edge (pill shape, half on hero, half below).
+  * SECTION HEADERS: "Explore by Category" has NO divider, but "From the Library" HAS a thin divider line between title and "View all articles →".
+  * CATEGORY CARDS should be ~21% screen width (w-20, not w-24). Vertical 4:5 aspect ratio. No text truncation.
+- Rebuilt components:
+  * HEADER: Changed from centered to LEFT-aligned. Layout: [hamburger][logo icon w-7 h-7][Lexora text + tagline, mr-auto] [theme toggle][bell][avatar]. Tagline uses periods "Words. Wisdom. Worlds." not dots.
+  * HERO: Removed rounded-2xl card. Now w-full h-[280px] edge-to-edge. Left-side gradient scrim from-background via-background/70 to-transparent. Text centered vertically in left 60%. Added Sprout leaf accent next to "Words". Headline 26px, paragraph 12px.
+  * FLOATING SEARCH BAR: Changed to rounded-full (pill). shadow-float. Overlaps hero with -mt-10 and z-10. px-4 container.
+  * SECTION HEADER: Added `divider` prop. When true, renders flex-1 h-px bg-border between title and action button. "Explore by Category" = no divider. "From the Library" = divider ON.
+  * CATEGORY CARD: w-24→w-20. Removed truncate on title/subtitle. Centered text. gap-1.5→gap-1.
+  * WORD OF DAY CARD: Strengthened scrim to bg-primary/85 (was gradient 70→10). Now uniform heavy scrim so definition text is always readable over watercolour. Added secondary gradient overlay for depth.
+  * PAGE: Hero no longer wrapped in px-4 container (edge-to-edge). Search wrapped in px-4 -mt-10 z-10. Categories and articles use -mx-4 px-4 for full-bleed scroll. gap-4 throughout. pb-24.
+- Verified via VLM comparison (both light and dark):
+  * Light mode: 8/10. All 4 critical checks PASS (header left-aligned, hero edge-to-edge, search overlaps hero, "From the Library" divider). Remaining VLM notes are perception artifacts (agent-browser "N" dev overlay, hero image is different cottage vs open-book — expected since AI-generated assets differ from original).
+  * Dark mode: "No critical issues apparent. Header left-aligned, hero edge-to-edge, search overlaps hero, WotD highly readable, layout follows mobile UI best practices."
+  * DOM verification: leaf icons (3 SVGs in article), grid button (aria-label="More tags"), WotD word "Wanderlust" all confirmed present — VLM was misreading small icons.
+- Lint: clean (0 errors, 0 warnings). Runtime: 0 errors.
+
+Stage Summary:
+- ALL structural layout issues fixed per design screenshots.
+- Header: LEFT-aligned (was centered).
+- Hero: edge-to-edge (was rounded card).
+- Search: overlaps hero (was below).
+- "From the Library": has divider line (was missing).
+- Category cards: compact w-20 (was w-24).
+- WotD card: readable scrim (was overlapping text).
+- Both light and dark modes verified by VLM as matching design with no critical issues.
+- The only non-fixable difference: hero illustration is a cottage scene (AI-generated) vs original open-book illustration. This is an asset limitation, not a layout bug.

@@ -39,10 +39,10 @@ export default function Home() {
     <div className="min-h-screen-safe flex flex-col bg-background">
       <LexoraHeader />
 
-      <main className="flex-1 flex flex-col gap-4 pb-24 px-4">
+      <main className="flex-1 flex flex-col gap-4 pb-24">
         {/* Sub-header for non-home tabs */}
-        {tabMeta[activeTab] && (
-          <div className="pt-2 pb-1">
+        {tabMeta[activeTab] ? (
+          <div className="pt-2 pb-1 px-4">
             <motion.h1
               key={`title-${activeTab}`}
               initial={{ opacity: 0, y: 6 }}
@@ -56,39 +56,43 @@ export default function Home() {
               {tabMeta[activeTab].subtitle}
             </p>
           </div>
-        )}
+        ) : null}
 
         <AnimatePresence mode="wait">
-          {activeTab === "home" && (
+          {activeTab === "home" ? (
             <motion.div
               key="home"
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.2 }}
-              className="flex flex-col gap-4 -mx-4"
+              className="flex flex-col gap-4"
             >
-              <div className="px-4">
-                <Hero />
+              {/* Hero: edge-to-edge, full width */}
+              <Hero />
+
+              {/* Search bar overlaps hero bottom (negative margin) */}
+              <div className="px-4 -mt-10 relative z-10">
+                <FloatingSearchBar />
               </div>
 
-              <div className="px-4 -mt-6 relative z-10 flex flex-col gap-3">
-                <FloatingSearchBar />
+              {/* Trending tags */}
+              <div className="px-4">
                 <TrendingTagRow tags={trendingTags} />
               </div>
 
+              {/* Word of the Day */}
               <div className="px-4">
                 <WordOfTheDayCard word={wordOfTheDay} />
               </div>
 
-              <section className="flex flex-col gap-2">
-                <div className="px-4">
-                  <SectionHeader
-                    title="Explore by Category"
-                    actionLabel="View all"
-                  />
-                </div>
-                <div className="flex gap-2 overflow-x-auto no-scrollbar px-4">
+              {/* Categories — no divider */}
+              <section className="flex flex-col gap-2 px-4">
+                <SectionHeader
+                  title="Explore by Category"
+                  actionLabel="View all"
+                />
+                <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4">
                   {categories.map((c, i) => (
                     <motion.div
                       key={c.id}
@@ -102,14 +106,14 @@ export default function Home() {
                 </div>
               </section>
 
-              <section className="flex flex-col gap-2">
-                <div className="px-4">
-                  <SectionHeader
-                    title="From the Library"
-                    actionLabel="View all"
-                  />
-                </div>
-                <div className="flex gap-2 overflow-x-auto no-scrollbar px-4">
+              {/* Library — WITH divider line */}
+              <section className="flex flex-col gap-2 px-4">
+                <SectionHeader
+                  title="From the Library"
+                  actionLabel="View all articles"
+                  divider
+                />
+                <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4">
                   {articles.map((a, i) => (
                     <motion.div
                       key={a.id}
@@ -123,43 +127,46 @@ export default function Home() {
                 </div>
               </section>
             </motion.div>
-          )}
+          ) : null}
 
-          {activeTab === "dictionary" && (
+          {activeTab === "dictionary" ? (
             <motion.div
               key="dictionary"
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.2 }}
+              className="px-4"
             >
               <DictionaryScreen />
             </motion.div>
-          )}
+          ) : null}
 
-          {activeTab === "collections" && (
+          {activeTab === "collections" ? (
             <motion.div
               key="collections"
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.2 }}
+              className="px-4"
             >
               <CollectionsScreen />
             </motion.div>
-          )}
+          ) : null}
 
-          {activeTab === "more" && (
+          {activeTab === "more" ? (
             <motion.div
               key="more"
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.2 }}
+              className="px-4"
             >
               <MoreScreen />
             </motion.div>
-          )}
+          ) : null}
         </AnimatePresence>
       </main>
 

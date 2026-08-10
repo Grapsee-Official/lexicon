@@ -15,13 +15,16 @@ export function Hero({
 
   return (
     <section
-      className={cn("relative overflow-hidden rounded-2xl", className)}
+      className={cn(
+        "relative overflow-hidden w-full h-[280px]",
+        className
+      )}
       onClick={() => {
         haptic("light");
         openSearch();
       }}
     >
-      {/* Prominent watercolour backdrop — the image IS the hero */}
+      {/* Edge-to-edge watercolour backdrop — NO rounded corners, NO padding */}
       <div className="absolute inset-0">
         <img
           src="/illustrations/hero-light.png"
@@ -38,22 +41,26 @@ export function Hero({
       </div>
 
       {/* Left-side gradient scrim so text is readable over the image.
-          Stronger on left, fades right — text sits on the left half. */}
-      <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-background/10 dark:from-background dark:via-background/70 dark:to-transparent" />
-      {/* Bottom fade so the hero blends into the page below */}
-      <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-background to-transparent" />
+          Text sits in the upper-left quadrant. */}
+      <div className="absolute inset-0 bg-gradient-to-br from-background via-background/70 to-transparent dark:from-background dark:via-background/60" />
+      {/* Bottom fade into the page below */}
+      <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-background to-transparent" />
 
-      {/* Text overlay — small, gentle, left-aligned */}
-      <div className="relative px-4 pt-6 pb-12 max-w-[60%]">
-        <h1 className="font-display text-[24px] leading-[1.15] font-semibold text-foreground tracking-tight">
+      {/* Text overlay — upper-left quadrant, small */}
+      <div className="relative h-full flex flex-col justify-center px-5 max-w-[60%]">
+        <h1 className="font-display text-[26px] leading-[1.12] font-semibold text-foreground tracking-tight">
           Discover the World of{" "}
           <span className="text-primary dark:text-accent inline-flex items-center gap-1">
             Words
-            <Sprout className="w-4 h-4 text-highlight dark:text-accent" strokeWidth={1.75} />
+            <Sprout
+              className="w-4 h-4 text-highlight dark:text-accent"
+              strokeWidth={1.75}
+            />
           </span>
         </h1>
-        <p className="mt-1.5 font-body text-[12px] leading-relaxed text-foreground/55 max-w-[28ch]">
-          A timeless dictionary crafted for curious minds.
+        <p className="mt-2 font-body text-[12px] leading-relaxed text-foreground/60 max-w-[28ch]">
+          A timeless dictionary crafted for curious minds. Explore meanings,
+          origins, and stories behind every word.
         </p>
       </div>
     </section>
