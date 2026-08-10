@@ -1,6 +1,7 @@
 "use client";
 
 import { useHaptics } from "@/hooks/use-haptics";
+import { useAppStore } from "@/lib/app-store";
 import { cn } from "@/lib/utils";
 import type { Category } from "@/lib/lexora-data";
 
@@ -12,10 +13,14 @@ export function CategoryCard({
   className?: string;
 }) {
   const haptic = useHaptics();
+  const setActiveTab = useAppStore((s) => s.setActiveTab);
 
   return (
     <button
-      onClick={() => haptic("light")}
+      onClick={() => {
+        haptic("light");
+        setActiveTab("dictionary");
+      }}
       className={cn(
         "shrink-0 w-32 flex flex-col items-center text-center gap-2 p-3 rounded-2xl bg-card border border-border shadow-card active:scale-95 transition-transform",
         className

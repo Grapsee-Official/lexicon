@@ -3,7 +3,8 @@
 import { LayoutGrid } from "lucide-react";
 import { useHaptics } from "@/hooks/use-haptics";
 import { cn } from "@/lib/utils";
-import type { TrendingTag } from "@/lib/lexora-data";
+import { useAppStore } from "@/lib/app-store";
+import { getWordById, type TrendingTag } from "@/lib/lexora-data";
 
 export function TrendingTagRow({
   tags,
@@ -13,6 +14,7 @@ export function TrendingTagRow({
   className?: string;
 }) {
   const haptic = useHaptics();
+  const openWord = useAppStore((s) => s.openWord);
 
   return (
     <div
@@ -24,7 +26,11 @@ export function TrendingTagRow({
       {tags.map((t) => (
         <button
           key={t.label}
-          onClick={() => haptic("light")}
+          onClick={() => {
+            haptic("light");
+            const entry = getWordById(t.wordId);
+            if (entry) openWord(entry);
+          }}
           className="shrink-0 px-3.5 py-1.5 rounded-full bg-card border border-border text-xs font-body text-foreground/80 active:scale-95 transition-transform"
         >
           {t.label}

@@ -3,21 +3,27 @@
 import { Volume2, Leaf, ArrowRight } from "lucide-react";
 import { useHaptics } from "@/hooks/use-haptics";
 import { cn } from "@/lib/utils";
-import type { WordOfTheDay } from "@/lib/lexora-data";
+import { useAppStore } from "@/lib/app-store";
+import type { WordEntry } from "@/lib/lexora-data";
 
 export function WordOfTheDayCard({
   word,
   className,
 }: {
-  word: WordOfTheDay;
+  word: WordEntry;
   className?: string;
 }) {
   const haptic = useHaptics();
+  const openWord = useAppStore((s) => s.openWord);
 
   return (
     <article
+      onClick={() => {
+        haptic("medium");
+        openWord(word);
+      }}
       className={cn(
-        "relative overflow-hidden rounded-2xl shadow-card border border-border bg-primary",
+        "relative overflow-hidden rounded-2xl shadow-card border border-border bg-primary cursor-pointer active:scale-[0.99] transition-transform",
         className
       )}
     >
@@ -60,7 +66,10 @@ export function WordOfTheDayCard({
             </h3>
             <button
               aria-label={`Listen to ${word.word}`}
-              onClick={() => haptic("light")}
+              onClick={(e) => {
+                e.stopPropagation();
+                haptic("light");
+              }}
               className="shrink-0 w-7 h-7 grid place-items-center rounded-full text-primary-foreground/80 dark:text-foreground/80 active:scale-95 transition-transform"
             >
               <Volume2 className="w-4 h-4" strokeWidth={1.75} />
@@ -76,26 +85,24 @@ export function WordOfTheDayCard({
 
         {/* Right panel: definition */}
         <div className="relative flex flex-col justify-between gap-2 p-5 min-w-0">
-          {/* Scrim so definition text stays legible over the watercolour.
-              Heavier at top-left where the image is busiest, fading right. */}
+          {/* Scrim so definition text stays legible over the watercolour */}
           <div
             className="absolute inset-0 bg-gradient-to-br from-primary/85 via-primary/55 to-primary/25 dark:from-background/90 dark:via-background/60 dark:to-background/25"
             aria-hidden
           />
           <p
-            className="relative font-long text-[13px] leading-relaxed text-primary-foreground dark:text-foreground"
+            className="relative font-long text-[13px] leading-relaxed text-primary-foreground dark:text-foreground line-clamp-4"
             style={{ textShadow: "0 1px 3px rgba(0,0,0,0.45)" }}
           >
-            {word.definition}
+            {word.definitions[0]}
           </p>
-          <button
-            onClick={() => haptic("light")}
-            className="relative self-end inline-flex items-center gap-1 text-xs font-body font-medium text-highlight dark:text-accent active:scale-95 transition-transform"
+          <span
+            className="relative self-end inline-flex items-center gap-1 text-xs font-body font-medium text-highlight dark:text-accent"
             style={{ textShadow: "0 1px 2px rgba(0,0,0,0.4)" }}
           >
             Explore more
             <ArrowRight className="w-3.5 h-3.5" strokeWidth={2} />
-          </button>
+          </span>
         </div>
       </div>
     </article>

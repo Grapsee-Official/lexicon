@@ -3,22 +3,16 @@
 import { Home, BookOpen, Bookmark, MoreHorizontal, Search } from "lucide-react";
 import { useHaptics } from "@/hooks/use-haptics";
 import { cn } from "@/lib/utils";
+import { useAppStore, type TabKey } from "@/lib/app-store";
 
-type NavKey = "home" | "dictionary" | "search" | "collections" | "more";
-
-export function BottomNav({
-  active = "home",
-  onNavigate,
-  className,
-}: {
-  active?: NavKey;
-  onNavigate?: (key: NavKey) => void;
-  className?: string;
-}) {
+export function BottomNav({ className }: { className?: string }) {
+  const active = useAppStore((s) => s.activeTab);
+  const setActiveTab = useAppStore((s) => s.setActiveTab);
+  const openSearch = useAppStore((s) => s.openSearch);
   const haptic = useHaptics();
 
   const items: {
-    key: NavKey;
+    key: TabKey;
     label: string;
     icon: typeof Home;
   }[] = [
@@ -47,10 +41,10 @@ export function BottomNav({
                 return (
                   <li key={item.key} className="flex-1 flex justify-center">
                     <button
-                      aria-label="Search"
+                      aria-label="Open search"
                       onClick={() => {
                         haptic("medium");
-                        onNavigate?.(item.key);
+                        openSearch();
                       }}
                       className="-mt-6 w-14 h-14 grid place-items-center rounded-full bg-primary dark:bg-accent text-primary-foreground dark:text-accent-foreground border-4 border-background shadow-float active:scale-95 transition-transform"
                     >
@@ -66,7 +60,7 @@ export function BottomNav({
                   <button
                     onClick={() => {
                       haptic("light");
-                      onNavigate?.(item.key);
+                      setActiveTab(item.key);
                     }}
                     className="w-full py-1.5 flex flex-col items-center gap-0.5 active:scale-95 transition-transform"
                   >

@@ -1,6 +1,8 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { useHaptics } from "@/hooks/use-haptics";
+import { useAppStore } from "@/lib/app-store";
 import { cn } from "@/lib/utils";
 
 export function Hero({
@@ -9,6 +11,7 @@ export function Hero({
   className?: string;
 }) {
   const haptic = useHaptics();
+  const openSearch = useAppStore((s) => s.openSearch);
 
   return (
     <section className={cn("relative", className)}>
@@ -29,20 +32,36 @@ export function Hero({
       </div>
 
       <div className="px-5 pt-6 pb-7">
-        <h1 className="font-display text-[34px] leading-[1.1] font-semibold text-foreground tracking-tight max-w-[16ch]">
+        <motion.h1
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="font-display text-[34px] leading-[1.1] font-semibold text-foreground tracking-tight max-w-[16ch]"
+        >
           Discover the World of{" "}
           <span className="text-primary dark:text-accent">Words</span>
-        </h1>
-        <p className="mt-3 font-body text-sm leading-relaxed text-foreground/70 max-w-[36ch]">
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="mt-3 font-body text-sm leading-relaxed text-foreground/70 max-w-[36ch]"
+        >
           A timeless dictionary crafted for curious minds. Explore meanings,
           origins, and stories behind every word.
-        </p>
-        <button
-          onClick={() => haptic("light")}
+        </motion.p>
+        <motion.button
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+          onClick={() => {
+            haptic("medium");
+            openSearch();
+          }}
           className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary dark:bg-accent text-primary-foreground dark:text-accent-foreground text-xs font-body font-medium shadow-card active:scale-95 transition-transform"
         >
           Begin your journey
-        </button>
+        </motion.button>
       </div>
     </section>
   );
