@@ -3,8 +3,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { LexoraHeader } from "@/components/lexora/header";
 import { Hero } from "@/components/lexora/hero";
-import { FloatingSearchBar } from "@/components/lexora/floating-search-bar";
-import { TrendingTagRow } from "@/components/lexora/trending-tag-row";
 import { WordOfTheDayCard } from "@/components/lexora/word-of-the-day-card";
 import { CategoryCard } from "@/components/lexora/category-card";
 import { ArticleCard } from "@/components/lexora/article-card";
@@ -16,12 +14,7 @@ import { DictionaryScreen } from "@/components/lexora/screens/dictionary-screen"
 import { CollectionsScreen } from "@/components/lexora/screens/collections-screen";
 import { MoreScreen } from "@/components/lexora/screens/more-screen";
 import { useAppStore } from "@/lib/app-store";
-import {
-  trendingTags,
-  wordOfTheDay,
-  categories,
-  articles,
-} from "@/lib/lexora-data";
+import { wordOfTheDay, categories, articles } from "@/lib/lexora-data";
 
 const tabMeta: Record<
   string,
@@ -40,9 +33,8 @@ export default function Home() {
       <LexoraHeader />
 
       <main className="flex-1 flex flex-col gap-4 pb-24">
-        {/* Sub-header for non-home tabs */}
         {tabMeta[activeTab] ? (
-          <div className="pt-2 pb-1 px-4">
+          <div className="pt-2 pb-1 px-5">
             <motion.h1
               key={`title-${activeTab}`}
               initial={{ opacity: 0, y: 6 }}
@@ -68,31 +60,22 @@ export default function Home() {
               transition={{ duration: 0.2 }}
               className="flex flex-col gap-4"
             >
-              {/* Hero: edge-to-edge, full width */}
+              {/* Hero now CONTAINS: illustration (right) + headline (left) +
+                  compact search bar + tag chips — all per Design Instruction Map */}
               <Hero />
 
-              {/* Search bar overlaps hero bottom (negative margin) */}
-              <div className="px-4 -mt-10 relative z-10">
-                <FloatingSearchBar />
-              </div>
-
-              {/* Trending tags */}
-              <div className="px-4">
-                <TrendingTagRow tags={trendingTags} />
-              </div>
-
               {/* Word of the Day */}
-              <div className="px-4">
+              <div className="px-5">
                 <WordOfTheDayCard word={wordOfTheDay} />
               </div>
 
               {/* Categories — no divider */}
-              <section className="flex flex-col gap-2 px-4">
+              <section className="flex flex-col gap-2 px-5">
                 <SectionHeader
                   title="Explore by Category"
                   actionLabel="View all"
                 />
-                <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4">
+                <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-5 px-5">
                   {categories.map((c, i) => (
                     <motion.div
                       key={c.id}
@@ -107,13 +90,13 @@ export default function Home() {
               </section>
 
               {/* Library — WITH divider line */}
-              <section className="flex flex-col gap-2 px-4">
+              <section className="flex flex-col gap-2 px-5">
                 <SectionHeader
                   title="From the Library"
                   actionLabel="View all articles"
                   divider
                 />
-                <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4">
+                <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-5 px-5">
                   {articles.map((a, i) => (
                     <motion.div
                       key={a.id}
@@ -136,7 +119,7 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.2 }}
-              className="px-4"
+              className="px-5"
             >
               <DictionaryScreen />
             </motion.div>
@@ -149,7 +132,7 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.2 }}
-              className="px-4"
+              className="px-5"
             >
               <CollectionsScreen />
             </motion.div>
@@ -162,7 +145,7 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.2 }}
-              className="px-4"
+              className="px-5"
             >
               <MoreScreen />
             </motion.div>
@@ -172,7 +155,6 @@ export default function Home() {
 
       <BottomNav />
 
-      {/* Overlays */}
       <WordDetailSheet />
       <SearchModal />
 

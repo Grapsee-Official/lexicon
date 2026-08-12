@@ -212,3 +212,76 @@ Stage Summary:
 - WotD card: readable scrim (was overlapping text).
 - Both light and dark modes verified by VLM as matching design with no critical issues.
 - The only non-fixable difference: hero illustration is a cottage scene (AI-generated) vs original open-book illustration. This is an asset limitation, not a layout bug.
+
+---
+Task ID: DESIGN-MAP-1
+Agent: Z.ai Code (main)
+Task: User provided "Design Instruction Map" as the single source of truth for Hero Section & Navigation Bar. Must follow exactly — preserve composition, hierarchy, spacing, visual flow, proportions, nostalgic Lexora identity without improvising.
+
+Work Log:
+- Read the Design Instruction Map carefully. Extracted these hard requirements:
+  NAV BAR:
+  - Same background as hero (NO dividing line, NO border-b, NO paper-surface)
+  - Background flows continuously into hero
+  - Logo LARGE and clear (was too small)
+  - Tagline smaller and softer (but readable)
+  - Icons: thin stroke (1.5), warm tone
+  - Profile avatar: circular, subtle border
+  - 16-20px padding top/sides
+  HERO:
+  - Illustration strictly on the RIGHT side (not full-bleed background)
+  - Text aligned LEFT with ample breathing space (NOT overlaying illustration)
+  - Large headline in soft serif
+  - Search bar: COMPACT, max-width 420-480px, soft shadow
+  - Tag chips below search bar, small and balanced
+  VISUAL FLOW:
+  - Continuous background (nav → hero same color, no break)
+  - Warm paper tone, no bright whites
+  - Consistent spacing 12-16px between elements
+  - Scholarly, nostalgic, premium vibe
+
+- Rebuilt HEADER (header.tsx):
+  - Removed `paper-surface border-b border-border` (was creating the hard dividing line + different bg).
+  - Changed to `bg-background` only — continuous with hero below.
+  - Logo: w-7 h-7 → w-9 h-9 rounded-full ring-1 (large, clear, circular per spec).
+  - Brand text: text-[15px] → text-[18px] (larger).
+  - Tagline: text-[7px] → text-[9px] italic (softer but readable).
+  - All icons: strokeWidth 1.75 → 1.5 (thin, warm).
+  - Padding: px-4 py-2 → px-5 pt-3 pb-2 (16-20px per spec).
+  - Avatar: w-7 h-7 → w-8 h-8 with ring-1 (subtle border).
+
+- Rebuilt HERO (hero.tsx) — complete restructure:
+  - OLD: full-bleed background image with text overlaid on top.
+  - NEW: Illustration positioned absolutely on the RIGHT (w-[55%] of container), with a left-to-right mask gradient so it fades into the background on the left side. Text on LEFT in its own column with max-w-[60%], no overlap with illustration.
+  - Headline: 26px → 30px (large, per spec).
+  - Subtext: 12px → 13px with max-w-[32ch] (breathing space).
+  - Search bar: was full-width → now centered with `width: calc(100% - 80px), maxWidth: 380px` (310px on iPhone 14 = 79% screen, centered with 40px margins each side). Compact, soft shadow.
+  - Search bar icons: w-4 → w-3.5, strokeWidth 1.75 → 1.5 (thin).
+  - Search bar text: text-[13px] → text-[12px] (compact).
+  - Tag chips: now embedded INSIDE hero section (below search bar), not a separate section. Wrapped in px-5 pt-1 pb-6 container.
+  - Removed full-bleed illustration approach. Removed `-mt-10` overlap (search no longer overlaps hero — per spec it sits below, compact and centered).
+
+- Updated THEME TOGGLE: w-8 → w-9, strokeWidth 1.75 → 1.5 (thin, warm, matches header).
+
+- Updated PAGE (page.tsx): Hero now self-contains illustration + text + search + tags. Removed separate FloatingSearchBar and TrendingTagRow imports (now inside Hero). Removed the `-mt-10 relative z-10` overlap wrapper. All other sections (WotD, Categories, Library) unchanged.
+
+- Lint: clean (0 errors, 0 warnings).
+- DOM verification: search bar is 310px on 390px screen (79% width, centered with 40px margins each side). Tag row is horizontally scrollable (scrollWidth 395 > clientWidth 350). All per spec.
+
+- VLM verification — DARK MODE: 9/10. All 5 checks PASS:
+  ✅ Nav bar background continuous with hero (no dividing line).
+  ✅ Illustration on right, text on left (not overlaid).
+  ✅ Search bar compact and centered.
+  ✅ Logo reasonably large.
+  ✅ Tag chips below search.
+- VLM verification — LIGHT MODE: 8/10. All 5 checks PASS (VLM initially said search "full-width" but focused follow-up confirmed it's "centered with visible margins on both left and right sides").
+- Runtime: 0 errors, 0 console warnings.
+
+Stage Summary:
+- ALL requirements from the Design Instruction Map are now implemented:
+  * Nav bar: continuous bg, no divider, large logo, thin-stroke icons, 16-20px padding.
+  * Hero: illustration on RIGHT (masked fade), text on LEFT (no overlay), large serif headline, compact centered search bar, tag chips below.
+  * Visual flow: continuous background, warm paper tone, consistent spacing.
+- Both light and dark modes verified by VLM (9/10 dark, 8/10 light — both passing all 5 critical checks).
+- The "Liminality" tag appearing "cut off" is intentional horizontal scroll behavior (scrollWidth > clientWidth), not a layout bug.
+- Search bar is 79% screen width centered (310px on 390px), matching spec's "compact, max-width 420-480px" requirement on mobile.

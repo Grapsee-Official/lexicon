@@ -17,12 +17,7 @@ export function TrendingTagRow({
   const openWord = useAppStore((s) => s.openWord);
 
   return (
-    <div
-      className={cn(
-        "flex gap-2 overflow-x-auto no-scrollbar -mx-5 px-5",
-        className
-      )}
-    >
+    <div className={cn("flex gap-2 overflow-x-auto no-scrollbar", className)}>
       {tags.map((t) => (
         <button
           key={t.label}
@@ -41,7 +36,7 @@ export function TrendingTagRow({
         onClick={() => haptic("light")}
         className="shrink-0 w-7 h-7 grid place-items-center rounded-full bg-card border border-border text-foreground/50 active:scale-95 transition-transform"
       >
-        <LayoutGrid className="w-3.5 h-3.5" strokeWidth={1.75} />
+        <LayoutGrid className="w-3.5 h-3.5" strokeWidth={1.5} />
       </button>
     </div>
   );
