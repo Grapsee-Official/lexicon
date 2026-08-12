@@ -285,3 +285,39 @@ Stage Summary:
 - Both light and dark modes verified by VLM (9/10 dark, 8/10 light — both passing all 5 critical checks).
 - The "Liminality" tag appearing "cut off" is intentional horizontal scroll behavior (scrollWidth > clientWidth), not a layout bug.
 - Search bar is 79% screen width centered (310px on 390px), matching spec's "compact, max-width 420-480px" requirement on mobile.
+
+---
+Task ID: COMPOSITION-FIX-1
+Agent: Z.ai Code (main)
+Task: User provided new reference image (IMG_20260812_083835.png) and firm feedback: "Stop redesigning it. Study the reference and reproduce the spatial composition." The problem was not aesthetic — it was structural. I was redesigning instead of reproducing.
+
+Work Log:
+- Analyzed the new reference image with VLM, asking ONLY about spatial composition (not colors/fonts/mood).
+- Extracted the structural truth — 4 zones stacked vertically:
+  * Zone 1: Navigation (NO bottom border, seamless into hero)
+  * Zone 2: Hero (full-width watercolour background, text in LEFT ~40%, illustration visible center-right ~60%)
+  * Zone 3: Search bar (OVERLAPS the bottom edge of hero — NOT below it; ~85% width centered)
+  * Zone 4: Tag chips (below search, left-aligned, own row)
+- Realized my previous build had the composition WRONG in 3 ways:
+  1. Illustration was on RIGHT side only (should be full-width background)
+  2. Search bar was BELOW hero in its own zone (should OVERLAP hero bottom)
+  3. Search bar was 79% width (overcorrected from earlier feedback — reference shows ~85-90%)
+- Rebuilt hero.tsx to reproduce the reference composition EXACTLY:
+  * Hero zone: relative w-full h-[300px] overflow-hidden with full-bleed illustration
+  * Left gradient scrim: linear-gradient(to right, background 0%-35%, transparent 70%) so text is readable on left, illustration visible on right
+  * Text: LEFT zone, w-[45%], centered vertically, px-5
+  * Search bar: -mt-8 z-10 (NEGATIVE MARGIN = overlaps hero bottom), max-w-[440px] centered, px-5 wrapper
+  * Tag chips: px-5 pt-3 pb-6, below search in own row
+- Lint: clean. Runtime: 0 errors.
+- VLM verification — all 4 structural questions answered YES:
+  ✅ Search bar OVERLAPS bottom of hero illustration (in both reference and my build)
+  ✅ Illustration visible as full-width background (in both)
+  ✅ Text on LEFT (in both)
+  ✅ Navigation flows seamlessly into hero (no dividing line, in both)
+- Verified in both light and dark mode.
+
+Stage Summary:
+- The SPATIAL COMPOSITION now matches the reference: Nav → (seamless) → Hero (full-width illustration + left text) → Search (overlapping hero bottom) → Tags.
+- I stopped redesigning and reproduced the structure shown in the reference.
+- This was the core issue — not aesthetics, but element relationships.
+- Next sections (Word of the Day, Categories, Library) remain unchanged and can be addressed in a future round once the user confirms Nav+Hero composition is locked.
