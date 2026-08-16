@@ -1286,3 +1286,28 @@
     mask-image: none !important;
   }
 }
+
+/* ============================================================
+   POSITION FIX — FINAL
+   Per reference comparison: picture must sit LOWER so there's
+   breathing room between headline and picture top.
+   Reference: headline at ~18% of hero, picture top at ~25-28%.
+   ============================================================ */
+
+@media (max-width: 430px) {
+  .lexora-art {
+    top: 120px !important;
+  }
+}
+
+@media (max-width: 375px) {
+  .lexora-art {
+    top: 115px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .lexora-art {
+    top: 110px !important;
+  }
+}
