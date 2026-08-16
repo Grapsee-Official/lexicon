@@ -1309,3 +1309,116 @@
     top: 36px !important;
   }
 }
+
+/* ============================================================
+   FINAL FIX — Addresses all remaining discrepancies
+   ============================================================ */
+
+@media (max-width: 430px) {
+  /* 1. Nav icons — even thinner, more delicate */
+  .lexora-nav .lexora-icon-button svg,
+  .lexora-notification svg,
+  .lexora-search-shell svg,
+  .lexora-search-actions button svg,
+  .lexora-chip--grid svg {
+    stroke-width: 0.75 !important;
+  }
+
+  /* 2. Headline — regular weight, not medium */
+  .lexora-copy h1 {
+    font-weight: 400 !important;
+  }
+
+  /* 3. "Words" color — desaturated sage, not harsh forest green */
+  .lexora-copy h1 span {
+    color: #7A8B6E !important;
+  }
+
+  /* 4. Leaf icon — match desaturated sage + correct size */
+  .lexora-leaf {
+    color: #8A9A7B !important;
+    width: 26px !important;
+    height: 26px !important;
+  }
+
+  /* 5. Paragraph — reduce max-width so text doesn't crash into artwork */
+  .lexora-copy p {
+    max-width: calc(100vw - 140px) !important;
+    width: 250px !important;
+    padding-right: 10px !important;
+  }
+
+  /* 6. Chips — reduce width so all 5 fit in 390px viewport */
+  .lexora-chip {
+    height: 30px !important;
+    padding: 0 11px !important;
+    font-size: 11px !important;
+  }
+
+  .lexora-popular {
+    gap: 5px !important;
+  }
+
+  .lexora-chip--grid {
+    width: 30px !important;
+    min-width: 30px !important;
+  }
+
+  .lexora-chip--grid svg {
+    width: 13px !important;
+    height: 13px !important;
+  }
+
+  /* 7. Artwork — smooth rendering, soften hard transparent edges */
+  .lexora-art img {
+    image-rendering: auto !important;
+    -webkit-font-smoothing: antialiased !important;
+  }
+}
+
+/* ============================================================
+   FIX 2 — Icon strokes fixed via TSX props (0.8).
+   Adjust headline weight + Words color + leaf size.
+   ============================================================ */
+
+@media (max-width: 430px) {
+  /* Headline — reference is bold serif (600), not ultra-heavy 700+ nor too light 400 */
+  .lexora-copy h1 {
+    font-weight: 600 !important;
+  }
+
+  /* "Words" — more desaturated sage */
+  .lexora-copy h1 span {
+    color: #8FA392 !important;
+  }
+
+  /* Leaf — bigger so 3-leaf detail is visible */
+  .lexora-leaf {
+    width: 30px !important;
+    height: 30px !important;
+    color: #8FA392 !important;
+  }
+}
+
+/* ============================================================
+   FIX 3 — Paragraph padding: prevent text collision with artwork
+   ============================================================ */
+
+@media (max-width: 430px) {
+  .lexora-copy p {
+    max-width: calc(100vw - 160px) !important;
+    width: 230px !important;
+    padding-right: 20px !important;
+    margin-top: 18px !important;
+  }
+}
+
+/* ============================================================
+   FIX 4 — Headline weight: 500 (medium, not too bold not too light)
+   ============================================================ */
+
+@media (max-width: 430px) {
+  .lexora-copy h1 {
+    font-weight: 500 !important;
+  }
+}

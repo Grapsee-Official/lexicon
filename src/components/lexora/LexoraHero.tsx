@@ -35,7 +35,7 @@ export default function LexoraHero() {
          ========================================================= */}
       <header className="lexora-nav">
         <button className="lexora-icon-button" aria-label="Open menu">
-          <Menu size={26} strokeWidth={1.6} />
+          <Menu size={26} strokeWidth={0.8} />
         </button>
 
         <div className="lexora-brand">
@@ -61,9 +61,9 @@ export default function LexoraHero() {
             aria-label="Toggle appearance"
           >
             {darkMode ? (
-              <Moon size={24} strokeWidth={1.6} />
+              <Moon size={24} strokeWidth={0.8} />
             ) : (
-              <Sun size={24} strokeWidth={1.6} />
+              <Sun size={24} strokeWidth={0.8} />
             )}
           </button>
 
@@ -71,7 +71,7 @@ export default function LexoraHero() {
             className="lexora-icon-button lexora-notification"
             aria-label="Notifications"
           >
-            <Bell size={24} strokeWidth={1.6} />
+            <Bell size={24} strokeWidth={0.8} />
             <span className="lexora-notification-dot" />
           </button>
 
@@ -108,43 +108,75 @@ export default function LexoraHero() {
                   viewBox="0 0 40 40"
                   aria-hidden="true"
                 >
-                  {/* Delicate 3-leaf botanical sprig.
-                      Uses <ellipse>/<line> (not <path>) so it isn't hidden
-                      by the Pass 03B rule `.lexora-leaf path { display: none }`. */}
+                  {/* Delicate 3-leaf botanical sprig with central stem,
+                      two side leaves, and a top leaf. Detailed oval leaves. */}
                   <line
                     x1="20"
                     y1="36"
                     x2="20"
-                    y2="6"
+                    y2="4"
                     stroke="currentColor"
-                    strokeWidth="1.1"
+                    strokeWidth="0.8"
                     strokeLinecap="round"
                   />
+                  {/* Left leaf - larger, angled */}
                   <ellipse
-                    cx="12"
-                    cy="23"
-                    rx="7"
-                    ry="3.4"
+                    cx="11"
+                    cy="22"
+                    rx="8"
+                    ry="3.2"
                     fill="currentColor"
-                    opacity="0.82"
-                    transform="rotate(-32 12 23)"
+                    opacity="0.85"
+                    transform="rotate(-35 11 22)"
                   />
+                  {/* Vein on left leaf */}
+                  <line
+                    x1="5.5"
+                    y1="24.5"
+                    x2="16.5"
+                    y2="19.5"
+                    stroke="currentColor"
+                    strokeWidth="0.4"
+                    opacity="0.5"
+                  />
+                  {/* Right leaf - larger, angled */}
                   <ellipse
-                    cx="28"
-                    cy="16"
-                    rx="7"
-                    ry="3.4"
+                    cx="29"
+                    cy="15"
+                    rx="8"
+                    ry="3.2"
                     fill="currentColor"
-                    opacity="0.82"
-                    transform="rotate(32 28 16)"
+                    opacity="0.85"
+                    transform="rotate(35 29 15)"
                   />
+                  {/* Vein on right leaf */}
+                  <line
+                    x1="23.5"
+                    y1="12.5"
+                    x2="34.5"
+                    y2="17.5"
+                    stroke="currentColor"
+                    strokeWidth="0.4"
+                    opacity="0.5"
+                  />
+                  {/* Top leaf - smaller, centered */}
                   <ellipse
                     cx="20"
-                    cy="8"
-                    rx="4.2"
-                    ry="2.6"
+                    cy="7"
+                    rx="4.5"
+                    ry="2.8"
                     fill="currentColor"
                     opacity="0.9"
+                  />
+                  {/* Vein on top leaf */}
+                  <line
+                    x1="20"
+                    y1="5"
+                    x2="20"
+                    y2="9"
+                    stroke="currentColor"
+                    strokeWidth="0.4"
+                    opacity="0.5"
                   />
                 </svg>
               </span>
@@ -162,7 +194,7 @@ export default function LexoraHero() {
             <Search
               className="lexora-search-icon"
               size={23}
-              strokeWidth={1.7}
+              strokeWidth={0.8}
             />
 
             <input
@@ -173,11 +205,11 @@ export default function LexoraHero() {
 
             <div className="lexora-search-actions">
               <button aria-label="Search with camera">
-                <Camera size={21} strokeWidth={1.6} />
+                <Camera size={21} strokeWidth={0.8} />
               </button>
 
               <button aria-label="Search with microphone">
-                <Mic size={21} strokeWidth={1.6} />
+                <Mic size={21} strokeWidth={0.8} />
               </button>
             </div>
           </div>
@@ -197,7 +229,7 @@ export default function LexoraHero() {
               className="lexora-chip lexora-chip--grid"
               aria-label="More searches"
             >
-              <Grid2x2 size={17} strokeWidth={1.5} />
+              <Grid2x2 size={15} strokeWidth={0.8} />
             </button>
           </div>
         </div>
