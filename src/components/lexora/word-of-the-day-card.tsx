@@ -48,17 +48,16 @@ export function WordOfTheDayCard({
         className="absolute inset-0 hidden h-full w-full object-cover dark:block"
       />
 
-      {/* WIDE gradient overlay — fades from solid primary on the left to
-          transparent on the right. This creates the smooth transition
-          between the left text panel and the visible artwork on the right. */}
+      {/* WIDE gradient overlay — fades from solid #677554 on the left to
+          transparent on the right. Smooth transition, no hard split. */}
       <div
-        className="absolute inset-0 bg-gradient-to-r from-primary via-primary/85 to-primary/30 dark:from-background dark:via-background/80 dark:to-background/20"
+        className="absolute inset-0 bg-gradient-to-r from-[#677554] via-[#677554]/85 to-[#677554]/30 dark:from-background dark:via-background/80 dark:to-background/20"
         aria-hidden
       />
       {/* Secondary soft overlay on the right side so dark text stays
           readable over the artwork. */}
       <div
-        className="absolute inset-0 bg-gradient-to-br from-transparent via-primary/20 to-primary/40 dark:from-transparent dark:via-background/20 dark:to-background/40"
+        className="absolute inset-0 bg-gradient-to-br from-transparent via-[#677554]/20 to-[#677554]/40 dark:from-transparent dark:via-background/20 dark:to-background/40"
         aria-hidden
       />
 

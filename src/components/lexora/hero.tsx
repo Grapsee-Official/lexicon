@@ -6,12 +6,17 @@ import { cn } from "@/lib/utils";
 
 /**
  * Hero — Independent hero section.
- * Pure Tailwind. No CSS file. No !important. No absolute positioning.
+ * Pure Tailwind. No CSS file. No !important.
  *
- * Layout: CSS Grid with 2 columns — text on left, artwork on right.
- * The artwork SVG has genuine organic transparent edges AND a CSS
- * mask-image gradient that fades the left/bottom edges seamlessly
- * into the background color (applied via inline style, not a CSS file).
+ * Exact brand colors:
+ *   - Headline text: #677554 (brand green)
+ *   - Leaf icon:    #677554
+ *   - Background:    #FAF3E9 (warm cream)
+ *
+ * The hero artwork is dramatically scaled (scale-150) and translated so
+ * it bleeds out of its grid cell, creating an immersive countryside
+ * environment rather than a shrunken sticker. A radial-gradient mask
+ * fades the edges seamlessly into the #FAF3E9 background.
  */
 export function Hero({
   className,
@@ -22,21 +27,22 @@ export function Hero({
   const openSearch = useAppStore((s) => s.openSearch);
 
   return (
-    <section className={cn("w-full", className)}>
+    <section className={cn("relative w-full overflow-hidden", className)}>
       {/* 2-column grid: text (left) | artwork (right).
-          Natural document flow — no absolute positioning. */}
-      <div className="grid grid-cols-[1fr_auto] items-start gap-4 px-4 pt-4">
-        {/* LEFT: Headline + paragraph */}
-        <div className="flex flex-col gap-2 pt-6">
-          <h1 className="font-display text-[34px] font-medium leading-[1.05] tracking-tight text-foreground">
+          Natural document flow — no absolute positioning for layout. */}
+      <div className="relative grid grid-cols-[1fr_auto] items-start gap-4 px-4 pt-4">
+        {/* LEFT: Headline + paragraph.
+            Exact brand green #677554 for all headline text + leaf. */}
+        <div className="relative z-10 flex flex-col gap-2 pt-6">
+          <h1 className="font-display text-[34px] font-medium leading-[1.05] tracking-tight text-[#677554]">
             Discover the
             <br />
             World of{" "}
-            <span className="inline-flex items-center gap-1 text-[#8FA392]">
+            <span className="inline-flex items-center gap-1 text-[#677554]">
               Words
-              {/* 3-leaf botanical sprig — olive green */}
+              {/* 3-leaf botanical sprig — brand green #677554 */}
               <svg
-                className="h-5 w-5 text-[#A58A61]"
+                className="h-5 w-5 text-[#677554]"
                 viewBox="0 0 40 40"
                 aria-hidden="true"
               >
@@ -112,9 +118,11 @@ export function Hero({
           </p>
         </div>
 
-        {/* RIGHT: Artwork — SVG with genuine transparent edges PLUS
-            a CSS mask-image gradient that fades the left edge into the
-            background. Applied via inline style (not a CSS file). */}
+        {/* RIGHT: Artwork — dramatically scaled + translated to bleed.
+            This creates an immersive countryside environment, not a sticker.
+            Uses scale-150 + negative translate so the landscape expands
+            beyond its grid cell. Radial-gradient mask fades edges into
+            the #FAF3E9 background. */}
         <div
           className="flex justify-end pt-2"
           onClick={() => {
@@ -127,14 +135,18 @@ export function Hero({
             alt=""
             aria-hidden
             draggable={false}
-            className="h-[260px] w-auto max-w-[170px] object-contain"
+            className="h-[280px] w-auto max-w-[220px] object-contain"
             style={{
-              // Soft radial fade on left + bottom edges so artwork blends
-              // seamlessly into the cream background. No hard edges.
+              // Dramatically scale up + translate so the landscape bleeds
+              // out of its grid cell — immersive countryside environment.
+              transform: "scale(1.5) translate(-32px, -16px)",
+              transformOrigin: "center right",
+              // Radial-gradient mask: fades left + bottom edges into #FAF3E9
+              // so the artwork blends seamlessly into the warm cream background.
               WebkitMaskImage:
-                "radial-gradient(ellipse 100% 100% at 75% 40%, #000 45%, rgba(0,0,0,0.85) 65%, rgba(0,0,0,0.4) 85%, transparent 100%)",
+                "radial-gradient(ellipse 100% 100% at 65% 35%, #000 40%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,0.3) 82%, transparent 100%)",
               maskImage:
-                "radial-gradient(ellipse 100% 100% at 75% 40%, #000 45%, rgba(0,0,0,0.85) 65%, rgba(0,0,0,0.4) 85%, transparent 100%)",
+                "radial-gradient(ellipse 100% 100% at 65% 35%, #000 40%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,0.3) 82%, transparent 100%)",
             }}
           />
         </div>

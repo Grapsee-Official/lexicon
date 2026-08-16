@@ -55,10 +55,10 @@
 :root {
   --radius: 0.75rem; /* 12dp base card radius per spec */
 
-  /* Light palette — exact spec hex */
-  --primary: #657D5A;            /* sage / botanical */
+  /* Light palette — exact brand hex codes */
+  --primary: #677554;            /* brand green */
   --deep: #31462F;               /* forest */
-  --background: #F3EBDD;         /* aged paper */
+  --background: #FAF3E9;         /* warm cream */
   --foreground: #31462F;         /* deep forest text */
   --secondary: #7C9297;          /* watercolour sky */
   --accent: #C98267;             /* terracotta */
