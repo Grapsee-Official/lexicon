@@ -7,12 +7,9 @@ import { ThemeToggle } from "@/components/lexora/theme-toggle";
 import { cn } from "@/lib/utils";
 
 /**
- * Lexora navigation bar — per Design Instruction Map:
- * - Same background as hero (NO dividing line, NO paper-surface, NO border-b)
- * - Background flows continuously into hero below
- * - Logo LARGE and clear; tagline smaller and softer
- * - Icons: thin stroke, warm tone
- * - 16–20px padding top/sides
+ * LexoraHeader — Independent navigation component.
+ * Pure Tailwind. No CSS file. No !important.
+ * Transparent background so nav flows seamlessly into the hero below.
  */
 export function LexoraHeader({ className }: { className?: string }) {
   const haptic = useHaptics();
@@ -20,60 +17,60 @@ export function LexoraHeader({ className }: { className?: string }) {
   return (
     <header
       className={cn(
-        "sticky top-0 z-30 w-full pt-safe bg-background",
+        "sticky top-0 z-30 w-full pt-safe",
         className
       )}
     >
-      <div className="px-5 pt-3 pb-2 flex items-center gap-3">
-        {/* LEFT: hamburger + logo + brand wordmark */}
+      <div className="flex items-center gap-3 px-4 pt-3 pb-2">
+        {/* LEFT: hamburger */}
         <button
           aria-label="Open menu"
           onClick={() => haptic("light")}
-          className="w-9 h-9 grid place-items-center rounded-full text-foreground/80 active:scale-95 transition-transform shrink-0"
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-foreground/80 transition-transform active:scale-95"
         >
-          <Menu className="w-[19px] h-[19px]" strokeWidth={1.5} />
+          <Menu className="h-[18px] w-[18px]" strokeWidth={0.8} />
         </button>
 
+        {/* Brand lockup: SVG mark + wordmark + tagline */}
         <Link
           href="/"
           onClick={() => haptic("light")}
-          className="flex items-center gap-2 mr-auto min-w-0"
+          className="mr-auto flex min-w-0 items-center gap-2"
         >
-          {/* Circular logo icon — large, clear presence */}
           <img
-            src="/icon-192.png"
+            src="/assets/lexora-mark.svg"
             alt="Lexora"
-            className="w-9 h-9 rounded-full object-cover shrink-0 ring-1 ring-border"
+            className="h-10 w-10 shrink-0"
           />
-          <div className="flex flex-col items-start leading-none min-w-0">
-            <span className="font-display text-[18px] tracking-tight text-foreground leading-none">
+          <div className="flex min-w-0 flex-col items-start leading-none">
+            <span className="font-display text-[20px] leading-none tracking-tight text-foreground">
               Lexora
             </span>
-            <span className="font-body text-[9px] tracking-[0.12em] uppercase text-muted-foreground mt-1 italic">
+            <span className="mt-1 font-body text-[8px] font-normal tracking-[0.08em] text-muted-foreground">
               Words. Wisdom. Worlds.
             </span>
           </div>
         </Link>
 
-        {/* RIGHT: theme + bell + avatar — thin stroke, warm tone */}
+        {/* RIGHT: theme toggle + bell + avatar */}
         <ThemeToggle />
         <button
           aria-label="Notifications"
           onClick={() => haptic("light")}
-          className="relative w-9 h-9 grid place-items-center rounded-full text-foreground/80 active:scale-95 transition-transform shrink-0"
+          className="relative grid h-9 w-9 shrink-0 place-items-center rounded-full text-foreground/80 transition-transform active:scale-95"
         >
-          <Bell className="w-[19px] h-[19px]" strokeWidth={1.5} />
-          <span className="absolute top-2 right-2.5 w-1.5 h-1.5 rounded-full bg-accent" />
+          <Bell className="h-[18px] w-[18px]" strokeWidth={0.8} />
+          <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-accent" />
         </button>
         <button
           aria-label="Profile"
           onClick={() => haptic("light")}
-          className="w-8 h-8 rounded-full overflow-hidden ring-1 ring-border active:scale-95 transition-transform shrink-0"
+          className="h-8 w-8 shrink-0 overflow-hidden rounded-full ring-1 ring-border transition-transform active:scale-95"
         >
           <img
             src="/illustrations/avatar-default.png"
             alt="Profile"
-            className="w-full h-full object-cover"
+            className="h-full w-full object-cover"
           />
         </button>
       </div>

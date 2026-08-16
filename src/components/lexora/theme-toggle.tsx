@@ -6,6 +6,9 @@ import { Sun, Moon } from "lucide-react";
 import { useHaptics } from "@/hooks/use-haptics";
 import { cn } from "@/lib/utils";
 
+/**
+ * ThemeToggle — Pure Tailwind. Thin stroke icon.
+ */
 export function ThemeToggle({ className }: { className?: string }) {
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -25,18 +28,18 @@ export function ThemeToggle({ className }: { className?: string }) {
         setTheme(isDark ? "light" : "dark");
       }}
       className={cn(
-        "w-9 h-9 grid place-items-center rounded-full text-foreground/80 active:scale-95 transition-transform shrink-0",
+        "grid h-9 w-9 shrink-0 place-items-center rounded-full text-foreground/80 transition-transform active:scale-95",
         className
       )}
     >
       {mounted ? (
         isDark ? (
-          <Sun className="w-[19px] h-[19px]" strokeWidth={1.5} />
+          <Sun className="h-[18px] w-[18px]" strokeWidth={0.8} />
         ) : (
-          <Moon className="w-[19px] h-[19px]" strokeWidth={1.5} />
+          <Moon className="h-[18px] w-[18px]" strokeWidth={0.8} />
         )
       ) : (
-        <span className="w-[19px] h-[19px]" />
+        <span className="h-[18px] w-[18px]" />
       )}
     </button>
   );

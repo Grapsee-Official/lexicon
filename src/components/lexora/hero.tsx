@@ -1,23 +1,16 @@
 "use client";
 
-import { Sprout } from "lucide-react";
-import { Search, Camera, Mic } from "lucide-react";
 import { useHaptics } from "@/hooks/use-haptics";
 import { useAppStore } from "@/lib/app-store";
-import { TrendingTagRow } from "@/components/lexora/trending-tag-row";
-import { trendingTags } from "@/lib/lexora-data";
 import { cn } from "@/lib/utils";
 
 /**
- * Lexora hero — reproduces the spatial composition of the reference:
- *   Zone 1: Navigation (rendered by <LexoraHeader /> above, seamless, no border)
- *   Zone 2: Hero — full-width watercolour background, text in LEFT zone (~40%),
- *           illustration visible on the right (~60%)
- *   Zone 3: Search bar — OVERLAPS the bottom of the hero (negative margin, z-10),
- *           ~85% width centered
- *   Zone 4: Tag chips — below search in their own row, left-aligned
+ * Hero — Independent hero section.
+ * Pure Tailwind. No CSS file. No !important. No absolute positioning.
  *
- * The search bar is NOT below the hero. It sits on top of the hero's bottom edge.
+ * Layout: CSS Grid with 2 columns — text on left, artwork on right.
+ * The artwork SVG has genuine organic transparent edges that blend
+ * naturally into the background. No masking needed.
  */
 export function Hero({
   className,
@@ -28,86 +21,113 @@ export function Hero({
   const openSearch = useAppStore((s) => s.openSearch);
 
   return (
-    <section className={cn("relative w-full", className)}>
-      {/* ZONE 2: Hero — full-width watercolour background */}
-      <div className="relative w-full h-[300px] overflow-hidden">
-        {/* Full-bleed illustration */}
-        <div className="absolute inset-0">
-          <img
-            src="/illustrations/hero-light.png"
-            alt=""
-            aria-hidden
-            className="w-full h-full object-cover dark:hidden"
-          />
-          <img
-            src="/illustrations/hero-dark.png"
-            alt=""
-            aria-hidden
-            className="w-full h-full object-cover hidden dark:block"
-          />
-        </div>
-
-        {/* Left-side gradient so text is readable on the left.
-            Fades to transparent on the right so illustration is visible there. */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(to right, var(--background) 0%, var(--background) 35%, rgba(0,0,0,0) 70%)",
-          }}
-        />
-
-        {/* Text in LEFT zone — ~40% width, breathing room */}
-        <div className="relative h-full flex flex-col justify-center px-5 w-[45%]">
-          <h1 className="font-display text-[28px] leading-[1.12] font-semibold text-foreground tracking-tight">
-            Discover the World of{" "}
-            <span className="text-primary dark:text-accent inline-flex items-center gap-1.5">
+    <section className={cn("w-full", className)}>
+      {/* 2-column grid: text (left) | artwork (right).
+          Natural document flow — no absolute positioning. */}
+      <div className="grid grid-cols-[1fr_auto] items-start gap-4 px-4 pt-4">
+        {/* LEFT: Headline + paragraph */}
+        <div className="flex flex-col gap-3 pt-4">
+          <h1 className="font-display text-[40px] font-medium leading-[0.95] tracking-tight text-foreground">
+            Discover the
+            <br />
+            World of{" "}
+            <span className="inline-flex items-center gap-1 text-[#8FA392]">
               Words
-              <Sprout
-                className="w-4 h-4 text-highlight dark:text-accent"
-                strokeWidth={1.5}
-              />
+              {/* 3-leaf botanical sprig */}
+              <svg
+                className="h-6 w-6 text-[#8FA392]"
+                viewBox="0 0 40 40"
+                aria-hidden="true"
+              >
+                <line
+                  x1="20"
+                  y1="36"
+                  x2="20"
+                  y2="4"
+                  stroke="currentColor"
+                  strokeWidth="0.8"
+                  strokeLinecap="round"
+                />
+                <ellipse
+                  cx="11"
+                  cy="22"
+                  rx="8"
+                  ry="3.2"
+                  fill="currentColor"
+                  opacity="0.85"
+                  transform="rotate(-35 11 22)"
+                />
+                <line
+                  x1="5.5"
+                  y1="24.5"
+                  x2="16.5"
+                  y2="19.5"
+                  stroke="currentColor"
+                  strokeWidth="0.4"
+                  opacity="0.5"
+                />
+                <ellipse
+                  cx="29"
+                  cy="15"
+                  rx="8"
+                  ry="3.2"
+                  fill="currentColor"
+                  opacity="0.85"
+                  transform="rotate(35 29 15)"
+                />
+                <line
+                  x1="23.5"
+                  y1="12.5"
+                  x2="34.5"
+                  y2="17.5"
+                  stroke="currentColor"
+                  strokeWidth="0.4"
+                  opacity="0.5"
+                />
+                <ellipse
+                  cx="20"
+                  cy="7"
+                  rx="4.5"
+                  ry="2.8"
+                  fill="currentColor"
+                  opacity="0.9"
+                />
+                <line
+                  x1="20"
+                  y1="5"
+                  x2="20"
+                  y2="9"
+                  stroke="currentColor"
+                  strokeWidth="0.4"
+                  opacity="0.5"
+                />
+              </svg>
             </span>
           </h1>
-          <p className="mt-2 font-body text-[12px] leading-relaxed text-foreground/60">
-            A timeless dictionary crafted for curious minds.
+
+          <p className="max-w-[260px] font-body text-[13px] font-normal leading-relaxed text-foreground/60">
+            A timeless dictionary crafted for curious minds. Explore meanings,
+            origins, and stories behind every word.
           </p>
         </div>
-      </div>
 
-      {/* ZONE 3: Search bar — OVERLAPS the hero bottom (negative margin + z-10).
-          ~85% width, centered. */}
-      <div className="relative -mt-8 z-10 flex justify-center px-5">
-        <button
-          type="button"
+        {/* RIGHT: Artwork — SVG with genuine transparent edges.
+            No absolute positioning, no mask. Just an img in the grid. */}
+        <div
+          className="flex justify-end pt-2"
           onClick={() => {
             haptic("light");
             openSearch();
           }}
-          className="w-full max-w-[440px] flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-card border border-border shadow-card text-left active:scale-[0.99] transition-transform"
-          aria-label="Open search"
         >
-          <Search
-            className="w-4 h-4 text-foreground/50 shrink-0"
-            strokeWidth={1.5}
+          <img
+            src="/assets/lexora-countryside-day.svg"
+            alt=""
+            aria-hidden
+            draggable={false}
+            className="h-[280px] w-auto max-w-[180px] object-contain"
           />
-          <span className="flex-1 text-[13px] font-body text-muted-foreground/70">
-            Search for a word...
-          </span>
-          <Camera
-            className="w-4 h-4 text-foreground/40 shrink-0"
-            strokeWidth={1.5}
-          />
-          <Mic
-            className="w-4 h-4 text-foreground/40 shrink-0"
-            strokeWidth={1.5}
-          />
-        </button>
-      </div>
-
-      {/* ZONE 4: Tag chips — below search, left-aligned, own row */}
-      <div className="px-5 pt-3 pb-6">
-        <TrendingTagRow tags={trendingTags} />
+        </div>
       </div>
     </section>
   );
