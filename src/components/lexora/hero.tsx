@@ -10,18 +10,16 @@ import { cn } from "@/lib/utils";
  *
  * Exact brand colors:
  *   - Background:    #FAF3E9 (warm cream)
- *   - Surface tint:  #FBF4EA (subtle card bg)
  *   - Headline text: #677554 (brand green)
  *   - Leaf icon:     #677554
  *
- * Layout guardrails:
- *   - NO negative X-axis translation on the artwork.
- *   - Artwork anchored flush to the right margin (justify-end).
- *   - Left text container restricted to max-w-[45%] so it never collides
- *     with the right-side artwork.
- *   - Text column: z-10 relative (on top of any soft bleeds).
- *   - Image container: z-0 (behind text).
- *   - Headline scaled down (text-2xl / 24px) with tight leading.
+ * Layout:
+ *   - Text column: w-[55%] (healthy width, no harsh max-w constraints)
+ *   - Image column: w-[45%]
+ *   - z-index layering: text on top (z-10), image underneath (z-0)
+ *   - Image scaled up (scale-150) + negative X translation so its soft
+ *     radial-gradient edge bleeds BEHIND the text layer — layered, cohesive.
+ *   - Headline large (text-5xl) with leading-none for compact stacking.
  */
 export function Hero({
   className,
@@ -33,14 +31,14 @@ export function Hero({
 
   return (
     <section className={cn("relative w-full overflow-hidden bg-[#FAF3E9]", className)}>
-      {/* 2-column grid: text (left, max 45%) | artwork (right, anchored).
-          Natural document flow — no absolute positioning for layout. */}
-      <div className="relative grid grid-cols-[45%_1fr] items-start gap-2 px-4 pt-4">
+      {/* 2-column grid: text (55%) | image (45%).
+          Image bleeds behind text via z-index layering, not rigid bounds. */}
+      <div className="grid grid-cols-[55%_45%] items-start px-4 pt-4">
         {/* LEFT: Headline + paragraph.
-            z-10 so text stays on top of any soft background bleeds.
-            max-w-[45%] guarantees no collision with the right artwork. */}
-        <div className="relative z-10 flex max-w-[45%] flex-col gap-2 pt-6">
-          <h1 className="font-display text-2xl font-medium leading-tight tracking-tight text-[#677554]">
+            z-10 so text stays on top of the image bleed.
+            w-[55%] gives healthy width — no harsh max-w squishing. */}
+        <div className="relative z-10 flex w-[55%] flex-col gap-3 pt-6">
+          <h1 className="font-display text-5xl font-medium leading-none tracking-tight text-[#677554]">
             Discover the
             <br />
             World of{" "}
@@ -48,7 +46,7 @@ export function Hero({
               Words
               {/* 3-leaf botanical sprig — brand green #677554 */}
               <svg
-                className="h-4 w-4 text-[#677554]"
+                className="h-8 w-8 text-[#677554]"
                 viewBox="0 0 40 40"
                 aria-hidden="true"
               >
@@ -118,17 +116,17 @@ export function Hero({
             </span>
           </h1>
 
-          <p className="max-w-[200px] font-body text-[11px] font-normal leading-relaxed text-foreground/60">
+          <p className="w-[200px] font-body text-[13px] font-normal leading-relaxed text-foreground/60">
             A timeless dictionary crafted for curious minds. Explore meanings,
             origins, and stories behind every word.
           </p>
         </div>
 
-        {/* RIGHT: Artwork — anchored flush to the right margin.
-            z-0 so it sits behind the text column.
-            NO negative X-axis translation. Scale up with positive X to
-            push slightly toward the right edge (bleeding outward, not inward).
-            Radial-gradient mask fades left + bottom edges into #FAF3E9. */}
+        {/* RIGHT: Image container — z-0 (underneath text).
+            Image scaled up (scale-150) + negative X translation so its
+            soft radial-gradient edge bleeds BEHIND the text layer.
+            This creates a layered, cohesive environment without
+            forcing the text to wrap. */}
         <div
           className="relative z-0 flex justify-end pt-2"
           onClick={() => {
@@ -141,17 +139,17 @@ export function Hero({
             alt=""
             aria-hidden
             draggable={false}
-            className="h-[260px] w-auto max-w-[200px] object-contain"
+            className="h-[320px] w-auto max-w-[260px] object-contain"
             style={{
-              // Scale up + positive X translation (pushes RIGHT, away from text).
-              // No negative X — never drags artwork into the text column.
-              transform: "scale(1.25) translateX(16px)",
+              // Scale up + negative X so the soft edge bleeds behind the
+              // text layer (which has z-10, so text stays readable on top).
+              transform: "scale(1.5) translateX(-48px)",
               transformOrigin: "right center",
-              // Radial-gradient mask: fades left + bottom edges into #FAF3E9
+              // Radial-gradient mask: soft fade on left + bottom edges into #FAF3E9
               WebkitMaskImage:
-                "radial-gradient(ellipse 100% 100% at 70% 40%, #000 45%, rgba(0,0,0,0.8) 65%, rgba(0,0,0,0.3) 85%, transparent 100%)",
+                "radial-gradient(ellipse 100% 100% at 65% 40%, #000 40%, rgba(0,0,0,0.85) 60%, rgba(0,0,0,0.4) 80%, transparent 100%)",
               maskImage:
-                "radial-gradient(ellipse 100% 100% at 70% 40%, #000 45%, rgba(0,0,0,0.8) 65%, rgba(0,0,0,0.3) 85%, transparent 100%)",
+                "radial-gradient(ellipse 100% 100% at 65% 40%, #000 40%, rgba(0,0,0,0.85) 60%, rgba(0,0,0,0.4) 80%, transparent 100%)",
             }}
           />
         </div>
