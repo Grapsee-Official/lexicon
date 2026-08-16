@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { LexoraHeader } from "@/components/lexora/header";
-import { Hero } from "@/components/lexora/hero";
+import LexoraHero from "@/components/lexora/LexoraHero";
 import { WordOfTheDayCard } from "@/components/lexora/word-of-the-day-card";
 import { CategoryCard } from "@/components/lexora/category-card";
 import { ArticleCard } from "@/components/lexora/article-card";
@@ -30,7 +30,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen-safe flex flex-col bg-background">
-      <LexoraHeader />
+      {/* Home tab uses the self-contained LexoraHero (nav + hero + search + chips).
+          Other tabs use the slim LexoraHeader. */}
+      {activeTab === "home" ? null : <LexoraHeader />}
 
       <main className="flex-1 flex flex-col gap-4 pb-24">
         {tabMeta[activeTab] ? (
@@ -60,9 +62,8 @@ export default function Home() {
               transition={{ duration: 0.2 }}
               className="flex flex-col gap-4"
             >
-              {/* Hero now CONTAINS: illustration (right) + headline (left) +
-                  compact search bar + tag chips — all per Design Instruction Map */}
-              <Hero />
+              {/* Self-contained Nav + Hero + Search + Chips per spec */}
+              <LexoraHero />
 
               {/* Word of the Day */}
               <div className="px-5">
