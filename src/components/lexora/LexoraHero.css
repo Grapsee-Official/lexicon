@@ -1289,25 +1289,23 @@
 
 /* ============================================================
    POSITION FIX — FINAL
-   Per reference comparison: picture must sit LOWER so there's
-   breathing room between headline and picture top.
-   Reference: headline at ~18% of hero, picture top at ~25-28%.
+   Artwork moves UP (above its previous position) per user instruction.
    ============================================================ */
 
 @media (max-width: 430px) {
   .lexora-art {
-    top: 120px !important;
+    top: 40px !important;
   }
 }
 
 @media (max-width: 375px) {
   .lexora-art {
-    top: 115px !important;
+    top: 38px !important;
   }
 }
 
 @media (max-width: 360px) {
   .lexora-art {
-    top: 110px !important;
+    top: 36px !important;
   }
 }
