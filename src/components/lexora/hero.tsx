@@ -9,8 +9,9 @@ import { cn } from "@/lib/utils";
  * Pure Tailwind. No CSS file. No !important. No absolute positioning.
  *
  * Layout: CSS Grid with 2 columns — text on left, artwork on right.
- * The artwork SVG has genuine organic transparent edges that blend
- * naturally into the background. No masking needed.
+ * The artwork SVG has genuine organic transparent edges AND a CSS
+ * mask-image gradient that fades the left/bottom edges seamlessly
+ * into the background color (applied via inline style, not a CSS file).
  */
 export function Hero({
   className,
@@ -26,16 +27,16 @@ export function Hero({
           Natural document flow — no absolute positioning. */}
       <div className="grid grid-cols-[1fr_auto] items-start gap-4 px-4 pt-4">
         {/* LEFT: Headline + paragraph */}
-        <div className="flex flex-col gap-3 pt-4">
-          <h1 className="font-display text-[40px] font-medium leading-[0.95] tracking-tight text-foreground">
+        <div className="flex flex-col gap-2 pt-6">
+          <h1 className="font-display text-[34px] font-medium leading-[1.05] tracking-tight text-foreground">
             Discover the
             <br />
             World of{" "}
             <span className="inline-flex items-center gap-1 text-[#8FA392]">
               Words
-              {/* 3-leaf botanical sprig */}
+              {/* 3-leaf botanical sprig — olive green */}
               <svg
-                className="h-6 w-6 text-[#8FA392]"
+                className="h-5 w-5 text-[#A58A61]"
                 viewBox="0 0 40 40"
                 aria-hidden="true"
               >
@@ -105,14 +106,15 @@ export function Hero({
             </span>
           </h1>
 
-          <p className="max-w-[260px] font-body text-[13px] font-normal leading-relaxed text-foreground/60">
+          <p className="max-w-[250px] font-body text-[12px] font-normal leading-relaxed text-foreground/60">
             A timeless dictionary crafted for curious minds. Explore meanings,
             origins, and stories behind every word.
           </p>
         </div>
 
-        {/* RIGHT: Artwork — SVG with genuine transparent edges.
-            No absolute positioning, no mask. Just an img in the grid. */}
+        {/* RIGHT: Artwork — SVG with genuine transparent edges PLUS
+            a CSS mask-image gradient that fades the left edge into the
+            background. Applied via inline style (not a CSS file). */}
         <div
           className="flex justify-end pt-2"
           onClick={() => {
@@ -125,7 +127,15 @@ export function Hero({
             alt=""
             aria-hidden
             draggable={false}
-            className="h-[280px] w-auto max-w-[180px] object-contain"
+            className="h-[260px] w-auto max-w-[170px] object-contain"
+            style={{
+              // Soft radial fade on left + bottom edges so artwork blends
+              // seamlessly into the cream background. No hard edges.
+              WebkitMaskImage:
+                "radial-gradient(ellipse 100% 100% at 75% 40%, #000 45%, rgba(0,0,0,0.85) 65%, rgba(0,0,0,0.4) 85%, transparent 100%)",
+              maskImage:
+                "radial-gradient(ellipse 100% 100% at 75% 40%, #000 45%, rgba(0,0,0,0.85) 65%, rgba(0,0,0,0.4) 85%, transparent 100%)",
+            }}
           />
         </div>
       </div>

@@ -6,6 +6,11 @@ import { cn } from "@/lib/utils";
 import { useAppStore } from "@/lib/app-store";
 import type { WordEntry } from "@/lib/lexora-data";
 
+/**
+ * WordOfTheDayCard — Pure Tailwind. No CSS file. No !important.
+ * Smooth gradient fade between solid left panel and right image (no hard line).
+ * Light overlay on right side ensures dark text is readable over the image.
+ */
 export function WordOfTheDayCard({
   word,
   className,
@@ -23,78 +28,88 @@ export function WordOfTheDayCard({
         openWord(word);
       }}
       className={cn(
-        "relative overflow-hidden rounded-2xl shadow-card border border-border cursor-pointer active:scale-[0.99] transition-transform flex",
+        "relative flex cursor-pointer overflow-hidden rounded-2xl border border-border shadow-card transition-transform active:scale-[0.99]",
         className
       )}
     >
-      {/* Left panel: solid sage green with word info */}
-      <div className="relative w-[45%] bg-primary dark:bg-background p-4 flex flex-col justify-center gap-1 min-w-0 shrink-0 z-10">
-        <div className="flex items-center gap-1 text-highlight dark:text-accent">
-          <Leaf className="w-3 h-3 shrink-0" strokeWidth={1.75} />
-          <span className="font-body text-[9px] font-semibold tracking-[0.14em] uppercase">
-            Word of the Day
-          </span>
-        </div>
-        <div className="flex items-center gap-1 min-w-0">
-          <h3 className="font-display text-[17px] font-semibold text-primary-foreground dark:text-foreground leading-tight break-words">
-            {word.word}
-          </h3>
-          <button
-            aria-label={`Listen to ${word.word}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              haptic("light");
-            }}
-            className="shrink-0 w-6 h-6 grid place-items-center rounded-full text-primary-foreground/70 dark:text-foreground/70 active:scale-95 transition-transform"
-          >
-            <Volume2 className="w-3.5 h-3.5" strokeWidth={1.75} />
-          </button>
-        </div>
-        <p className="font-body italic text-[10px] text-primary-foreground/60 dark:text-foreground/60 break-words">
-          {word.phonetic}
-        </p>
-        <p className="font-body text-[11px] text-primary-foreground/70 dark:text-foreground/70 lowercase">
-          {word.partOfSpeech}
-        </p>
-      </div>
+      {/* Background image spans the FULL card (both panels).
+          This eliminates the hard vertical split line — the image is one
+          continuous layer behind everything. */}
+      <img
+        src="/illustrations/wotd-bg-light.png"
+        alt=""
+        aria-hidden
+        className="absolute inset-0 h-full w-full object-cover dark:hidden"
+      />
+      <img
+        src="/illustrations/wotd-bg-dark.png"
+        alt=""
+        aria-hidden
+        className="absolute inset-0 hidden h-full w-full object-cover dark:block"
+      />
 
-      {/* Right panel: watercolour image with definition overlay */}
-      <div className="relative w-[55%] min-w-0">
-        <img
-          src="/illustrations/wotd-bg-light.png"
-          alt=""
-          aria-hidden
-          className="absolute inset-0 w-full h-full object-cover dark:hidden"
-        />
-        <img
-          src="/illustrations/wotd-bg-dark.png"
-          alt=""
-          aria-hidden
-          className="absolute inset-0 w-full h-full object-cover hidden dark:block"
-        />
-        {/* Scrim so definition text stays legible over the watercolour.
-            Heavier and more uniform so text is always readable. */}
-        <div
-          className="absolute inset-0 bg-primary/85 dark:bg-background/90"
-          aria-hidden
-        />
-        <div
-          className="absolute inset-0 bg-gradient-to-br from-primary/40 via-transparent to-transparent dark:from-background/40"
-          aria-hidden
-        />
-        <div className="relative h-full flex flex-col justify-between gap-2 p-4 min-h-[140px]">
+      {/* WIDE gradient overlay — fades from solid primary on the left to
+          transparent on the right. This creates the smooth transition
+          between the left text panel and the visible artwork on the right. */}
+      <div
+        className="absolute inset-0 bg-gradient-to-r from-primary via-primary/85 to-primary/30 dark:from-background dark:via-background/80 dark:to-background/20"
+        aria-hidden
+      />
+      {/* Secondary soft overlay on the right side so dark text stays
+          readable over the artwork. */}
+      <div
+        className="absolute inset-0 bg-gradient-to-br from-transparent via-primary/20 to-primary/40 dark:from-transparent dark:via-background/20 dark:to-background/40"
+        aria-hidden
+      />
+
+      {/* Content layer — 2-column grid over the gradient background */}
+      <div className="relative grid min-h-[150px] w-full grid-cols-[45%_55%]">
+        {/* LEFT panel: word info (text readable on solid primary gradient) */}
+        <div className="flex flex-col justify-center gap-1 p-4">
+          <div className="flex items-center gap-1 text-highlight dark:text-accent">
+            <Leaf className="h-3 w-3 shrink-0" strokeWidth={1.5} />
+            <span className="font-body text-[9px] font-semibold uppercase tracking-[0.14em]">
+              Word of the Day
+            </span>
+          </div>
+          <div className="flex min-w-0 items-center gap-1">
+            <h3 className="break-words font-display text-[17px] font-semibold leading-tight text-primary-foreground dark:text-foreground">
+              {word.word}
+            </h3>
+            <button
+              aria-label={`Listen to ${word.word}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                haptic("light");
+              }}
+              className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-primary-foreground/70 transition-transform active:scale-95 dark:text-foreground/70"
+            >
+              <Volume2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+            </button>
+          </div>
+          <p className="break-words font-body text-[10px] italic text-primary-foreground/60 dark:text-foreground/60">
+            {word.phonetic}
+          </p>
+          <p className="font-body text-[11px] lowercase text-primary-foreground/70 dark:text-foreground/70">
+            {word.partOfSpeech}
+          </p>
+        </div>
+
+        {/* RIGHT panel: definition text over the artwork.
+            Dark overlay ensures text contrast. */}
+        <div className="flex min-w-0 flex-col justify-between gap-2 p-4">
           <p
-            className="font-long text-[12px] leading-relaxed text-primary-foreground dark:text-foreground line-clamp-3"
-            style={{ textShadow: "0 1px 3px rgba(0,0,0,0.5)" }}
+            className="line-clamp-3 font-long text-[12px] leading-relaxed text-white"
+            style={{ textShadow: "0 1px 4px rgba(0,0,0,0.7)" }}
           >
             {word.definitions[0]}
           </p>
           <span
-            className="self-end inline-flex items-center gap-1 text-[11px] font-body font-medium text-highlight dark:text-accent"
-            style={{ textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}
+            className="inline-flex items-center gap-1 self-end font-body text-[11px] font-medium text-highlight dark:text-accent"
+            style={{ textShadow: "0 1px 3px rgba(0,0,0,0.6)" }}
           >
             Explore more
-            <ArrowRight className="w-3 h-3" strokeWidth={2} />
+            <ArrowRight className="h-3 w-3" strokeWidth={2} />
           </span>
         </div>
       </div>
