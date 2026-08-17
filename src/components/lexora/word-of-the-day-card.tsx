@@ -8,8 +8,17 @@ import type { WordEntry } from "@/lib/lexora-data";
 
 /**
  * WordOfTheDayCard — Pure Tailwind. No CSS file. No !important.
- * Smooth gradient fade between solid left panel and right image (no hard line).
- * Light overlay on right side ensures dark text is readable over the image.
+ *
+ * STRICT 2-COLUMN SPLIT:
+ *   LEFT (40%):  solid bg-[#677554], white/cream text (word info)
+ *   RIGHT (60%): solid bg-[#FAF3E9], text-[#677554] (definition + Explore more)
+ *
+ * The landscape image is placed ONLY inside the right panel as an absolute
+ * element anchored to the bottom-right. A mask-image fades its left + top
+ * edges into the #FAF3E9 background. The image NEVER sits under the text.
+ *
+ * The transition between left and right panels is a SHARP, CLEAN LINE.
+ * No gradient blending.
  */
 export function WordOfTheDayCard({
   word,
@@ -28,85 +37,90 @@ export function WordOfTheDayCard({
         openWord(word);
       }}
       className={cn(
-        "relative flex cursor-pointer overflow-hidden rounded-2xl border border-border shadow-card transition-transform active:scale-[0.99]",
+        "grid cursor-pointer overflow-hidden rounded-2xl border border-border shadow-card grid-cols-[40%_60%] transition-transform active:scale-[0.99]",
         className
       )}
     >
-      {/* Background image spans the FULL card (both panels).
-          This eliminates the hard vertical split line — the image is one
-          continuous layer behind everything. */}
-      <img
-        src="/illustrations/wotd-bg-light.png"
-        alt=""
-        aria-hidden
-        className="absolute inset-0 h-full w-full object-cover dark:hidden"
-      />
-      <img
-        src="/illustrations/wotd-bg-dark.png"
-        alt=""
-        aria-hidden
-        className="absolute inset-0 hidden h-full w-full object-cover dark:block"
-      />
-
-      {/* WIDE gradient overlay — fades from solid #677554 on the left to
-          transparent on the right. Smooth transition, no hard split. */}
-      <div
-        className="absolute inset-0 bg-gradient-to-r from-[#677554] via-[#677554]/85 to-[#677554]/30 dark:from-background dark:via-background/80 dark:to-background/20"
-        aria-hidden
-      />
-      {/* Secondary soft overlay on the right side so dark text stays
-          readable over the artwork. */}
-      <div
-        className="absolute inset-0 bg-gradient-to-br from-transparent via-[#677554]/20 to-[#677554]/40 dark:from-transparent dark:via-background/20 dark:to-background/40"
-        aria-hidden
-      />
-
-      {/* Content layer — 2-column grid over the gradient background */}
-      <div className="relative grid min-h-[150px] w-full grid-cols-[45%_55%]">
-        {/* LEFT panel: word info (text readable on solid primary gradient) */}
-        <div className="flex flex-col justify-center gap-1 p-4">
-          <div className="flex items-center gap-1 text-highlight dark:text-accent">
-            <Leaf className="h-3 w-3 shrink-0" strokeWidth={1.5} />
-            <span className="font-body text-[9px] font-semibold uppercase tracking-[0.14em]">
-              Word of the Day
-            </span>
-          </div>
-          <div className="flex min-w-0 items-center gap-1">
-            <h3 className="break-words font-display text-[17px] font-semibold leading-tight text-primary-foreground dark:text-foreground">
-              {word.word}
-            </h3>
-            <button
-              aria-label={`Listen to ${word.word}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                haptic("light");
-              }}
-              className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-primary-foreground/70 transition-transform active:scale-95 dark:text-foreground/70"
-            >
-              <Volume2 className="h-3.5 w-3.5" strokeWidth={1.5} />
-            </button>
-          </div>
-          <p className="break-words font-body text-[10px] italic text-primary-foreground/60 dark:text-foreground/60">
-            {word.phonetic}
-          </p>
-          <p className="font-body text-[11px] lowercase text-primary-foreground/70 dark:text-foreground/70">
-            {word.partOfSpeech}
-          </p>
+      {/* ============================================================
+          LEFT PANEL (40%) — solid #677554, white/cream text
+          ============================================================ */}
+      <div className="flex flex-col justify-center gap-1 bg-[#677554] p-4">
+        <div className="flex items-center gap-1 text-[#FBF4EA]/80">
+          <Leaf className="h-3 w-3 shrink-0" strokeWidth={1.5} />
+          <span className="font-body text-[9px] font-semibold uppercase tracking-[0.14em]">
+            Word of the Day
+          </span>
         </div>
-
-        {/* RIGHT panel: definition text over the artwork.
-            Dark overlay ensures text contrast. */}
-        <div className="flex min-w-0 flex-col justify-between gap-2 p-4">
-          <p
-            className="line-clamp-3 font-long text-[12px] leading-relaxed text-white"
-            style={{ textShadow: "0 1px 4px rgba(0,0,0,0.7)" }}
+        <div className="flex min-w-0 items-center gap-1">
+          <h3 className="break-words font-display text-[17px] font-semibold leading-tight text-white">
+            {word.word}
+          </h3>
+          <button
+            aria-label={`Listen to ${word.word}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              haptic("light");
+            }}
+            className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-white/70 transition-transform active:scale-95"
           >
+            <Volume2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+          </button>
+        </div>
+        <p className="break-words font-body text-[10px] italic text-white/60">
+          {word.phonetic}
+        </p>
+        <p className="font-body text-[11px] lowercase text-white/70">
+          {word.partOfSpeech}
+        </p>
+      </div>
+
+      {/* ============================================================
+          RIGHT PANEL (60%) — solid #FAF3E9, text-[#677554]
+          Decorative image anchored bottom-right with mask fade.
+          Image NEVER sits under the text.
+          ============================================================ */}
+      <div className="relative bg-[#FAF3E9]">
+        {/* Decorative landscape image — absolute, bottom-right anchored.
+            Mask fades left + top edges into #FAF3E9 so it's purely
+            decorative and never under the text. */}
+        <img
+          src="/illustrations/wotd-bg-light.png"
+          alt=""
+          aria-hidden
+          className="pointer-events-none absolute bottom-0 right-0 h-full w-full object-cover dark:hidden"
+          style={{
+            // Fade left + top edges into #FAF3E9. Image only visible on
+            // the bottom-right, never under the text.
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent 0%, transparent 30%, black 70%, black 100%), linear-gradient(to bottom, transparent 0%, transparent 40%, black 70%, black 100%)",
+            maskImage:
+              "linear-gradient(to right, transparent 0%, transparent 30%, black 70%, black 100%), linear-gradient(to bottom, transparent 0%, transparent 40%, black 70%, black 100%)",
+            WebkitMaskComposite: "source-in",
+            maskComposite: "intersect",
+          }}
+        />
+        <img
+          src="/illustrations/wotd-bg-dark.png"
+          alt=""
+          aria-hidden
+          className="pointer-events-none absolute bottom-0 right-0 hidden h-full w-full object-cover dark:block"
+          style={{
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent 0%, transparent 30%, black 70%, black 100%), linear-gradient(to bottom, transparent 0%, transparent 40%, black 70%, black 100%)",
+            maskImage:
+              "linear-gradient(to right, transparent 0%, transparent 30%, black 70%, black 100%), linear-gradient(to bottom, transparent 0%, transparent 40%, black 70%, black 100%)",
+            WebkitMaskComposite: "source-in",
+            maskComposite: "intersect",
+          }}
+        />
+
+        {/* Text content — on top of the solid #FAF3E9 background.
+            text-[#677554] is perfectly readable against cream. */}
+        <div className="relative flex h-full min-h-[150px] flex-col justify-between gap-2 p-4">
+          <p className="line-clamp-3 font-long text-[12px] leading-relaxed text-[#677554]">
             {word.definitions[0]}
           </p>
-          <span
-            className="inline-flex items-center gap-1 self-end font-body text-[11px] font-medium text-highlight dark:text-accent"
-            style={{ textShadow: "0 1px 3px rgba(0,0,0,0.6)" }}
-          >
+          <span className="inline-flex items-center gap-1 self-end font-body text-[11px] font-medium text-[#677554]">
             Explore more
             <ArrowRight className="h-3 w-3" strokeWidth={2} />
           </span>
