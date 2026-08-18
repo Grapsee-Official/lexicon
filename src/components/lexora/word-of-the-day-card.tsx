@@ -11,15 +11,15 @@ import type { WordEntry } from "@/lib/lexora-data";
  *
  * STRICT 2-COLUMN SPLIT:
  *   LEFT (40%):  solid bg-[#677554], white/cream text (word info)
- *   RIGHT (60%): solid bg-[#FAF3E9], text-[#677554] (definition + Explore more)
+ *   RIGHT (60%): solid bg-[#FAF3E9], text-[#677554] (full definition + Explore more)
  *
- * Right panel internal layout:
- *   - relative overflow-hidden container
- *   - Text wrapper: w-[60%] relative z-10 flex flex-col justify-center h-full px-6
- *     (holds BOTH paragraph + Explore more, sits on solid #FAF3E9)
- *   - Image: absolute top-0 right-0 w-[50%] h-full z-0, object-cover
- *   - Image mask: linear-gradient(to right, transparent 0%, black 40%)
- *     (only LEFT edge fades; top/bottom/right stay flush)
+ * Right panel:
+ *   - Card container: overflow-hidden rounded-2xl
+ *   - Image container: absolute top-0 right-0 h-full w-[45%] z-0
+ *   - Image: h-full w-full object-cover object-right (fills full height, no checkered bg)
+ *   - Image mask: linear-gradient(to right, transparent 0%, black 35%) — left edge only
+ *   - Text container: relative z-10 w-[60%] flex flex-col justify-center h-full p-6
+ *   - Definition: NO line-clamp, full text renders
  */
 export function WordOfTheDayCard({
   word,
@@ -76,15 +76,48 @@ export function WordOfTheDayCard({
       </div>
 
       {/* ============================================================
-          RIGHT PANEL (60%) — relative overflow-hidden.
-          Text wrapper (z-10) on solid #FAF3E9.
-          Image (z-0) absolute top-0 right-0 w-[50%] h-full, masked.
+          RIGHT PANEL (60%) — relative overflow-hidden bg-[#FAF3E9].
+          Image fills full height (object-cover object-right).
+          Text container z-10 on left 60%, over the faded image edge.
           ============================================================ */}
       <div className="relative overflow-hidden bg-[#FAF3E9]">
-        {/* Text wrapper — sits on solid #FAF3E9, never over image.
-            w-[60%] keeps it clear of the image's w-[50%] on the right. */}
-        <div className="relative z-10 flex h-full w-[60%] flex-col justify-center gap-3 px-6">
-          <p className="line-clamp-3 font-long text-[12px] leading-relaxed text-[#677554]">
+        {/* Image container — absolute top-0 right-0 h-full w-[45%] z-0.
+            object-cover object-right stretches image top-to-bottom
+            without exposing transparent checkered backgrounds. */}
+        <div className="absolute right-0 top-0 z-0 h-full w-[45%]">
+          <img
+            src="/illustrations/wotd-bg-light.png"
+            alt=""
+            aria-hidden
+            className="h-full w-full object-cover object-right dark:hidden"
+            style={{
+              // Soft mask fade on LEFT edge only — blends into #FAF3E9.
+              // Top/bottom/right stay crisp against card borders.
+              WebkitMaskImage:
+                "linear-gradient(to right, transparent 0%, black 35%)",
+              maskImage:
+                "linear-gradient(to right, transparent 0%, black 35%)",
+            }}
+          />
+          <img
+            src="/illustrations/wotd-bg-dark.png"
+            alt=""
+            aria-hidden
+            className="hidden h-full w-full object-cover object-right dark:block"
+            style={{
+              WebkitMaskImage:
+                "linear-gradient(to right, transparent 0%, black 35%)",
+              maskImage:
+                "linear-gradient(to right, transparent 0%, black 35%)",
+            }}
+          />
+        </div>
+
+        {/* Text container — relative z-10 w-[60%] flex flex-col justify-center h-full p-6.
+            Sits over the faded left region of the image. */}
+        <div className="relative z-10 flex h-full w-[60%] flex-col justify-center gap-3 p-6">
+          {/* NO line-clamp — full definition renders without truncation */}
+          <p className="font-long text-[12px] leading-relaxed text-[#677554]">
             {word.definitions[0]}
           </p>
           <span className="inline-flex items-center gap-1 self-end font-body text-[11px] font-medium text-[#677554]">
@@ -92,35 +125,6 @@ export function WordOfTheDayCard({
             <ArrowRight className="h-3 w-3" strokeWidth={2} />
           </span>
         </div>
-
-        {/* Decorative image — absolute top-0 right-0, w-[50%] h-full.
-            object-cover so it fills top-to-bottom with no harsh cuts.
-            Mask: only LEFT edge fades into #FAF3E9. Top/bottom/right flush. */}
-        <img
-          src="/illustrations/wotd-bg-light.png"
-          alt=""
-          aria-hidden
-          className="pointer-events-none absolute right-0 top-0 z-0 h-full w-[50%] object-cover dark:hidden"
-          style={{
-            // Only the LEFT edge fades. Top/bottom/right stay crisp.
-            WebkitMaskImage:
-              "linear-gradient(to right, transparent 0%, black 40%)",
-            maskImage:
-              "linear-gradient(to right, transparent 0%, black 40%)",
-          }}
-        />
-        <img
-          src="/illustrations/wotd-bg-dark.png"
-          alt=""
-          aria-hidden
-          className="pointer-events-none absolute right-0 top-0 z-0 hidden h-full w-[50%] object-cover dark:block"
-          style={{
-            WebkitMaskImage:
-              "linear-gradient(to right, transparent 0%, black 40%)",
-            maskImage:
-              "linear-gradient(to right, transparent 0%, black 40%)",
-          }}
-        />
       </div>
     </article>
   );
