@@ -9,17 +9,13 @@ import type { WordEntry } from "@/lib/lexora-data";
 /**
  * WordOfTheDayCard — Pure Tailwind. No CSS file. No !important.
  *
- * STRICT 2-COLUMN SPLIT:
- *   LEFT (40%):  solid bg-[#677554], white/cream text (word info)
- *   RIGHT (60%): solid bg-[#FAF3E9], text-[#677554] (full definition + Explore more)
+ * STRICT 2-COLUMN SPLIT (40/60):
+ *   LEFT:  solid bg-[#677554], white/cream text. "WORD OF THE DAY" on ONE line.
+ *   RIGHT: solid bg-[#FAF3E9], text-[#677554]. Wider text area (w-[70%]).
  *
- * Right panel:
- *   - Card container: overflow-hidden rounded-2xl
- *   - Image container: absolute top-0 right-0 h-full w-[45%] z-0
- *   - Image: h-full w-full object-cover object-right (fills full height, no checkered bg)
- *   - Image mask: linear-gradient(to right, transparent 0%, black 35%) — left edge only
- *   - Text container: relative z-10 w-[60%] flex flex-col justify-center h-full p-6
- *   - Definition: NO line-clamp, full text renders
+ * Card height capped at h-[160px]. Compact py-3.5 px-4 padding.
+ * Image fills the top-right corner completely (object-cover object-top),
+ * inside absolute right-0 top-0 h-full w-[40%] z-0 — no checkered gaps.
  */
 export function WordOfTheDayCard({
   word,
@@ -38,18 +34,19 @@ export function WordOfTheDayCard({
         openWord(word);
       }}
       className={cn(
-        "grid h-[180px] cursor-pointer overflow-hidden rounded-2xl border border-border shadow-card grid-cols-[40%_60%] transition-transform active:scale-[0.99]",
+        "grid h-[160px] cursor-pointer overflow-hidden rounded-2xl border border-border shadow-card grid-cols-[40%_60%] transition-transform active:scale-[0.99]",
         className
       )}
     >
       {/* ============================================================
           LEFT PANEL (40%) — solid #677554, white/cream text.
-          Tight padding (py-4 px-5), gap-2 for compact stacking.
+          "WORD OF THE DAY" uses whitespace-nowrap to stay on ONE line.
           ============================================================ */}
-      <div className="flex flex-col justify-center gap-2 bg-[#677554] px-5 py-4">
+      <div className="flex flex-col justify-center gap-2 bg-[#677554] px-3 py-3.5">
         <div className="flex items-center gap-1 text-[#FBF4EA]/80">
-          <Leaf className="h-3 w-3 shrink-0" strokeWidth={1.5} />
-          <span className="font-body text-[9px] font-semibold uppercase tracking-[0.14em]">
+          <Leaf className="h-2.5 w-2.5 shrink-0" strokeWidth={1.5} />
+          {/* whitespace-nowrap + tighter tracking: prevents "WORD OF THE DAY" from breaking */}
+          <span className="whitespace-nowrap font-body text-[8.5px] font-semibold uppercase tracking-[0.08em]">
             Word of the Day
           </span>
         </div>
@@ -78,19 +75,19 @@ export function WordOfTheDayCard({
 
       {/* ============================================================
           RIGHT PANEL (60%) — relative overflow-hidden bg-[#FAF3E9].
-          Image fills the compact h-full height (object-cover object-right).
-          Text container z-10 on left 60%, tight padding py-4 px-5, gap-2.
+          Image fills top-right corner completely (no checkered gaps).
+          Text container widened to w-[70%] for comfortable 3-line wrap.
           ============================================================ */}
       <div className="relative overflow-hidden bg-[#FAF3E9]">
-        {/* Image container — absolute top-0 right-0 h-full w-[45%] z-0.
-            object-cover object-right fills the compact height naturally,
-            cropping into landscape orientation with no transparent gaps. */}
-        <div className="absolute right-0 top-0 z-0 h-full w-[45%] overflow-hidden">
+        {/* Image container — absolute right-0 top-0 h-full w-[40%] z-0.
+            object-cover object-top fills EVERY pixel of the top-right
+            corner. No transparent checkered gaps. */}
+        <div className="absolute right-0 top-0 z-0 h-full w-[40%] overflow-hidden">
           <img
             src="/illustrations/wotd-bg-light.png"
             alt=""
             aria-hidden
-            className="h-full w-full object-cover object-right dark:hidden"
+            className="h-full w-full object-cover object-top dark:hidden"
             style={{
               // Soft mask fade on LEFT edge only — blends into #FAF3E9.
               WebkitMaskImage:
@@ -103,7 +100,7 @@ export function WordOfTheDayCard({
             src="/illustrations/wotd-bg-dark.png"
             alt=""
             aria-hidden
-            className="hidden h-full w-full object-cover object-right dark:block"
+            className="hidden h-full w-full object-cover object-top dark:block"
             style={{
               WebkitMaskImage:
                 "linear-gradient(to right, transparent 0%, black 35%)",
@@ -113,12 +110,11 @@ export function WordOfTheDayCard({
           />
         </div>
 
-        {/* Text container — relative z-10 w-[60%] flex flex-col justify-center h-full.
-            Tight padding (py-4 px-5), gap-2 so content fits the sleeker 180px card. */}
-        <div className="relative z-10 flex h-full w-[60%] flex-col justify-center gap-2 px-5 py-4">
-          {/* NO line-clamp — full definition renders without truncation.
-              Compact leading so it sits on 2-3 wider lines, not 6. */}
-          <p className="font-long text-[12px] leading-snug text-[#677554]">
+        {/* Text container — relative z-10 w-[70%] flex flex-col justify-center h-full.
+            Widened from 60% to 70% so definition sits on 3 wider lines. */}
+        <div className="relative z-10 flex h-full w-[70%] flex-col justify-center gap-2 px-4 py-3.5">
+          {/* NO line-clamp — full definition renders. text-sm for wider lines. */}
+          <p className="font-long text-[13px] leading-snug text-[#677554]">
             {word.definitions[0]}
           </p>
           <span className="inline-flex items-center gap-1 self-end font-body text-[11px] font-medium text-[#677554]">
