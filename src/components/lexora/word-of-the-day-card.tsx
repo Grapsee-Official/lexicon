@@ -87,7 +87,7 @@ export function WordOfTheDayCard({
             src="/illustrations/wotd-bg-light.png"
             alt=""
             aria-hidden
-            className="h-full w-full object-cover object-center dark:hidden"
+            className="h-full w-full object-cover object-right dark:hidden"
             style={{
               // Soft mask fade on LEFT edge only — blends into #FAF3E9.
               WebkitMaskImage:
@@ -100,7 +100,7 @@ export function WordOfTheDayCard({
             src="/illustrations/wotd-bg-dark.png"
             alt=""
             aria-hidden
-            className="hidden h-full w-full object-cover object-center dark:block"
+            className="hidden h-full w-full object-cover object-right dark:block"
             style={{
               WebkitMaskImage:
                 "linear-gradient(to right, transparent 0%, black 35%)",
