@@ -23,7 +23,7 @@ export function ArticleCard({
     <button
       onClick={() => haptic("light")}
       className={cn(
-        "flex h-[120px] w-full shrink-0 flex-row overflow-hidden rounded-2xl bg-card text-left shadow-card transition-transform active:scale-95",
+        "flex h-[120px] w-56 shrink-0 flex-row overflow-hidden rounded-2xl bg-card text-left shadow-card transition-transform active:scale-95",
         className
       )}
     >
