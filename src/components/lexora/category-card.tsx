@@ -22,23 +22,25 @@ export function CategoryCard({
         setActiveTab("dictionary");
       }}
       className={cn(
-        "shrink-0 w-20 flex flex-col items-center text-center gap-1 p-2 rounded-xl bg-card border border-border shadow-card active:scale-95 transition-transform",
+        "flex w-24 shrink-0 flex-col items-center gap-2 rounded-2xl bg-transparent p-2 transition-transform active:scale-95",
         className
       )}
     >
-      <div className="w-full aspect-[4/5] rounded-lg overflow-hidden bg-background/40">
+      {/* Seamless image — no border, no shadow, bg matches image */}
+      <div className="aspect-square w-full overflow-hidden rounded-2xl">
         <img
           src={category.illustration}
           alt={`${category.title} illustration`}
-          className="w-full h-full object-cover"
+          className="h-full w-full object-cover"
           loading="lazy"
         />
       </div>
-      <div className="flex flex-col gap-0.5 w-full items-center">
-        <h4 className="font-display text-[11px] font-semibold text-foreground leading-tight">
+      {/* Title + subtitle perfectly centered below image */}
+      <div className="flex w-full flex-col items-center gap-0.5">
+        <h4 className="font-display text-[11px] font-semibold leading-tight text-foreground">
           {category.title}
         </h4>
-        <p className="font-body text-[8px] text-muted-foreground leading-tight">
+        <p className="font-body text-[8px] leading-tight text-muted-foreground">
           {category.subtitle}
         </p>
       </div>

@@ -102,12 +102,11 @@ export default function Home() {
                 </div>
               </section>
 
-              {/* Library — WITH divider line */}
+              {/* Library — no divider */}
               <section className="flex flex-col gap-2 px-4">
                 <SectionHeader
                   title="From the Library"
                   actionLabel="View all articles"
-                  divider
                 />
                 <div className="-mx-4 flex gap-2 overflow-x-auto px-4 no-scrollbar">
                   {articles.map((a, i) => (

@@ -18,31 +18,33 @@ export function ArticleCard({
     <button
       onClick={() => haptic("light")}
       className={cn(
-        "shrink-0 w-56 flex gap-2.5 p-2.5 rounded-xl bg-card border border-border shadow-card text-left active:scale-95 transition-transform",
+        "flex w-40 shrink-0 flex-col gap-2 rounded-2xl bg-card p-2.5 text-left shadow-card transition-transform active:scale-95",
         className
       )}
     >
-      <div className="w-16 h-16 rounded-lg overflow-hidden bg-background/40 shrink-0">
+      {/* Vertical image on top */}
+      <div className="aspect-[4/3] w-full overflow-hidden rounded-xl">
         <img
           src={article.thumbnail}
           alt=""
           aria-hidden
-          className="w-full h-full object-cover"
+          className="h-full w-full object-cover"
           loading="lazy"
         />
       </div>
-      <div className="flex flex-col justify-between flex-1 min-w-0 py-0.5">
-        <h4 className="font-display text-[13px] font-semibold text-foreground leading-snug line-clamp-3">
+      {/* Text content stacked below image */}
+      <div className="flex flex-col gap-1.5">
+        <h4 className="font-display text-[12px] font-semibold leading-snug text-foreground line-clamp-2">
           {article.title}
         </h4>
         <div className="flex items-center justify-between text-muted-foreground">
-          <span className="inline-flex items-center gap-1 text-[10px] font-body">
-            <Clock className="w-2.5 h-2.5" strokeWidth={1.75} />
+          <span className="inline-flex items-center gap-1 font-body text-[9px]">
+            <Clock className="h-2.5 w-2.5" strokeWidth={1.5} />
             {article.readMinutes} min read
           </span>
           <Bookmark
-            className="w-3 h-3"
-            strokeWidth={1.75}
+            className="h-3 w-3"
+            strokeWidth={1.5}
             fill={article.bookmarked ? "currentColor" : "none"}
           />
         </div>
