@@ -1,0 +1,4 @@
+# Example local.properties — copy to `local.properties` and set the path
+# to your Android SDK install. Android Studio normally generates this file
+# automatically on first project open.
+sdk.dir=/Users/yourname/Library/Android/sdk

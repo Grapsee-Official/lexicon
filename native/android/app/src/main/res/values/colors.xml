@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ===== Lexora brand palette (exact web hex) ===== -->
+
+    <!-- Light theme -->
+    <color name="lexora_primary">#677554</color>          <!-- brand green -->
+    <color name="lexora_deep">#31462F</color>             <!-- forest -->
+    <color name="lexora_background">#FAF3E9</color>       <!-- warm cream -->
+    <color name="lexora_foreground">#31462F</color>       <!-- deep forest text -->
+    <color name="lexora_secondary">#7C9297</color>        <!-- dusty blue -->
+    <color name="lexora_accent">#C98267</color>           <!-- terracotta -->
+    <color name="lexora_highlight">#A58A61</color>        <!-- old wood / gold -->
+    <color name="lexora_card">#FBF7EE</color>             <!-- lifted paper -->
+    <color name="lexora_card_surface">#FBF4EA</color>     <!-- WOTD right panel surface -->
+    <color name="lexora_muted">#E8DFCC</color>            <!-- muted parchment -->
+    <color name="lexora_muted_foreground">#6B6557</color> <!-- warm grey -->
+    <color name="lexora_primary_foreground">#F3EBDD</color>
+    <color name="lexora_border">#1A31462F</color>         <!-- 10% deep -->
+
+    <!-- Dark theme (nocturnal academia) -->
+    <color name="lexora_dark_primary">#1D2A3A</color>
+    <color name="lexora_dark_deep">#0F1622</color>
+    <color name="lexora_dark_background">#1A1F28</color>
+    <color name="lexora_dark_foreground">#F0D89A</color>
+    <color name="lexora_dark_secondary">#334A5E</color>
+    <color name="lexora_dark_accent">#D4A45A</color>
+    <color name="lexora_dark_highlight">#F0D89A</color>
+    <color name="lexora_dark_card">#232A38</color>
+    <color name="lexora_dark_muted">#2B3344</color>
+    <color name="lexora_dark_muted_foreground">#A89F8A</color>
+    <color name="lexora_dark_border">#26F0D89A</color>    <!-- 15% gold -->
+
+    <!-- White / surface helpers -->
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+</resources>

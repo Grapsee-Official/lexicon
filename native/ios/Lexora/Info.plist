@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>$(DEVELOPMENT_LANGUAGE)</string>
+
+    <key>CFBundleDisplayName</key>
+    <string>Lexora</string>
+
+    <key>CFBundleExecutable</key>
+    <string>$(EXECUTABLE_NAME)</string>
+
+    <key>CFBundleIdentifier</key>
+    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+
+    <key>CFBundleName</key>
+    <string>$(PRODUCT_NAME)</string>
+
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.0</string>
+
+    <key>CFBundleVersion</key>
+    <string>1</string>
+
+    <key>LSRequiresIPhoneOS</key>
+    <true/>
+
+    <!--
+      UIAppFonts — uncomment & add entries AFTER dragging the Google Fonts
+      .ttf files into Resources/. See LexoraTypography.swift for the
+      exact file names expected. Without these keys, the app falls back
+      gracefully to system serif / sans-serif.
+    -->
+    <key>UIAppFonts</key>
+    <array>
+        <!-- <string>Fraunces-Regular.ttf</string> -->
+        <!-- <string>Fraunces-Medium.ttf</string> -->
+        <!-- <string>Fraunces-SemiBold.ttf</string> -->
+        <!-- <string>Inter-Regular.ttf</string> -->
+        <!-- <string>Inter-Medium.ttf</string> -->
+        <!-- <string>Inter-SemiBold.ttf</string> -->
+        <!-- <string>Lora-Regular.ttf</string> -->
+        <!-- <string>Lora-Italic.ttf</string> -->
+    </array>
+
+    <key>UILaunchScreen</key>
+    <dict>
+        <key>UIColorName</key>
+        <string></string>
+    </dict>
+
+    <!-- Required for full-bleed edge-to-edge UI (matches web viewportFit=cover). -->
+    <key>UIRequiresFullScreen</key>
+    <false/>
+
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+    </array>
+
+    <key>UISupportedInterfaceOrientations~ipad</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationPortraitUpsideDown</string>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
+    </array>
+
+    <!-- No status-bar hiding — Lexora keeps the system bar transparent over the warm cream bg. -->
+    <key>UIStatusBarStyle</key>
+    <string>UIStatusBarStyleDefault</string>
+
+    <key>UIViewControllerBasedStatusBarAppearance</key>
+    <true/>
+
+    <!-- Disable phone auto-detection in text (mirrors web `formatDetection`). -->
+    <key>CFBundleURLTypes</key>
+    <array/>
+
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
+</dict>
+</plist>

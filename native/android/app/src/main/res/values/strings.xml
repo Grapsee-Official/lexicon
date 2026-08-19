@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Lexora</string>
+
+    <!-- Brand -->
+    <string name="brand_wordmark">Lexora</string>
+    <string name="brand_tagline">Words. Wisdom. Worlds.</string>
+
+    <!-- Hero -->
+    <string name="hero_headline_line1">Discover the</string>
+    <string name="hero_headline_line2">World of Words</string>
+    <string name="hero_paragraph">A timeless dictionary crafted for curious minds.</string>
+
+    <!-- Search bar -->
+    <string name="search_placeholder">Search for a word…</string>
+
+    <!-- Trending tags -->
+    <string name="tag_ephemeral">Ephemeral</string>
+    <string name="tag_serendipity">Serendipity</string>
+    <string name="tag_limerence">Limerence</string>
+    <string name="tag_ethereal">Ethereal</string>
+
+    <!-- WOTD -->
+    <string name="wotd_label">Word of the Day</string>
+    <string name="wotd_explore_more">Explore more</string>
+
+    <!-- Section headers -->
+    <string name="section_categories">Explore by Category</string>
+    <string name="section_library">From the Library</string>
+    <string name="action_view_all">View all</string>
+    <string name="action_view_all_articles">View all articles</string>
+
+    <!-- Bottom nav -->
+    <string name="nav_home">Home</string>
+    <string name="nav_dictionary">Dictionary</string>
+    <string name="nav_collections">Collections</string>
+    <string name="nav_more">More</string>
+    <string name="nav_search">Open search</string>
+
+    <!-- A11y labels -->
+    <string name="cd_open_menu">Open menu</string>
+    <string name="cd_notifications">Notifications</string>
+    <string name="cd_profile">Profile</string>
+    <string name="cd_theme_toggle_light">Switch to light mode</string>
+    <string name="cd_theme_toggle_dark">Switch to dark mode</string>
+    <string name="cd_more_tags">More tags</string>
+    <string name="cd_listen_to_word">Listen to word</string>
+</resources>

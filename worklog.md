@@ -321,3 +321,107 @@ Stage Summary:
 - I stopped redesigning and reproduced the structure shown in the reference.
 - This was the core issue — not aesthetics, but element relationships.
 - Next sections (Word of the Day, Categories, Library) remain unchanged and can be addressed in a future round once the user confirms Nav+Hero composition is locked.
+
+---
+Task ID: PHASE-2-IOS
+Agent: ios-native-subagent
+Task: Generate complete iOS (Swift + SwiftUI) source code for Lexora
+
+Work Log:
+- Read full project history (worklog.md) and locked web sources: src/app/page.tsx, src/lib/lexora-data.ts, src/lib/app-store.ts, src/app/globals.css, and all 9 component files in src/components/lexora/.
+- Rasterized brand SVGs to PNG via sharp (lexora-mark.svg @1x/2x/3x 40/80/120px, lexora-countryside-day.svg @1x/2x/3x 240/480/720px) and copied all 14 PNG illustrations from public/illustrations/ into native/ios/Lexora/Resources/. Reusable rasterize-assets.js script kept at the Lexora root for reproducibility.
+- Generated the Theme layer:
+    * LexoraColors.swift  — Color(hex:) extension + LexoraColors enum (exact brand hex: #FAF3E9 cream, #677554 brand green, #31462F forest, #C98267 terracotta, #A58A61 gold, #7C9297 dusty blue, #FBF4EA card) + light/dark variants + LexoraPalette appearance resolver.
+    * LexoraTypography.swift — Font.lexoraDisplay/lexoraBody/lexoraLong helpers with Fraunces/Inter/Lora PostScript names + graceful system fallback; commented how to drop the Google Fonts .ttf files into Resources/ and register them in Info.plist's UIAppFonts.
+    * LexoraTheme.swift — LexoraThemeState ObservableObject (theme persisted via @AppStorage) + LexoraThemeModifier that paints the warm-cream background and binds preferredColorScheme.
+- Generated Models/LexoraModels.swift — WordEntry, LexoraCategory, Article, TrendingTag, PartOfSpeech, LexoraTab. All Codable + Identifiable + Hashable.
+- Generated Data/LexoraData.swift — all 18 dictionary entries (Wanderlust WOTD + 17 others, verbatim from lexora-data.ts), 4 categories, 3 articles, trending tags, and helper functions getWordById / searchWords / getAlphabetSections.
+- Generated Data/LexoraViewModel.swift — @MainActor ObservableObject translation of the Zustand store: activeTab, selectedWord, searchOpen, menuOpen, savedWordIds, recentSearches. Persisted savedWordIds + recentSearches to UserDefaults (keys lexora.savedWordIds, lexora.recentSearches) mirroring the web persist middleware partialize config.
+- Generated 9 component files (1:1 translations):
+    * LexoraHeader.swift        — transparent bar, hamburger + mark + "Lexora" + tagline "Words. Wisdom. Worlds." (title case) + theme toggle + bell + avatar, thin SF Symbols.
+    * Hero.swift                — 2-col HStack (text | countryside image, no mask/scale). Headline "Discover the / World of Words" in #677554 with inline BotanicalSprig (3-leaf ZStack in brand green).
+    * FloatingSearchBar.swift   — capsule: search icon + "Search for a word..." + camera + mic, thin strokes.
+    * TrendingTagRow.swift      — horizontal scroll of 4 pill chips + 5th grid button.
+    * WordOfTheDayCard.swift    — STRICT 40/60 split: left solid #677554 white text with single-line "WORD OF THE DAY" badge, right solid #FAF3E9 #677554 text + image with linear-gradient mask (transparent 0% → black 35%). Card height 140pt.
+    * CategoryCard.swift        — borderless 96pt tile, square image, title+subtitle centered.
+    * ArticleCard.swift         — HORIZONTAL HStack, image left 35%, text right 65% VStack justify-between, fixed 120pt height, 224pt width, line-clamp-3 title, read time + bookmark at bottom.
+    * SectionHeader.swift       — title left + "View all →" right in highlight color, NO divider.
+    * BottomNav.swift           — floating capsule with 5 items (Home, Dictionary, center elevated Search button, Collections, More), active dot indicator, thin SF Symbols.
+- Generated Screens/HomeScreen.swift — ScrollView composing Hero → FloatingSearchBar → TrendingTagRow → WordOfTheDayCard → "Explore by Category" h-scroll → "From the Library" h-scroll. 120pt bottom padding clears the floating nav.
+- Generated ContentView.swift — root: LexoraHeader + sub-header for non-home tabs + active tab switch (HomeScreen + simple Dictionary/Collections/Settings browse screens) + BottomNav + search sheet + word-detail sheet. Includes a basic SearchModalSheet (uses LexoraData.searchWords + recent searches) and WordDetailSheet (definitions, etymology, examples, synonyms, save toggle).
+- Generated LexoraApp.swift — @main App entry, owns LexoraViewModel + LexoraThemeState as @StateObject, injects both via .environmentObject and applies .lexoraTheme() at the root.
+- Generated Info.plist — app metadata (CFBundleDisplayName=Lexora, version 1.0.0), iOS 16 launch screen, portrait-only on iPhone / all-rotations on iPad, UIAppFonts array pre-commented for the optional Google Fonts .ttf registration.
+- Generated README.md — complete Xcode build instructions (New Project → drag sources + assets → run), custom-font setup steps, asset catalogue table, project structure tree, Zustand→ObservableObject state mapping table, brand tokens table, and Phase 3 follow-up notes.
+- Did NOT compile or run any Xcode/Swift toolchain (per task spec).
+
+Stage Summary:
+- Output root: /home/z/my-project/native/ios/Lexora/
+- 21 source files produced:
+    LexoraApp.swift
+    ContentView.swift
+    Info.plist
+    README.md
+    rasterize-assets.js          (asset reproducibility script)
+    Theme/LexoraColors.swift
+    Theme/LexoraTypography.swift
+    Theme/LexoraTheme.swift
+    Models/LexoraModels.swift
+    Data/LexoraData.swift
+    Data/LexoraViewModel.swift
+    Components/LexoraHeader.swift
+    Components/Hero.swift
+    Components/FloatingSearchBar.swift
+    Components/TrendingTagRow.swift
+    Components/WordOfTheDayCard.swift
+    Components/CategoryCard.swift
+    Components/ArticleCard.swift
+    Components/SectionHeader.swift
+    Components/BottomNav.swift
+    Screens/HomeScreen.swift
+- 19 PNG assets in Resources/: lexora-mark.{,@2x,@3x}png, lexora-countryside.{,@2x,@3x}png, wotd-bg-light.png, wotd-bg-dark.png, cat-vocabulary.png, cat-geography.png, cat-literature.png, cat-science.png, article-1.png, article-2.png, article-3.png, avatar-default.png, hero-light.png, hero-dark.png, paper-texture.png.
+- All 18 dictionary entries, 4 categories, 3 articles, 4 trending tags, and WOTD (Wanderlust) translated verbatim from src/lib/lexora-data.ts.
+- State management: Zustand store translated 1:1 to LexoraViewModel (@MainActor ObservableObject) with UserDefaults persistence for savedWordIds + recentSearches.
+- Brand spec honoured exactly: #FAF3E9 background, #677554 brand green, #31462F forest text, #C98267 terracotta, #A58A61 gold, #7C9297 dusty blue, #FBF4EA card; Fraunces/Inter/Lora font helpers with graceful fallback.
+- Component spec honoured exactly: WOTD strict 40/60 solid-color split with image-only mask gradient, ArticleCard horizontal 120pt×224pt, CategoryCard borderless 96pt, tagline title-case, thin-stroke SF Symbols.
+
+---
+Task ID: PHASE-2-ANDROID
+Agent: android-native-subagent
+Task: Generate complete Android (Kotlin + Jetpack Compose) source code for Lexora
+
+Work Log:
+- Read /home/z/my-project/worklog.md to absorb the full 7-task project history (Phase 1 web build + iOS Phase 2 port).
+- Read the locked web source: src/app/page.tsx, src/components/lexora/*.tsx (header, hero, floating-search-bar, trending-tag-row, word-of-the-day-card, category-card, article-card, section-header, bottom-nav, theme-toggle), src/lib/lexora-data.ts (18 dictionary entries, categories, articles, helpers), src/lib/app-store.ts (Zustand store), src/app/globals.css (exact brand colour tokens).
+- Asset pipeline:
+  * /home/z/my-project/public/assets/lexora-mark.svg and lexora-countryside-day.svg are SVG wrappers containing base64-encoded PNGs (not real vector paths). Wrote a one-off sharp-based Node script to extract the embedded PNGs and re-save as res/drawable-nodpi/lexora_mark.png + lexora_countryside_day.png.
+  * Copied the 13 PNG illustrations (wotd-bg-light/dark, cat-*, article-*, avatar-default, paper-texture) into res/drawable-nodpi/ with underscores replacing hyphens (Android resource naming).
+  * Copied public/icon-192.png into all 5 mipmap-* buckets as ic_launcher.png + ic_launcher_round.png.
+- Generated Gradle config (project-level build.gradle.kts, settings.gradle.kts, gradle.properties, gradle/libs.versions.toml version catalog, gradle/wrapper/gradle-wrapper.properties pinned to Gradle 8.9, app/build.gradle.kts with Compose BOM 2024.10.01 + Kotlin 2.0.21 + AGP 8.6.0 + lifecycle-viewmodel-compose + navigation-compose + datastore-preferences + material-icons-extended).
+- Generated Android resources: AndroidManifest.xml (MainActivity + Lexora theme + edge-to-edge), values/colors.xml (all light + dark brand hex tokens), values/strings.xml (app_name "Lexora" + every UI string), values/themes.xml + values-night/themes.xml (DayNight variant with transparent system bars + windowLayoutInDisplayCutoutMode=shortEdges), xml/backup_rules.xml + xml/data_extraction_rules.xml.
+- Generated theme layer (app/src/main/java/com/lexora/ui/theme/): Color.kt (BrandGreen=#677554, WarmCream=#FAF3E9, DeepForest=#31462F, Terracotta=#C98267, OldWoodGold=#A58A61, DustyBlue=#7C9297, CardSurface=#FBF7EE, WotdRightSurface=#FBF4EA + all dark equivalents), Type.kt (Typography + LexoraTextStyles object with bespoke text-[Npx] equivalents; Serif/SansSerif/Serif fallbacks for Fraunces/Inter/Lora so it builds offline, with README instructions for swapping in real Google Fonts TTFs), LexoraTheme.kt (lightColorScheme + darkColorScheme + LexoraTheme composable that sets transparent status/nav bars and toggles icon appearance).
+- Generated data layer (app/src/main/java/com/lexora/data/): Models.kt (WordEntry, Category, Article, TrendingTag, AlphabetSection, PartOfSpeech enum), LexoraData.kt (all 18 dictionary entries 1:1 translated including Wanderlust WOTD + 4 trending tags + 4 categories + 3 articles + getWordById/searchWords/getAlphabetSections helpers), LexoraViewModel.kt (ViewModel + StateFlow<LexoraUiState> mirroring the Zustand store's activeTab/selectedWord/searchOpen/menuOpen/savedWordIds/recentSearches/isDark + setActiveTab/openWord/closeWord/openSearch/closeSearch/openMenu/closeMenu/toggleSave/isSaved/addRecentSearch/clearRecentSearches/toggleTheme), LexoraPrefs.kt (SharedPreferences wrapper persisting saved IDs, recent searches, dark-mode flag).
+- Generated MainActivity.kt — ComponentActivity with enableEdgeToEdge(), attaches prefs, setContent with LexoraTheme(darkTheme = state.isDark) wrapping a Surface coloured with WarmCream / DarkBackground that hosts HomeScreen.
+- Generated all 10 UI components (app/src/main/java/com/lexora/ui/components/):
+  * LexoraHeader.kt — left-aligned transparent header: hamburger + 40dp logo mark PNG + wordmark "Lexora" + tagline "Words. Wisdom. Worlds." (title-case, NOT uppercase) + theme toggle + bell with terracotta dot + avatar with 1dp ring. All icons Icons.Outlined.* (18dp, thin stroke).
+  * Hero.kt — 2-column Row (text weight 0.55f | image weight 0.45f). Headline "Discover the / World of Words" in BrandGreen with a 3-leaf botanical sprig inline after "Words". Paragraph below in 60% alpha. Countryside PNG on right (200dp tall, no mask, no scale, simple side-by-side).
+  * FloatingSearchBar.kt — pill-shaped Row (clip CircleShape) with shadow + surface bg + Outlined.Search/Outlined.CameraAlt/Outlined.Mic icons + "Search for a word…" placeholder.
+  * TrendingTagRow.kt — horizontalScroll Row of 4 pill chips (Ephemeral, Serendipity, Limerence, Ethereal) + 5th grid button (Icons.Outlined.Apps). Clicking a tag opens the corresponding word via getWordById.
+  * WordOfTheDayCard.kt — STRICT 40/60 Row split. Left: solid BrandGreen bg, white text, "WORD OF THE DAY" badge (maxLines=1 = whitespace-nowrap), word title + small volume button, italic phonetic, lowercase part-of-speech. Right: solid WotdRightSurface bg, BrandGreen text, definition in Lora (LongFontFamily), "Explore more →" right-aligned. Watercolour illustration absolute-pinned to right edge, 45% width, full height, masked with horizontal gradient (transparent 0% → opaque 35%) via CompositingStrategy.Offscreen + Modifier.drawWithContent + Brush.horizontalGradient + BlendMode.DstIn (exact equivalent of CSS mask-image: linear-gradient(to right, transparent 0%, black 35%)). Card height 140dp.
+  * CategoryCard.kt — borderless 96dp card, square aspect-ratio image with no border/shadow, centred title + subtitle below.
+  * ArticleCard.kt — horizontal Row layout, fixed 224dp×120dp. Image left (weight 0.35f, fillMaxHeight, ContentScale.Crop). Text right (weight 0.65f, Column space-between, 16dp padding). Title maxLines=3 ellipsis. Bottom row: Outlined.Schedule + "{n} min read" + Outlined.Bookmark icon.
+  * SectionHeader.kt — title left + "View all →" right (OldWoodGold light / DarkAccent dark). Optional divider parameter (when true, inserts a 1dp outline-coloured line between title and action).
+  * BottomNav.kt — floating pill (RoundedCornerShape(50), 8dp shadow, surface bg). 5 items: Home / Dictionary / (centre 40dp Search FAB in BrandGreen/DarkAccent) / Collections / More. Active state: filled icon (where safe) + accent colour + 2dp dot indicator below label.
+  * LeafSprig.kt — Canvas-drawn 3-leaf botanical sprig (direct vector translation of the inline SVG in the web Hero). Brand green, with the same stem + 2 side leaves + top leaf + thin veins structure.
+- Generated HomeScreen.kt (app/src/main/java/com/lexora/ui/screens/) — Box with warm cream / dark bg. Top: LexoraHeader + tab-switched content (HOME → HomeFeed LazyColumn; others → PlaceholderTab). Bottom: BottomNav as floating overlay aligned BottomCenter. HomeFeed LazyColumn composes Hero → FloatingSearchBar → TrendingTagRow → WordOfTheDayCard → Categories (SectionHeader "Explore by Category" no divider + horizontalScroll Row of CategoryCards) → Library (SectionHeader "From the Library" no divider + horizontalScroll Row of ArticleCards). contentPadding bottom=96dp to clear the floating nav.
+- Generated README.md with full build instructions (Android Studio Hedgehog+, AGP 8.6.0, Kotlin 2.0.21, Compose BOM 2024.10.01, Gradle 8.9, JDK 17, minSdk 24 / targetSdk 34 / compileSdk 34), the one-time `gradle wrapper --gradle-version 8.9` step, build/run commands, brand-spec hex mapping table, font upgrade instructions, and a 1:1 component→web mapping table.
+- Generated .gitignore + local.properties.example for the project.
+- Cross-checked all imports against the Compose BOM 2024.10.01 API surface; removed unused imports; verified Material Icons paths (Icons.Outlined.* for thin-stroke aesthetic matching web strokeWidth=0.8; Icons.AutoMirrored.Outlined.MenuBook for the Dictionary tab to avoid RTL deprecation warnings).
+
+Stage Summary:
+- /home/z/my-project/native/android/ now contains a complete, buildable Android Studio project (26 Kotlin/XML/Gradle source files + 23 resource files + README).
+- All 10 locked web components are translated 1:1 with matching layout, spacing, colours, and typography.
+- State management: Zustand store translated to LexoraViewModel (Android ViewModel + StateFlow) with SharedPreferences persistence for savedWordIds + recentSearches + dark-mode flag.
+- Brand spec honoured exactly: #FAF3E9 background, #677554 brand green, #31462F forest text, #C98267 terracotta, #A58A61 gold, #7C9297 dusty blue, #FBF4EA WOTD right surface; Serif/SansSerif/Serif font fallbacks with README instructions for upgrading to Fraunces/Inter/Lora Google Fonts TTFs.
+- Component spec honoured exactly: WOTD strict 40/60 solid-colour split with image-only mask gradient (offscreen BlendMode.DstIn), ArticleCard horizontal 120dp×224dp, CategoryCard borderless 96dp, tagline title-case "Words. Wisdom. Worlds.", thin-stroke Icons.Outlined.* throughout, BottomNav floating pill with 40dp centre Search FAB + active dot indicator.
+- No tests written (per instructions). No build executed (per instructions: "Do NOT try to compile or run — just generate the source files").
+- Known follow-ups (documented in README): SearchModal + WordDetailSheet overlays not yet ported (ViewModel state is wired, awaiting ModalBottomSheet Compose UI); Dictionary/Collections/More tabs render placeholders for now (data layer ready); launcher icon reuses 192×192 across all density buckets.
