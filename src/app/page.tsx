@@ -102,18 +102,18 @@ export default function Home() {
                 </div>
               </section>
 
-              {/* Library — no divider */}
+              {/* Library — no divider. Grid with equal-width columns. */}
               <section className="flex flex-col gap-2 px-4">
                 <SectionHeader
                   title="From the Library"
                   actionLabel="View all articles"
                 />
-                <div className="-mx-4 flex gap-2 overflow-x-auto px-4 no-scrollbar">
+                <div className="grid grid-cols-2 gap-2">
                   {articles.map((a, i) => (
                     <motion.div
                       key={a.id}
-                      initial={{ opacity: 0, x: 8 }}
-                      animate={{ opacity: 1, x: 0 }}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.04 * i, duration: 0.25 }}
                     >
                       <ArticleCard article={a} />

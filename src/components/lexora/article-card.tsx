@@ -5,6 +5,11 @@ import { useHaptics } from "@/hooks/use-haptics";
 import { cn } from "@/lib/utils";
 import type { Article } from "@/lib/lexora-data";
 
+/**
+ * ArticleCard — Horizontal layout, uniform compact sizing.
+ * Image on LEFT (w-[35%]), text on RIGHT (w-[65%]).
+ * Strict fixed height h-[120px]. All cards identical size.
+ */
 export function ArticleCard({
   article,
   className,
@@ -18,12 +23,12 @@ export function ArticleCard({
     <button
       onClick={() => haptic("light")}
       className={cn(
-        "flex w-40 shrink-0 flex-col gap-2 rounded-2xl bg-card p-2.5 text-left shadow-card transition-transform active:scale-95",
+        "flex h-[120px] w-full shrink-0 flex-row overflow-hidden rounded-2xl bg-card text-left shadow-card transition-transform active:scale-95",
         className
       )}
     >
-      {/* Vertical image on top */}
-      <div className="aspect-[4/3] w-full overflow-hidden rounded-xl">
+      {/* LEFT: Image — w-[35%] h-full, object-cover fills perfectly */}
+      <div className="h-full w-[35%] shrink-0 overflow-hidden">
         <img
           src={article.thumbnail}
           alt=""
@@ -32,9 +37,10 @@ export function ArticleCard({
           loading="lazy"
         />
       </div>
-      {/* Text content stacked below image */}
-      <div className="flex flex-col gap-1.5">
-        <h4 className="font-display text-[12px] font-semibold leading-snug text-foreground line-clamp-2">
+
+      {/* RIGHT: Text — w-[65%] flex flex-col justify-between p-4 */}
+      <div className="flex w-[65%] flex-col justify-between p-4">
+        <h4 className="font-display text-[12px] font-semibold leading-snug text-foreground line-clamp-3">
           {article.title}
         </h4>
         <div className="flex items-center justify-between text-muted-foreground">
