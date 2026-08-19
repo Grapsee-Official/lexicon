@@ -79,15 +79,15 @@ export function WordOfTheDayCard({
           Text container widened to w-[70%] for comfortable 3-line wrap.
           ============================================================ */}
       <div className="relative overflow-hidden bg-[#FAF3E9]">
-        {/* Image container — absolute right-0 top-0 h-full w-[40%] z-0.
-            object-cover object-top fills EVERY pixel of the top-right
-            corner. No transparent checkered gaps. */}
-        <div className="absolute right-0 top-0 z-0 h-full w-[40%] overflow-hidden">
+        {/* Image container — absolute top-0 bottom-0 right-0 w-[45%] h-full z-0.
+            Pinned to all three edges (top, bottom, right) so it fills the
+            complete right edge with zero checkered gaps. */}
+        <div className="absolute right-0 top-0 bottom-0 z-0 h-full w-[45%] overflow-hidden">
           <img
             src="/illustrations/wotd-bg-light.png"
             alt=""
             aria-hidden
-            className="h-full w-full object-cover object-top dark:hidden"
+            className="h-full w-full object-cover object-right dark:hidden"
             style={{
               // Soft mask fade on LEFT edge only — blends into #FAF3E9.
               WebkitMaskImage:
@@ -100,7 +100,7 @@ export function WordOfTheDayCard({
             src="/illustrations/wotd-bg-dark.png"
             alt=""
             aria-hidden
-            className="hidden h-full w-full object-cover object-top dark:block"
+            className="hidden h-full w-full object-cover object-right dark:block"
             style={{
               WebkitMaskImage:
                 "linear-gradient(to right, transparent 0%, black 35%)",
