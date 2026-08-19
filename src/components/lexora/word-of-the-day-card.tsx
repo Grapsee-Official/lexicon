@@ -34,7 +34,7 @@ export function WordOfTheDayCard({
         openWord(word);
       }}
       className={cn(
-        "grid h-[160px] cursor-pointer overflow-hidden rounded-2xl border border-border shadow-card grid-cols-[40%_60%] transition-transform active:scale-[0.99]",
+        "grid h-[140px] cursor-pointer overflow-hidden rounded-2xl border border-border shadow-card grid-cols-[40%_60%] transition-transform active:scale-[0.99]",
         className
       )}
     >
