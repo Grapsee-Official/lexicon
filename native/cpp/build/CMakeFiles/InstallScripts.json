@@ -1,0 +1,8 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/z/my-project/native/cpp/build/cmake_install.cmake",
+		"/home/z/my-project/native/cpp/build/tests/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
