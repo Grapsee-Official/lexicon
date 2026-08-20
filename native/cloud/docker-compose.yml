@@ -1,0 +1,71 @@
+# Lexora cloud backend — PostgreSQL 16 + Ktor sync server
+#
+# Usage:
+#   docker compose up -d            # start PostgreSQL + Ktor server
+#   docker compose logs -f server   # follow Ktor logs
+#   docker compose ps               # show running containers
+#   docker compose down             # stop containers (keeps data volume)
+#   docker compose down -v          # stop containers + wipe PostgreSQL data
+#
+# On first startup the official postgres image auto-runs every *.sql file
+# mounted into /docker-entrypoint-initdb.d/, so lexora_postgres.sql is applied
+# exactly once — only when the postgres_data volume is empty. To re-apply the
+# schema after that, run ./init-db.sh (idempotent — uses IF NOT EXISTS).
+#
+# Env vars (override via shell export or a .env file next to this compose file):
+#   POSTGRES_USER       default: lexora
+#   POSTGRES_PASSWORD   default: lexora_password
+#   POSTGRES_DB         default: lexora
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: lexora-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-lexora}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lexora_password}
+      POSTGRES_DB: ${POSTGRES_DB:-lexora}
+    ports:
+      - "5432:5432"
+    volumes:
+      # Persist PostgreSQL data across container restarts.
+      - postgres_data:/var/lib/postgresql/data
+      # Run the schema SQL on first startup only (when the data volume is
+      # empty). The file is mounted read-only to prevent accidental edits.
+      - ./schema/lexora_postgres.sql:/docker-entrypoint-initdb.d/01-lexora_postgres.sql:ro
+    healthcheck:
+      # pg_isready is shipped inside the postgres:16 image.
+      test:
+        - "CMD-SHELL"
+        - "pg_isready -U ${POSTGRES_USER:-lexora} -d ${POSTGRES_DB:-lexora}"
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  server:
+    # Ktor sync server (LexoraSyncServer.kt) — see server/Dockerfile for the
+    # Gradle build + JRE runtime image.
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    image: lexora/sync-server:latest
+    container_name: lexora-server
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        # Block server startup until postgres passes its healthcheck, so the
+        # Ktor process never races the database on a cold start.
+        condition: service_healthy
+    environment:
+      # DATABASE_URL must be a JDBC URL (see LexoraSyncServer.kt line 56).
+      DATABASE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-lexora}
+      DATABASE_USER: ${POSTGRES_USER:-lexora}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-lexora_password}
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:
+    driver: local

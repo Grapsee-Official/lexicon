@@ -1,0 +1,55 @@
+// =============================================================================
+//  module.modulemap
+//  Clang module map for the LexoraEngine iOS framework.
+//
+//  Defines the `LexoraEngine` module that Swift can `import` directly,
+//  exposing the C ABI declared in c_api.h. Without this module map, Swift
+//  cannot import the C++ engine's C ABI header.
+//
+//  Header search path
+//  ------------------
+//  The C++ headers live at:
+//      /native/cpp/include/lexora/c_api.h
+//  which is reachable from the iOS project root (/native/ios/Lexora/) via the
+//  relative path:
+//      ../../cpp/include/lexora/c_api.h
+//
+//  Because this module.map file sits at /native/ios/Lexora/Engine/ (one level
+//  below the project root), the umbrella header `LexoraEngine.h` (in this same
+//  directory) imports c_api.h using that project-root-relative path. For the
+//  relative import to resolve, the Xcode target's HEADER_SEARCH_PATHS must
+//  include at least one of:
+//
+//      $(SRCROOT)/Lexora                // resolves "../../cpp/include/lexora/c_api.h"
+//                                       //   from /native/ios/Lexora/  ✓
+//      $(SRCROOT)/../cpp/include        // lets you write #import "lexora/c_api.h"
+//                                       //   from /native/cpp/include/  ✓
+//
+//  (Add both for maximum robustness across bridging-header and module-import
+//  resolution paths.)
+//
+//  Swift usage
+//  -----------
+//  Once the module map is on the Clang module search path (set
+//  `OTHER_SWIFT_FLAGS = -Xfrontend -Xclang -Xfrontend -fmodule-map-file=$(SRCROOT)/Lexora/Engine/module.modulemap`
+//  or simply add this directory to HEADER_SEARCH_PATHS — Clang auto-discovers
+//  `module.modulemap` files in the search paths), Swift sources can write:
+//
+//      import LexoraEngine
+//
+//  and then call any `lexora_engine_*` C function declared in c_api.h.
+// =============================================================================
+module LexoraEngine {
+    // Umbrella header that re-exports the C ABI (c_api.h).
+    // Lives next to this module map: LexoraEngine.h
+    umbrella header "LexoraEngine.h"
+
+    // Re-export everything declared in the umbrella header (and c_api.h)
+    // so Swift sees the full C ABI surface.
+    export *
+    module * { export * }
+
+    // Link hint for the static / dynamic LexoraEngine framework produced by
+    // the CMake iOS build (Toolchain-iOS.cmake → LexoraEngine.framework).
+    link "LexoraEngine"
+}

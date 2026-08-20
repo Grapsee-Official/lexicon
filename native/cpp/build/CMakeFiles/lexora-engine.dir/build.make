@@ -72,19 +72,19 @@ include CMakeFiles/lexora-engine.dir/flags.make
 CMakeFiles/lexora-engine.dir/codegen:
 .PHONY : CMakeFiles/lexora-engine.dir/codegen
 
-CMakeFiles/lexora-engine.dir/src/hash_table.cpp.o: CMakeFiles/lexora-engine.dir/flags.make
-CMakeFiles/lexora-engine.dir/src/hash_table.cpp.o: /home/z/my-project/native/cpp/src/hash_table.cpp
-CMakeFiles/lexora-engine.dir/src/hash_table.cpp.o: CMakeFiles/lexora-engine.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/z/my-project/native/cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/lexora-engine.dir/src/hash_table.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) -DLEXORA_UNICODE_EXTERNAL $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/lexora-engine.dir/src/hash_table.cpp.o -MF CMakeFiles/lexora-engine.dir/src/hash_table.cpp.o.d -o CMakeFiles/lexora-engine.dir/src/hash_table.cpp.o -c /home/z/my-project/native/cpp/src/hash_table.cpp
+CMakeFiles/lexora-engine.dir/src/c_api.cpp.o: CMakeFiles/lexora-engine.dir/flags.make
+CMakeFiles/lexora-engine.dir/src/c_api.cpp.o: /home/z/my-project/native/cpp/src/c_api.cpp
+CMakeFiles/lexora-engine.dir/src/c_api.cpp.o: CMakeFiles/lexora-engine.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/z/my-project/native/cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/lexora-engine.dir/src/c_api.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/lexora-engine.dir/src/c_api.cpp.o -MF CMakeFiles/lexora-engine.dir/src/c_api.cpp.o.d -o CMakeFiles/lexora-engine.dir/src/c_api.cpp.o -c /home/z/my-project/native/cpp/src/c_api.cpp
 
-CMakeFiles/lexora-engine.dir/src/hash_table.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/lexora-engine.dir/src/hash_table.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) -DLEXORA_UNICODE_EXTERNAL $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/z/my-project/native/cpp/src/hash_table.cpp > CMakeFiles/lexora-engine.dir/src/hash_table.cpp.i
+CMakeFiles/lexora-engine.dir/src/c_api.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/lexora-engine.dir/src/c_api.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/z/my-project/native/cpp/src/c_api.cpp > CMakeFiles/lexora-engine.dir/src/c_api.cpp.i
 
-CMakeFiles/lexora-engine.dir/src/hash_table.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/lexora-engine.dir/src/hash_table.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) -DLEXORA_UNICODE_EXTERNAL $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/z/my-project/native/cpp/src/hash_table.cpp -o CMakeFiles/lexora-engine.dir/src/hash_table.cpp.s
+CMakeFiles/lexora-engine.dir/src/c_api.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/lexora-engine.dir/src/c_api.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/z/my-project/native/cpp/src/c_api.cpp -o CMakeFiles/lexora-engine.dir/src/c_api.cpp.s
 
 CMakeFiles/lexora-engine.dir/src/dawg.cpp.o: CMakeFiles/lexora-engine.dir/flags.make
 CMakeFiles/lexora-engine.dir/src/dawg.cpp.o: /home/z/my-project/native/cpp/src/dawg.cpp
@@ -100,38 +100,10 @@ CMakeFiles/lexora-engine.dir/src/dawg.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/lexora-engine.dir/src/dawg.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/z/my-project/native/cpp/src/dawg.cpp -o CMakeFiles/lexora-engine.dir/src/dawg.cpp.s
 
-CMakeFiles/lexora-engine.dir/src/unicode.cpp.o: CMakeFiles/lexora-engine.dir/flags.make
-CMakeFiles/lexora-engine.dir/src/unicode.cpp.o: /home/z/my-project/native/cpp/src/unicode.cpp
-CMakeFiles/lexora-engine.dir/src/unicode.cpp.o: CMakeFiles/lexora-engine.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/z/my-project/native/cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/lexora-engine.dir/src/unicode.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/lexora-engine.dir/src/unicode.cpp.o -MF CMakeFiles/lexora-engine.dir/src/unicode.cpp.o.d -o CMakeFiles/lexora-engine.dir/src/unicode.cpp.o -c /home/z/my-project/native/cpp/src/unicode.cpp
-
-CMakeFiles/lexora-engine.dir/src/unicode.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/lexora-engine.dir/src/unicode.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/z/my-project/native/cpp/src/unicode.cpp > CMakeFiles/lexora-engine.dir/src/unicode.cpp.i
-
-CMakeFiles/lexora-engine.dir/src/unicode.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/lexora-engine.dir/src/unicode.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/z/my-project/native/cpp/src/unicode.cpp -o CMakeFiles/lexora-engine.dir/src/unicode.cpp.s
-
-CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.o: CMakeFiles/lexora-engine.dir/flags.make
-CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.o: /home/z/my-project/native/cpp/src/levenshtein.cpp
-CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.o: CMakeFiles/lexora-engine.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/z/my-project/native/cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.o -MF CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.o.d -o CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.o -c /home/z/my-project/native/cpp/src/levenshtein.cpp
-
-CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/z/my-project/native/cpp/src/levenshtein.cpp > CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.i
-
-CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/z/my-project/native/cpp/src/levenshtein.cpp -o CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.s
-
 CMakeFiles/lexora-engine.dir/src/engine.cpp.o: CMakeFiles/lexora-engine.dir/flags.make
 CMakeFiles/lexora-engine.dir/src/engine.cpp.o: /home/z/my-project/native/cpp/src/engine.cpp
 CMakeFiles/lexora-engine.dir/src/engine.cpp.o: CMakeFiles/lexora-engine.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/z/my-project/native/cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/lexora-engine.dir/src/engine.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/z/my-project/native/cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/lexora-engine.dir/src/engine.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/lexora-engine.dir/src/engine.cpp.o -MF CMakeFiles/lexora-engine.dir/src/engine.cpp.o.d -o CMakeFiles/lexora-engine.dir/src/engine.cpp.o -c /home/z/my-project/native/cpp/src/engine.cpp
 
 CMakeFiles/lexora-engine.dir/src/engine.cpp.i: cmake_force
@@ -142,62 +114,75 @@ CMakeFiles/lexora-engine.dir/src/engine.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/lexora-engine.dir/src/engine.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/z/my-project/native/cpp/src/engine.cpp -o CMakeFiles/lexora-engine.dir/src/engine.cpp.s
 
-CMakeFiles/lexora-engine.dir/src/c_api.cpp.o: CMakeFiles/lexora-engine.dir/flags.make
-CMakeFiles/lexora-engine.dir/src/c_api.cpp.o: /home/z/my-project/native/cpp/src/c_api.cpp
-CMakeFiles/lexora-engine.dir/src/c_api.cpp.o: CMakeFiles/lexora-engine.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/z/my-project/native/cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/lexora-engine.dir/src/c_api.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/lexora-engine.dir/src/c_api.cpp.o -MF CMakeFiles/lexora-engine.dir/src/c_api.cpp.o.d -o CMakeFiles/lexora-engine.dir/src/c_api.cpp.o -c /home/z/my-project/native/cpp/src/c_api.cpp
+CMakeFiles/lexora-engine.dir/src/hash_table.cpp.o: CMakeFiles/lexora-engine.dir/flags.make
+CMakeFiles/lexora-engine.dir/src/hash_table.cpp.o: /home/z/my-project/native/cpp/src/hash_table.cpp
+CMakeFiles/lexora-engine.dir/src/hash_table.cpp.o: CMakeFiles/lexora-engine.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/z/my-project/native/cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/lexora-engine.dir/src/hash_table.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/lexora-engine.dir/src/hash_table.cpp.o -MF CMakeFiles/lexora-engine.dir/src/hash_table.cpp.o.d -o CMakeFiles/lexora-engine.dir/src/hash_table.cpp.o -c /home/z/my-project/native/cpp/src/hash_table.cpp
 
-CMakeFiles/lexora-engine.dir/src/c_api.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/lexora-engine.dir/src/c_api.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/z/my-project/native/cpp/src/c_api.cpp > CMakeFiles/lexora-engine.dir/src/c_api.cpp.i
+CMakeFiles/lexora-engine.dir/src/hash_table.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/lexora-engine.dir/src/hash_table.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/z/my-project/native/cpp/src/hash_table.cpp > CMakeFiles/lexora-engine.dir/src/hash_table.cpp.i
 
-CMakeFiles/lexora-engine.dir/src/c_api.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/lexora-engine.dir/src/c_api.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/z/my-project/native/cpp/src/c_api.cpp -o CMakeFiles/lexora-engine.dir/src/c_api.cpp.s
+CMakeFiles/lexora-engine.dir/src/hash_table.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/lexora-engine.dir/src/hash_table.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/z/my-project/native/cpp/src/hash_table.cpp -o CMakeFiles/lexora-engine.dir/src/hash_table.cpp.s
+
+CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.o: CMakeFiles/lexora-engine.dir/flags.make
+CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.o: /home/z/my-project/native/cpp/src/levenshtein.cpp
+CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.o: CMakeFiles/lexora-engine.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/z/my-project/native/cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.o -MF CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.o.d -o CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.o -c /home/z/my-project/native/cpp/src/levenshtein.cpp
+
+CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/z/my-project/native/cpp/src/levenshtein.cpp > CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.i
+
+CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/z/my-project/native/cpp/src/levenshtein.cpp -o CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.s
+
+CMakeFiles/lexora-engine.dir/src/unicode.cpp.o: CMakeFiles/lexora-engine.dir/flags.make
+CMakeFiles/lexora-engine.dir/src/unicode.cpp.o: /home/z/my-project/native/cpp/src/unicode.cpp
+CMakeFiles/lexora-engine.dir/src/unicode.cpp.o: CMakeFiles/lexora-engine.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/z/my-project/native/cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/lexora-engine.dir/src/unicode.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/lexora-engine.dir/src/unicode.cpp.o -MF CMakeFiles/lexora-engine.dir/src/unicode.cpp.o.d -o CMakeFiles/lexora-engine.dir/src/unicode.cpp.o -c /home/z/my-project/native/cpp/src/unicode.cpp
+
+CMakeFiles/lexora-engine.dir/src/unicode.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/lexora-engine.dir/src/unicode.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/z/my-project/native/cpp/src/unicode.cpp > CMakeFiles/lexora-engine.dir/src/unicode.cpp.i
+
+CMakeFiles/lexora-engine.dir/src/unicode.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/lexora-engine.dir/src/unicode.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/z/my-project/native/cpp/src/unicode.cpp -o CMakeFiles/lexora-engine.dir/src/unicode.cpp.s
 
 # Object files for target lexora-engine
 lexora__engine_OBJECTS = \
-"CMakeFiles/lexora-engine.dir/src/hash_table.cpp.o" \
+"CMakeFiles/lexora-engine.dir/src/c_api.cpp.o" \
 "CMakeFiles/lexora-engine.dir/src/dawg.cpp.o" \
-"CMakeFiles/lexora-engine.dir/src/unicode.cpp.o" \
-"CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.o" \
 "CMakeFiles/lexora-engine.dir/src/engine.cpp.o" \
-"CMakeFiles/lexora-engine.dir/src/c_api.cpp.o"
+"CMakeFiles/lexora-engine.dir/src/hash_table.cpp.o" \
+"CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.o" \
+"CMakeFiles/lexora-engine.dir/src/unicode.cpp.o"
 
 # External object files for target lexora-engine
-lexora__engine_EXTERNAL_OBJECTS = \
-"/home/z/my-project/native/cpp/build/CMakeFiles/lexora_hash_table_obj.dir/src/hash_table.cpp.o" \
-"/home/z/my-project/native/cpp/build/CMakeFiles/lexora_dawg_obj.dir/src/dawg.cpp.o" \
-"/home/z/my-project/native/cpp/build/CMakeFiles/lexora_engine_obj.dir/src/engine.cpp.o" \
-"/home/z/my-project/native/cpp/build/CMakeFiles/lexora_engine_obj.dir/src/c_api.cpp.o"
+lexora__engine_EXTERNAL_OBJECTS =
 
-lib/liblexora-engine.so.1.0.0: CMakeFiles/lexora-engine.dir/src/hash_table.cpp.o
-lib/liblexora-engine.so.1.0.0: CMakeFiles/lexora-engine.dir/src/dawg.cpp.o
-lib/liblexora-engine.so.1.0.0: CMakeFiles/lexora-engine.dir/src/unicode.cpp.o
-lib/liblexora-engine.so.1.0.0: CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.o
-lib/liblexora-engine.so.1.0.0: CMakeFiles/lexora-engine.dir/src/engine.cpp.o
-lib/liblexora-engine.so.1.0.0: CMakeFiles/lexora-engine.dir/src/c_api.cpp.o
-lib/liblexora-engine.so.1.0.0: CMakeFiles/lexora_hash_table_obj.dir/src/hash_table.cpp.o
-lib/liblexora-engine.so.1.0.0: CMakeFiles/lexora_dawg_obj.dir/src/dawg.cpp.o
-lib/liblexora-engine.so.1.0.0: CMakeFiles/lexora_engine_obj.dir/src/engine.cpp.o
-lib/liblexora-engine.so.1.0.0: CMakeFiles/lexora_engine_obj.dir/src/c_api.cpp.o
-lib/liblexora-engine.so.1.0.0: CMakeFiles/lexora-engine.dir/build.make
-lib/liblexora-engine.so.1.0.0: CMakeFiles/lexora-engine.dir/compiler_depend.ts
-lib/liblexora-engine.so.1.0.0: /usr/lib/x86_64-linux-gnu/libsqlite3.so
-lib/liblexora-engine.so.1.0.0: CMakeFiles/lexora-engine.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/z/my-project/native/cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX shared library lib/liblexora-engine.so"
+liblexora-engine.so: CMakeFiles/lexora-engine.dir/src/c_api.cpp.o
+liblexora-engine.so: CMakeFiles/lexora-engine.dir/src/dawg.cpp.o
+liblexora-engine.so: CMakeFiles/lexora-engine.dir/src/engine.cpp.o
+liblexora-engine.so: CMakeFiles/lexora-engine.dir/src/hash_table.cpp.o
+liblexora-engine.so: CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.o
+liblexora-engine.so: CMakeFiles/lexora-engine.dir/src/unicode.cpp.o
+liblexora-engine.so: CMakeFiles/lexora-engine.dir/build.make
+liblexora-engine.so: CMakeFiles/lexora-engine.dir/compiler_depend.ts
+liblexora-engine.so: /usr/lib/x86_64-linux-gnu/libsqlite3.so
+liblexora-engine.so: CMakeFiles/lexora-engine.dir/link.txt
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/z/my-project/native/cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX shared library liblexora-engine.so"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/lexora-engine.dir/link.txt --verbose=$(VERBOSE)
-	$(CMAKE_COMMAND) -E cmake_symlink_library lib/liblexora-engine.so.1.0.0 lib/liblexora-engine.so.1 lib/liblexora-engine.so
-
-lib/liblexora-engine.so.1: lib/liblexora-engine.so.1.0.0
-	@$(CMAKE_COMMAND) -E touch_nocreate lib/liblexora-engine.so.1
-
-lib/liblexora-engine.so: lib/liblexora-engine.so.1.0.0
-	@$(CMAKE_COMMAND) -E touch_nocreate lib/liblexora-engine.so
 
 # Rule to build all files generated by this target.
-CMakeFiles/lexora-engine.dir/build: lib/liblexora-engine.so
+CMakeFiles/lexora-engine.dir/build: liblexora-engine.so
 .PHONY : CMakeFiles/lexora-engine.dir/build
 
 CMakeFiles/lexora-engine.dir/clean:

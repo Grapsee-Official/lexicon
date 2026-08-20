@@ -25,6 +25,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".textclassifier.LexoraTextClassifierService"
+            android:permission="android.permission.BIND_TEXTCLASSIFIER_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.textclassifier.TextClassifierService" />
+            </intent-filter>
+        </service>
+
+        <receiver android:name=".textclassifier.LexoraWordActionReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="com.lexora.LOOKUP_WORD" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

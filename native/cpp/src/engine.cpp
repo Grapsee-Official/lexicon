@@ -5,7 +5,8 @@
 #include "lexora/dawg.hpp"
 #include "lexora/unicode.hpp"
 
-#include <sqlite3.h>
+#include "lexora/sqlite3_shim.h"
+
 #include <fstream>
 #include <sstream>
 #include <cstring>
@@ -17,13 +18,17 @@ struct LexoraEngine::Impl {
     MemoryMappedHashTable hash_table;
     Dawg dawg;
     LevenshteinAutomaton levenshtein;
+#ifdef LEXORA_USE_SQLITE
     sqlite3* db = nullptr;
+#endif
     bool dawg_enabled = false;
     bool loaded = false;
     mutable std::mutex mutex;
 
     ~Impl() {
+#ifdef LEXORA_USE_SQLITE
         if (db) sqlite3_close(db);
+#endif
         hash_table.unload();
         dawg.unload();
     }
@@ -93,7 +98,9 @@ bool LexoraEngine::load_database(const std::string& db_dir) {
         impl_->dawg_enabled = true;
     }
 
-    // Open SQLite for full-text search
+    // Open SQLite for full-text search (optional — only when LEXORA_USE_SQLITE
+    // is defined at compile time). Without it, hash table + DAWG still work.
+#ifdef LEXORA_USE_SQLITE
     std::string sqlite_path = db_dir + "/lexora.sqlite";
     if (sqlite3_open(sqlite_path.c_str(), &impl_->db) != SQLITE_OK) {
         // Non-fatal — hash table + DAWG still work
@@ -102,6 +109,7 @@ bool LexoraEngine::load_database(const std::string& db_dir) {
         // Enable WAL mode for concurrent reads
         sqlite3_exec(impl_->db, "PRAGMA journal_mode=WAL;", nullptr, nullptr, nullptr);
     }
+#endif
 
     impl_->loaded = true;
     return true;
@@ -127,9 +135,9 @@ std::optional<WordEntry> LexoraEngine::lookup(std::string_view word) const {
     return impl_->deserialize(value, value_len);
 }
 
-std::vector<SearchResult> LexoraEngine::fuzzy_search(std::string_view query, int max_distance, size_t limit) const {
+std::vector<LexoraLexoraSearchResult> LexoraEngine::fuzzy_search(std::string_view query, int max_distance, size_t limit) const {
     std::lock_guard<std::mutex> lock(impl_->mutex);
-    std::vector<SearchResult> results;
+    std::vector<LexoraLexoraSearchResult> results;
 
     if (!impl_->loaded) return results;
 
@@ -154,7 +162,9 @@ std::vector<SearchResult> LexoraEngine::fuzzy_search(std::string_view query, int
         }
     }
 
-    // If we have SQLite, also get FTS5 candidates
+    // If we have SQLite, also get FTS5 candidates. Skipped entirely when
+    // SQLite support is not compiled in (LEXORA_USE_SQLITE undefined).
+#ifdef LEXORA_USE_SQLITE
     if (impl_->db) {
         sqlite3_stmt* stmt;
         if (sqlite3_prepare_v2(impl_->db,
@@ -169,11 +179,12 @@ std::vector<SearchResult> LexoraEngine::fuzzy_search(std::string_view query, int
             sqlite3_finalize(stmt);
         }
     }
+#endif
 
     // Run Levenshtein on candidates
     auto matches = impl_->levenshtein.search(normalized, candidates, max_distance, limit);
 
-    // Convert to SearchResult with full entries
+    // Convert to LexoraSearchResult with full entries
     for (const auto& m : matches) {
         auto entry = get_word_by_id(m.word_id);
         if (entry) {
@@ -193,6 +204,7 @@ std::vector<std::string> LexoraEngine::prefix_search(std::string_view prefix, si
 }
 
 std::optional<WordEntry> LexoraEngine::get_word_by_id(const std::string& id) const {
+#ifdef LEXORA_USE_SQLITE
     if (!impl_->db) return std::nullopt;
 
     sqlite3_stmt* stmt;
@@ -219,6 +231,12 @@ std::optional<WordEntry> LexoraEngine::get_word_by_id(const std::string& id) con
     // For simplicity, treating them as JSON arrays — a full impl would parse
     sqlite3_finalize(stmt);
     return entry;
+#else
+    // SQLite fallback not compiled in — cannot resolve arbitrary IDs.
+    // Callers (e.g. fuzzy_search) will simply drop these candidates.
+    (void)id;
+    return std::nullopt;
+#endif
 }
 
 void LexoraEngine::enable_dawg(bool enabled) {
@@ -248,10 +266,12 @@ void LexoraEngine::close() {
     std::lock_guard<std::mutex> lock(impl_->mutex);
     impl_->hash_table.unload();
     impl_->dawg.unload();
+#ifdef LEXORA_USE_SQLITE
     if (impl_->db) {
         sqlite3_close(impl_->db);
         impl_->db = nullptr;
     }
+#endif
     impl_->loaded = false;
 }
 

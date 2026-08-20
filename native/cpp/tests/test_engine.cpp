@@ -1,3 +1,5 @@
+#include <thread>
+#include <atomic>
 // test_engine.cpp — Google Test for LexoraEngine (end-to-end)
 #include "lexora/engine.hpp"
 #include <gtest/gtest.h>
@@ -32,14 +34,14 @@ TEST_F(EngineTest, PrefixSearchWithoutDatabaseReturnsEmpty) {
 }
 
 TEST_F(EngineTest, DawgToggleDoesNotCrashWithoutDatabase) {
-    engine.enableDawg(false);
-    EXPECT_FALSE(engine.isDawgEnabled());
-    engine.enableDawg(true);
+    engine.enable_dawg(false);
+    EXPECT_FALSE(engine.is_dawg_enabled());
+    engine.enable_dawg(true);
     // Should not crash even without database
 }
 
 TEST_F(EngineTest, MemoryUsageReportsZeroWithoutDatabase) {
-    auto info = engine.getMemoryUsage();
+    auto info = engine.get_memory_usage();
     EXPECT_EQ(info.total_bytes, 0u);
 }
 

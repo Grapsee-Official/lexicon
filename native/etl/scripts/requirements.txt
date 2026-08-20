@@ -1,0 +1,14 @@
+# Lexora ETL Pipeline — Python dependencies
+#
+# Only the libraries imported by etl_pipeline.py / validate.py belong here.
+# wiktextract is intentionally NOT listed here: it is a standalone CLI tool
+# (https://github.com/tatuylonen/wiktextract) used to parse the enwiktionary
+# XML dump into JSON *before* this pipeline runs. Install it separately, e.g.:
+#
+#     pipx install wiktextract      # recommended (isolated env)
+#     # or
+#     pip install wiktextract       # also works, but pollutes the venv
+#
+# See README.md for the full download → extract → load workflow.
+
+zstandard>=0.23.0

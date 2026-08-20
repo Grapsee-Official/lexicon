@@ -1,6 +1,3 @@
-/home/z/my-project/native/cpp/build/CMakeFiles/lexora_hash_table_obj.dir
-/home/z/my-project/native/cpp/build/CMakeFiles/lexora_dawg_obj.dir
-/home/z/my-project/native/cpp/build/CMakeFiles/lexora_engine_obj.dir
 /home/z/my-project/native/cpp/build/CMakeFiles/lexora-engine.dir
 /home/z/my-project/native/cpp/build/CMakeFiles/test.dir
 /home/z/my-project/native/cpp/build/CMakeFiles/edit_cache.dir
@@ -9,11 +6,3 @@
 /home/z/my-project/native/cpp/build/CMakeFiles/install.dir
 /home/z/my-project/native/cpp/build/CMakeFiles/install/local.dir
 /home/z/my-project/native/cpp/build/CMakeFiles/install/strip.dir
-/home/z/my-project/native/cpp/build/tests/CMakeFiles/lexora-engine-tests.dir
-/home/z/my-project/native/cpp/build/tests/CMakeFiles/test.dir
-/home/z/my-project/native/cpp/build/tests/CMakeFiles/edit_cache.dir
-/home/z/my-project/native/cpp/build/tests/CMakeFiles/rebuild_cache.dir
-/home/z/my-project/native/cpp/build/tests/CMakeFiles/list_install_components.dir
-/home/z/my-project/native/cpp/build/tests/CMakeFiles/install.dir
-/home/z/my-project/native/cpp/build/tests/CMakeFiles/install/local.dir
-/home/z/my-project/native/cpp/build/tests/CMakeFiles/install/strip.dir

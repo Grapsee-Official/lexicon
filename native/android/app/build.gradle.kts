@@ -15,6 +15,25 @@ android {
         versionCode = 1
         versionName = "1.0.0"
         vectorDrawables { useSupportLibrary = true }
+
+        // ── Native build (liblexora-engine.so) ───────────────────────────
+        // The C++ engine + JNI bridge are compiled by CMake. ABIs are
+        // limited to the two that ship with modern devices plus the
+        // simulator slice — emulators/arm64-v8a covers physical devices,
+        // x86_64 covers the Android Studio emulator.
+        ndk {
+            abiFilters += listOf("arm64-v8a", "x86_64")
+        }
+        externalNativeBuild {
+            cmake {
+                // C++17 with the LLVM libc++ runtime (NDK default).
+                cppFlags += listOf("-std=c++17", "-fexceptions", "-frtti")
+                arguments += listOf(
+                    "-DANDROID_STL=c++_shared",
+                    "-DANDROID_PLATFORM=android-24"
+                )
+            }
+        }
     }
 
     buildTypes {
@@ -43,6 +62,18 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
+    }
+
+    // ── CMake entry point for liblexora-engine.so ───────────────────────────
+    // Agp's externalNativeBuild block tells Gradle where the CMakeLists.txt
+    // lives; AGP runs the NDK's cmake during assembleDebug/assembleRelease and
+    // packages the resulting .so files under jniLibs/<abi>/.
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
     }
 
     packaging {

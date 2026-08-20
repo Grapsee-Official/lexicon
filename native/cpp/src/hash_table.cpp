@@ -11,6 +11,52 @@
 
 namespace lexora {
 
+namespace {
+
+// Robin Hood insertion of `entry` into `buckets`.
+//
+// For each occupied slot we compute the occupant's probe distance from its
+// stored hash (home = hash % bucket_count; dist = (idx - home) mod count).
+// If the entry being carried has probed further than the occupant, the
+// occupant is "richer" and we steal its slot, then continue probing with
+// the displaced entry. This restores the Robin Hood invariant: within each
+// probe run, probe distances are non-decreasing, so linear probing until
+// the first empty slot always finds a key if it is present.
+//
+// Pre: `buckets` is zero-initialised so that (hash==0 && key_offset==0)
+// unambiguously marks an empty slot.
+// Returns true if placed, false if the table is full (no empty slot found).
+bool robin_hood_insert(std::vector<HashEntry>& buckets, HashEntry entry) {
+    const size_t bcount = buckets.size();
+    if (bcount == 0) return false;
+
+    size_t idx = static_cast<size_t>(entry.hash % bcount);
+    size_t dist = 0;
+    while (dist < bcount) {
+        HashEntry& slot = buckets[idx];
+        if (slot.hash == 0 && slot.key_offset == 0) {
+            slot = entry;
+            return true;
+        }
+        // Probe distance of the existing occupant, derived from its hash.
+        const size_t home = static_cast<size_t>(slot.hash % bcount);
+        const size_t existing_dist = (idx + bcount - home) % bcount;
+        // Robin Hood stealing: take the slot from the richer occupant and
+        // carry the displaced entry forward. The displaced entry had probed
+        // `existing_dist` slots to get here, so it resumes one step further.
+        if (dist > existing_dist) {
+            std::swap(slot, entry);
+            dist = existing_dist;
+        }
+        ++idx;
+        if (idx >= bcount) idx = 0;
+        ++dist;
+    }
+    return false; // table full
+}
+
+} // anonymous namespace
+
 MemoryMappedHashTable::MemoryMappedHashTable()
     : fd_(-1), mapped_data_(nullptr), mapped_size_(0),
       header_(nullptr), buckets_(nullptr), string_pool_(nullptr),
@@ -126,43 +172,47 @@ bool MemoryMappedHashTable::exists(std::string_view key) const {
 
 void MemoryMappedHashTable::insert(std::string_view key, std::string_view value) {
     in_memory_mode_ = true;
-    // Resize bucket array if needed (load factor 0.7)
-    size_t needed = static_cast<size_t>(entry_count_ * 1.43) + 16;
-    if (mem_buckets_.size() < needed) {
-        mem_buckets_.resize(needed);
+
+    // Target a ~0.7 load factor (1 / 1.43). When the bucket array must grow,
+    // rehash every existing entry, because each entry's home bucket is
+    // hash % bucket_count and that changes when bucket_count changes. Growing
+    // without rehashing would leave previously-inserted entries unreachable
+    // and would also invalidate the probe distances computed in
+    // robin_hood_insert(). Grow geometrically (at least doubling) to keep
+    // amortised insertion O(1).
+    const size_t target_buckets =
+        static_cast<size_t>((entry_count_ + 1) * 1.43) + 16;
+    if (mem_buckets_.size() < target_buckets) {
+        size_t new_size = mem_buckets_.empty() ? target_buckets
+                                               : mem_buckets_.size();
+        while (new_size < target_buckets) new_size *= 2;
+
+        std::vector<HashEntry> old_buckets;
+        old_buckets.swap(mem_buckets_);              // pull old entries out
+        mem_buckets_.assign(new_size, HashEntry{});  // zeroed new array
+
+        for (const HashEntry& e : old_buckets) {
+            if (e.hash == 0 && e.key_offset == 0) continue; // skip empty
+            robin_hood_insert(mem_buckets_, e);
+        }
     }
 
     uint64_t hash = fnv1a(key);
-    size_t idx = hash % mem_buckets_.size();
 
-    // Robin Hood insertion
-    HashEntry new_entry;
+    // Append key + value to the pools first so the new entry's offsets are
+    // fixed before it is placed in a bucket.
+    HashEntry new_entry{};
     new_entry.hash = hash;
     new_entry.key_offset = static_cast<uint32_t>(mem_string_pool_.size());
     new_entry.key_len = static_cast<uint16_t>(key.size());
     new_entry.value_offset = static_cast<uint32_t>(mem_value_pool_.size());
     new_entry.value_len = static_cast<uint16_t>(value.size());
-
-    // Append key+value to pools
     mem_string_pool_.insert(mem_string_pool_.end(), key.begin(), key.end());
     mem_value_pool_.insert(mem_value_pool_.end(), value.begin(), value.end());
 
-    size_t dist = 0;
-    while (dist < mem_buckets_.size()) {
-        HashEntry& slot = mem_buckets_[idx];
-        if (slot.hash == 0 && slot.key_offset == 0) {
-            slot = new_entry;
-            ++entry_count_;
-            return;
-        }
-        // Robin Hood: steal if our probe distance is greater
-        size_t existing_dist = 0; // simplified — real Robin Hood tracks this
-        if (dist > existing_dist) {
-            std::swap(slot, new_entry);
-        }
-        ++idx;
-        if (idx >= mem_buckets_.size()) idx = 0;
-        ++dist;
+    // Robin Hood insertion (steals from richer occupants).
+    if (robin_hood_insert(mem_buckets_, new_entry)) {
+        ++entry_count_;
     }
 }
 

@@ -23,7 +23,7 @@ struct WordEntry {
     std::string language;
 };
 
-struct SearchResult {
+struct LexoraSearchResult {
     WordEntry entry;
     int edit_distance;
 };
@@ -46,7 +46,7 @@ public:
     std::optional<WordEntry> lookup(std::string_view word) const;
 
     // Fuzzy search (Levenshtein ≤ max_distance)
-    std::vector<SearchResult> fuzzy_search(std::string_view query, int max_distance = 2, size_t limit = 20) const;
+    std::vector<LexoraSearchResult> fuzzy_search(std::string_view query, int max_distance = 2, size_t limit = 20) const;
 
     // Prefix search via DAWG
     std::vector<std::string> prefix_search(std::string_view prefix, size_t limit = 50) const;

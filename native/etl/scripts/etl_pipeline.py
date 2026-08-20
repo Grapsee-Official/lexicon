@@ -136,7 +136,7 @@ def parse_wiktextract_json(input_path: str) -> Dict[str, List[WordEntry]]:
 
 def create_sqlite_db(db_path: str, words: List[WordEntry], lang_code: str):
     """Create a SQLite database with FTS5 index for one language."""
-    schema_path = Path(__file__).parent.parent / "cloud" / "schema" / "lexora_sqlite.sql"
+    schema_path = Path(__file__).parent.parent.parent / "cloud" / "schema" / "lexora_sqlite.sql"
     schema_sql = schema_path.read_text(encoding="utf-8")
 
     conn = sqlite3.connect(db_path)

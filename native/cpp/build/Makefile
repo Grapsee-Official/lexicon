@@ -168,48 +168,8 @@ preinstall/fast:
 
 # clear depends
 depend:
-	$(CMAKE_COMMAND) -P /home/z/my-project/native/cpp/build/CMakeFiles/VerifyGlobs.cmake
 	$(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
-
-#=============================================================================
-# Target rules for targets named lexora_hash_table_obj
-
-# Build rule for target.
-lexora_hash_table_obj: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 lexora_hash_table_obj
-.PHONY : lexora_hash_table_obj
-
-# fast build rule for target.
-lexora_hash_table_obj/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora_hash_table_obj.dir/build.make CMakeFiles/lexora_hash_table_obj.dir/build
-.PHONY : lexora_hash_table_obj/fast
-
-#=============================================================================
-# Target rules for targets named lexora_dawg_obj
-
-# Build rule for target.
-lexora_dawg_obj: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 lexora_dawg_obj
-.PHONY : lexora_dawg_obj
-
-# fast build rule for target.
-lexora_dawg_obj/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora_dawg_obj.dir/build.make CMakeFiles/lexora_dawg_obj.dir/build
-.PHONY : lexora_dawg_obj/fast
-
-#=============================================================================
-# Target rules for targets named lexora_engine_obj
-
-# Build rule for target.
-lexora_engine_obj: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 lexora_engine_obj
-.PHONY : lexora_engine_obj
-
-# fast build rule for target.
-lexora_engine_obj/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora_engine_obj.dir/build.make CMakeFiles/lexora_engine_obj.dir/build
-.PHONY : lexora_engine_obj/fast
 
 #=============================================================================
 # Target rules for targets named lexora-engine
@@ -224,25 +184,11 @@ lexora-engine/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora-engine.dir/build.make CMakeFiles/lexora-engine.dir/build
 .PHONY : lexora-engine/fast
 
-#=============================================================================
-# Target rules for targets named lexora-engine-tests
-
-# Build rule for target.
-lexora-engine-tests: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 lexora-engine-tests
-.PHONY : lexora-engine-tests
-
-# fast build rule for target.
-lexora-engine-tests/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/lexora-engine-tests.dir/build.make tests/CMakeFiles/lexora-engine-tests.dir/build
-.PHONY : lexora-engine-tests/fast
-
 src/c_api.o: src/c_api.cpp.o
 .PHONY : src/c_api.o
 
 # target to build an object file
 src/c_api.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora_engine_obj.dir/build.make CMakeFiles/lexora_engine_obj.dir/src/c_api.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora-engine.dir/build.make CMakeFiles/lexora-engine.dir/src/c_api.cpp.o
 .PHONY : src/c_api.cpp.o
 
@@ -251,7 +197,6 @@ src/c_api.i: src/c_api.cpp.i
 
 # target to preprocess a source file
 src/c_api.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora_engine_obj.dir/build.make CMakeFiles/lexora_engine_obj.dir/src/c_api.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora-engine.dir/build.make CMakeFiles/lexora-engine.dir/src/c_api.cpp.i
 .PHONY : src/c_api.cpp.i
 
@@ -260,7 +205,6 @@ src/c_api.s: src/c_api.cpp.s
 
 # target to generate assembly for a file
 src/c_api.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora_engine_obj.dir/build.make CMakeFiles/lexora_engine_obj.dir/src/c_api.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora-engine.dir/build.make CMakeFiles/lexora-engine.dir/src/c_api.cpp.s
 .PHONY : src/c_api.cpp.s
 
@@ -269,7 +213,6 @@ src/dawg.o: src/dawg.cpp.o
 
 # target to build an object file
 src/dawg.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora_dawg_obj.dir/build.make CMakeFiles/lexora_dawg_obj.dir/src/dawg.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora-engine.dir/build.make CMakeFiles/lexora-engine.dir/src/dawg.cpp.o
 .PHONY : src/dawg.cpp.o
 
@@ -278,7 +221,6 @@ src/dawg.i: src/dawg.cpp.i
 
 # target to preprocess a source file
 src/dawg.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora_dawg_obj.dir/build.make CMakeFiles/lexora_dawg_obj.dir/src/dawg.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora-engine.dir/build.make CMakeFiles/lexora-engine.dir/src/dawg.cpp.i
 .PHONY : src/dawg.cpp.i
 
@@ -287,7 +229,6 @@ src/dawg.s: src/dawg.cpp.s
 
 # target to generate assembly for a file
 src/dawg.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora_dawg_obj.dir/build.make CMakeFiles/lexora_dawg_obj.dir/src/dawg.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora-engine.dir/build.make CMakeFiles/lexora-engine.dir/src/dawg.cpp.s
 .PHONY : src/dawg.cpp.s
 
@@ -296,7 +237,6 @@ src/engine.o: src/engine.cpp.o
 
 # target to build an object file
 src/engine.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora_engine_obj.dir/build.make CMakeFiles/lexora_engine_obj.dir/src/engine.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora-engine.dir/build.make CMakeFiles/lexora-engine.dir/src/engine.cpp.o
 .PHONY : src/engine.cpp.o
 
@@ -305,7 +245,6 @@ src/engine.i: src/engine.cpp.i
 
 # target to preprocess a source file
 src/engine.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora_engine_obj.dir/build.make CMakeFiles/lexora_engine_obj.dir/src/engine.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora-engine.dir/build.make CMakeFiles/lexora-engine.dir/src/engine.cpp.i
 .PHONY : src/engine.cpp.i
 
@@ -314,7 +253,6 @@ src/engine.s: src/engine.cpp.s
 
 # target to generate assembly for a file
 src/engine.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora_engine_obj.dir/build.make CMakeFiles/lexora_engine_obj.dir/src/engine.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora-engine.dir/build.make CMakeFiles/lexora-engine.dir/src/engine.cpp.s
 .PHONY : src/engine.cpp.s
 
@@ -323,7 +261,6 @@ src/hash_table.o: src/hash_table.cpp.o
 
 # target to build an object file
 src/hash_table.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora_hash_table_obj.dir/build.make CMakeFiles/lexora_hash_table_obj.dir/src/hash_table.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora-engine.dir/build.make CMakeFiles/lexora-engine.dir/src/hash_table.cpp.o
 .PHONY : src/hash_table.cpp.o
 
@@ -332,7 +269,6 @@ src/hash_table.i: src/hash_table.cpp.i
 
 # target to preprocess a source file
 src/hash_table.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora_hash_table_obj.dir/build.make CMakeFiles/lexora_hash_table_obj.dir/src/hash_table.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora-engine.dir/build.make CMakeFiles/lexora-engine.dir/src/hash_table.cpp.i
 .PHONY : src/hash_table.cpp.i
 
@@ -341,7 +277,6 @@ src/hash_table.s: src/hash_table.cpp.s
 
 # target to generate assembly for a file
 src/hash_table.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora_hash_table_obj.dir/build.make CMakeFiles/lexora_hash_table_obj.dir/src/hash_table.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/lexora-engine.dir/build.make CMakeFiles/lexora-engine.dir/src/hash_table.cpp.s
 .PHONY : src/hash_table.cpp.s
 
@@ -407,10 +342,6 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... test"
 	@echo "... lexora-engine"
-	@echo "... lexora-engine-tests"
-	@echo "... lexora_dawg_obj"
-	@echo "... lexora_engine_obj"
-	@echo "... lexora_hash_table_obj"
 	@echo "... src/c_api.o"
 	@echo "... src/c_api.i"
 	@echo "... src/c_api.s"
@@ -440,7 +371,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	$(CMAKE_COMMAND) -P /home/z/my-project/native/cpp/build/CMakeFiles/VerifyGlobs.cmake
 	$(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

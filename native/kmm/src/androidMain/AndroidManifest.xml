@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Minimal AndroidManifest for the Lexora KMM library module.
+  The application package is declared via `namespace = "com.lexora.engine"`
+  in build.gradle.kts (AGP 8+ best practice), so this manifest only needs to
+  exist as the manifest source for the Android source set. No activities,
+  permissions, or other components are declared here.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" />

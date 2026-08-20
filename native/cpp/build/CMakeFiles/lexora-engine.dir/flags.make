@@ -6,7 +6,5 @@ CXX_DEFINES = -Dlexora_engine_EXPORTS
 
 CXX_INCLUDES = -I/home/z/my-project/native/cpp/include
 
-CXX_FLAGS = -O3 -DNDEBUG -std=c++17 -fPIC -O2 -Wall -Wextra -std=c++17 -fvisibility=hidden -fvisibility-inlines-hidden
-
-# Custom defines: CMakeFiles/lexora-engine.dir/src/hash_table.cpp.o_DEFINES = LEXORA_UNICODE_EXTERNAL
+CXX_FLAGS = -O3 -DNDEBUG -std=c++17 -fPIC -O2 -Wall -Wextra
 
