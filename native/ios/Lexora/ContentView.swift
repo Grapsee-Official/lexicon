@@ -2,16 +2,26 @@
 //  ContentView.swift
 //  Lexora
 //
-//  Root view — hosts the LexoraHeader + active screen + BottomNav,
-//  plus a basic search modal + word-detail sheet wired to the ViewModel.
-//
-//  Mirrors the structure of `src/app/page.tsx`:
+//  Root view orchestrator — translates `src/app/page.tsx`:
 //    <div flex min-h-screen flex-col bg-background>
 //      <LexoraHeader />
-//      <main flex-1 ...> activeTab switch </main>
-//      <BottomNav />
-//      <WordDetailSheet /> <SearchModal />
+//      <main flex-1>
+//        {tabMeta[activeTab] && <sub-header />}
+//        <AnimatePresence mode="wait"> activeTab switch </AnimatePresence>
+//      </main>
+//      <BottomNav />          // floating overlay
+//      <WordDetailSheet />    // .sheet(item: selectedWord)
+//      <SearchModal />        // ZStack overlay when vm.searchOpen
 //    </div>
+//
+//  Layout:
+//    ZStack {
+//      background
+//      VStack { LexoraHeader; activeScreen }   // screens own their bottom padding
+//      BottomNav()                              // floating capsule overlay
+//      if vm.searchOpen { SearchModal() }       // full-screen search overlay
+//    }
+//    .sheet(item: $vm.selectedWord) { WordDetailSheet(word:) }
 //
 
 import SwiftUI
@@ -22,394 +32,146 @@ struct ContentView: View {
     @Environment(\.colorScheme) private var scheme
 
     var body: some View {
-        VStack(spacing: 0) {
-            LexoraHeader()
+        ZStack {
+            // MARK: - Background — warm cream (#FAF3E9) light, midnight dark.
+            lexoraPalette(scheme).background
+                .ignoresSafeArea()
 
-            // Sub-header for non-home tabs.
-            if let meta = tabMeta(vm.activeTab) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(meta.title)
-                        .font(.lexoraDisplay(20, weight: .semibold))
-                        .foregroundStyle(lexoraPalette(scheme).foreground)
-                    Text(meta.subtitle)
-                        .font(.lexoraBody(11))
-                        .foregroundStyle(lexoraPalette(scheme).mutedForeground)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
-                .padding(.bottom, 4)
+            // MARK: - Main column (header + active screen).
+            // Screens own their `.padding(.bottom, 120)` so the floating
+            // BottomNav capsule never overlaps their content.
+            VStack(spacing: 0) {
+                LexoraHeader()
+
+                activeScreen
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
 
-            // Active screen.
-            Group {
-                switch vm.activeTab {
-                case .home:        HomeScreen()
-                case .dictionary:  SimpleBrowseScreen(title: "Dictionary",
-                                                      subtitle: "Browse the full lexicon")
-                case .collections: SimpleBrowseScreen(title: "Collections",
-                                                      subtitle: "Your saved words",
-                                                      source: vm.savedWordIds.compactMap { LexoraData.getWordById($0) },
-                                                      emptyMessage: "No saved words yet — tap the bookmark on a word to collect it.")
-                case .more:        SimpleBrowseScreen(title: "Settings",
-                                                      subtitle: "Make Lexora yours",
-                                                      isSettings: true)
-                case .search:      HomeScreen() // search opens modal; show home behind
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-
+            // MARK: - Floating bottom nav overlay.
+            // BottomNav positions itself at the bottom-center via its internal
+            // VStack { Spacer(); HStack { Spacer(); navCapsule } }.
             BottomNav()
+                .environmentObject(vm)
+                .environmentObject(theme)
+                .zIndex(2)
+
+            // MARK: - Search modal overlay (when vm.searchOpen).
+            if vm.searchOpen {
+                SearchModal()
+                    .environmentObject(vm)
+                    .environmentObject(theme)
+                    .transition(.opacity)
+                    .zIndex(10)
+            }
         }
         .background(LexoraColors.background)
-        .ignoresSafeArea(.keyboard)
-        // Search modal (sheet)
-        .sheet(isPresented: $vm.searchOpen) {
-            SearchModalSheet()
-                .environmentObject(vm)
-        }
-        // Word detail (sheet)
+        // MARK: - Word detail sheet (presented when vm.selectedWord != nil)
         .sheet(item: $vm.selectedWord) { word in
             WordDetailSheet(word: word)
                 .environmentObject(vm)
+                .environmentObject(theme)
         }
+        // Animate the search overlay appearance + tab transitions.
+        .animation(.easeInOut(duration: 0.2), value: vm.searchOpen)
+        .animation(.easeInOut(duration: 0.2), value: vm.activeTab)
     }
 
-    private func tabMeta(_ tab: LexoraTab) -> (title: String, subtitle: String)? {
-        switch tab {
-        case .dictionary:  return ("Dictionary", "Browse the full lexicon")
-        case .collections: return ("Collections", "Your saved words")
-        case .more:        return ("Settings", "Make Lexora yours")
-        default:           return nil
-        }
-    }
-}
+    // MARK: - Active screen switch
+    //
+    // Mirrors the AnimatePresence block in page.tsx:
+    //   {activeTab === "home"       && <motion.div key="home">...</motion.div>}
+    //   {activeTab === "dictionary" && <motion.div key="dictionary"><DictionaryScreen/></motion.div>}
+    //   {activeTab === "collections"&& <motion.div key="collections"><CollectionsScreen/></motion.div>}
+    //   {activeTab === "more"       && <motion.div key="more"><MoreScreen/></motion.div>}
+    //
+    // Non-home tabs get a sub-header (title + subtitle) above the screen —
+    // mirrors the `tabMeta[activeTab]` block in page.tsx.
 
-// MARK: - Minimal secondary screens (kept lean — main focus is Home).
+    @ViewBuilder
+    private var activeScreen: some View {
+        switch vm.activeTab {
+        case .home:
+            HomeScreen()
+                .transition(activeTabTransition)
 
-/// Lightweight list screen for the Dictionary/Collections/More tabs.
-/// The Dictionary and Collections tabs are intentionally simple here —
-/// Phase 2 scope is the home screen + component library 1:1; the full
-/// Dictionary/Collections/More screens from the web build can be ported
-/// in a follow-up pass once the user verifies the home build.
-struct SimpleBrowseScreen: View {
-    let title: String
-    let subtitle: String
-    var source: [WordEntry] = LexoraData.dictionary
-    var emptyMessage: String = "No entries."
-    var isSettings: Bool = false
-
-    @EnvironmentObject private var vm: LexoraViewModel
-    @Environment(\.colorScheme) private var scheme
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 12) {
-                if isSettings {
-                    settingsList
-                } else if source.isEmpty {
-                    Text(emptyMessage)
-                        .font(.lexoraBody(13))
-                        .foregroundStyle(lexoraPalette(scheme).mutedForeground)
-                        .padding(.top, 40)
-                        .frame(maxWidth: .infinity)
-                } else {
-                    ForEach(source) { word in
-                        Button {
-                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                            vm.openWord(word)
-                        } label: {
-                            VStack(alignment: .leading, spacing: 4) {
-                                HStack {
-                                    Text(word.word)
-                                        .font(.lexoraDisplay(16, weight: .semibold))
-                                        .foregroundStyle(lexoraPalette(scheme).foreground)
-                                    Spacer()
-                                    Image(systemName: vm.isSaved(word.id) ? "bookmark.fill" : "bookmark")
-                                        .font(.system(size: 14, weight: .regular))
-                                        .foregroundStyle(lexoraPalette(scheme).highlight)
-                                }
-                                Text(word.phonetic)
-                                    .font(.lexoraBody(11))
-                                    .foregroundStyle(lexoraPalette(scheme).mutedForeground)
-                                Text(word.definitions.first ?? "")
-                                    .font(.lexoraLong(12))
-                                    .foregroundStyle(lexoraPalette(scheme).foreground.opacity(0.8))
-                                    .lineLimit(2)
-                            }
-                            .padding(12)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(lexoraPalette(scheme).card)
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
+        case .dictionary:
+            subHeaderScreen(title: "Dictionary",
+                            subtitle: "Browse the full lexicon") {
+                DictionaryScreen()
             }
+            .transition(activeTabTransition)
+
+        case .collections:
+            subHeaderScreen(title: "Collections",
+                            subtitle: "Your saved words") {
+                CollectionsScreen()
+            }
+            .transition(activeTabTransition)
+
+        case .more:
+            subHeaderScreen(title: "Settings",
+                            subtitle: "Make Lexora yours") {
+                MoreScreen()
+            }
+            .transition(activeTabTransition)
+
+        case .search:
+            // Search opens a modal; show home behind.
+            HomeScreen()
+                .transition(activeTabTransition)
+        }
+    }
+
+    // MARK: - Sub-header + content wrapper (non-home tabs)
+    //
+    // Mirrors `tabMeta[activeTab]` block + screen content:
+    //   <div className="px-4 pb-1 pt-2">
+    //     <motion.h1 font-display text-xl font-semibold text-foreground>{title}</motion.h1>
+    //     <p font-body text-[11px] text-muted-foreground>{subtitle}</p>
+    //   </div>
+    //   <motion.div key={tab} className="px-4"> <Screen/> </motion.div>
+
+    @ViewBuilder
+    private func subHeaderScreen<Content: View>(
+        title: String,
+        subtitle: String,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.lexoraDisplay(20, weight: .semibold))
+                    .foregroundStyle(lexoraPalette(scheme).foreground)
+                Text(subtitle)
+                    .font(.lexoraBody(11))
+                    .foregroundStyle(lexoraPalette(scheme).mutedForeground)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 16)
             .padding(.top, 8)
-            .padding(.bottom, 120)
+            .padding(.bottom, 4)
+
+            content()
         }
-        .background(LexoraColors.background)
     }
 
-    private var settingsList: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ForEach(["Theme", "Notifications", "Reading list", "About Lexora"], id: \.self) { row in
-                HStack {
-                    Text(row)
-                        .font(.lexoraBody(14))
-                        .foregroundStyle(lexoraPalette(scheme).foreground)
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 12, weight: .regular))
-                        .foregroundStyle(lexoraPalette(scheme).mutedForeground)
-                }
-                .padding(.vertical, 12)
-                .padding(.horizontal, 14)
-                .background(lexoraPalette(scheme).card)
-                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-            }
-        }
+    // MARK: - Transitions
+    //
+    // AnimatePresence(mode: "wait") equivalent — opacity + vertical slide.
+    // Matches `motion.div initial={{opacity:0, y:6}} animate={{opacity:1, y:0}}`.
+
+    private var activeTabTransition: AnyTransition {
+        .asymmetric(
+            insertion: .opacity.combined(with: .move(edge: .top)),
+            removal: .opacity.combined(with: .move(edge: .top))
+        )
     }
 }
 
-// MARK: - Search modal sheet (basic — uses LexoraData.searchWords)
-struct SearchModalSheet: View {
-    @EnvironmentObject private var vm: LexoraViewModel
-    @Environment(\.colorScheme) private var scheme
-    @Environment(\.dismiss) private var dismiss
+// MARK: - Preview
 
-    @State private var query: String = ""
-
-    private var results: [WordEntry] {
-        LexoraData.searchWords(query)
-    }
-
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                HStack(spacing: 8) {
-                    Image(systemName: "magnifyingglass")
-                        .font(.system(size: 14, weight: .regular))
-                        .foregroundStyle(lexoraPalette(scheme).foreground.opacity(0.5))
-                    TextField("Search for a word...", text: $query)
-                        .font(.lexoraBody(13))
-                        .submitLabel(.search)
-                        .onSubmit {
-                            if !query.isEmpty {
-                                vm.addRecentSearch(query)
-                            }
-                        }
-                    if !query.isEmpty {
-                        Button {
-                            query = ""
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundStyle(lexoraPalette(scheme).mutedForeground)
-                        }
-                    }
-                }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 10)
-                .background(lexoraPalette(scheme).card)
-                .clipShape(Capsule())
-                .overlay(Capsule().stroke(lexoraPalette(scheme).border, lineWidth: 1))
-                .padding(16)
-
-                if query.isEmpty && !vm.recentSearches.isEmpty {
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Recent")
-                                .font(.lexoraDisplay(13, weight: .semibold))
-                                .foregroundStyle(lexoraPalette(scheme).foreground)
-                            ForEach(vm.recentSearches, id: \.self) { recent in
-                                Button {
-                                    query = recent
-                                } label: {
-                                    HStack {
-                                        Image(systemName: "clock.arrow.circlepath")
-                                            .foregroundStyle(lexoraPalette(scheme).mutedForeground)
-                                        Text(recent)
-                                            .font(.lexoraBody(13))
-                                            .foregroundStyle(lexoraPalette(scheme).foreground)
-                                        Spacer()
-                                    }
-                                    .padding(.vertical, 8)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                        .padding(.horizontal, 16)
-                    }
-                } else if results.isEmpty {
-                    Text("No words match \"\(query)\".")
-                        .font(.lexoraBody(13))
-                        .foregroundStyle(lexoraPalette(scheme).mutedForeground)
-                        .padding(.top, 40)
-                        .frame(maxWidth: .infinity)
-                } else {
-                    ScrollView {
-                        VStack(spacing: 8) {
-                            ForEach(results) { word in
-                                Button {
-                                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                                    vm.addRecentSearch(query.isEmpty ? word.word : query)
-                                    dismiss()
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                                        vm.openWord(word)
-                                    }
-                                } label: {
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        HStack {
-                                            Text(word.word)
-                                                .font(.lexoraDisplay(15, weight: .semibold))
-                                                .foregroundStyle(lexoraPalette(scheme).foreground)
-                                            Text(word.phonetic)
-                                                .font(.lexoraBody(11))
-                                                .foregroundStyle(lexoraPalette(scheme).mutedForeground)
-                                            Spacer()
-                                            Text(word.partOfSpeech.displayValue)
-                                                .font(.lexoraBody(10))
-                                                .foregroundStyle(lexoraPalette(scheme).highlight)
-                                        }
-                                        Text(word.definitions.first ?? "")
-                                            .font(.lexoraLong(12))
-                                            .foregroundStyle(lexoraPalette(scheme).foreground.opacity(0.8))
-                                            .lineLimit(2)
-                                    }
-                                    .padding(12)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .background(lexoraPalette(scheme).card)
-                                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                        .padding(.horizontal, 16)
-                    }
-                }
-            }
-            .background(LexoraColors.background)
-            .navigationTitle("Search")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { dismiss() }
-                        .font(.lexoraBody(13, weight: .medium))
-                        .foregroundStyle(lexoraPalette(scheme).highlight)
-                }
-            }
-        }
-    }
-}
-
-// MARK: - Word detail sheet (basic — opens when a word is selected)
-struct WordDetailSheet: View {
-    let word: WordEntry
-    @EnvironmentObject private var vm: LexoraViewModel
-    @Environment(\.colorScheme) private var scheme
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    // Header
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack(alignment: .firstTextBaseline) {
-                            Text(word.word)
-                                .font(.lexoraDisplay(28, weight: .semibold))
-                                .foregroundStyle(lexoraPalette(scheme).foreground)
-                            Spacer()
-                            Button {
-                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                                vm.toggleSave(word.id)
-                            } label: {
-                                Image(systemName: vm.isSaved(word.id) ? "bookmark.fill" : "bookmark")
-                                    .font(.system(size: 18, weight: .regular))
-                                    .foregroundStyle(lexoraPalette(scheme).highlight)
-                            }
-                        }
-                        Text(word.phonetic)
-                            .font(.lexoraBody(13))
-                            .foregroundStyle(lexoraPalette(scheme).mutedForeground)
-                        Text(word.partOfSpeech.displayValue + " · " + word.language)
-                            .font(.lexoraBody(11))
-                            .foregroundStyle(lexoraPalette(scheme).highlight)
-                    }
-
-                    divider
-
-                    // Definitions
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Definitions")
-                            .font(.lexoraDisplay(15, weight: .semibold))
-                            .foregroundStyle(lexoraPalette(scheme).foreground)
-                        ForEach(Array(word.definitions.enumerated()), id: \.offset) { idx, def in
-                            Text("\(idx + 1). \(def)")
-                                .font(.lexoraLong(13))
-                                .foregroundStyle(lexoraPalette(scheme).foreground.opacity(0.9))
-                        }
-                    }
-
-                    divider
-
-                    // Etymology
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Etymology")
-                            .font(.lexoraDisplay(15, weight: .semibold))
-                            .foregroundStyle(lexoraPalette(scheme).foreground)
-                        Text(word.etymology)
-                            .font(.lexoraLong(13))
-                            .foregroundStyle(lexoraPalette(scheme).foreground.opacity(0.85))
-                    }
-
-                    if !word.examples.isEmpty {
-                        divider
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Examples")
-                                .font(.lexoraDisplay(15, weight: .semibold))
-                                .foregroundStyle(lexoraPalette(scheme).foreground)
-                            ForEach(Array(word.examples.enumerated()), id: \.offset) { _, ex in
-                                Text("\"\(ex)\"")
-                                    .font(.lexoraLong(13).italic())
-                                    .foregroundStyle(lexoraPalette(scheme).foreground.opacity(0.85))
-                            }
-                        }
-                    }
-
-                    if !word.synonyms.isEmpty {
-                        divider
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("Synonyms")
-                                .font(.lexoraDisplay(15, weight: .semibold))
-                                .foregroundStyle(lexoraPalette(scheme).foreground)
-                            Text(word.synonyms.joined(separator: ", "))
-                                .font(.lexoraLong(13))
-                                .foregroundStyle(lexoraPalette(scheme).foreground.opacity(0.85))
-                        }
-                    }
-                }
-                .padding(16)
-                .padding(.bottom, 40)
-            }
-            .background(LexoraColors.background)
-            .navigationTitle("Word")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Close") { dismiss() }
-                        .font(.lexoraBody(13, weight: .medium))
-                        .foregroundStyle(lexoraPalette(scheme).highlight)
-                }
-            }
-        }
-    }
-
-    private var divider: some View {
-        Rectangle()
-            .fill(lexoraPalette(scheme).border)
-            .frame(height: 1)
-    }
+#Preview {
+    ContentView()
+        .environmentObject(LexoraViewModel())
+        .environmentObject(LexoraThemeState())
 }

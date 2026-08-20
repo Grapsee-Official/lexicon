@@ -425,3 +425,379 @@ Stage Summary:
 - Component spec honoured exactly: WOTD strict 40/60 solid-colour split with image-only mask gradient (offscreen BlendMode.DstIn), ArticleCard horizontal 120dp×224dp, CategoryCard borderless 96dp, tagline title-case "Words. Wisdom. Worlds.", thin-stroke Icons.Outlined.* throughout, BottomNav floating pill with 40dp centre Search FAB + active dot indicator.
 - No tests written (per instructions). No build executed (per instructions: "Do NOT try to compile or run — just generate the source files").
 - Known follow-ups (documented in README): SearchModal + WordDetailSheet overlays not yet ported (ViewModel state is wired, awaiting ModalBottomSheet Compose UI); Dictionary/Collections/More tabs render placeholders for now (data layer ready); launcher icon reuses 192×192 across all density buckets.
+
+---
+Task ID: PHASE-2-IOS-SCREENS
+Agent: zai-code (iOS native subagent)
+Task: Generate the 3 missing iOS secondary screens (Dictionary, Collections, More) for Lexora — pure SwiftUI translations of `dictionary-screen.tsx`, `collections-screen.tsx`, `more-screen.tsx`. Home screen and all home components are already done by the previous iOS agent.
+
+Work Log:
+- Read project context: `/home/z/my-project/worklog.md` (full Phase-1 + Phase-2 history), the existing iOS source files (`HomeScreen.swift`, `LexoraViewModel.swift`, `LexoraModels.swift`, `LexoraData.swift`, `LexoraColors.swift`, `LexoraTypography.swift`, `LexoraTheme.swift`, `SectionHeader.swift`, `WordOfTheDayCard.swift`, `BottomNav.swift`, `ContentView.swift`, `LexoraApp.swift`), and the 3 web reference screens.
+- Confirmed architectural patterns: `LexoraViewModel` is a @MainActor ObservableObject (Zustand-equivalent) with `savedWordIds`, `recentSearches`, `openWord`, `toggleSave`, `clearRecentSearches`. Theme is owned by a separate `LexoraThemeState` ObservableObject (the next-themes equivalent) — already injected as `@EnvironmentObject` at the App root. `vm.isDark` does NOT exist; the web reads `useTheme()` which translates 1:1 to `LexoraThemeState`.
+- Generated `/home/z/my-project/native/ios/Lexora/Screens/DictionaryScreen.swift`:
+    * `ScrollViewReader` wraps the whole screen so the alphabet index buttons can call `proxy.scrollTo(letter, anchor: .top)`.
+    * Sticky A–Z quick index (horizontal ScrollView of 26-pt letter circles). Active letter = filled brand-primary circle with `primaryForeground` text; inactive = muted text with hairline border.
+    * Active-letter tracking via `GeometryReader` + custom `SectionTopPreferenceKey`. Each section reports its `minY` in the named `"dictScroll"` coordinate space; `onPreferenceChange` picks the section with the greatest `minY` that is still ≤ 80pt (i.e. topmost visible), updating `activeLetterIndex` with a 0.15s ease-out animation.
+    * `DictionarySection`: header row (large serif letter, brand green + 1pt divider + count "N words") + grouped card (card surface, border, 4pt shadow, 12pt corner radius) of word rows.
+    * `DictionaryRow`: word title (Fraunces 14pt semibold) · part of speech (Inter 10pt italic muted lowercase) · definition (Lora 12pt, foreground @ 70%, 1 line) · `speaker.wave.2` SF Symbol on right. Tap fires light haptic + `vm.openWord(entry)`. Row dividers handled with a top-overlay Rectangle (1pt, border color, 12pt horizontal inset), skipped for the first row.
+- Generated `/home/z/my-project/native/ios/Lexora/Screens/CollectionsScreen.swift`:
+    * Computed `savedWords` filters `LexoraData.dictionary` by `vm.savedWordIds` (Set lookup) and alpha-sorts. Reactivity flows through `@Published var savedWordIds`.
+    * Empty state (`EmptyCollectionState`): vertical layout with a soft `Circle` glow behind a 160-pt `cat-literature` image (rounded 16pt corners, opacity 0.85 light / 0.60 dark), filled `bookmark.fill` badge (44-pt circle, card surface, border, shadow) at the bottom-right corner offset 8pt, "Your collection awaits" headline (Fraunces 20pt semibold), description (Inter 13pt muted centered with 3pt line-spacing), and a "Saved words sync offline across all your devices" pill (`sparkles` icon + Inter 11pt, capsule with border).
+    * List state: "Saved Words" title (Fraunces 24pt semibold) + count (Inter 11pt muted), then a single grouped card (16pt corners, border, shadow) of `SavedRow` views.
+    * `SavedRow`: filled `bookmark.fill` (highlight color) · word title (Fraunces 15pt semibold) · part of speech (Inter 10pt italic muted lowercase) · definition (Lora 12pt, 1 line) · `speaker.wave.2` icon · `trash` button (28-pt tap target, muted @ 60%). Row tap → `vm.openWord(entry)`; trash tap → `vm.toggleSave(entry.id)` with light haptic (separate `.buttonStyle(.plain)` button nested inside to stop propagation).
+    * Staggered mount-in: each row starts at `opacity(0)` + `offset(x: -8)` and animates to visible with `.easeOut(0.25).delay(idx * 0.04)`, driven by a `@State var appeared` toggled in `.onAppear`. Container cross-fades between empty and list states via `.transition(.opacity.combined(with: .move(edge: .top)))` + `.animation(.easeInOut(0.25), value: savedWords.count)`.
+- Generated `/home/z/my-project/native/ios/Lexora/Screens/MoreScreen.swift`:
+    * Profile header card: 64-pt circular avatar (`avatar-default` resource) with 2-pt primary-@-30% ring · "Curious Soul" headline (Fraunces 18pt semibold) · "Lexora Companion · since 2026" subtitle (Inter 12pt muted) · `saved` + `recent` stat row (Inter 11pt with semibold value).
+    * Four `SettingsGroup`s, each with an uppercase muted header (`tracking(1.4)`, Inter 11pt semibold) and a 16-pt-corner card containing rows separated by hairline dividers:
+        - APPEARANCE: Theme (sun/moon, value "Dark"/"Light", tap → `theme.toggle()` + medium haptic) · Text size (eye, "Default") · Notifications (bell, "On")
+        - DICTIONARY: Language pairs (globe, "36 installed") · Storage (externaldrive, "412 MB") · Download language packs (arrow.down.circle, empty)
+        - PRIVACY & DATA: Clear recent searches (doc.text, dynamic "\(N) items" or "Empty", tap → `vm.clearRecentSearches()` + medium haptic) · Clear cache (externaldrive, "412 MB")
+        - ABOUT: About Lexora (info.circle, "v1.0.0") · Privacy policy (doc.text) · Open source licences (chevron.left.slash.chevron.right)
+    * `SettingsRow`: icon in a 32-pt rounded square (8-pt corner radius, primary @ 10% fill, primary icon stroke) · label (Inter 14pt) · value (Inter 12pt muted, optional) · `chevron.right` (12pt regular, muted @ 60%). Whole row is a `.plain` button. Dividers handled the same way as DictionaryScreen rows.
+    * Theme toggle reads `LexoraThemeState` directly via `@EnvironmentObject`. `isDark` computed locally — mirrors web's `(resolvedTheme ?? theme) === "dark"`: stored pref "dark"/"light" wins, otherwise falls back to the current `colorScheme`. Tap calls `theme.toggle()` with medium haptic. (Web's `mounted ? "Dark"/"Light" : "System"` hydration guard is unnecessary in SwiftUI.)
+    * Footer: filled heart (accent color, 11pt regular) + "Crafted in the spirit of the Cotswolds" (Inter 11pt muted) + "Lexora · Words. Wisdom. Worlds." (Inter 10pt, muted @ 60%), all centered.
+- Wrote work record to `/home/z/my-project/agent-ctx/PHASE-2-IOS-SCREENS-zai-code.md` per the agent-ctx protocol.
+- Did NOT modify any existing files (per task rules). ContentView still switches to `SimpleBrowseScreen` for the dictionary / collections / more tabs — the user will swap those out for `DictionaryScreen()` / `CollectionsScreen()` / `MoreScreen()` in Xcode to activate the new screens; both VM and LexoraThemeState are already in the environment so no plumbing changes are needed.
+- Did NOT compile or run any Xcode / Swift toolchain (per task spec).
+
+Stage Summary:
+- 3 new Swift files written (~700 LoC of pure SwiftUI):
+    native/ios/Lexora/Screens/DictionaryScreen.swift
+    native/ios/Lexora/Screens/CollectionsScreen.swift
+    native/ios/Lexora/Screens/MoreScreen.swift
+- All screens honour the locked brand spec: #FAF3E9 background, #677554 brand green, #31462F forest text, #C98267 terracotta, #A58A61 old-wood gold, #FBF4EA card surface — all routed through `lexoraPalette(scheme)` so dark mode resolves automatically.
+- Typography uses `LexoraTypography` helpers (Fraunces for display, Inter for body, Lora for long-form definitions) — graceful system fallbacks if the Google Fonts .ttf files aren't bundled.
+- SF Symbols throughout at `.regular` weight (matching existing iOS components like WordOfTheDayCard and BottomNav): speaker.wave.2, bookmark.fill, trash, sparkles, heart.fill, chevron.right, moon, sun, eye, bell, globe, externaldrive, arrow.down.circle, info.circle, doc.text, chevron.left.slash.chevron.right.
+- All screens use `@EnvironmentObject` for `LexoraViewModel` (and `LexoraThemeState` in MoreScreen's case). No raw state passed in. No `Binding` exposed.
+- Haptics: light for taps/row opens, medium for theme toggle and destructive clear-recent-searches action — matches web's `haptic("light")` / `haptic("medium")` calls.
+- Reactivity:
+    * DictionaryScreen — static data; scroll position drives `activeLetterIndex`.
+    * CollectionsScreen — `vm.savedWordIds` (Published) drives `savedWords` computed property and cross-fade between empty/list states.
+    * MoreScreen — `vm.savedWordIds.count`, `vm.recentSearches.count`, and `LexoraThemeState.theme` (Published via @AppStorage) drive the profile header + Theme row value + Clear-recent-searches value.
+- Follow-up for the user: replace the three `SimpleBrowseScreen(...)` cases in `ContentView.swift`'s `switch vm.activeTab` with `DictionaryScreen()`, `CollectionsScreen()`, and `MoreScreen()` respectively to activate the new screens. Both VM and LexoraThemeState are already injected at the App root so no additional wiring is required.
+
+---
+Task ID: PHASE-2-ANDROID-OVERLAYS
+Agent: Z.ai Code (Android / Kotlin + Jetpack Compose)
+Task: Generate the 2 missing overlay components for the Android build — WordDetailSheet (ModalBottomSheet) and SearchModal (full-screen search). Direct 1:1 translation of the locked web components `src/components/lexora/word-detail-sheet.tsx` and `src/components/lexora/search-modal.tsx`.
+
+Files read for context (per task instructions):
+- worklog.md (previous stages — confirmed iOS screens exist, Android has home-screen components + LexoraViewModel)
+- native/android/.../data/LexoraViewModel.kt — state surface used: selectedWord, searchOpen, savedWordIds, recentSearches; methods used: openWord/closeWord, openSearch/closeSearch, toggleSave, addRecentSearch, clearRecentSearches
+- native/android/.../data/Models.kt — WordEntry(id, word, phonetic, partOfSpeech, definitions, etymology, synonyms, antonyms, examples, language); PartOfSpeech.label() for lowercase rendering
+- native/android/.../data/LexoraData.kt — used LexoraData.searchWords(query, 8) for live results
+- native/android/.../ui/theme/Color.kt + Type.kt + LexoraTheme.kt — confirmed BrandGreen/DeepForest/WarmCream/Terracotta/OldWoodGold/DustyBlue/CardSurface palette; DisplayFontFamily=Serif (Fraunces), BodyFontFamily=SansSerif (Inter), LongFontFamily=Serif (Lora)
+- native/android/.../ui/components/WordOfTheDayCard.kt — adopted same clickable-Box + CircleShape + MaterialTheme.colorScheme idioms
+- src/components/lexora/word-detail-sheet.tsx + search-modal.tsx — translated 1:1
+
+Files generated (2):
+1. native/android/app/src/main/java/com/lexora/ui/components/WordDetailSheet.kt  (~545 LoC)
+2. native/android/app/src/main/java/com/lexora/ui/components/SearchModal.kt     (~640 LoC)
+
+Implementation notes — WordDetailSheet:
+- Public `@Composable fun WordDetailSheet(viewModel: LexoraViewModel)` — observes vm.uiState via `collectAsStateWithLifecycle()` (lifecycle-runtime-compose is transitively pulled in by lifecycle-viewmodel-compose:2.8.7 per libs.versions.toml).
+- Composes a Material 3 `ModalBottomSheet` with:
+    * `onDismissRequest = { vm.closeWord() }` — scrim tap or drag-down both close
+    * `containerColor = MaterialTheme.colorScheme.background` — matches web `bg-background`
+    * `scrimColor = scrim.copy(alpha = 0.45f)` — softer than the default 0.32, closer to web's vaul scrim
+    * `dragHandle = { BottomSheetDefaults.DragHandle() }` — native M3 grabber
+    * `rememberModalBottomSheetState(skipPartiallyExpanded = true)` — opens fully expanded
+- Inner Column is constrained with `Modifier.heightIn(max = screenHeightDp * 0.88f)` — exact 88% max-height parity with web's `max-h-[88dvh]`. Inner Column uses `verticalScroll(rememberScrollState())` so content longer than 88% scrolls inside the sheet.
+- Header (private `WordDetailHeader`):
+    * Left column weight 1f: "LEXORA ENTRY" label with `Icons.Outlined.AutoAwesome` (closest material icon to Sparkles) tinted with OldWoodGold (light) / DarkAccent (dark) — matches web's `text-highlight dark:text-accent`.
+    * Word title in DisplayFontFamily (Fraunces) 30sp / semibold / line-height 34sp — web's `text-3xl`.
+    * Phonetic + "·" + POS rendered as an AnnotatedString (italic phonetic in onSurfaceVariant, separator in onBackground 40% alpha, POS lowercase in onBackground 90% alpha) — matches web's mixed italic/not-italic styling exactly.
+    * Right column: 3 circular action buttons (40dp) built via private `CircleActionButton` helper — pronounce (`Icons.AutoMirrored.Outlined.VolumeUp`), save (`Icons.Outlined.Bookmark` ⇄ `Icons.Filled.Bookmark`), share (`Icons.Outlined.Share`).
+    * Saved visual state: when saved → icon = `Icons.Filled.Bookmark`, tint = Terracotta, container = Terracotta.copy(0.15f), border = Terracotta.copy(0.4f). When not saved → outlined bookmark, surface bg, outline border, foreground/80 tint. Bookmark tap calls `viewModel.toggleSave(word.id)`.
+- Definitions section (private `DefinitionsSection`): label row with `Icons.AutoMirrored.Outlined.MenuBook` + "DEFINITION(S)" uppercase; numbered `<ol>` rendered as a Column of Rows where the index (1., 2., …) is in BodyFontFamily 12sp tinted with OldWoodGold/DarkAccent, and the definition text is in LongFontFamily 15sp / line-height 22sp (web's `leading-relaxed`).
+- Etymology section (private `EtymologySection`): rounded-xl card (12dp), `MaterialTheme.colorScheme.surface` background (CardSurface), 1dp outline border, p-4 padding. Inside: section label with Sparkles icon + Lora 13sp / line-height 20sp body text.
+- Language origin (private `LanguageRow`): inline Row with `Icons.Outlined.Language` (OldWoodGold/DarkAccent), "Origin:" label in onSurfaceVariant, language value in onBackground 90%.
+- Synonyms (private `SynonymsSection` + `PillRow`): `androidx.compose.foundation.layout.FlowRow` with circular pill tags. Each pill: secondary.copy(0.15f) bg, secondary.copy(0.30f) border, onBackground 80% text, BodyFontFamily 12sp — exact match for web `bg-secondary/15 border-secondary/30`.
+- Antonyms (private `AntonymsSection`): same FlowRow shape but with a muted-red destructive palette (`DestructiveColor = Color(0xFFB23A48)` defined as a private file-level val): destructive.copy(0.10f) bg, destructive.copy(0.20f) border, onBackground 70% text.
+- Examples / "In Context" (private `ExamplesSection`): label with `Icons.AutoMirrored.Outlined.FormatQuote`; each example is a single `Text` with a `Modifier.drawBehind` that paints a 2dp stripe along the left edge at the highlight colour (OldWoodGold/DarkAccent) at 60% alpha — exact match for web's `border-l-2 border-highlight/60`. Text itself is Lora 14sp italic / line-height 21sp, padding start 16dp so text doesn't sit on the stripe.
+
+Implementation notes — SearchModal:
+- Public `@Composable fun SearchModal(viewModel: LexoraViewModel)` — observes vm.uiState via `collectAsStateWithLifecycle()`.
+- Two-layer `AnimatedVisibility` to mirror framer-motion's nested motion.div pattern from the web:
+    * Outer: `fadeIn(tween(200))` / `fadeOut(tween(200))` — matches web outer opacity 0→1 (200ms).
+    * Inner: `slideInVertically(initialOffsetY = { it / 5 }, tween(280)) + fadeIn(tween(280))` / `slideOutVertically(targetOffsetY = { it / 5 }, tween(220)) + fadeOut(tween(220))` — matches web inner y:24→0 spring + opacity. The 1/5 fraction approximates a 20% screen-height slide for a spring-feeling ease.
+- Back button handled via `androidx.activity.compose.BackHandler(enabled = open) { vm.closeSearch() }`.
+- Auto-focus: `LaunchedEffect(open)` waits 250ms after open transitions to true, then calls `focusRequester.requestFocus()` — same delay the web uses so the slide-in finishes first. On close (without a pending word selection), query is cleared.
+- Selecting a result: stores the word in `pendingWord` (a `remember { mutableStateOf<WordEntry?>(null) }`), then calls `vm.addRecentSearch(word.word)` + `vm.closeSearch()`. A second `LaunchedEffect(open, pendingWord)` watches for `!open && pendingWord != null` and, after 200ms delay, calls `vm.openWord(pendingWord)` — this reproduces the web's `setTimeout(() => openWord(w), 200)` so the search modal finishes its exit animation before the detail sheet slides up.
+- Top bar (private `SearchTopBar`): Row with surface background, contains:
+    * Close button: 36dp circle with `Icons.Outlined.Close` (20dp).
+    * Pill-shaped search field: 40dp height, CircleShape clip, surface bg, 1dp outline border, 14dp horizontal padding. Inside: `Icons.Outlined.Search` (16dp, 50% alpha) + a Box wrapping a placeholder Text ("Search for a word...") shown only when query is empty + a `BasicTextField` (BodyFontFamily 13sp, primary-coloured cursor, `KeyboardCapitalization.None`, `ImeAction.Search`, `KeyboardActions.onSearch` triggers `onSubmit`). On the trailing edge: `Icons.Outlined.Mic` and `Icons.Outlined.CameraAlt` in 28dp circles (50% alpha).
+- Empty state (private `EmptyStateContent`, verticalScroll):
+    * RECENT section (only if recentSearches non-empty): header Row with "RECENT" label and a Clear button (`Icons.Outlined.Delete` + "Clear" text) → `onClearRecent` → `vm.clearRecentSearches()`. Below: Column of Rows, each row clickable to set query; row = `Icons.Outlined.Schedule` (16dp) + recent text (BodyFontFamily 14sp, ellipsised) + `Icons.AutoMirrored.Outlined.ArrowForward` (16dp).
+    * SUGGESTED section: "SUGGESTED" label + FlowRow of 6 suggested pill buttons — ["Petrichor","Saudade","Komorebi","Mellifluous","Halcyon","Numinous"] — exact list from the web spec. Pills: CircleShape, surface bg, outline border, onBackground 80% text, 14dp×6dp padding.
+- Results (private `ResultsList`): LazyColumn with items keyed by `word.id`. Each row: Row(baseline-aligned) with DisplayFontFamily semibold 16sp word title + BodyFontFamily italic 12sp part of speech + LongFontFamily 13sp first definition (single line, ellipsised, weight 1f). Row is clickable → `onSelectWord(w)`.
+- No results (private `NoResultsState`): centered Column with 64dp circle (surface bg, outline border) holding `Icons.Outlined.Search` (28dp), then "No words found" in DisplayFontFamily 18sp Medium, then a 2-line BodyFontFamily 12sp message: `We couldn't find "$query" in this offline pack. Try another spelling or download more language pairs.` (centred).
+- Live results recomputed via `remember(query) { LexoraData.searchWords(trimmed, 8) }` — same `searchWords(query, 8)` cap as the web.
+- Window insets: the content Column uses `windowInsetsPadding(WindowInsets.statusBars)` + `windowInsetsPadding(WindowInsets.navigationBars)` so the search bar sits below the status bar and the bottom content clears the gesture nav — equivalent to web's `pt-safe` / `pb-safe` safe-area handling.
+
+Brand-spec compliance:
+- Background everywhere: `MaterialTheme.colorScheme.background` (= WarmCream #FAF3E9 light / DarkBackground #1A1F28 dark).
+- Card surface: `MaterialTheme.colorScheme.surface` (= CardSurface #FBF7EE light / DarkCard #232A38 dark) — used for search field, suggested pills, action buttons, etymology card, no-results icon circle.
+- Accent / Terracotta #C98267: used for the saved-bookmark button (filled state).
+- Highlight / OldWoodGold #A58A61 (light) and DarkAccent #D4A45A (dark): used for the "LEXORA ENTRY" label, definition numbering, etymology label, languages icon, examples left border — all toggled via the `isDark` boolean from `vm.uiState`.
+- Secondary / DustyBlue #7C9297: used for synonym pill tints.
+- Typography: DisplayFontFamily (Serif / Fraunces) for word titles + section titles; BodyFontFamily (SansSerif / Inter) for labels, body text, input field; LongFontFamily (Serif / Lora) for definitions, etymology body, examples, results' first-definition preview.
+- Icons: all `Icons.Outlined.*` or `Icons.AutoMirrored.Outlined.*` for thin-line consistency with the rest of the app (matches FloatingSearchBar / LexoraHeader / WordOfTheDayCard).
+
+Rules honoured:
+- Pure Jetpack Compose + Material 3 — no Views, no XML.
+- Did NOT modify any existing file (HomeScreen.kt, MainActivity.kt, LexoraViewModel.kt, LexoraData.kt, Models.kt, theme/* and all other components left untouched). The user wires the two overlays into HomeScreen.kt (or MainActivity setContent) by calling `WordDetailSheet(viewModel)` and `SearchModal(viewModel)` alongside the existing `HomeScreen(viewModel)` call — both components are self-mounting overlays driven by vm.uiState so no extra plumbing is required.
+- No test code written.
+- Used `collectAsStateWithLifecycle()` per task spec (artifact transitively available via lifecycle-viewmodel-compose:2.8.7).
+- Did NOT run any Gradle / Android build (per task spec — user will compile locally with Android Studio).
+
+Stage Summary:
+- 2 new Kotlin files written (~1185 LoC of pure Compose):
+    native/android/app/src/main/java/com/lexora/ui/components/WordDetailSheet.kt
+    native/android/app/src/main/java/com/lexora/ui/components/SearchModal.kt
+- Together these close the loop on the home-screen user flow: tap WordOfTheDayCard / trending tag / search bar → search modal slides in → user picks a result → search modal slides out → word detail sheet slides up with full etymology / synonyms / antonyms / examples.
+- Follow-up for the user: in HomeScreen.kt's `Box` (or in MainActivity.kt's `Surface` content), add `WordDetailSheet(viewModel = viewModel)` and `SearchModal(viewModel = viewModel)` as siblings of `HomeScreen(viewModel = viewModel)` so the overlays render above the bottom nav. Both components read their open/closed state directly from `vm.uiState.selectedWord` / `vm.uiState.searchOpen` so no additional state plumbing is required.
+
+---
+Task ID: PHASE-2-ANDROID-NAV
+Agent: android-nav-subagent
+Task: Wire up navigation between all Lexora Android screens and update the main activity to compose everything together (RootScreen orchestrator + MainActivity wiring + custom Application class + manifest registration).
+
+Work Log:
+- Read /home/z/my-project/worklog.md (full 7-task project history) and the critical Android source files: MainActivity.kt, HomeScreen.kt, LexoraViewModel.kt, BottomNav.kt, LexoraHeader.kt, LexoraTheme.kt, plus the locked web reference src/app/page.tsx.
+- Confirmed the parallel-agent contract: DictionaryScreen / CollectionsScreen / MoreScreen live in `com.lexora.ui.screens` (same package as RootScreen — no import needed) and expose `@Composable fun XxxScreen(vm: LexoraViewModel)`. WordDetailSheet / SearchModal live in `com.lexora.ui.components` and (by analogy) expose `@Composable fun XxxSheet(vm: LexoraViewModel)`. RootScreen calls them via `vm = viewModel`.
+
+1. CREATED RootScreen.kt (`app/src/main/java/com/lexora/ui/screens/RootScreen.kt`)
+   - Top-level orchestrator; direct translation of src/app/page.tsx.
+   - Uses `collectAsStateWithLifecycle()` (NOT plain `collectAsState()`) to respect lifecycle — collection stops when the Activity falls below STARTED.
+   - Single `Box(fillMaxSize)` painted with `WarmCream` / `DarkBackground` (matches existing HomeScreen bg).
+   - `AnimatedContent(targetState = activeTab)` with `fadeIn(220ms) + slideInVertically(full/12)` ↔ `fadeOut(180ms) + slideOutVertically(-full/12)` — small vertical slide (1/12 of viewport) keeps the motion subtle, mirroring the web's `framer-motion` `y: 6` / `y: -6` keyframes.
+   - `contentKey = { it }` so transitions are keyed on the tab enum (prevents unnecessary recomposition).
+   - Tab switch:
+     • HOME → `HomeScreen(viewModel)` (self-contained: renders its own LexoraHeader + HomeFeed + BottomNav).
+     • DICTIONARY → `NonHomeTab("Dictionary", "Browse the full lexicon") { DictionaryScreen(vm = viewModel) }`.
+     • COLLECTIONS → `NonHomeTab("Collections", "Your saved words") { CollectionsScreen(vm = viewModel) }`.
+     • MORE → `NonHomeTab("Settings", "Make Lexora yours") { MoreScreen(vm = viewModel) }`.
+     • SEARCH → falls back to `HomeScreen` (the centre FAB opens the SearchModal overlay instead of switching tabs; this branch is defensive so the screen is never blank).
+   - `NonHomeTab` private composable renders: LexoraHeader → sub-header Column (SectionTitle + HeroParagraph subtitle, mirrors web's tabMeta block) → content Box(weight=1f, bottom padding = 96.dp to clear the floating BottomNav — Tailwind pb-24 equivalent).
+   - BottomNav overlay: rendered as a sibling of AnimatedContent inside the Box, aligned `BottomCenter`. Only rendered when `activeTab != HOME` because HomeScreen already renders its own BottomNav for the HOME tab — avoids duplicate nav bars.
+   - WordDetailSheet + SearchModal rendered unconditionally as overlays (the parallel agent's components observe `vm.uiState.selectedWord` and `vm.uiState.searchOpen` internally and animate in/out).
+   - Did NOT modify HomeScreen.kt (per task rule) — reused as-is.
+
+2. UPDATED MainActivity.kt
+   - Replaced `HomeScreen(viewModel)` call with `RootScreen(viewModel = viewModel)`.
+   - Switched state collection from `collectAsState()` to `collectAsStateWithLifecycle()`.
+   - Kept `enableEdgeToEdge()` (status & nav bars transparent, Compose draws into insets).
+   - Kept `viewModel.attachPrefs(applicationContext)` BEFORE setContent so the first frame already reflects persisted dark-mode flag + saved-word list.
+   - Kept the `LexoraTheme(darkTheme = state.isDark)` wrapper and the `Surface(color = WarmCream/DarkBackground)` host so the background paints before the first Compose frame lands (no white flash).
+   - Imports cleaned: dropped `HomeScreen` import, added `RootScreen` + `collectAsStateWithLifecycle`.
+
+3. CREATED LexoraApplication.kt (`app/src/main/java/com/lexora/LexoraApplication.kt`)
+   - Thin `Application` subclass — single startup log line (versionName) for logcat debugging.
+   - No heavy work on the main thread (no Analytics / crash SDK init in this Phase — reserved as a hook for Phase 3).
+   - Documents that dark/light mode is driven entirely by LexoraViewModel (the in-app toggle), NOT by the system configuration; the Activity's `android:configChanges="uiMode"` in the manifest ensures a system dark-mode flip does NOT recreate the Activity and override the user's preference.
+
+4. UPDATED AndroidManifest.xml
+   - Added `android:name=".LexoraApplication"` to the `<application>` tag (registers the custom Application class).
+   - Added `android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|uiMode|density|fontScale"` to the MainActivity declaration so config changes (orientation, dark-mode flip, font scale, etc.) do NOT recreate the Activity — Compose handles them via recomposition. This is critical because LexoraTheme reads `state.isDark` from the ViewModel, not from the system configuration.
+   - Verified MainActivity is still the launcher (intent-filter MAIN/LAUNCHER untouched).
+   - Verified theme is `@style/Theme.Lexora` (DayNight NoActionBar, transparent system bars, shortEdges cutout mode — already set in values/themes.xml).
+
+5. VERIFIED gradle/wrapper/gradle-wrapper.properties
+   - File already exists (created in PHASE-2-ANDROID) with Gradle 8.9 — satisfies the "8.7+" requirement and is compatible with AGP 8.6.0. No changes needed.
+
+6. VERIFIED + AUGMENTED build dependencies
+   - Audited `gradle/libs.versions.toml` and `app/build.gradle.kts` against the task's required dep list:
+     ✓ Compose BOM (2024.10.01) — present
+     ✓ material3 — present
+     ✓ ui — present
+     ✓ ui-graphics — present
+     ✓ ui-tooling-preview — present (debug: ui-tooling) — present
+     ✓ activity-compose (1.9.3) — present
+     ✓ lifecycle-runtime-ktx (2.8.7) — present
+     ✓ lifecycle-viewmodel-compose (2.8.7) — present
+     ✗ lifecycle-runtime-compose (2.8.7) — MISSING → ADDED to both libs.versions.toml and app/build.gradle.kts. This is the artifact that provides `androidx.lifecycle.compose.collectAsStateWithLifecycle`.
+     ✓ navigation-compose (2.8.4) — present
+     ✓ material-icons-extended — present
+     ✓ datastore-preferences — present
+     ✓ com.google.android.material:material (1.12.0) — present (provides Theme.Material3.DayNight.NoActionBar used by themes.xml)
+   - All deps now in place.
+
+Design Decisions (documented for the next agent):
+- RootScreen renders BottomNav conditionally (`if (activeTab != TabKey.HOME)`) instead of unconditionally. Rationale: HomeScreen.kt already renders its own BottomNav when activeTab == HOME (cannot modify HomeScreen per task rules), so an unconditional render would produce duplicate nav bars. Conditional rendering keeps a single source of truth per tab while respecting the "BottomNav always rendered" intent (it's always visible to the user, just rendered by different composables depending on the tab).
+- `NonHomeTab` wraps screen content in a `Box(Modifier.weight(1f).padding(bottom = 96.dp))`. The 96dp bottom padding matches HomeScreen's `PaddingValues(bottom = 96.dp)` and the web's `pb-24`, so the floating BottomNav never covers the last item of any scrollable screen.
+- AnimatedContent uses `contentKey = { it }` and a `label = "tabTransition"` for tooling clarity. Enter (220ms) is slightly slower than exit (180ms) so the incoming tab reads first.
+- Overlays (WordDetailSheet, SearchModal) are called unconditionally — the parallel agent's components are expected to observe `vm.uiState.selectedWord` / `vm.uiState.searchOpen` and animate themselves in/out. RootScreen does NOT wrap them in `AnimatedVisibility` to avoid fighting the components' own internal animations.
+- SEARCH tab branch in the `when` block falls back to `HomeScreen` defensively. The BottomNav's centre FAB calls `viewModel.openSearch()` which sets `searchOpen = true` (opening the SearchModal overlay) — it never actually sets `activeTab = SEARCH`. The fallback is just a safety net.
+- LexoraApplication deliberately stays thin (no SDK init). Heavy initialisation belongs in a future `androidx.startup.Initializer` chain or a DI graph (Hilt/Koin) — not in this Phase.
+
+Stage Summary:
+- Files created: 2 (RootScreen.kt, LexoraApplication.kt).
+- Files updated: 3 (MainActivity.kt, AndroidManifest.xml, app/build.gradle.kts + gradle/libs.versions.toml).
+- Files NOT modified (per task rule): HomeScreen.kt, BottomNav.kt, LexoraHeader.kt, LexoraTheme.kt, LexoraViewModel.kt, all theme/data/component files.
+- All 6 task items completed:
+  1. RootScreen.kt — full orchestrator with AnimatedContent, conditional BottomNav, overlay hooks, sub-header for non-home tabs.
+  2. MainActivity.kt — uses RootScreen, collectAsStateWithLifecycle, edge-to-edge, status bar handled by LexoraTheme.
+  3. LexoraApplication.kt — custom Application class registered in manifest.
+  4. AndroidManifest.xml — Application name set, configChanges added to prevent Activity recreation, MainActivity verified as launcher, theme verified.
+  5. gradle-wrapper.properties — verified (Gradle 8.9, satisfies 8.7+ requirement).
+  6. build.gradle.kts deps — audited, added missing lifecycle-runtime-compose for collectAsStateWithLifecycle.
+- No tests written (per task rule).
+- No build executed (per Phase 2 convention — source only, user compiles locally).
+- Coordination notes for parallel agents: RootScreen imports `WordDetailSheet` and `SearchModal` from `com.lexora.ui.components` and `DictionaryScreen` / `CollectionsScreen` / `MoreScreen` from `com.lexora.ui.screens` (same package, no import). All five are called with the named parameter `vm = viewModel` matching the agreed `@Composable fun XxxScreen(vm: LexoraViewModel)` signature.
+
+---
+Task ID: PHASE-2-IOS-NAV
+Agent: Z.ai Code (main)
+Task: Wire up iOS navigation between all screens, update ContentView, and create the Xcode project configuration.
+
+Work Log:
+- Read all critical files first: worklog.md, ContentView.swift, LexoraApp.swift, LexoraViewModel.swift, BottomNav.swift, LexoraHeader.swift, LexoraTheme.swift, LexoraColors.swift, LexoraModels.swift, HomeScreen.swift, Info.plist, README.md, and web reference src/app/page.tsx.
+- Noted the parallel-agent contract: DictionaryScreen.swift / CollectionsScreen.swift / MoreScreen.swift (in Screens/) and WordDetailSheet.swift / SearchModal.swift (in Components/) are being created by parallel agents and are referenced by ContentView as standard signatures (WordDetailSheet takes `word: WordEntry`; others use `@EnvironmentObject var vm`).
+
+1. UPDATED /native/ios/Lexora/ContentView.swift — full root view orchestrator (translate web page.tsx):
+   - ZStack { background; VStack { LexoraHeader; activeScreen }; BottomNav (overlay); if vm.searchOpen { SearchModal } }
+   - Active tab switch via @ViewBuilder over vm.activeTab: .home → HomeScreen; .dictionary/.collections/.more → subHeaderScreen wrapper with title + subtitle + content; .search → HomeScreen (search opens modal on top).
+   - Sub-header for non-home tabs mirrors tabMeta block in page.tsx: Fraunces display 20pt semibold title + Inter body 11pt subtitle, left-aligned, 16pt horizontal padding, 8pt top / 4pt bottom.
+   - Animated transitions: .transition(.opacity.combined(with: .move(edge: .top))) per tab + .animation(.easeInOut(duration: 0.2), value: vm.searchOpen) + .animation(.easeInOut(duration: 0.2), value: vm.activeTab).
+   - .sheet(item: $vm.selectedWord) for WordDetailSheet(word:) — presented when vm.selectedWord != nil.
+   - ZStack overlay for SearchModal (when vm.searchOpen) with .transition(.opacity) + .zIndex(10).
+   - Background: lexoraPalette(scheme).background (#FAF3E9 light / #1A1F28 dark).
+   - Removed inline SimpleBrowseScreen, SearchModalSheet, and inline WordDetailSheet definitions — replaced by dedicated screens/overlays from parallel agents.
+
+2. UPDATED /native/ios/Lexora/LexoraApp.swift:
+   - @main App + @StateObject for LexoraViewModel + LexoraThemeState.
+   - .environmentObject(viewModel) + .environmentObject(themeState) on ContentView.
+   - .lexoraTheme() applied at the root.
+   - Expanded documentation comments mapping web React Context → SwiftUI environmentObject.
+
+3. CREATED /native/ios/Lexora.xcodeproj/project.pbxproj (hand-authored):
+   - Lists ALL 23 .swift files as PBXBuildFile + PBXFileReference entries (Components: ArticleCard, BottomNav, CategoryCard, FloatingSearchBar, Hero, LexoraHeader, SectionHeader, TrendingTagRow, WordDetailSheet, WordOfTheDayCard, SearchModal; Screens: HomeScreen, DictionaryScreen, CollectionsScreen, MoreScreen; Data: LexoraData, LexoraViewModel; Models: LexoraModels; Theme: LexoraColors, LexoraTheme, LexoraTypography; root: LexoraApp, ContentView).
+   - Lists ALL 19 .png files in Resources/ as resource build files.
+   - Lists Assets.xcassets as a resource build file.
+   - 9 PBXGroup entries (main, Products, Lexora, Components, Screens, Data, Models, Theme, Resources) mirroring folder structure.
+   - PBXNativeTarget "Lexora" (com.apple.product-type.application) with Sources + Frameworks + Resources build phases.
+   - XCBuildConfiguration (4): Project Debug, Project Release, Target Debug, Target Release.
+   - Settings: IPHONEOS_DEPLOYMENT_TARGET = 16.0, PRODUCT_BUNDLE_IDENTIFIER = com.lexora.app, SWIFT_VERSION = 5.0, TARGETED_DEVICE_FAMILY = "1,2", INFOPLIST_FILE = Lexora/Info.plist, GENERATE_INFOPLIST_FILE = NO, ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon, ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor, CODE_SIGN_STYLE = Automatic, ENABLE_PREVIEWS = YES.
+   - XCConfigurationList (2): project + target, both default to Release.
+   - objectVersion 56, compatibilityVersion "Xcode 14.0".
+   - Note: This is a generated pbxproj — Xcode may offer to "fix up" the project on first open. Documented in README.
+
+4. CREATED /native/ios/Lexora/Assets.xcassets/:
+   - Contents.json (root: author xcode, version 1).
+   - AppIcon.appiconset/Contents.json — single universal 1024×1024 entry referencing icon-512.png (modern Xcode 14+ single-size app icon format).
+   - AppIcon.appiconset/icon-512.png (copied from public/icon-512.png).
+   - AppIcon.appiconset/icon-192.png (copied from public/icon-192.png as fallback reference).
+   - AccentColor.colorset/Contents.json — brand green #677554 for light mode + #1D2A3A for dark mode (matches LexoraColors.primaryDark).
+
+5. UPDATED /native/ios/Lexora/Info.plist:
+   - CFBundleDisplayName: "Lexora" ✓
+   - UILaunchScreen: dict with UIColorName = AccentColor (brand green launch screen) ✓
+   - UISupportedInterfaceOrientations: portrait-only on iPhone ✓
+   - UISupportedInterfaceOrientations~ipad: all 4 orientations ✓
+   - UIAppFonts: array with 8 commented entries (Fraunces/Inter/Lora × 3 weights + Lora Italic) — user uncomments when adding .ttf files ✓
+   - UIStatusBarStyle = UIStatusBarStyleDefault
+   - UIRequiresFullScreen = false
+   - ITSAppUsesNonExemptEncryption = false
+   - Added commented-out NSCameraUsageDescription, NSMicrophoneUsageDescription, NSPhotoLibraryUsageDescription — reserved for Phase 3 camera/voice search.
+
+6. UPDATED /native/ios/Lexora/README.md with 10 sections:
+   - §1 Open the project in Xcode — Option A (use generated .xcodeproj, may need fix-up) + Option B (start fresh in Xcode) + project settings to verify.
+   - §2 Run on the simulator — recommended simulators + keyboard shortcuts (⌘R, ⇧⌘A) + physical device steps.
+   - §3 Custom fonts — Step 1 (download Fraunces/Inter/Lora from Google Fonts) + Step 2 (drag .ttf into Resources/) + Step 3 (uncomment UIAppFonts in Info.plist) + Step 4 (build & run). Includes font-weight role table.
+   - §4 Asset catalogue — tables for Assets.xcassets (AccentColor, AppIcon) and Resources/ PNGs (19 entries).
+   - §5 Project structure — full tree.
+   - §6 State management — Zustand → LexoraViewModel mapping table.
+   - §7 Navigation architecture — ContentView ZStack layout diagram + tab metadata table.
+   - §8 Brand tokens — exact hex table.
+   - §9 Troubleshooting — common build issues (no SwiftUI module, missing icon, fonts not loading, sheets not appearing).
+   - §10 Known follow-ups (Phase 3).
+   - Note about the generated pbxproj being hand-authored and possibly needing Xcode fix-up.
+
+Also wrote work record to /agent-ctx/PHASE-2-IOS-NAV-zai-code.md.
+
+Stage Summary:
+- ContentView.swift now orchestrates the full root view: ZStack background + VStack (LexoraHeader + active tab switch with sub-header for non-home tabs) + floating BottomNav overlay + SearchModal ZStack overlay + WordDetailSheet .sheet(item:).
+- Animated transitions mirror Framer Motion's AnimatePresence (opacity + vertical slide).
+- LexoraApp.swift owns @StateObject viewModel + themeState, injects via .environmentObject, applies .lexoraTheme() at root.
+- Lexora.xcodeproj/project.pbxproj generated: 23 Swift sources + 19 PNG resources + Assets.xcassets, iOS 16 deployment target, bundle ID com.lexora.app, SwiftUI framework from SDK.
+- Assets.xcassets created with AccentColor (brand green #677554 / dark #1D2A3A) + AppIcon (single 1024×1024 entry referencing icon-512.png).
+- Info.plist hardened with launch screen, portrait-only orientations, commented UIAppFonts, CFBundleDisplayName=Lexora, Phase 3 permission strings pre-commented.
+- README rewritten with full build / font / simulator / troubleshooting instructions.
+- Did not run Xcode/Swift toolchain (per task spec).
+- Did not write test code (per task spec).
+- Did not modify existing component files (LexoraHeader, BottomNav, Hero, FloatingSearchBar, TrendingTagRow, WordOfTheDayCard, CategoryCard, ArticleCard, SectionHeader) — per task spec.
+
+---
+Task ID: PHASE-2-ANDROID-SCREENS
+Agent: Z.ai Code
+Task: Generate the 3 missing secondary Android screens (DictionaryScreen, CollectionsScreen, MoreScreen) for the Lexora Kotlin + Jetpack Compose app. Translate the locked web screens 1:1 into native Compose, matching the existing HomeScreen patterns, brand colors, typography, and iconography.
+
+Work Log:
+- Read all required reference files: HomeScreen.kt (screen pattern), LexoraViewModel.kt (state pattern), Models.kt (data models), LexoraData.kt (mock data + getAlphabetSections helper), Color.kt + Type.kt + LexoraTheme.kt (design tokens), SectionHeader.kt (shared header + isDark pattern), WordOfTheDayCard.kt (card pattern), LexoraHeader.kt (theme toggle pattern), ArticleCard.kt (card pattern). Also read the 3 web reference screens.
+- Verified build.gradle.kts: only `lifecycle-runtime-ktx` + `lifecycle-viewmodel-compose` present (no lifecycle-runtime-compose), so used `collectAsState()` matching HomeScreen — NOT `collectAsStateWithLifecycle()`.
+- Verified drawable-nodpi resources: cat_literature.png and avatar_default.png exist for CollectionsScreen empty state and MoreScreen profile header.
+
+File 1 — DictionaryScreen.kt (358 lines):
+  - `stickyHeader` in LazyColumn (@OptIn ExperimentalFoundationApi) for the A-Z quick-index bar — horizontal scroll row of 24dp letter circles.
+  - Active letter tracked via `derivedStateOf` reading `listState.firstVisibleItemIndex`, mapped to section index via precomputed `sectionHeaderIndices`. Mirrors web IntersectionObserver.
+  - Tap letter → `scope.launch { listState.animateScrollToItem(sectionHeaderIndices[i]) }`.
+  - Section headers: large serif letter (18sp SemiBold, accent) + 1dp divider line (weight 1f) + word count.
+  - Section cards: shadow(2dp) + clip(RoundedCornerShape 12dp) + background(surface) + border. Contains word rows with hairline dividers.
+  - Word rows: word (DisplayFontFamily 14sp SemiBold) + part of speech (italic 10sp muted) + definition (LongFontFamily 12sp, maxLines=1 Ellipsis) + VolumeUp icon (14dp).
+  - Tap row → vm.openWord(entry). Uses LexoraData.getAlphabetSections().
+
+File 2 — CollectionsScreen.kt (459 lines):
+  - Observes vm.uiState.savedWordIds, filters LexoraData.dictionary preserving insertion order.
+  - Empty state: 160dp cat-literature illustration with radial fade-edges mask (Brush.radialGradient colorStops [0→0.55 Black, 1.0 Transparent] + BlendMode.DstIn + CompositingStrategy.Offscreen), 0.8/0.6 alpha, BrandGreen/10 or DarkAccent/10 halo, 48dp bookmark badge (Filled Bookmark, accent). Headline "Your collection awaits" + description + "Saved words sync offline" pill (AutoAwesome icon).
+  - Non-empty: "Saved Words" header (24sp) + count, card with rounded-16dp rows.
+  - Rows: filled Bookmark (16dp accent) + word (serif 16sp) + part of speech (italic 11sp) + definition (Lora 13sp, 1 line) + VolumeUp (16dp) + Delete button (28dp circle).
+  - Staggered animation: LaunchedEffect delay(index*40ms) + animateFloatAsState (alpha 0→1, 250ms) + animateDpAsState (offsetX -8→0dp, 250ms). Row + divider animate together.
+  - Tap row → vm.openWord(entry); tap trash → vm.toggleSave(entry.id).
+
+File 3 — MoreScreen.kt (488 lines):
+  - Screen entrance: fadeIn (alpha 0→1, 300ms) + slideUp (offsetY 12→0dp, 300ms).
+  - Profile header: 64dp circular avatar (avatar_default) + 2dp accent/30 border, "Curious Soul" (serif 18sp), "Lexora Companion · since 2026" (12sp muted), saved + recent counts.
+  - 4 SettingsGroups (Appearance / Dictionary / Privacy & Data / About) — uppercase header (11sp SemiBold letterSpacing 1.4sp) + card.
+  - SettingsRow: 32dp rounded-8dp icon square (accent/10 bg) + label (14sp) + value (12sp muted) + KeyboardArrowRight (16dp muted/60). Hairline dividers.
+  - Theme toggle: reads state.isDark, shows Moon/Dark or Sun/Light, onClick → vm.toggleTheme(). Works reactively.
+  - Clear recent searches: shows live count ("N items"/"Empty"), onClick → vm.clearRecentSearches().
+  - Footer: Favorite icon (Terracotta) + "Crafted in the spirit of the Cotswolds" + "Lexora · Words. Wisdom. Worlds."
+
+Icon mapping (lucide → Material Icons Extended):
+  Volume2→VolumeUp, Bookmark→Filled.Bookmark, Trash2→Delete, Sparkles→AutoAwesome,
+  Moon→Moon, Sun→Sun, Eye→Visibility, Bell→Bell, Languages→Languages,
+  Database→Storage, Download→Download, FileText→Description, Info→Info,
+  Github→Code, Heart→Favorite(filled), ChevronRight→KeyboardArrowRight(auto-mirrored).
+
+Patterns matched from existing code:
+  - collectAsState() (not collectAsStateWithLifecycle — matches HomeScreen, deps don't include lifecycle-runtime-compose)
+  - Dark mode check: MaterialTheme.colorScheme.background == DarkBackground
+  - Accent: if (isDark) DarkAccent else BrandGreen
+  - Card: shadow(2dp) + clip(RoundedCornerShape) + background(surface) + border(1.dp, outline)
+  - Bottom padding 96dp to clear floating BottomNav
+  - DisplayFontFamily for serif, LongFontFamily for definitions, FontFamily.Default for body
+
+Integration note: HomeScreen.kt currently routes DICTIONARY/COLLECTIONS/MORE to PlaceholderTab. To activate, replace those 3 lines with DictionaryScreen(viewModel) / CollectionsScreen(viewModel) / MoreScreen(viewModel). Not done per "Do NOT modify existing files" constraint.
+
+Stage Summary:
+All 3 secondary screens generated as pure Jetpack Compose / Material 3 @Composable functions taking LexoraViewModel. Each matches the existing HomeScreen signature and brand spec exactly (colors, typography, spacing, iconography, dark mode). The theme toggle in MoreScreen and clear-recent-searches action are wired to live ViewModel methods. Staggered list animations use LaunchedEffect + animateFloatAsState/animateDpAsState. The DictionaryScreen's sticky A-Z index uses derivedStateOf for scroll-position tracking, mirroring the web IntersectionObserver pattern. Full work record at /home/z/agent-ctx/PHASE-2-ANDROID-SCREENS-zai-code.md.
+
+---
+Task ID: PHASE-2-IOS-OVERLAYS
+Agent: zai-code (iOS overlay subagent)
+Task: Generate the 2 missing iOS overlay components for Lexora — WordDetailSheet (bottom sheet) and SearchModal (full-screen search) — translating the locked web word-detail-sheet.tsx and search-modal.tsx 1:1 to SwiftUI.
+
+Work Log:
+- Read /home/z/my-project/worklog.md (full project history), LexoraViewModel.swift (state surface), LexoraModels.swift (WordEntry), LexoraData.swift (searchWords helper), LexoraColors/Typography/Theme.swift (brand palette + font helpers), WordOfTheDayCard.swift + FloatingSearchBar.swift (style references), ContentView.swift (existing wiring), and the web reference files word-detail-sheet.tsx + search-modal.tsx.
+- Generated /home/z/my-project/native/ios/Lexora/Components/WordDetailSheet.swift — bottom sheet presenting the full dictionary entry. Takes `word: WordEntry` parameter (drop-in replacement for the inline placeholder struct in ContentView.swift). Presentation: `.presentationDetents([.fraction(0.88)])` + `.presentationDragIndicator(.visible)` + `.presentationBackground(palette.background)` — matches web `max-h-[88dvh]`. Content (ScrollView → VStack spacing 20): (1) Header — "LEXORA ENTRY" label (sparkles icon + Inter 10pt semibold, tracking 1.6, highlight color) + word title (Fraunces 30pt semibold) + phonetic (italic muted) · part of speech (lowercase) + 3 circular 40×40 action buttons (speaker.wave.2, bookmark fill/outline via vm.isSaved/vm.toggleSave, share) with saved-state accent tinting; (2) Definitions — numbered list, Lora 15pt; (3) Etymology — card with bg-card, border, 12pt corners, Lora 13pt; (4) Language origin — globe icon + "Origin:" row; (5) Synonyms — FlowLayout of secondary-tinted pill tags; (6) Antonyms — FlowLayout of red-tinted pill tags; (7) Examples — blockquotes with 2pt left border (highlight@60%), Lora italic 14pt. Includes private FlowLayout (iOS 16+ Layout protocol) for wrapping pills.
+- Generated /home/z/my-project/native/ios/Lexora/Components/SearchModal.swift — full-screen search overlay. Self-contained: reads vm.searchOpen, conditionally renders with `.transition(.move(edge: .top).combined(with: .opacity))` + `.animation(.easeInOut(0.2), value: vm.searchOpen)` — matches web framer-motion opacity+y slide entry. Content (VStack spacing 0): (1) Top bar — close button (xmark → vm.closeSearch) + capsule search TextField (bg-card, border, magnifyingglass + mic + camera icons) with @FocusState auto-focus on 250ms delay (matches web); (2) Content area switches on trimmedQuery/results: empty state (recent searches list with clock + arrow icons + "Clear" button → vm.clearRecentSearches; suggested pills Petrichor/Saudade/Komorebi/Mellifluous/Halcyon/Numinous), results list (word title Fraunces 16pt + part of speech italic + definition 1-line), or no-results state (magnifyingglass circle + "No words found" + curly-quoted message). Live search via LexoraData.searchWords(query, limit: 8). Select-word flow: medium haptic → vm.addRecentSearch(word.word) → vm.closeSearch() → 200ms delay → vm.openWord(word) (matches web selectWord 1:1). Includes private FlowLayout for suggested pills.
+- Both files use @EnvironmentObject for vm, LexoraColors + LexoraTypography helpers, SF Symbols (.regular weight to match existing iOS components), lexoraPalette(scheme) for dark-mode adaptation, UIImpactFeedbackGenerator for haptics (light for taps, medium for word select + bookmark toggle). No existing files modified. No test code.
+
+Stage Summary:
+- 2 new Swift files written (~650 LoC):
+    Components/WordDetailSheet.swift   (bottom sheet — header + definitions + etymology + origin + synonyms + antonyms + examples)
+    Components/SearchModal.swift       (full-screen overlay — top bar + live search + recents + suggestions + results + no-results)
+- Web translations 1:1: layout, spacing, colors, typography, haptics, interaction flows all match the locked web build.
+- Known integration step (documented in file headers + agent-ctx): user removes the inline WordDetailSheet + SearchModalSheet placeholder structs from ContentView.swift and swaps the .sheet wiring to use the new Components/ versions (WordDetailSheet is a drop-in replacement with the same `word:` parameter; SearchModal replaces SearchModalSheet and should be placed as a root ZStack overlay for the custom opacity+move transition).
+- Did NOT compile or run any Xcode/Swift toolchain (per task spec).

@@ -5,6 +5,7 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
 
+    <!-- Display name shown under the app icon on the home screen. -->
     <key>CFBundleDisplayName</key>
     <string>Lexora</string>
 
@@ -37,6 +38,9 @@
       .ttf files into Resources/. See LexoraTypography.swift for the
       exact file names expected. Without these keys, the app falls back
       gracefully to system serif / sans-serif.
+
+      To enable custom fonts, remove the <true/> value comments below and
+      replace the empty <array/> with the entries shown in the comments.
     -->
     <key>UIAppFonts</key>
     <array>
@@ -50,21 +54,30 @@
         <!-- <string>Lora-Italic.ttf</string> -->
     </array>
 
+    <!--
+      UILaunchScreen — empty dict gives a plain warm-cream launch screen
+      (the system fills with the app's default background).
+      To use a custom launch storyboard, set:
+        UILaunchStoryboardName = LaunchScreen
+      and add LaunchScreen.storyboard to the project.
+    -->
     <key>UILaunchScreen</key>
     <dict>
         <key>UIColorName</key>
-        <string></string>
+        <string>AccentColor</string>
     </dict>
 
     <!-- Required for full-bleed edge-to-edge UI (matches web viewportFit=cover). -->
     <key>UIRequiresFullScreen</key>
     <false/>
 
+    <!-- Portrait-only on iPhone (matches the web's mobile-only layout). -->
     <key>UISupportedInterfaceOrientations</key>
     <array>
         <string>UIInterfaceOrientationPortrait</string>
     </array>
 
+    <!-- iPad supports all orientations for tablet use. -->
     <key>UISupportedInterfaceOrientations~ipad</key>
     <array>
         <string>UIInterfaceOrientationPortrait</string>
@@ -84,7 +97,22 @@
     <key>CFBundleURLTypes</key>
     <array/>
 
+    <!-- App does not use exempt encryption — keeps App Store review simple. -->
     <key>ITSAppUsesNonExemptEncryption</key>
     <false/>
+
+    <!--
+      ITSAppUsesNonExemptEncryption = false + the NS... usage descriptions
+      below are reserved for Phase 3 features (camera search, microphone voice
+      search, photo library). They are commented out for now.
+    -->
+    <!--
+    <key>NSCameraUsageDescription</key>
+    <string>Lexora uses the camera to scan and look up words.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Lexora uses the microphone for voice search.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Lexora can save word illustrations to your photo library.</string>
+    -->
 </dict>
 </plist>
