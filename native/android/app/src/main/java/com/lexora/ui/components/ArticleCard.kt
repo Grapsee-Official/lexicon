@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lexora.data.Article
@@ -62,7 +63,7 @@ fun ArticleCard(
             .shadow(elevation = 2.dp, shape = RoundedCornerShape(16.dp), clip = false)
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surface)
-            .clickable { /* open article */ },
+            .clickable(role = Role.Button) { /* TODO: open article */ },
     ) {
         // LEFT: image — 35% width, full height, object-cover
         Box(
@@ -118,7 +119,7 @@ fun ArticleCard(
 
                 Icon(
                     imageVector = Icons.Outlined.Bookmark,
-                    contentDescription = "Bookmark",
+                    contentDescription = null,
                     tint = if (article.bookmarked)
                         MaterialTheme.colorScheme.primary
                     else

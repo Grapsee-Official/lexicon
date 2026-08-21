@@ -41,6 +41,14 @@ struct SearchModal: View {
     @State private var query: String = ""
     @FocusState private var isFocused: Bool
 
+    // P4-05 §7 — VoiceOver focus management.
+    // Bound to the results list via `.lexoraAccessibilityFocus(...)`. When
+    // the user submits a query, focus moves from the text field to the
+    // results list so the screen-reader user hears the first result
+    // without manually swiping. Focus is NOT moved while the user types
+    // (that would yank focus away from the keyboard).
+    @AccessibilityFocusState private var voFocus: LexoraVoiceOverFocus?
+
     private var palette: LexoraPalette { lexoraPalette(scheme) }
 
     private let suggestions: [String] = [
@@ -63,7 +71,10 @@ struct SearchModal: View {
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
-        .animation(.easeInOut(duration: 0.2), value: vm.searchOpen)
+        // P4-05 §6 — respect Reduce Motion. When the user has enabled
+        // Reduce Motion in Settings, the modal appears instantly with no
+        // slide/fade transition.
+        .lexoraMotion(.easeInOut(duration: 0.2), value: vm.searchOpen)
         .onAppear(perform: handleOpenChange)
         .onChange(of: vm.searchOpen) { isOpen in
             handleOpenChange(isOpen: isOpen)
@@ -102,26 +113,33 @@ struct SearchModal: View {
 
     private var topBar: some View {
         HStack(spacing: 8) {
-            // Close button (xmark)
+            // Close button (xmark) — 36×36 visual, 44×44 hit area.
             Button {
                 UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 query = ""
                 isFocused = false
+                voFocus = nil
                 vm.closeSearch()
             } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 16, weight: .regular))
                     .foregroundStyle(palette.foreground.opacity(0.7))
                     .frame(width: 36, height: 36)
+                    .lexoraMinTouchTarget()
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(Text("Close search"))
+            .accessibilityLabel(Text(LexoraAccessibilityLabels.closeSearch))
+            .accessibilityAddTraits(.isButton)
 
-            // Capsule search field
+            // Capsule search field — combined into ONE VoiceOver element
+            // so the user hears "Search for a word, search field" instead
+            // of navigating the magnifyingglass icon + text field + mic +
+            // camera as 4 separate elements.
             HStack(spacing: 10) {
                 Image(systemName: "magnifyingglass")
                     .font(.system(size: 14, weight: .regular))
                     .foregroundStyle(palette.foreground.opacity(0.5))
+                    .lexoraDecorative()
 
                 TextField("Search for a word...", text: $query)
                     .font(.lexoraBody(14))
@@ -133,9 +151,19 @@ struct SearchModal: View {
                         guard !trimmed.isEmpty else { return }
                         vm.addRecentSearch(trimmed)
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        // P4-05 §7 — move VoiceOver focus to the results
+                        // list when the user submits a query. Brief delay
+                        // lets the keyboard dismiss first so the focus
+                        // move isn't fighting the keyboard dismissal
+                        // animation.
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            if !results.isEmpty {
+                                voFocus = .searchResults
+                            }
+                        }
                     }
 
-                // Mic icon
+                // Mic icon — 28×28 visual, 44×44 hit area.
                 Button {
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 } label: {
@@ -143,11 +171,13 @@ struct SearchModal: View {
                         .font(.system(size: 14, weight: .regular))
                         .foregroundStyle(palette.foreground.opacity(0.5))
                         .frame(width: 28, height: 28)
+                        .lexoraMinTouchTarget()
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel(Text("Voice search"))
+                .accessibilityLabel(Text(LexoraAccessibilityLabels.voiceSearch))
+                .accessibilityAddTraits(.isButton)
 
-                // Camera icon
+                // Camera icon — 28×28 visual, 44×44 hit area.
                 Button {
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 } label: {
@@ -155,15 +185,20 @@ struct SearchModal: View {
                         .font(.system(size: 14, weight: .regular))
                         .foregroundStyle(palette.foreground.opacity(0.5))
                         .frame(width: 28, height: 28)
+                        .lexoraMinTouchTarget()
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel(Text("Image search"))
+                .accessibilityLabel(Text(LexoraAccessibilityLabels.imageSearch))
+                .accessibilityAddTraits(.isButton)
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
             .background(palette.card)
             .clipShape(Capsule())
             .overlay(Capsule().stroke(palette.border, lineWidth: 1))
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text(LexoraAccessibilityLabels.search))
+            .accessibilityAddTraits(.isSearchField)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -201,6 +236,7 @@ struct SearchModal: View {
                             .font(.lexoraBody(11, weight: .semibold))
                             .tracking(1.4)
                             .foregroundStyle(palette.mutedForeground)
+                            .lexoraAccessibilityHeading(.h2)
                         Spacer()
                         Button {
                             UIImpactFeedbackGenerator(style: .light).impactOccurred()
@@ -213,9 +249,11 @@ struct SearchModal: View {
                                     .font(.lexoraBody(11))
                             }
                             .foregroundStyle(palette.foreground.opacity(0.6))
+                            .lexoraMinTouchTarget()
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel(Text("Clear recent searches"))
+                        .accessibilityLabel(Text(LexoraAccessibilityLabels.clearRecents))
+                        .accessibilityAddTraits(.isButton)
                     }
 
                     VStack(spacing: 0) {
@@ -229,6 +267,7 @@ struct SearchModal: View {
                                     Image(systemName: "clock")
                                         .font(.system(size: 14, weight: .regular))
                                         .foregroundStyle(palette.mutedForeground)
+                                        .lexoraDecorative()
                                     Text(recent)
                                         .font(.lexoraBody(14))
                                         .foregroundStyle(palette.foreground.opacity(0.8))
@@ -237,11 +276,16 @@ struct SearchModal: View {
                                     Image(systemName: "arrow.right")
                                         .font(.system(size: 14, weight: .regular))
                                         .foregroundStyle(palette.mutedForeground)
+                                        .lexoraDecorative()
                                 }
                                 .padding(.vertical, 10)
+                                .lexoraMinTouchTarget()
                                 .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
+                            .accessibilityLabel(Text(recent))
+                            .accessibilityHint(Text("Search again"))
+                            .accessibilityAddTraits(.isButton)
                         }
                     }
                 }
@@ -253,6 +297,7 @@ struct SearchModal: View {
                     .font(.lexoraBody(11, weight: .semibold))
                     .tracking(1.4)
                     .foregroundStyle(palette.mutedForeground)
+                    .lexoraAccessibilityHeading(.h2)
                 FlowLayout(spacing: 8) {
                     ForEach(suggestions, id: \.self) { s in
                         Button {
@@ -268,8 +313,16 @@ struct SearchModal: View {
                                 .background(palette.card)
                                 .clipShape(Capsule())
                                 .overlay(Capsule().stroke(palette.border, lineWidth: 1))
+                                // Pills are visually ~26pt tall (6+12pt
+                                // text+6). Expand the tappable frame to
+                                // 44pt — the pill background stays small,
+                                // but the hit area grows.
+                                .lexoraMinTouchTarget()
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel(Text(s))
+                        .accessibilityHint(Text("Search for this word"))
+                        .accessibilityAddTraits(.isButton)
                     }
                 }
             }
@@ -282,6 +335,18 @@ struct SearchModal: View {
 
     private var resultsList: some View {
         VStack(spacing: 0) {
+            // P4-05 §7 — VoiceOver focus target. When the user submits a
+            // query, `voFocus` is set to `.searchResults`, which moves
+            // VoiceOver focus to this header so the user hears the first
+            // result without manually swiping.
+            Text("\(results.count) \(results.count == 1 ? "result" : "results")")
+                .font(.lexoraBody(11, weight: .semibold))
+                .tracking(1.4)
+                .foregroundStyle(palette.mutedForeground)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .lexoraAccessibilityHeading(.h2)
+                .accessibilityFocused($voFocus, equals: .searchResults)
+
             ForEach(results) { word in
                 Button {
                     selectWord(word)
@@ -302,9 +367,17 @@ struct SearchModal: View {
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 12)
+                    .lexoraMinTouchTarget()
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                // Combined element so VoiceOver reads the whole row in
+                // one swipe: "Petrichor, noun, the pleasant earthy scent
+                // produced when rain falls on dry soil, button".
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(Text("\(word.word), \(word.partOfSpeech.displayValue), \(word.definitions.first ?? "")"))
+                .accessibilityHint(Text("Opens the dictionary entry"))
+                .accessibilityAddTraits(.isButton)
             }
         }
         .padding(.horizontal, 20)
@@ -334,10 +407,12 @@ struct SearchModal: View {
                 .background(palette.card)
                 .clipShape(Circle())
                 .overlay(Circle().stroke(palette.border, lineWidth: 1))
+                .lexoraDecorative()
 
             Text("No words found")
                 .font(.lexoraDisplay(18, weight: .semibold))
                 .foregroundStyle(palette.foreground)
+                .lexoraAccessibilityHeading(.h2)
 
             Text("We couldn\u{2019}t find \u{201C}\(query)\u{201D} in this offline pack. Try another spelling or download more language pairs.")
                 .font(.lexoraBody(12))

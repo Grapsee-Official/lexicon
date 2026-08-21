@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -49,7 +50,7 @@ fun CategoryCard(
             .width(96.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(androidx.compose.ui.graphics.Color.Transparent)
-            .clickable { viewModel.setActiveTab(TabKey.DICTIONARY) }
+            .clickable(role = Role.Button) { viewModel.setActiveTab(TabKey.DICTIONARY) }
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp),

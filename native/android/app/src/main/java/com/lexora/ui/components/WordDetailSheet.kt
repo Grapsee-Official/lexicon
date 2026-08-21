@@ -45,6 +45,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
@@ -56,6 +57,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lexora.data.LexoraViewModel
 import com.lexora.data.WordEntry
+import com.lexora.ui.AccessibilityAudit
+import com.lexora.ui.enforceTouchTarget
+import com.lexora.ui.iconButton
+import com.lexora.ui.sectionHeading
 import com.lexora.ui.theme.DarkAccent
 import com.lexora.ui.theme.DisplayFontFamily
 import com.lexora.ui.theme.LongFontFamily
@@ -213,6 +218,9 @@ private fun WordDetailHeader(
                     fontSize = 30.sp,
                     lineHeight = 34.sp,
                 ),
+                // The word title is the sheet's h1 — screen-reader users can
+                // jump straight to it after the sheet opens.
+                modifier = Modifier.sectionHeading(1),
             )
 
             Spacer(Modifier.height(4.dp))
@@ -251,7 +259,7 @@ private fun WordDetailHeader(
             horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             CircleActionButton(
-                contentDescription = "Pronounce ${word.word}",
+                contentDescription = AccessibilityAudit.Descriptions.Volume,
                 icon = Icons.AutoMirrored.Outlined.VolumeUp,
                 iconTint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
                 container = MaterialTheme.colorScheme.surface,
@@ -260,7 +268,7 @@ private fun WordDetailHeader(
             )
 
             CircleActionButton(
-                contentDescription = if (isSaved) "Remove from saved" else "Save word",
+                contentDescription = if (isSaved) AccessibilityAudit.Descriptions.BookmarkOn else AccessibilityAudit.Descriptions.BookmarkOff,
                 icon = if (isSaved) Icons.Filled.Bookmark else Icons.Outlined.Bookmark,
                 iconTint = if (isSaved) Terracotta
                 else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
@@ -272,7 +280,7 @@ private fun WordDetailHeader(
             )
 
             CircleActionButton(
-                contentDescription = "Share",
+                contentDescription = AccessibilityAudit.Descriptions.Share,
                 icon = Icons.Outlined.Share,
                 iconTint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
                 container = MaterialTheme.colorScheme.surface,
@@ -298,12 +306,14 @@ private fun CircleActionButton(
             .clip(CircleShape)
             .background(container)
             .border(1.dp, border, CircleShape)
-            .clickable { onClick() },
+            .iconButton(contentDescription)
+            .enforceTouchTarget()
+            .clickable(role = Role.Button) { onClick() },
         contentAlignment = Alignment.Center,
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = contentDescription,
+            contentDescription = null,
             tint = iconTint,
             modifier = Modifier.size(18.dp),
         )
@@ -320,6 +330,9 @@ private fun SectionLabel(
     leadingIcon: androidx.compose.ui.graphics.vector.ImageVector,
 ) {
     Row(
+        // Section labels are h2 headings — TalkBack announces "Heading"
+        // before each, letting screen-reader users jump between sections.
+        modifier = Modifier.sectionHeading(2),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {

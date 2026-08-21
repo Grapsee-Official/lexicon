@@ -21,11 +21,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.lexora.ui.enforceTouchTarget
+import com.lexora.ui.sectionHeading
 import com.lexora.ui.theme.LexoraTextStyles
 import com.lexora.ui.theme.OldWoodGold
 import com.lexora.ui.theme.DarkAccent
+import com.lexora.ui.theme.DarkBackground
 
 /**
  * SectionHeader — title left + "View all →" right.
@@ -53,6 +57,9 @@ fun SectionHeader(
             style = LexoraTextStyles.SectionTitle,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
+            // Section titles are h2 headings — TalkBack announces "Heading"
+            // before each, letting screen-reader users jump between sections.
+            modifier = Modifier.sectionHeading(2),
         )
 
         if (divider) {
@@ -68,7 +75,8 @@ fun SectionHeader(
 
         Row(
             modifier = Modifier
-                .clickable { onAction() }
+                .enforceTouchTarget()
+                .clickable(role = Role.Button) { onAction() }
                 .padding(vertical = 2.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp),

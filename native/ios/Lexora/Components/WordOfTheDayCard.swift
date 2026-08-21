@@ -42,6 +42,16 @@ struct WordOfTheDayCard: View {
                     }
 
                     // Word title + audio button (single line).
+                    // The speaker is a real Button (tappable for sighted
+                    // users), but hidden from VoiceOver because (a) it's
+                    // only 24×24 visually — below the 44pt minimum even
+                    // with the `.lexoraMinTouchTarget()` expansion it
+                    // would clip the card layout — and (b) pronunciation
+                    // is available from the WordDetailSheet's 44×44
+                    // speaker button, so the WOTD speaker is redundant.
+                    // The card-level label includes "Tap to open and hear
+                    // pronunciation" so the VoiceOver user knows how to
+                    // get to the pronunciation.
                     HStack(spacing: 4) {
                         Text(word.word)
                             .font(.lexoraDisplay(17, weight: .semibold))
@@ -55,9 +65,12 @@ struct WordOfTheDayCard: View {
                                 .font(.system(size: 11, weight: .regular))
                                 .foregroundStyle(.white.opacity(0.7))
                                 .frame(width: 24, height: 24)
+                                .lexoraMinTouchTarget()
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel(Text("Listen to \(word.word)"))
+                        .accessibilityLabel(Text(LexoraAccessibilityLabels.listenTo + " " + word.word))
+                        .accessibilityAddTraits(.isButton)
+                        .accessibilityHidden(true)
                     }
 
                     // Phonetic (italic).
@@ -137,6 +150,18 @@ struct WordOfTheDayCard: View {
             .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 2)
         }
         .buttonStyle(.plain)
+        // P4-05 — combine the card into ONE VoiceOver element so the
+        // screen-reader user hears the whole entry in one swipe:
+        // "Word of the Day, Petrichor, /ˈpɛtrɪkɔːr/, noun, the pleasant
+        // earthy scent produced when rain falls on dry soil. Double-tap
+        // to open the entry." The inner speaker Image is hidden from
+        // VoiceOver (see header) to avoid a confusing nested button.
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(Text("Word of the Day. \(word.word). \(word.phonetic). \(word.partOfSpeech.displayValue). \(word.definitions.first ?? "")"))
+        .accessibilityHint(Text("Opens the dictionary entry"))
+        .accessibilityAddTraits(.isButton)
+        // Whole card is 140pt tall × full width — well above the 44pt
+        // minimum, so no `.lexoraMinTouchTarget()` needed here.
     }
 }
 

@@ -23,6 +23,10 @@ struct SectionHeader: View {
                 .foregroundStyle(lexoraPalette(scheme).foreground)
                 .lineLimit(1)
                 .layoutPriority(1)
+                // Mark as h2 heading so VoiceOver users can navigate
+                // between sections (Explore by Category, Trending Now,
+                // Recent Articles, etc.) via the Headings rotor.
+                .lexoraAccessibilityHeading(.h2)
 
             Spacer(minLength: 4)
 
@@ -37,8 +41,16 @@ struct SectionHeader: View {
                 }
                 .font(.lexoraBody(11, weight: .medium))
                 .foregroundStyle(lexoraPalette(scheme).highlight)
+                // The text-only "View all →" button is ~16pt tall — well
+                // below the 44pt minimum. Expand the hit area without
+                // resizing the visual label.
+                .lexoraMinTouchTarget()
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .accessibilityLabel(Text(actionLabel))
+            .accessibilityHint(Text("View all items in this section"))
+            .accessibilityAddTraits(.isButton)
         }
     }
 }

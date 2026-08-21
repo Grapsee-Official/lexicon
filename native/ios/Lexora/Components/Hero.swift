@@ -34,13 +34,16 @@ struct Hero: View {
 
             // ── RIGHT column ──
             // Image contained in its column; no mask, no scale.
+            // P4-05 — the tap target opens search, so it needs a VoiceOver
+            // label + `.isButton` trait + 44pt minimum hit area. The image
+            // itself is decorative (the label conveys the action).
             HStack {
                 Spacer()
                 Image("lexora-countryside")
                     .resizable()
                     .scaledToFit()
                     .frame(maxHeight: 200)
-                    .accessibilityHidden(true)
+                    .lexoraDecorative()
             }
             .frame(maxWidth: .infinity)
             .contentShape(Rectangle())
@@ -48,6 +51,10 @@ struct Hero: View {
                 UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 vm.openSearch()
             }
+            .accessibilityLabel(Text(LexoraAccessibilityLabels.search))
+            .accessibilityHint(Text("Opens the search overlay"))
+            .accessibilityAddTraits(.isButton)
+            .lexoraMinTouchTarget()
         }
         .padding(.horizontal, 16)
         .padding(.top, 8)
@@ -55,6 +62,8 @@ struct Hero: View {
     }
 
     /// Headline "Discover the / World of Words [sprig]" — brand green serif.
+    /// Marked as the h1 heading so VoiceOver users land on the hero
+    /// headline first when the home screen appears.
     @ViewBuilder
     private var headline: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -65,6 +74,9 @@ struct Hero: View {
                     Text("Words")
                     BotanicalSprig()
                         .frame(width: 20, height: 20)
+                        // Decorative sprig — the headline text already
+                        // conveys the meaning; the sprig is ornamental.
+                        .lexoraDecorative()
                 }
             }
         }
@@ -74,6 +86,9 @@ struct Hero: View {
         .lineSpacing(0)
         // Tight leading (1.05) — match web `leading-[1.05]`.
         .frame(maxWidth: .infinity, alignment: .leading)
+        .lexoraCombinedElement()
+        .accessibilityLabel(Text("Discover the World of Words"))
+        .lexoraAccessibilityHeading(.h1)
     }
 }
 

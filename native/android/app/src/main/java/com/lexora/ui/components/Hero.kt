@@ -23,10 +23,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lexora.R
 import com.lexora.data.LexoraViewModel
+import com.lexora.ui.AccessibilityAudit
+import com.lexora.ui.iconButton
+import com.lexora.ui.sectionHeading
 import com.lexora.ui.theme.BrandGreen
 import com.lexora.ui.theme.LexoraTextStyles
 import com.lexora.ui.theme.WarmCream
@@ -59,8 +63,10 @@ fun Hero(
             modifier = Modifier.weight(0.55f),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            // Headline — 2 lines, sprig inline after "Words"
-            Column {
+            // Headline — 2 lines, sprig inline after "Words".
+            // The headline is the page's h1 — screen-reader users land
+            // here first when the home feed loads.
+            Column(modifier = Modifier.sectionHeading(1)) {
                 Text(
                     text = "Discover the",
                     color = BrandGreen,
@@ -99,7 +105,8 @@ fun Hero(
             modifier = Modifier
                 .weight(0.45f)
                 .height(200.dp)
-                .clickable { viewModel.openSearch() },
+                .iconButton(AccessibilityAudit.Descriptions.Search)
+                .clickable(role = Role.Button) { viewModel.openSearch() },
             contentAlignment = Alignment.CenterEnd,
         ) {
             Image(

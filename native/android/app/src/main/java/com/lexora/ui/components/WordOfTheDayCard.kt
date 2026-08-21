@@ -37,11 +37,16 @@ import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lexora.R
 import com.lexora.data.LexoraViewModel
 import com.lexora.data.WordEntry
+import com.lexora.ui.AccessibilityAudit
+import com.lexora.ui.enforceTouchTarget
+import com.lexora.ui.iconButton
+import com.lexora.ui.liveAnnouncement
 import com.lexora.ui.theme.BrandGreen
 import com.lexora.ui.theme.DarkBackground
 import com.lexora.ui.theme.LexoraTextStyles
@@ -82,7 +87,7 @@ fun WordOfTheDayCard(
             .shadow(elevation = 2.dp, shape = RoundedCornerShape(16.dp), clip = false)
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surface)
-            .clickable { viewModel.openWord(word) },
+            .clickable(role = Role.Button) { viewModel.openWord(word) },
     ) {
         // ===================== LEFT PANEL (40%) =====================
         Column(
@@ -126,18 +131,25 @@ fun WordOfTheDayCard(
                     style = LexoraTextStyles.WotdWord,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f, fill = false),
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        // Live region: when the WOTD rotates (future daily-refresh
+                        // feature), TalkBack announces the new word automatically
+                        // without the user having to swipe back to the card.
+                        .liveAnnouncement(),
                 )
                 Box(
                     modifier = Modifier
                         .size(24.dp)
                         .clip(CircleShape)
-                        .clickable { /* play pronunciation */ },
+                        .iconButton(AccessibilityAudit.Descriptions.Volume)
+                        .enforceTouchTarget()
+                        .clickable(role = Role.Button) { /* TODO: play pronunciation */ },
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Outlined.VolumeUp,
-                        contentDescription = "Listen to ${word.word}",
+                        contentDescription = null,
                         tint = Color.White.copy(alpha = 0.7f),
                         modifier = Modifier.size(14.dp),
                     )

@@ -34,6 +34,9 @@ struct BottomNav: View {
             navItem(.dictionary, label: "Dictionary", system: "book")
 
             // Center Search button — elevated, brand-coloured.
+            // Spec label: "Search for a word" (icon-only button).
+            // Visual circle is 40×40; `.lexoraMinTouchTarget()` expands the
+            // tappable frame to ≥ 44×44 without changing the visual size.
             Button {
                 UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                 vm.openSearch()
@@ -50,9 +53,11 @@ struct BottomNav: View {
                     )
                     .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
                     .offset(y: -12)
+                    .lexoraMinTouchTarget()
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(Text("Open search"))
+            .accessibilityLabel(Text(LexoraAccessibilityLabels.search))
+            .accessibilityAddTraits(.isButton)
             .frame(maxWidth: .infinity)
 
             navItem(.collections, label: "Collections", system: "bookmark")
@@ -91,16 +96,28 @@ struct BottomNav: View {
                                      ? lexoraPalette(scheme).primary
                                      : lexoraPalette(scheme).mutedForeground)
 
-                // Active dot indicator.
+                // Active dot indicator — decorative (the `.isSelected`
+                // trait below conveys the same information to VoiceOver).
                 Circle()
                     .fill(active ? lexoraPalette(scheme).primary : .clear)
                     .frame(width: 3, height: 3)
+                    .lexoraDecorative()
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 6)
+            // Each tab cell is ~36pt tall (icon + label + dot). Expand
+            // to ≥ 44pt hit area without resizing the visual content.
+            .lexoraMinTouchTarget()
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        // Combine icon + label + dot into ONE VoiceOver element so the
+        // user hears "Home, tab, selected" (or "Dictionary, tab") in a
+        // single swipe, not three separate elements.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(label))
+        .accessibilityHint(Text("Switch to \(label) tab"))
+        .accessibilityAddTraits(active ? [.isButton, .isSelected] : .isButton)
     }
 }
 

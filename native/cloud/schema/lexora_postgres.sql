@@ -94,3 +94,36 @@ CREATE TABLE IF NOT EXISTS integrity_log (
     details TEXT,
     checked_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Crash logs (per task P4-03)
+-- Receives crash reports from Android (CrashReporter.kt) and iOS
+-- (LexoraCrashReporter.swift) via POST /api/v1/crash-report. The JSON wire
+-- format is documented in CrashReportEndpoint.kt::CrashReport.
+--
+-- Column naming:
+--   * `client_timestamp` stores the device-side `timestamp` field (epoch ms).
+--     Renamed to avoid the SQL reserved word `TIMESTAMP`.
+--   * `memory_stats` is a JSONB column holding the nested memory map
+--     ({total_mb, available_mb, low_memory, ...}).
+--   * `details` is a JSONB column for optional extras (signal name, thread
+--     name, future fields) so we can extend the wire format without a schema
+--     migration.
+--   * `received_at` is the server-side wall-clock receive time. Useful for
+--     latency analysis (compare to client_timestamp) and for ordering
+--     reports when the device clock is wrong.
+CREATE TABLE IF NOT EXISTS crash_logs (
+    id BIGSERIAL PRIMARY KEY,
+    device_model TEXT,
+    os_version TEXT,
+    app_version TEXT,
+    crash_type TEXT NOT NULL,         -- 'java' | 'anr' | 'native' | 'objc' | 'swift'
+    stack_trace TEXT,
+    memory_stats JSONB,
+    client_timestamp BIGINT,          -- epoch ms from device (JSON `timestamp`)
+    details JSONB,                    -- extras: signal, thread, …
+    received_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_crash_logs_received_at ON crash_logs(received_at);
+CREATE INDEX IF NOT EXISTS idx_crash_logs_crash_type  ON crash_logs(crash_type);
+CREATE INDEX IF NOT EXISTS idx_crash_logs_app_version ON crash_logs(app_version);

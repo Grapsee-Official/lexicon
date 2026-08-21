@@ -22,12 +22,15 @@ struct CategoryCard: View {
         } label: {
             VStack(spacing: 8) {
                 // Square image — no border, no shadow, bg matches image.
+                // Marked decorative so the card-level label below is the
+                // single VoiceOver element (the image conveys no info
+                // beyond what the title already provides).
                 Image(category.illustration)
                     .resizable()
                     .scaledToFill()
                     .frame(width: 80, height: 80)
                     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                    .accessibilityLabel(Text("\(category.title) illustration"))
+                    .lexoraDecorative()
 
                 // Title + subtitle perfectly centered.
                 VStack(spacing: 2) {
@@ -44,9 +47,17 @@ struct CategoryCard: View {
             }
             .padding(8)
             .frame(width: 96)
+            // Card is ~120pt tall × 96pt wide — meets the 44pt minimum
+            // in both dimensions. No `.lexoraMinTouchTarget()` needed.
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        // P4-05 — combine the card into ONE VoiceOver element so the
+        // user hears "Literature, {subtitle}, button" in one swipe.
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(Text("\(category.title). \(category.subtitle)"))
+        .accessibilityHint(Text("Browse the \(category.title) category"))
+        .accessibilityAddTraits(.isButton)
     }
 }
 

@@ -92,5 +92,5 @@ psql \
   -f "$SCHEMA_FILE"
 
 echo "==> Schema applied successfully."
-echo "    Tables: words, language_packs, user_sync_state, sync_log, integrity_log"
+echo "    Tables: words, language_packs, user_sync_state, sync_log, integrity_log, crash_logs"
 echo "    Extensions: uuid-ossp, pg_trgm"

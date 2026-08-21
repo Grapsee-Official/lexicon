@@ -26,7 +26,7 @@ struct ArticleCard: View {
                     .scaledToFill()
                     .frame(width: 78, height: 120)
                     .clipped()
-                    .accessibilityHidden(true)
+                    .lexoraDecorative()
 
                 // RIGHT 65% — title top, read time + bookmark bottom.
                 VStack(spacing: 8) {
@@ -50,6 +50,7 @@ struct ArticleCard: View {
                         Image(systemName: article.bookmarked ? "bookmark.fill" : "bookmark")
                             .font(.system(size: 11, weight: .regular))
                             .foregroundStyle(lexoraPalette(scheme).mutedForeground)
+                            .lexoraDecorative()
                     }
                 }
                 .padding(12)
@@ -61,6 +62,14 @@ struct ArticleCard: View {
             .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 2)
         }
         .buttonStyle(.plain)
+        // P4-05 — combine the card into ONE VoiceOver element so the
+        // screen-reader user hears the whole article summary in one
+        // swipe: "Article: {title}, {N} min read, button".
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(Text("Article. \(article.title). \(article.readMinutes) minute read\(article.bookmarked ? ". Bookmarked" : "")"))
+        .accessibilityHint(Text("Open the article"))
+        .accessibilityAddTraits(.isButton)
+        // Card is 120pt tall × 224pt wide — well above the 44pt minimum.
     }
 }
 

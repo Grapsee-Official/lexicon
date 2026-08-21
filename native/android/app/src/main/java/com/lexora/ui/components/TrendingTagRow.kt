@@ -21,10 +21,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.lexora.data.LexoraData
 import com.lexora.data.LexoraViewModel
 import com.lexora.data.TrendingTag
+import com.lexora.ui.AccessibilityAudit
+import com.lexora.ui.enforceTouchTarget
+import com.lexora.ui.iconButton
 import com.lexora.ui.theme.LexoraTextStyles
 
 /**
@@ -50,7 +54,8 @@ fun TrendingTagRow(
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surface)
                     .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
-                    .clickable {
+                    .enforceTouchTarget()
+                    .clickable(role = Role.Button) {
                         LexoraData.getWordById(tag.wordId)?.let { viewModel.openWord(it) }
                     }
                     .padding(horizontal = 12.dp, vertical = 6.dp),
@@ -63,19 +68,21 @@ fun TrendingTagRow(
             }
         }
 
-        // 5th grid button
+        // 5th grid button — opens the full tag grid (more search options).
         Box(
             modifier = Modifier
                 .size(28.dp)
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.surface)
                 .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
-                .clickable { /* more tags */ },
+                .iconButton(AccessibilityAudit.Descriptions.Grid)
+                .enforceTouchTarget()
+                .clickable(role = Role.Button) { /* TODO: open full tag grid */ },
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = Icons.Outlined.Apps,
-                contentDescription = "More tags",
+                contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                 modifier = Modifier.size(14.dp),
             )

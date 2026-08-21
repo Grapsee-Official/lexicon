@@ -33,11 +33,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.lexora.data.LexoraViewModel
 import com.lexora.data.TabKey
+import com.lexora.ui.AccessibilityAudit
+import com.lexora.ui.enforceTouchTarget
+import com.lexora.ui.iconButton
 import com.lexora.ui.theme.BrandGreen
 import com.lexora.ui.theme.DarkAccent
+import com.lexora.ui.theme.DarkBackground
 import com.lexora.ui.theme.LexoraTextStyles
 
 /**
@@ -86,12 +93,14 @@ fun BottomNav(
                     .size(40.dp)
                     .clip(CircleShape)
                     .background(accent)
-                    .clickable { viewModel.openSearch() },
+                    .iconButton(AccessibilityAudit.Descriptions.SearchFab)
+                    .enforceTouchTarget()
+                    .clickable(role = Role.Button) { viewModel.openSearch() },
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     imageVector = Icons.Filled.Search,
-                    contentDescription = "Open search",
+                    contentDescription = null,
                     tint = if (isDark) Color.Black else MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.size(16.dp),
                 )
@@ -120,14 +129,22 @@ private fun BottomNavItem(
 
     Column(
         modifier = Modifier
-            .clickable { onClick() }
+            .enforceTouchTarget()
+            // Expose the tab's selected state to TalkBack so it announces
+            // "selected" / "not selected" after the label. Apply BEFORE
+            // .clickable so the outer clickable's mergeDescendants=true
+            // absorbs this property into the same semantic node (otherwise
+            // TalkBack creates two focus stops — one for the selected state,
+            // one for the click action).
+            .semantics { selected = isActive }
+            .clickable(role = Role.Tab) { onClick() }
             .padding(horizontal = 4.dp, vertical = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         Icon(
             imageVector = if (isActive) filledIcon else outlinedIcon,
-            contentDescription = label,
+            contentDescription = null,
             tint = if (isActive) accent else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             modifier = Modifier.size(16.dp),
         )

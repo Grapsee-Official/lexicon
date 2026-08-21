@@ -205,5 +205,10 @@ fun Application.lexoraRoutes() {
 
             call.respondText("Inserted ${words.size} words", ContentType.Text.Plain)
         }
+
+        // Crash report ingestion (per task P4-03).
+        // Mounted as a sub-route so the heavy DB + JSON logic lives in its
+        // own file (CrashReportEndpoint.kt) and stays testable in isolation.
+        crashReportRoutes(dbUrl, dbUser, dbPass)
     }
 }

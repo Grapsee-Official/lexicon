@@ -55,6 +55,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -67,6 +70,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lexora.data.LexoraData
 import com.lexora.data.LexoraViewModel
 import com.lexora.data.WordEntry
+import com.lexora.ui.AccessibilityAudit
+import com.lexora.ui.enforceTouchTarget
+import com.lexora.ui.iconButton
+import com.lexora.ui.liveAnnouncement
+import com.lexora.ui.sectionHeading
 import com.lexora.ui.theme.BodyFontFamily
 import com.lexora.ui.theme.DisplayFontFamily
 import com.lexora.ui.theme.LongFontFamily
@@ -238,6 +246,7 @@ private fun SearchModalContent(
 
                 results.isNotEmpty() -> ResultsList(
                     results = results,
+                    query = trimmed,
                     onSelectWord = onSelectWord,
                 )
 
@@ -272,12 +281,14 @@ private fun SearchTopBar(
             modifier = Modifier
                 .size(36.dp)
                 .clip(CircleShape)
-                .clickable { onClose() },
+                .iconButton(AccessibilityAudit.Descriptions.Close)
+                .enforceTouchTarget()
+                .clickable(role = Role.Button) { onClose() },
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = Icons.Outlined.Close,
-                contentDescription = "Close search",
+                contentDescription = null,
                 tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                 modifier = Modifier.size(20.dp),
             )
@@ -311,6 +322,10 @@ private fun SearchTopBar(
                             fontFamily = BodyFontFamily,
                             fontSize = 13.sp,
                         ),
+                        // The placeholder is a visual hint only — TalkBack
+                        // reads the BasicTextField's own label below. Suppress
+                        // to avoid a duplicate "Search for a word..." stop.
+                        modifier = Modifier.clearAndSetSemantics { },
                     )
                 }
                 BasicTextField(
@@ -340,12 +355,14 @@ private fun SearchTopBar(
                 modifier = Modifier
                     .size(28.dp)
                     .clip(CircleShape)
-                    .clickable { /* voice search hook */ },
+                    .iconButton(AccessibilityAudit.Descriptions.Mic)
+                    .enforceTouchTarget()
+                    .clickable(role = Role.Button) { /* TODO: voice search */ },
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Mic,
-                    contentDescription = "Voice search",
+                    contentDescription = null,
                     tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
                     modifier = Modifier.size(16.dp),
                 )
@@ -354,12 +371,14 @@ private fun SearchTopBar(
                 modifier = Modifier
                     .size(28.dp)
                     .clip(CircleShape)
-                    .clickable { /* image search hook */ },
+                    .iconButton(AccessibilityAudit.Descriptions.Camera)
+                    .enforceTouchTarget()
+                    .clickable(role = Role.Button) { /* TODO: image search */ },
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     imageVector = Icons.Outlined.CameraAlt,
-                    contentDescription = "Image search",
+                    contentDescription = null,
                     tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
                     modifier = Modifier.size(16.dp),
                 )
@@ -402,10 +421,13 @@ private fun EmptyStateContent(
                         fontSize = 11.sp,
                         letterSpacing = 1.4.sp,
                     ),
+                    modifier = Modifier.sectionHeading(2),
                 )
                 Row(
                     modifier = Modifier
-                        .clickable { onClearRecent() }
+                        .iconButton(AccessibilityAudit.Descriptions.Clear)
+                        .enforceTouchTarget()
+                        .clickable(role = Role.Button) { onClearRecent() }
                         .padding(vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -434,7 +456,8 @@ private fun EmptyStateContent(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { onRecentClick(r) }
+                            .enforceTouchTarget()
+                            .clickable(role = Role.Button) { onRecentClick(r) }
                             .padding(vertical = 10.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -479,6 +502,7 @@ private fun EmptyStateContent(
                 fontSize = 11.sp,
                 letterSpacing = 1.4.sp,
             ),
+            modifier = Modifier.sectionHeading(2),
         )
         Spacer(Modifier.height(12.dp))
         FlowRow(
@@ -499,7 +523,8 @@ private fun EmptyStateContent(
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.surface)
                         .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
-                        .clickable { onSuggestedClick(s) }
+                        .enforceTouchTarget()
+                        .clickable(role = Role.Button) { onSuggestedClick(s) }
                         .padding(horizontal = 14.dp, vertical = 6.dp),
                 ) {
                     Text(
@@ -523,6 +548,7 @@ private fun EmptyStateContent(
 @Composable
 private fun ResultsList(
     results: List<WordEntry>,
+    query: String,
     onSelectWord: (WordEntry) -> Unit,
 ) {
     LazyColumn(
@@ -535,12 +561,27 @@ private fun ResultsList(
         ),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
+        // Live-region header: announces the result count to TalkBack as the
+        // user types, without them having to swipe back up to the count.
+        item {
+            Text(
+                text = "${results.size} ${if (results.size == 1) "result" else "results"} for \"$query\"",
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = TextStyle(
+                    fontFamily = BodyFontFamily,
+                    fontSize = 12.sp,
+                ),
+                modifier = Modifier.liveAnnouncement(LiveRegionMode.Polite),
+            )
+            Spacer(Modifier.height(4.dp))
+        }
         items(results, key = { it.id }) { w ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(8.dp))
-                    .clickable { onSelectWord(w) }
+                    .enforceTouchTarget()
+                    .clickable(role = Role.Button) { onSelectWord(w) }
                     .padding(horizontal = 8.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.Baseline,
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -617,6 +658,12 @@ private fun NoResultsState(query: String) {
                 fontWeight = FontWeight.Medium,
                 fontSize = 18.sp,
             ),
+            // Heading so screen-reader users can jump to the no-results
+            // message; live region so TalkBack announces it automatically
+            // when the result set transitions from non-empty to empty.
+            modifier = Modifier
+                .sectionHeading(2)
+                .liveAnnouncement(LiveRegionMode.Polite),
         )
         Spacer(Modifier.height(4.dp))
         Text(

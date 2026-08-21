@@ -71,12 +71,16 @@ struct WordDetailSheet: View {
                             .foregroundStyle(palette.highlight)
                     }
 
-                    // Word title — large Fraunces serif ~30pt
+                    // Word title — large Fraunces serif ~30pt.
+                    // Marked as the h1 heading so VoiceOver users land on
+                    // the word title first when the sheet opens, and can
+                    // use the Headings rotor to return to it.
                     Text(word.word)
                         .font(.lexoraDisplay(30, weight: .semibold))
                         .foregroundStyle(palette.foreground)
                         .lineSpacing(2)
                         .fixedSize(horizontal: false, vertical: true)
+                        .lexoraAccessibilityHeading(.h1)
 
                     // Phonetic (italic muted) · part of speech (lowercase)
                     HStack(spacing: 6) {
@@ -93,11 +97,14 @@ struct WordDetailSheet: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                // Right: 3 action buttons
+                // Right: 3 action buttons. Spec labels:
+                //   speaker.wave.2  → "Pronounce word"
+                //   bookmark        → "Save word" / "Remove from saved"
+                //   share           → "Share word"
                 HStack(spacing: 8) {
                     circleButton(
                         icon: "speaker.wave.2",
-                        label: "Pronounce"
+                        label: LexoraAccessibilityLabels.volume
                     ) {
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     }
@@ -105,7 +112,9 @@ struct WordDetailSheet: View {
                     let saved = vm.isSaved(word.id)
                     circleButton(
                         icon: saved ? "bookmark.fill" : "bookmark",
-                        label: saved ? "Remove from saved" : "Save word",
+                        label: saved
+                            ? LexoraAccessibilityLabels.bookmarkRemove
+                            : LexoraAccessibilityLabels.bookmarkSave,
                         saved: saved
                     ) {
                         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
@@ -114,7 +123,7 @@ struct WordDetailSheet: View {
 
                     circleButton(
                         icon: "square.and.arrow.up",
-                        label: "Share"
+                        label: LexoraAccessibilityLabels.share
                     ) {
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     }
@@ -123,8 +132,18 @@ struct WordDetailSheet: View {
         }
     }
 
-    /// Circular 40×40 action button with card background + border.
-    /// When `saved` is true, uses accent-tinted styling (matches web saved state).
+    /// Circular 40×40 VISUAL action button with card background + border.
+    ///
+    /// The visual circle is 40×40 (matches the locked web spec), but the
+    /// `.lexoraMinTouchTarget()` modifier expands the tappable frame to
+    /// ≥ 44×44 so the button meets the P4-05 hard gate. The 4pt expansion
+    /// is transparent — it sits in the `HStack(spacing: 8)` padding
+    /// between buttons, so the visual layout is unchanged.
+    ///
+    /// When `saved` is true, uses accent-tinted styling (matches web saved
+    /// state). VoiceOver value "Saved" / "Not saved" is announced between
+    /// the label and the button trait, so the user hears e.g.
+    /// "Save word, Not saved, button" or "Remove from saved, Saved, button".
     private func circleButton(
         icon: String,
         label: String,
@@ -144,9 +163,12 @@ struct WordDetailSheet: View {
                         lineWidth: 1
                     )
                 )
+                .lexoraMinTouchTarget()
         }
         .buttonStyle(.plain)
         .accessibilityLabel(Text(label))
+        .accessibilityAddTraits(.isButton)
+        .accessibilityValue(Text(saved ? "Saved" : "Not saved"))
     }
 
     // MARK: - Definitions (numbered list, Lora 15pt)
@@ -273,6 +295,9 @@ struct WordDetailSheet: View {
     // MARK: - Shared helpers
 
     /// Section header: thin SF Symbol + uppercase Inter label (muted foreground).
+    /// Marked as an h3 heading + `.isHeader` trait so VoiceOver users can
+    /// navigate via the Headings rotor (e.g. swipe to "Definitions",
+    /// "Etymology", "Synonyms", "Antonyms", "In Context").
     private func sectionHeader(icon: String, title: String) -> some View {
         HStack(spacing: 6) {
             Image(systemName: icon)
@@ -283,6 +308,8 @@ struct WordDetailSheet: View {
                 .tracking(1.4)
                 .foregroundStyle(palette.foreground.opacity(0.6))
         }
+        .lexoraCombinedElement()
+        .lexoraAccessibilityHeading(.h3)
     }
 
     /// Pill tag: capsule shape with tinted background + border.

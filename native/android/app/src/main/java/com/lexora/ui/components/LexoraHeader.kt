@@ -29,12 +29,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lexora.R
 import com.lexora.data.LexoraViewModel
+import com.lexora.ui.AccessibilityAudit
+import com.lexora.ui.enforceTouchTarget
+import com.lexora.ui.iconButton
 import com.lexora.ui.theme.LexoraTextStyles
 import com.lexora.ui.theme.Terracotta
 
@@ -70,12 +75,14 @@ fun LexoraHeader(
             modifier = Modifier
                 .size(36.dp)
                 .clip(CircleShape)
-                .clickable { /* menu */ },
+                .iconButton(AccessibilityAudit.Descriptions.Menu)
+                .enforceTouchTarget()
+                .clickable(role = Role.Button) { viewModel.openMenu() },
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = Icons.Outlined.Menu,
-                contentDescription = "Open menu",
+                contentDescription = null,
                 tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
                 modifier = Modifier.size(18.dp),
             )
@@ -115,12 +122,14 @@ fun LexoraHeader(
             modifier = Modifier
                 .size(36.dp)
                 .clip(CircleShape)
-                .clickable { viewModel.toggleTheme() },
+                .iconButton(if (isDark) "Switch to light mode" else "Switch to dark mode")
+                .enforceTouchTarget()
+                .clickable(role = Role.Button) { viewModel.toggleTheme() },
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = if (isDark) Icons.Outlined.Sun else Icons.Outlined.Moon,
-                contentDescription = if (isDark) "Switch to light mode" else "Switch to dark mode",
+                contentDescription = null,
                 tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
                 modifier = Modifier.size(18.dp),
             )
@@ -131,12 +140,14 @@ fun LexoraHeader(
             modifier = Modifier
                 .size(36.dp)
                 .clip(CircleShape)
-                .clickable { /* notifications */ },
+                .iconButton(AccessibilityAudit.Descriptions.Bell)
+                .enforceTouchTarget()
+                .clickable(role = Role.Button) { /* TODO: open notifications */ },
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = Icons.Outlined.Bell,
-                contentDescription = "Notifications",
+                contentDescription = null,
                 tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
                 modifier = Modifier.size(18.dp),
             )
@@ -156,11 +167,14 @@ fun LexoraHeader(
             modifier = Modifier
                 .size(36.dp)
                 .clip(CircleShape)
-                .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape),
+                .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
+                .iconButton(AccessibilityAudit.Descriptions.Avatar)
+                .enforceTouchTarget()
+                .clickable(role = Role.Button) { /* TODO: open profile */ },
         ) {
             Image(
                 painter = painterResource(R.drawable.avatar_default),
-                contentDescription = "Profile",
+                contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxWidth(),
             )

@@ -32,11 +32,19 @@ struct TrendingTagRow: View {
                             .background(lexoraPalette(scheme).card)
                             .clipShape(Capsule())
                             .overlay(Capsule().stroke(lexoraPalette(scheme).border, lineWidth: 1))
+                            // Pills are ~26pt tall visually — expand the
+                            // tappable frame to ≥ 44pt. The pill background
+                            // stays small; only the hit area grows.
+                            .lexoraMinTouchTarget()
+                            .contentShape(Capsule())
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel(Text(tag.label))
+                    .accessibilityHint(Text("Open the dictionary entry"))
+                    .accessibilityAddTraits(.isButton)
                 }
 
-                // 5th grid button
+                // 5th grid button — spec label "More search options".
                 Button {
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 } label: {
@@ -47,9 +55,11 @@ struct TrendingTagRow: View {
                         .background(lexoraPalette(scheme).card)
                         .clipShape(Circle())
                         .overlay(Circle().stroke(lexoraPalette(scheme).border, lineWidth: 1))
+                        .lexoraMinTouchTarget()
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel(Text("More tags"))
+                .accessibilityLabel(Text(LexoraAccessibilityLabels.grid))
+                .accessibilityAddTraits(.isButton)
             }
             .padding(.horizontal, 1)
         }
