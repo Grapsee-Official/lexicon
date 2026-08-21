@@ -5,7 +5,9 @@
 package com.lexora.cloud.server
 
 import io.ktor.server.application.*
-import io.ktor.server.plugins.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.cors.routing.*
+import io.ktor.server.plugins.compression.*
 import io.ktor.serialization.gson.*
 import io.ktor.http.*
 import io.ktor.server.request.*
@@ -44,8 +46,12 @@ data class WordChange(
 )
 
 fun main() {
-    embeddedServer(Netty, port = 8080) {
-        install(ContentNegotiation) { gson() }
+    embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
+        install(ContentNegotiation) {
+            gson {
+                // Gson serializer registered for application/json; default config.
+            }
+        }
         install(CORS) { anyHost() }
         install(Compression) { gzip() }
         routing { lexoraRoutes() }

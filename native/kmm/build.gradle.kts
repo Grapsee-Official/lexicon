@@ -11,6 +11,7 @@
 
 plugins {
     kotlin("multiplatform") version "1.9.22"
+    kotlin("plugin.serialization") version "1.9.22"
     id("com.android.library") version "8.2.2"
 }
 
@@ -30,15 +31,26 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
+                // Ktor client + plugins needed by DeltaSyncClient (commonMain).
+                implementation("io.ktor:ktor-client-core:2.3.7")
+                implementation("io.ktor:ktor-client-content-negotiation:2.3.7")
+                implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.7")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
             }
         }
         val androidMain by getting {
             dependencies {
                 implementation("androidx.core:core-ktx:1.13.1")
+                // Ktor OkHttp engine + zstd-jni for DeltaSyncClient.android.kt.
+                implementation("io.ktor:ktor-client-okhttp:2.3.7")
+                implementation("com.github.luben:zstd-jni:1.5.5-11@aar")
             }
         }
         val iosMain by creating {
-            dependencies { }
+            dependencies {
+                // Ktor Darwin engine for DeltaSyncClient.ios.kt.
+                implementation("io.ktor:ktor-client-darwin:2.3.7")
+            }
         }
         val iosX64Main by getting { dependsOn(iosMain) }
         val iosArm64Main by getting { dependsOn(iosMain) }

@@ -78,16 +78,16 @@ LexoraWordEntry* lexora_engine_lookup(LexoraEngineHandle* handle, const char* wo
     return convert_entry(*result);
 }
 
-LexoraLexoraSearchResults* lexora_engine_fuzzy_search(LexoraEngineHandle* handle, const char* query, int max_distance, uint32_t limit) {
+LexoraSearchResults* lexora_engine_fuzzy_search(LexoraEngineHandle* handle, const char* query, int max_distance, uint32_t limit) {
     if (!handle || !query) return nullptr;
     auto results = handle->engine.fuzzy_search(query, max_distance, limit ? limit : 20);
     if (results.empty()) return nullptr;
 
-    LexoraLexoraSearchResults* out = static_cast<LexoraLexoraSearchResults*>(std::malloc(sizeof(LexoraLexoraSearchResults)));
+    LexoraSearchResults* out = static_cast<LexoraSearchResults*>(std::malloc(sizeof(LexoraSearchResults)));
     if (!out) return nullptr;
 
     out->count = static_cast<uint32_t>(results.size());
-    out->results = static_cast<LexoraLexoraSearchResult*>(std::malloc(results.size() * sizeof(LexoraLexoraSearchResult)));
+    out->results = static_cast<LexoraSearchResult*>(std::malloc(results.size() * sizeof(LexoraSearchResult)));
     if (!out->results) { std::free(out); return nullptr; }
 
     for (size_t i = 0; i < results.size(); ++i) {
@@ -121,7 +121,7 @@ void lexora_engine_free_entry(LexoraWordEntry* entry) {
     std::free(entry);
 }
 
-void lexora_engine_free_results(LexoraLexoraSearchResults* results) {
+void lexora_engine_free_results(LexoraSearchResults* results) {
     if (!results) return;
     for (uint32_t i = 0; i < results->count; ++i) {
         lexora_engine_free_entry(&results->results[i].entry);

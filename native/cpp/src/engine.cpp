@@ -135,9 +135,9 @@ std::optional<WordEntry> LexoraEngine::lookup(std::string_view word) const {
     return impl_->deserialize(value, value_len);
 }
 
-std::vector<LexoraLexoraSearchResult> LexoraEngine::fuzzy_search(std::string_view query, int max_distance, size_t limit) const {
+std::vector<LexoraSearchResult> LexoraEngine::fuzzy_search(std::string_view query, int max_distance, size_t limit) const {
     std::lock_guard<std::mutex> lock(impl_->mutex);
-    std::vector<LexoraLexoraSearchResult> results;
+    std::vector<LexoraSearchResult> results;
 
     if (!impl_->loaded) return results;
 

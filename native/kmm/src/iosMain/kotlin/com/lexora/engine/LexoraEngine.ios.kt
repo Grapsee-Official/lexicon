@@ -116,9 +116,13 @@ actual class LexoraEngine actual constructor() : MemoryPressureListener {
     actual fun fuzzySearch(query: String, maxDistance: Int, limit: Int): List<SearchResult> {
         if (!loaded) return emptyList()
         val h = handle ?: return emptyList()
+        // Clamp limit to non-negative before UInt conversion: a negative Int
+        // would otherwise wrap to a multi-billion UInt and (while the C side
+        // degrades gracefully by returning all matches) is semantically wrong.
+        val safeLimit: UInt = if (limit <= 0) 0u else limit.toUInt()
         return memScoped {
             val cQuery = query.cstr.getPointer(this)
-            val resultsPtr = cFuzzySearch(h, cQuery, maxDistance, limit.toUInt())
+            val resultsPtr = cFuzzySearch(h, cQuery, maxDistance, safeLimit)
                 ?: return@memScoped emptyList<SearchResult>()
             try {
                 val pointed = resultsPtr.pointed
@@ -233,8 +237,11 @@ actual class LexoraEngine actual constructor() : MemoryPressureListener {
         count: UInt
     ): List<String> {
         if (arr == null || count == 0u) return emptyList()
+        // Local non-null copy so the smart-cast survives into the lambda
+        // without re-checking the parameter on every iteration.
+        val localArr = arr
         return (0 until count.toInt()).map { i ->
-            arr[i]?.toKString() ?: ""
+            localArr[i]?.toKString() ?: ""
         }
     }
 }
