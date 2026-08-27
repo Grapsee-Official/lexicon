@@ -1,8 +1,8 @@
 //
 //  TrendingTagRow.swift
-//  Lexora
+//  Lexicon
 //
-//  Translation of `src/components/lexora/trending-tag-row.tsx`.
+//  Translation of `src/components/lexicon/trending-tag-row.tsx`.
 //
 //  Horizontal scroll of pill chips + 5th grid button.
 //
@@ -11,7 +11,7 @@ import SwiftUI
 
 struct TrendingTagRow: View {
     let tags: [TrendingTag]
-    @EnvironmentObject private var vm: LexoraViewModel
+    @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
 
     var body: some View {
@@ -20,22 +20,22 @@ struct TrendingTagRow: View {
                 ForEach(tags) { tag in
                     Button {
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                        if let entry = LexoraData.getWordById(tag.wordId) {
+                        if let entry = LexiconData.getWordById(tag.wordId) {
                             vm.openWord(entry)
                         }
                     } label: {
                         Text(tag.label)
-                            .font(.lexoraBody(11))
-                            .foregroundStyle(lexoraPalette(scheme).foreground.opacity(0.7))
+                            .font(.lexiconBody(11))
+                            .foregroundStyle(lexiconPalette(scheme).foreground.opacity(0.7))
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(lexoraPalette(scheme).card)
+                            .background(lexiconPalette(scheme).card)
                             .clipShape(Capsule())
-                            .overlay(Capsule().stroke(lexoraPalette(scheme).border, lineWidth: 1))
+                            .overlay(Capsule().stroke(lexiconPalette(scheme).border, lineWidth: 1))
                             // Pills are ~26pt tall visually — expand the
                             // tappable frame to ≥ 44pt. The pill background
                             // stays small; only the hit area grows.
-                            .lexoraMinTouchTarget()
+                            .lexiconMinTouchTarget()
                             .contentShape(Capsule())
                     }
                     .buttonStyle(.plain)
@@ -50,15 +50,15 @@ struct TrendingTagRow: View {
                 } label: {
                     Image(systemName: "square.grid.2x2")
                         .font(.system(size: 12, weight: .regular))
-                        .foregroundStyle(lexoraPalette(scheme).foreground.opacity(0.5))
+                        .foregroundStyle(lexiconPalette(scheme).foreground.opacity(0.5))
                         .frame(width: 28, height: 28)
-                        .background(lexoraPalette(scheme).card)
+                        .background(lexiconPalette(scheme).card)
                         .clipShape(Circle())
-                        .overlay(Circle().stroke(lexoraPalette(scheme).border, lineWidth: 1))
-                        .lexoraMinTouchTarget()
+                        .overlay(Circle().stroke(lexiconPalette(scheme).border, lineWidth: 1))
+                        .lexiconMinTouchTarget()
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel(Text(LexoraAccessibilityLabels.grid))
+                .accessibilityLabel(Text(LexiconAccessibilityLabels.grid))
                 .accessibilityAddTraits(.isButton)
             }
             .padding(.horizontal, 1)
@@ -67,8 +67,8 @@ struct TrendingTagRow: View {
 }
 
 #Preview {
-    TrendingTagRow(tags: LexoraData.trendingTags)
-        .environmentObject(LexoraViewModel())
+    TrendingTagRow(tags: LexiconData.trendingTags)
+        .environmentObject(LexiconViewModel())
         .padding()
-        .background(LexoraColors.background)
+        .background(LexiconColors.background)
 }

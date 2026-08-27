@@ -1,27 +1,27 @@
-// c_api.cpp — C ABI implementation (wraps C++ LexoraEngine)
-#include "lexora/c_api.h"
-#include "lexora/engine.hpp"
+// c_api.cpp — C ABI implementation (wraps C++ LexiconEngine)
+#include "lexicon/c_api.h"
+#include "lexicon/engine.hpp"
 #include <cstring>
 #include <cstdlib>
 #include <new>
 
-struct LexoraEngineHandle {
-    lexora::LexoraEngine engine;
+struct LexiconEngineHandle {
+    lexicon::LexiconEngine engine;
 };
 
 extern "C" {
 
-LexoraEngineHandle* lexora_engine_create(void) {
-    auto* h = new (std::nothrow) LexoraEngineHandle();
+LexiconEngineHandle* lexicon_engine_create(void) {
+    auto* h = new (std::nothrow) LexiconEngineHandle();
     return h;
 }
 
-int lexora_engine_load(LexoraEngineHandle* handle, const char* db_dir) {
+int lexicon_engine_load(LexiconEngineHandle* handle, const char* db_dir) {
     if (!handle || !db_dir) return -1;
     return handle->engine.load_database(db_dir) ? 0 : -1;
 }
 
-void lexora_engine_close(LexoraEngineHandle* handle) {
+void lexicon_engine_close(LexiconEngineHandle* handle) {
     if (handle) {
         handle->engine.close();
         delete handle;
@@ -51,9 +51,9 @@ static void dup_string_vec(const std::vector<std::string>& vec, const char*** ou
     }
 }
 
-// Helper: convert C++ WordEntry to C LexoraWordEntry (heap-allocated)
-static LexoraWordEntry* convert_entry(const lexora::WordEntry& cpp_entry) {
-    LexoraWordEntry* entry = static_cast<LexoraWordEntry*>(std::malloc(sizeof(LexoraWordEntry)));
+// Helper: convert C++ WordEntry to C LexiconWordEntry (heap-allocated)
+static LexiconWordEntry* convert_entry(const lexicon::WordEntry& cpp_entry) {
+    LexiconWordEntry* entry = static_cast<LexiconWordEntry*>(std::malloc(sizeof(LexiconWordEntry)));
     if (!entry) return nullptr;
 
     entry->id = dup_string(cpp_entry.id);
@@ -71,23 +71,23 @@ static LexoraWordEntry* convert_entry(const lexora::WordEntry& cpp_entry) {
     return entry;
 }
 
-LexoraWordEntry* lexora_engine_lookup(LexoraEngineHandle* handle, const char* word) {
+LexiconWordEntry* lexicon_engine_lookup(LexiconEngineHandle* handle, const char* word) {
     if (!handle || !word) return nullptr;
     auto result = handle->engine.lookup(word);
     if (!result) return nullptr;
     return convert_entry(*result);
 }
 
-LexoraSearchResults* lexora_engine_fuzzy_search(LexoraEngineHandle* handle, const char* query, int max_distance, uint32_t limit) {
+LexiconSearchResults* lexicon_engine_fuzzy_search(LexiconEngineHandle* handle, const char* query, int max_distance, uint32_t limit) {
     if (!handle || !query) return nullptr;
     auto results = handle->engine.fuzzy_search(query, max_distance, limit ? limit : 20);
     if (results.empty()) return nullptr;
 
-    LexoraSearchResults* out = static_cast<LexoraSearchResults*>(std::malloc(sizeof(LexoraSearchResults)));
+    LexiconSearchResults* out = static_cast<LexiconSearchResults*>(std::malloc(sizeof(LexiconSearchResults)));
     if (!out) return nullptr;
 
     out->count = static_cast<uint32_t>(results.size());
-    out->results = static_cast<LexoraSearchResult*>(std::malloc(results.size() * sizeof(LexoraSearchResult)));
+    out->results = static_cast<LexiconSearchResult*>(std::malloc(results.size() * sizeof(LexiconSearchResult)));
     if (!out->results) { std::free(out); return nullptr; }
 
     for (size_t i = 0; i < results.size(); ++i) {
@@ -106,7 +106,7 @@ static void free_string_vec(const char** arr, uint32_t count) {
     std::free(arr);
 }
 
-void lexora_engine_free_entry(LexoraWordEntry* entry) {
+void lexicon_engine_free_entry(LexiconWordEntry* entry) {
     if (!entry) return;
     std::free(const_cast<char*>(entry->id));
     std::free(const_cast<char*>(entry->word));
@@ -121,25 +121,25 @@ void lexora_engine_free_entry(LexoraWordEntry* entry) {
     std::free(entry);
 }
 
-void lexora_engine_free_results(LexoraSearchResults* results) {
+void lexicon_engine_free_results(LexiconSearchResults* results) {
     if (!results) return;
     for (uint32_t i = 0; i < results->count; ++i) {
-        lexora_engine_free_entry(&results->results[i].entry);
+        lexicon_engine_free_entry(&results->results[i].entry);
     }
     std::free(results->results);
     std::free(results);
 }
 
-void lexora_engine_enable_dawg(LexoraEngineHandle* handle, int enabled) {
+void lexicon_engine_enable_dawg(LexiconEngineHandle* handle, int enabled) {
     if (handle) handle->engine.enable_dawg(enabled != 0);
 }
 
-int lexora_engine_is_dawg_enabled(LexoraEngineHandle* handle) {
+int lexicon_engine_is_dawg_enabled(LexiconEngineHandle* handle) {
     return handle && handle->engine.is_dawg_enabled() ? 1 : 0;
 }
 
-LexoraMemoryInfo lexora_engine_get_memory_usage(LexoraEngineHandle* handle) {
-    LexoraMemoryInfo info = {0, 0, 0};
+LexiconMemoryInfo lexicon_engine_get_memory_usage(LexiconEngineHandle* handle) {
+    LexiconMemoryInfo info = {0, 0, 0};
     if (handle) {
         auto m = handle->engine.get_memory_usage();
         info.hash_table_bytes = m.hash_table_bytes;

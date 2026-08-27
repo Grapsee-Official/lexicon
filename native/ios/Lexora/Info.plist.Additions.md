@@ -1,7 +1,7 @@
-# Lexora — Info.plist Additions (Submission-Ready Checklist)
+# Lexicon — Info.plist Additions (Submission-Ready Checklist)
 
 This document describes the keys that **must** be present in
-`/native/ios/Lexora/Info.plist` before Lexora is submitted to App Store
+`/native/ios/Lexicon/Info.plist` before Lexicon is submitted to App Store
 Connect. It is the canonical reference for the four additions called out in
 task **P4-06**.
 
@@ -53,7 +53,7 @@ task **P4-06**.
 
 ### Why it is needed
 
-Lexora's **camera search** feature (Phase 3) lets the user point the device
+Lexicon's **camera search** feature (Phase 3) lets the user point the device
 camera at a printed page, tap a recognised word, and look it up. The feature
 uses Apple's on-device **Vision** framework (`VNRecognizeTextRequest`) to
 detect text in the camera feed.
@@ -76,7 +76,7 @@ and this key is missing.
 
 ```xml
 <key>NSCameraUsageDescription</key>
-<string>Lexora uses the camera to scan and look up words on the page in front of you. The camera feed is processed on-device only — no images are saved, and no images leave your device.</string>
+<string>Lexicon uses the camera to scan and look up words on the page in front of you. The camera feed is processed on-device only — no images are saved, and no images leave your device.</string>
 ```
 
 ### How to apply
@@ -84,13 +84,13 @@ and this key is missing.
 The key is **already present in `Info.plist`** but commented out inside a
 multi-line `<!-- ... -->` block (lines 109–116). To enable it:
 
-1. Open `/native/ios/Lexora/Info.plist` in Xcode (right-click → Open As →
+1. Open `/native/ios/Lexicon/Info.plist` in Xcode (right-click → Open As →
    Source Code) or any text editor.
 2. Find the block starting at line 109:
    ```xml
    <!--
    <key>NSCameraUsageDescription</key>
-   <string>Lexora uses the camera to scan and look up words.</string>
+   <string>Lexicon uses the camera to scan and look up words.</string>
    ...
    -->
    ```
@@ -102,17 +102,17 @@ multi-line `<!-- ... -->` block (lines 109–116). To enable it:
    ```xml
    <!-- Camera search — required by Phase 3 camera-search feature (Vision framework). -->
    <key>NSCameraUsageDescription</key>
-   <string>Lexora uses the camera to scan and look up words on the page in front of you. The camera feed is processed on-device only — no images are saved, and no images leave your device.</string>
+   <string>Lexicon uses the camera to scan and look up words on the page in front of you. The camera feed is processed on-device only — no images are saved, and no images leave your device.</string>
 
    <!-- Voice search — required by Phase 3 voice-search feature (Speech framework). -->
    <key>NSMicrophoneUsageDescription</key>
-   <string>Lexora uses the microphone for voice search. A single short utterance is transcribed on-device and used as your search query — no audio is recorded, stored, or transmitted.</string>
+   <string>Lexicon uses the microphone for voice search. A single short utterance is transcribed on-device and used as your search query — no audio is recorded, stored, or transmitted.</string>
    ```
 
 ### Important: replace the placeholder string
 
 The current commented-out value is a short placeholder:
-> "Lexora uses the camera to scan and look up words."
+> "Lexicon uses the camera to scan and look up words."
 
 For submission, replace it with the longer, user-facing explanation shown
 above. Apple's review guidelines (section 5.1.1) require the string to
@@ -146,7 +146,7 @@ After applying the change:
 
 ### Why it is needed
 
-Lexora's **voice search** feature (Phase 3) lets the user tap a microphone
+Lexicon's **voice search** feature (Phase 3) lets the user tap a microphone
 icon in the search bar, speak a word, and have it transcribed and inserted
 into the search field. The feature uses Apple's on-device **Speech**
 framework (`SFSpeechRecognizer` with `requestAuthorization(_:)` and
@@ -164,7 +164,7 @@ this key is missing.
 
 ```xml
 <key>NSMicrophoneUsageDescription</key>
-<string>Lexora uses the microphone for voice search. A single short utterance is transcribed on-device and used as your search query — no audio is recorded, stored, or transmitted.</string>
+<string>Lexicon uses the microphone for voice search. A single short utterance is transcribed on-device and used as your search query — no audio is recorded, stored, or transmitted.</string>
 ```
 
 ### How to apply
@@ -180,7 +180,7 @@ permission from the microphone:
 
 ```xml
 <key>NSSpeechRecognitionUsageDescription</key>
-<string>Lexora uses speech recognition to transcribe your voice-search queries on-device.</string>
+<string>Lexicon uses speech recognition to transcribe your voice-search queries on-device.</string>
 ```
 
 This key is **NOT** currently in `Info.plist`. If voice search is part of
@@ -212,7 +212,7 @@ encryption registration with the U.S. Bureau of Industry and Security (BIS)
 — **unless** the app's encryption qualifies for an exemption under Export
 Administration Regulations (EAR) section 740.13(e).
 
-The most common exemption — and the one Lexora qualifies for — is the
+The most common exemption — and the one Lexicon qualifies for — is the
 "mass-market exemption" for apps that **only** use standard system-provided
 encryption (HTTPS/TLS via `URLSession`, `CryptoKit` for hashing, etc.) and
 do **not** implement their own custom encryption, do **not** encrypt files
@@ -259,20 +259,20 @@ including system-provided ones.
 
 ### When this key would need to change
 
-If a future version of Lexora adds:
+If a future version of Lexicon adds:
 
 - **End-to-end encryption** of user data with a key not derived from the
   device passcode, OR
-- **Custom encryption** (e.g. AES with a Lexora-controlled key for some
+- **Custom encryption** (e.g. AES with a Lexicon-controlled key for some
   feature), OR
 - **File-level encryption at rest** with anything beyond iOS Data Protection
   classes (`NSFileProtectionComplete`, etc.),
 
 then `ITSAppUsesNonExemptEncryption` must be set to `true` and the
 encryption export-compliance questionnaire must be filled in at submission
-time. None of these apply to Lexora v1.0.
+time. None of these apply to Lexicon v1.0.
 
-> **Note on Lexora's actual crypto usage:** Lexora uses TLS 1.3 (system-
+> **Note on Lexicon's actual crypto usage:** Lexicon uses TLS 1.3 (system-
 > provided by `URLSession`) for sync-metadata and crash-report transport,
 > and certificate pinning (system-provided via `URLSessionDelegate`). Both
 > are exempt. The app does **not** use CryptoKit, does **not** ship a
@@ -300,7 +300,7 @@ The human-readable version (`CFBundleShortVersionString`, e.g. `"1.0.0"`)
 is what users see in the App Store. The build number (`CFBundleVersion`)
 is an internal counter that must increment on every upload.
 
-Lexora's `Info.plist` currently has:
+Lexicon's `Info.plist` currently has:
 
 ```xml
 <key>CFBundleShortVersionString</key>
@@ -329,7 +329,7 @@ bundle.
 
 ### The script
 
-Save this as `/native/ios/Lexora/Scripts/bump-build-number.sh` (create the
+Save this as `/native/ios/Lexicon/Scripts/bump-build-number.sh` (create the
 `Scripts/` directory if it does not exist):
 
 ```bash
@@ -340,7 +340,7 @@ Save this as `/native/ios/Lexora/Scripts/bump-build-number.sh` (create the
 
 # Resolve the source Info.plist path relative to the project.
 # ${SRCROOT} is the directory containing the .xcodeproj.
-INFO_PLIST="${SRCROOT}/Lexora/Info.plist"
+INFO_PLIST="${SRCROOT}/Lexicon/Info.plist"
 
 if [ ! -f "${INFO_PLIST}" ]; then
     echo "warning: Info.plist not found at ${INFO_PLIST} — skipping build-number bump."
@@ -367,13 +367,13 @@ echo "Bumped CFBundleVersion: ${BUILD_NUM} → ${NEW_BUILD_NUM}"
 Make it executable:
 
 ```bash
-chmod +x /native/ios/Lexora/Scripts/bump-build-number.sh
+chmod +x /native/ios/Lexicon/Scripts/bump-build-number.sh
 ```
 
 ### How to wire it into the Xcode target
 
-1. Open `Lexora.xcodeproj` in Xcode.
-2. Select the **Lexora** target in the project navigator.
+1. Open `Lexicon.xcodeproj` in Xcode.
+2. Select the **Lexicon** target in the project navigator.
 3. Go to **Build Phases** tab.
 4. Click **+** → **New Run Script Phase**.
 5. Drag the new phase to be the **first** item in the list (above "Compile
@@ -384,7 +384,7 @@ chmod +x /native/ios/Lexora/Scripts/bump-build-number.sh
    - **Shell:** `/bin/sh`
    - **Script:**
      ```bash
-     "${SRCROOT}/Lexora/Scripts/bump-build-number.sh"
+     "${SRCROOT}/Lexicon/Scripts/bump-build-number.sh"
      ```
    - **Input files:** leave empty.
    - **Output files:** leave empty.
@@ -403,14 +403,14 @@ After building:
 
 1. **In Xcode build log:** search for "Bumped CFBundleVersion" — the line
    should show the old → new value.
-2. **In the source `Info.plist`:** open `/native/ios/Lexora/Info.plist` and
+2. **In the source `Info.plist`:** open `/native/ios/Lexicon/Info.plist` and
    confirm `CFBundleVersion` has been bumped (e.g. from `1` to `2`).
 3. **In the built `.app`'s `Info.plist`:**
    ```bash
-   plutil -p ~/Library/Developer/Xcode/DerivedData/Lexora-*/Build/Products/Debug-iphonesimulator/Lexora.app/Info.plist | grep CFBundleVersion
+   plutil -p ~/Library/Developer/Xcode/DerivedData/Lexicon-*/Build/Products/Debug-iphonesimulator/Lexicon.app/Info.plist | grep CFBundleVersion
    ```
    Should show the new value.
-4. **In an uploaded TestFlight build:** App Store Connect → Lexora →
+4. **In an uploaded TestFlight build:** App Store Connect → Lexicon →
    TestFlight → Builds should show the new build number alongside the
    upload timestamp.
 
@@ -457,7 +457,7 @@ dev's `CFBundleVersion=42`, another's `=15`). To avoid merge noise, either:
 - **Accept the merge noise** and resolve conflicts by always keeping the
   higher number.
 
-The recommended approach for Lexora v1.0 is the **Git-based** one, because
+The recommended approach for Lexicon v1.0 is the **Git-based** one, because
 it gives a meaningful crash-to-commit mapping (see `PrivacyPolicy.md` §4.1 —
 crash reports include `CFBundleVersion`, which now maps directly to a Git
 commit count, making crash triage trivial).
@@ -487,7 +487,7 @@ For a v1.0 submission that ships with camera and voice search enabled:
 
 ### Step 1 — Edit `Info.plist`
 
-Open `/native/ios/Lexora/Info.plist` in a text editor (or Xcode → Open As →
+Open `/native/ios/Lexicon/Info.plist` in a text editor (or Xcode → Open As →
 Source Code).
 
 **Find** (currently lines 109–116):
@@ -495,11 +495,11 @@ Source Code).
 ```xml
 <!--
 <key>NSCameraUsageDescription</key>
-<string>Lexora uses the camera to scan and look up words.</string>
+<string>Lexicon uses the camera to scan and look up words.</string>
 <key>NSMicrophoneUsageDescription</key>
-<string>Lexora uses the microphone for voice search.</string>
+<string>Lexicon uses the microphone for voice search.</string>
 <key>NSPhotoLibraryUsageDescription</key>
-<string>Lexora can save word illustrations to your photo library.</string>
+<string>Lexicon can save word illustrations to your photo library.</string>
 -->
 ```
 
@@ -508,22 +508,22 @@ Source Code).
 ```xml
 <!-- Camera search — required by Phase 3 camera-search feature (Vision framework). -->
 <key>NSCameraUsageDescription</key>
-<string>Lexora uses the camera to scan and look up words on the page in front of you. The camera feed is processed on-device only — no images are saved, and no images leave your device.</string>
+<string>Lexicon uses the camera to scan and look up words on the page in front of you. The camera feed is processed on-device only — no images are saved, and no images leave your device.</string>
 
 <!-- Voice search — required by Phase 3 voice-search feature (Speech framework). -->
 <key>NSMicrophoneUsageDescription</key>
-<string>Lexora uses the microphone for voice search. A single short utterance is transcribed on-device and used as your search query — no audio is recorded, stored, or transmitted.</string>
+<string>Lexicon uses the microphone for voice search. A single short utterance is transcribed on-device and used as your search query — no audio is recorded, stored, or transmitted.</string>
 
 <!-- Speech recognition — required alongside the microphone for voice search. -->
 <key>NSSpeechRecognitionUsageDescription</key>
-<string>Lexora uses speech recognition to transcribe your voice-search queries on-device.</string>
+<string>Lexicon uses speech recognition to transcribe your voice-search queries on-device.</string>
 
 <!-- Photo library — reserved for Phase 3 "save illustration to Photos" feature. Leave commented out unless that feature ships in v1.0. -->
 <!--
 <key>NSPhotoLibraryUsageDescription</key>
-<string>Lexora can save word illustrations to your photo library.</string>
+<string>Lexicon can save word illustrations to your photo library.</string>
 <key>NSPhotoLibraryAddUsageDescription</key>
-<string>Lexora can save word illustrations to your photo library.</string>
+<string>Lexicon can save word illustrations to your photo library.</string>
 -->
 ```
 
@@ -548,9 +548,9 @@ encryption" — the original wording is ambiguous.)
 ### Step 3 — Create the build-number script
 
 ```bash
-mkdir -p /native/ios/Lexora/Scripts
+mkdir -p /native/ios/Lexicon/Scripts
 # Save the bump-build-number.sh script from §5 to this directory.
-chmod +x /native/ios/Lexora/Scripts/bump-build-number.sh
+chmod +x /native/ios/Lexicon/Scripts/bump-build-number.sh
 ```
 
 ### Step 4 — Wire the script into the Xcode target
@@ -601,13 +601,13 @@ Store Connect.
 
 ### 7.4 `CFBundleVersion` auto-increment
 
-- [ ] `/native/ios/Lexora/Scripts/bump-build-number.sh` exists and is
+- [ ] `/native/ios/Lexicon/Scripts/bump-build-number.sh` exists and is
       executable.
 - [ ] Xcode target → Build Phases → first phase is "Bump Build Number"
       Run-Script phase.
 - [ ] Build the app once; the build log shows
       `Bumped CFBundleVersion: N → N+1`.
-- [ ] Open `/native/ios/Lexora/Info.plist` and confirm `CFBundleVersion`
+- [ ] Open `/native/ios/Lexicon/Info.plist` and confirm `CFBundleVersion`
       is the new value.
 - [ ] Open the built `.app`'s `Info.plist` and confirm the same value.
 - [ ] (Optional) Upload two consecutive TestFlight builds and confirm
@@ -620,7 +620,7 @@ Store Connect.
       this catches any missing-usage-description or
       missing-encryption-key errors before upload.
 - [ ] If validation passes, upload to App Store Connect.
-- [ ] In App Store Connect → Lexora → Activity → Build, confirm the build
+- [ ] In App Store Connect → Lexicon → Activity → Build, confirm the build
       appears with the correct `CFBundleShortVersionString` and
       `CFBundleVersion`.
 - [ ] Confirm App Store Connect does NOT show a "Missing Encryption
@@ -645,6 +645,6 @@ Store Connect.
 
 ---
 
-*This document is part of the Lexora iOS submission bundle. The canonical
-`Info.plist` source lives at `/native/ios/Lexora/Info.plist`; this document
+*This document is part of the Lexicon iOS submission bundle. The canonical
+`Info.plist` source lives at `/native/ios/Lexicon/Info.plist`; this document
 describes the post-submission-ready state of that file.*

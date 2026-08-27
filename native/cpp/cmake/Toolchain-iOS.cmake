@@ -8,11 +8,11 @@
 #    cmake -G Xcode -B build/ios \
 #          -DCMAKE_TOOLCHAIN_FILE=<repo>/native/cpp/cmake/Toolchain-iOS.cmake \
 #          -DTARGET_IOS=ON \
-#          -DLEXORA_BUILD_FRAMEWORK=ON
+#          -DLEXICON_BUILD_FRAMEWORK=ON
 #
 #  To build:
 #    cmake --build build/ios --config Release
-#    # → build/ios/Release/LexoraEngine.framework
+#    # → build/ios/Release/LexiconEngine.framework
 # =============================================================================
 cmake_minimum_required(VERSION 3.22)
 
@@ -33,17 +33,17 @@ set(CMAKE_OSX_DEPLOYMENT_TARGET  "16.0"  CACHE STRING "iOS deploy target" FORCE)
 # -----------------------------------------------------------------------------
 execute_process(
     COMMAND xcrun --sdk iphoneos --show-sdk-path
-    OUTPUT_VARIABLE _LEXORA_IOS_SDK_PATH
+    OUTPUT_VARIABLE _LEXICON_IOS_SDK_PATH
     OUTPUT_STRIP_TRAILING_WHITESPACE
-    RESULT_VARIABLE _LEXORA_IOS_SDK_RC
-    ERROR_VARIABLE _LEXORA_IOS_SDK_ERR)
+    RESULT_VARIABLE _LEXICON_IOS_SDK_RC
+    ERROR_VARIABLE _LEXICON_IOS_SDK_ERR)
 
-if(_LEXORA_IOS_SDK_RC EQUAL 0 AND _LEXORA_IOS_SDK_PATH)
-    set(CMAKE_OSX_SYSROOT "${_LEXORA_IOS_SDK_PATH}" CACHE PATH "iOS SDK root" FORCE)
+if(_LEXICON_IOS_SDK_RC EQUAL 0 AND _LEXICON_IOS_SDK_PATH)
+    set(CMAKE_OSX_SYSROOT "${_LEXICON_IOS_SDK_PATH}" CACHE PATH "iOS SDK root" FORCE)
 else()
     message(FATAL_ERROR
         "Could not locate iphoneos SDK via `xcrun --sdk iphoneos --show-sdk-path`.\n"
-        "Error: ${_LEXORA_IOS_SDK_ERR}\n"
+        "Error: ${_LEXICON_IOS_SDK_ERR}\n"
         "Run `xcode-select -p` and ensure Xcode is properly installed.")
 endif()
 

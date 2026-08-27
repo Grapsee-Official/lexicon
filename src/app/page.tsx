@@ -1,22 +1,22 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { LexoraHeader } from "@/components/lexora/header";
-import { Hero } from "@/components/lexora/hero";
-import { FloatingSearchBar } from "@/components/lexora/floating-search-bar";
-import { TrendingTagRow } from "@/components/lexora/trending-tag-row";
-import { WordOfTheDayCard } from "@/components/lexora/word-of-the-day-card";
-import { CategoryCard } from "@/components/lexora/category-card";
-import { ArticleCard } from "@/components/lexora/article-card";
-import { SectionHeader } from "@/components/lexora/section-header";
-import { BottomNav } from "@/components/lexora/bottom-nav";
-import { WordDetailSheet } from "@/components/lexora/word-detail-sheet";
-import { SearchModal } from "@/components/lexora/search-modal";
-import { DictionaryScreen } from "@/components/lexora/screens/dictionary-screen";
-import { CollectionsScreen } from "@/components/lexora/screens/collections-screen";
-import { MoreScreen } from "@/components/lexora/screens/more-screen";
+import { LexiconHeader } from "@/components/lexicon/header";
+import { Hero } from "@/components/lexicon/hero";
+import { FloatingSearchBar } from "@/components/lexicon/floating-search-bar";
+import { TrendingTagRow } from "@/components/lexicon/trending-tag-row";
+import { WordOfTheDayCard } from "@/components/lexicon/word-of-the-day-card";
+import { CategoryCard } from "@/components/lexicon/category-card";
+import { ArticleCard } from "@/components/lexicon/article-card";
+import { SectionHeader } from "@/components/lexicon/section-header";
+import { BottomNav } from "@/components/lexicon/bottom-nav";
+import { WordDetailSheet } from "@/components/lexicon/word-detail-sheet";
+import { SearchModal } from "@/components/lexicon/search-modal";
+import { DictionaryScreen } from "@/components/lexicon/screens/dictionary-screen";
+import { CollectionsScreen } from "@/components/lexicon/screens/collections-screen";
+import { MoreScreen } from "@/components/lexicon/screens/more-screen";
 import { useAppStore } from "@/lib/app-store";
-import { trendingTags, wordOfTheDay, categories, articles } from "@/lib/lexora-data";
+import { trendingTags, wordOfTheDay, categories, articles } from "@/lib/lexicon-data";
 
 const tabMeta: Record<
   string,
@@ -24,7 +24,7 @@ const tabMeta: Record<
 > = {
   dictionary: { title: "Dictionary", subtitle: "Browse the full lexicon" },
   collections: { title: "Collections", subtitle: "Your saved words" },
-  more: { title: "Settings", subtitle: "Make Lexora yours" },
+  more: { title: "Settings", subtitle: "Make Lexicon yours" },
 };
 
 export default function Home() {
@@ -33,7 +33,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen-safe flex-col bg-background">
       {/* Navigation — always rendered, manages its own state */}
-      <LexoraHeader />
+      <LexiconHeader />
 
       <main className="flex flex-1 flex-col gap-4 pb-24">
         {/* Sub-header for non-home tabs */}
@@ -172,7 +172,7 @@ export default function Home() {
 
       <footer className="sr-only">
         <p>
-          Lexora — Words. Wisdom. Worlds. A timeless dictionary for curious
+          Lexicon — Words. Wisdom. Worlds. A timeless dictionary for curious
           minds.
         </p>
       </footer>

@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1
 #
-# Lexora ETL — reproducible build environment
+# Lexicon ETL — reproducible build environment
 # ===========================================================================
-# Produces an image that can run the full Lexora dictionary ETL pipeline:
+# Produces an image that can run the full Lexicon dictionary ETL pipeline:
 #
 #   1. wiktextract   — parse enwiktionary XML dump → structured JSON
 #   2. etl_pipeline  — JSON → NFC → validate → dedup → SQLite FTS5 → Zstd-19
@@ -10,20 +10,20 @@
 #                      unclosed HTML tags" (per spec)
 #
 # Build context MUST be the `native/` directory so the shared SQLite schema
-# at `cloud/schema/lexora_sqlite.sql` is in scope:
+# at `cloud/schema/lexicon_sqlite.sql` is in scope:
 #
-#     docker build -f native/etl/Dockerfile -t lexora-etl native/
+#     docker build -f native/etl/Dockerfile -t lexicon-etl native/
 #
 # Or, from inside native/:
 #
-#     docker build -f etl/Dockerfile -t lexora-etl .
+#     docker build -f etl/Dockerfile -t lexicon-etl .
 #
 # Run (mount the dump + an output dir):
 #
 #     docker run --rm -it \
-#         -v "$HOME/lexora-etl:/work" \
+#         -v "$HOME/lexicon-etl:/work" \
 #         -v "$(pwd)/etl/output:/out" \
-#         lexora-etl \
+#         lexicon-etl \
 #         bash -c '
 #           wiktextract --pages /work/dump/enwiktionary-latest-pages-articles.xml \
 #                       --output /work/words.json &&
@@ -37,10 +37,10 @@
 #   /app/etl/scripts/validate.py          — standalone validator
 #   /app/etl/scripts/requirements.txt     — Python deps (zstandard only)
 #   /app/etl/scripts/README.md            — human-facing docs
-#   /app/etl/cloud/schema/lexora_sqlite.sql — FTS5 schema (where etl_pipeline
+#   /app/etl/cloud/schema/lexicon_sqlite.sql — FTS5 schema (where etl_pipeline
 #                                             looks for it via Path(__file__)
 #                                             .parent.parent / "cloud" / ...)
-#   /app/cloud/schema/lexora_sqlite.sql   — canonical repo path (for any
+#   /app/cloud/schema/lexicon_sqlite.sql   — canonical repo path (for any
 #                                             downstream tooling)
 # ===========================================================================
 
@@ -94,13 +94,13 @@ COPY etl/scripts/validate.py     /app/etl/scripts/validate.py
 COPY etl/scripts/README.md       /app/etl/scripts/README.md
 
 # The shared SQLite FTS5 schema. etl_pipeline.py (line 139) resolves it as
-#   Path(__file__).parent.parent / "cloud" / "schema" / "lexora_sqlite.sql"
+#   Path(__file__).parent.parent / "cloud" / "schema" / "lexicon_sqlite.sql"
 # which from /app/etl/scripts/etl_pipeline.py points to
-# /app/etl/cloud/schema/lexora_sqlite.sql — so that's where we put it.
+# /app/etl/cloud/schema/lexicon_sqlite.sql — so that's where we put it.
 # A second copy lands at the repo-canonical /app/cloud/schema/ path for any
 # downstream tooling that looks it up relative to the repo root.
-COPY cloud/schema/lexora_sqlite.sql /app/etl/cloud/schema/lexora_sqlite.sql
-COPY cloud/schema/lexora_sqlite.sql /app/cloud/schema/lexora_sqlite.sql
+COPY cloud/schema/lexicon_sqlite.sql /app/etl/cloud/schema/lexicon_sqlite.sql
+COPY cloud/schema/lexicon_sqlite.sql /app/cloud/schema/lexicon_sqlite.sql
 
 WORKDIR /app/etl/scripts
 
@@ -113,10 +113,10 @@ RUN python3 -c "import zstandard; print('zstandard', zstandard.__version__)" \
     && python3 validate.py    --help >/dev/null
 
 # Empty entrypoint so callers can invoke any of the three tools directly:
-#   docker run lexora-etl                                   # → pipeline --help
-#   docker run lexora-etl python3 etl_pipeline.py --input … # → run pipeline
-#   docker run lexora-etl python3 validate.py    --db-dir … # → run validator
-#   docker run lexora-etl wiktextract --pages … --output …  # → run wiktextract
-#   docker run lexora-etl bash                               # → interactive shell
+#   docker run lexicon-etl                                   # → pipeline --help
+#   docker run lexicon-etl python3 etl_pipeline.py --input … # → run pipeline
+#   docker run lexicon-etl python3 validate.py    --db-dir … # → run validator
+#   docker run lexicon-etl wiktextract --pages … --output …  # → run wiktextract
+#   docker run lexicon-etl bash                               # → interactive shell
 ENTRYPOINT []
 CMD ["python3", "etl_pipeline.py", "--help"]

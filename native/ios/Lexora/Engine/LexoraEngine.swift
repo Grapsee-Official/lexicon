@@ -1,15 +1,15 @@
-//  LexoraEngine.swift — Swift wrapper for the C++ engine via C ABI
+//  LexiconEngine.swift — Swift wrapper for the C++ engine via C ABI
 //  Per spec: "KMM wrapper. Hard gate: Kotlin/Swift can call C++ and receive strings."
 
 import Foundation
 
-/// LexoraEngine — Swift wrapper around the C++ LexoraEngine via the C ABI.
+/// LexiconEngine — Swift wrapper around the C++ LexiconEngine via the C ABI.
 /// This is the iOS equivalent of the Android JNI bridge.
-public class LexoraEngine {
+public class LexiconEngine {
     private var handle: OpaquePointer?
 
     public init() {
-        handle = lexora_engine_create()
+        handle = lexicon_engine_create()
     }
 
     deinit {
@@ -19,24 +19,24 @@ public class LexoraEngine {
     /// Load the dictionary database from a directory.
     public func loadDatabase(dbDir: String) -> Bool {
         guard let handle = handle else { return false }
-        return lexora_engine_load(handle, dbDir) == 0
+        return lexicon_engine_load(handle, dbDir) == 0
     }
 
     /// Exact lookup (NFC-normalized internally).
     public func lookup(word: String) -> WordEntry? {
         guard let handle = handle else { return nil }
-        guard let entryPtr = lexora_engine_lookup(handle, word) else { return nil }
-        defer { lexora_engine_free_entry(entryPtr) }
+        guard let entryPtr = lexicon_engine_lookup(handle, word) else { return nil }
+        defer { lexicon_engine_free_entry(entryPtr) }
         return convertEntry(entryPtr)
     }
 
     /// Fuzzy search (Levenshtein ≤ maxDistance).
     public func fuzzySearch(query: String, maxDistance: Int = 2, limit: Int = 20) -> [SearchResult] {
         guard let handle = handle else { return [] }
-        guard let resultsPtr = lexora_engine_fuzzy_search(handle, query, Int32(maxDistance), UInt32(limit)) else {
+        guard let resultsPtr = lexicon_engine_fuzzy_search(handle, query, Int32(maxDistance), UInt32(limit)) else {
             return []
         }
-        defer { lexora_engine_free_results(resultsPtr) }
+        defer { lexicon_engine_free_results(resultsPtr) }
 
         let count = Int(resultsPtr.pointee.count)
         var results: [SearchResult] = []
@@ -64,12 +64,12 @@ public class LexoraEngine {
     /// Enable/disable DAWG (for RAM pressure management).
     public func enableDawg(_ enabled: Bool) {
         guard let handle = handle else { return }
-        lexora_engine_enable_dawg(handle, enabled ? 1 : 0)
+        lexicon_engine_enable_dawg(handle, enabled ? 1 : 0)
     }
 
     public func isDawgEnabled() -> Bool {
         guard let handle = handle else { return false }
-        return lexora_engine_is_dawg_enabled(handle) != 0
+        return lexicon_engine_is_dawg_enabled(handle) != 0
     }
 
     /// Get memory usage info.
@@ -77,7 +77,7 @@ public class LexoraEngine {
         guard let handle = handle else {
             return MemoryInfo(hashTableBytes: 0, dawgBytes: 0, totalBytes: 0)
         }
-        let info = lexora_engine_get_memory_usage(handle)
+        let info = lexicon_engine_get_memory_usage(handle)
         return MemoryInfo(
             hashTableBytes: info.pointee.hash_table_bytes,
             dawgBytes: info.pointee.dawg_bytes,
@@ -88,14 +88,14 @@ public class LexoraEngine {
     /// Close and release all resources.
     public func close() {
         if let handle = handle {
-            lexora_engine_close(handle)
+            lexicon_engine_close(handle)
             self.handle = nil
         }
     }
 
     // MARK: - Private helpers
 
-    private func convertEntry(_ entryPtr: UnsafePointer<LexoraWordEntry>) -> WordEntry {
+    private func convertEntry(_ entryPtr: UnsafePointer<LexiconWordEntry>) -> WordEntry {
         let entry = entryPtr.pointee
 
         let definitions = stringArray(from: entry.definitions, count: Int(entry.definition_count))

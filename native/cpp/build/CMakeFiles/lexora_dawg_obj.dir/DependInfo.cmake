@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/z/my-project/native/cpp/src/dawg.cpp" "CMakeFiles/lexora_dawg_obj.dir/src/dawg.cpp.o" "gcc" "CMakeFiles/lexora_dawg_obj.dir/src/dawg.cpp.o.d"
+  "/home/z/my-project/native/cpp/src/dawg.cpp" "CMakeFiles/lexicon_dawg_obj.dir/src/dawg.cpp.o" "gcc" "CMakeFiles/lexicon_dawg_obj.dir/src/dawg.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

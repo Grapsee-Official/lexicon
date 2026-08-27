@@ -1,8 +1,8 @@
 //
 //  CategoryCard.swift
-//  Lexora
+//  Lexicon
 //
-//  Translation of `src/components/lexora/category-card.tsx`.
+//  Translation of `src/components/lexicon/category-card.tsx`.
 //
 //  Borderless, seamless, bg clear. Square image.
 //  Title + subtitle centered below. Width ~96pt.
@@ -11,8 +11,8 @@
 import SwiftUI
 
 struct CategoryCard: View {
-    let category: LexoraCategory
-    @EnvironmentObject private var vm: LexoraViewModel
+    let category: LexiconCategory
+    @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
 
     var body: some View {
@@ -30,17 +30,17 @@ struct CategoryCard: View {
                     .scaledToFill()
                     .frame(width: 80, height: 80)
                     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                    .lexoraDecorative()
+                    .lexiconDecorative()
 
                 // Title + subtitle perfectly centered.
                 VStack(spacing: 2) {
                     Text(category.title)
-                        .font(.lexoraDisplay(11, weight: .semibold))
-                        .foregroundStyle(lexoraPalette(scheme).foreground)
+                        .font(.lexiconDisplay(11, weight: .semibold))
+                        .foregroundStyle(lexiconPalette(scheme).foreground)
                         .lineLimit(1)
                     Text(category.subtitle)
-                        .font(.lexoraBody(8))
-                        .foregroundStyle(lexoraPalette(scheme).mutedForeground)
+                        .font(.lexiconBody(8))
+                        .foregroundStyle(lexiconPalette(scheme).mutedForeground)
                         .lineLimit(1)
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -48,7 +48,7 @@ struct CategoryCard: View {
             .padding(8)
             .frame(width: 96)
             // Card is ~120pt tall × 96pt wide — meets the 44pt minimum
-            // in both dimensions. No `.lexoraMinTouchTarget()` needed.
+            // in both dimensions. No `.lexiconMinTouchTarget()` needed.
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -62,7 +62,7 @@ struct CategoryCard: View {
 }
 
 #Preview {
-    CategoryCard(category: LexoraData.categories[0])
-        .environmentObject(LexoraViewModel())
-        .background(LexoraColors.background)
+    CategoryCard(category: LexiconData.categories[0])
+        .environmentObject(LexiconViewModel())
+        .background(LexiconColors.background)
 }

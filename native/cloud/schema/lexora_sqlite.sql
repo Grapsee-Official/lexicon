@@ -1,4 +1,4 @@
--- Lexora SQLite FTS5 Schema
+-- Lexicon SQLite FTS5 Schema
 -- Per spec: "Do create FTS5 virtual tables with tokenize='porter unicode61'.
 --           Do external content tables to save space."
 -- Per spec: "Do use PRAGMA journal_mode=WAL."

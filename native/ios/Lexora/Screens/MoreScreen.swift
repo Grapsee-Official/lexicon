@@ -1,15 +1,15 @@
 //
 //  MoreScreen.swift
-//  Lexora
+//  Lexicon
 //
-//  Translation of `src/components/lexora/screens/more-screen.tsx`.
+//  Translation of `src/components/lexicon/screens/more-screen.tsx`.
 //
 //  Profile header card + 4 settings groups (Appearance, Dictionary,
 //  Privacy & Data, About) + footer credit. Each group is an uppercase muted
 //  header above a card of rows. Each row has an icon in a rounded square
 //  (primary @ 10% opacity), a label, a value (optional), and a chevron right.
 //
-//  Theme toggle reads the shared LexoraThemeState (the next-themes
+//  Theme toggle reads the shared LexiconThemeState (the next-themes
 //  equivalent) and calls theme.toggle(). The isDark resolution mirrors the
 //  web `(resolvedTheme ?? theme) === "dark"` logic by combining the stored
 //  preference with the current UITraitCollection color scheme when "system".
@@ -18,8 +18,8 @@
 import SwiftUI
 
 struct MoreScreen: View {
-    @EnvironmentObject private var vm: LexoraViewModel
-    @EnvironmentObject private var theme: LexoraThemeState
+    @EnvironmentObject private var vm: LexiconViewModel
+    @EnvironmentObject private var theme: LexiconThemeState
     @Environment(\.colorScheme) private var scheme
 
     var body: some View {
@@ -93,7 +93,7 @@ struct MoreScreen: View {
                 SettingsGroup(title: "About", rows: [
                     SettingsRowSpec(
                         icon: "info.circle",
-                        label: "About Lexora",
+                        label: "About Lexicon",
                         value: "v1.0.0",
                         action: { UIImpactFeedbackGenerator(style: .light).impactOccurred() }
                     ),
@@ -117,7 +117,7 @@ struct MoreScreen: View {
             .padding(.top, 12)
             .padding(.bottom, 120) // clear floating bottom nav
         }
-        .background(LexoraColors.background)
+        .background(LexiconColors.background)
     }
 
     // MARK: - Theme resolution
@@ -148,17 +148,17 @@ struct MoreScreen: View {
                 .frame(width: 64, height: 64)
                 .clipShape(Circle())
                 .overlay(
-                    Circle().stroke(lexoraPalette(scheme).primary.opacity(0.30), lineWidth: 2)
+                    Circle().stroke(lexiconPalette(scheme).primary.opacity(0.30), lineWidth: 2)
                 )
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text("Curious Soul")
-                    .font(.lexoraDisplay(18, weight: .semibold))
-                    .foregroundStyle(lexoraPalette(scheme).foreground)
-                Text("Lexora Companion · since 2026")
-                    .font(.lexoraBody(12))
-                    .foregroundStyle(lexoraPalette(scheme).mutedForeground)
+                    .font(.lexiconDisplay(18, weight: .semibold))
+                    .foregroundStyle(lexiconPalette(scheme).foreground)
+                Text("Lexicon Companion · since 2026")
+                    .font(.lexiconBody(12))
+                    .foregroundStyle(lexiconPalette(scheme).mutedForeground)
                 HStack(spacing: 16) {
                     statLabel(value: vm.savedWordIds.count, label: "saved")
                     statLabel(value: vm.recentSearches.count, label: "recent")
@@ -168,11 +168,11 @@ struct MoreScreen: View {
             Spacer(minLength: 0)
         }
         .padding(16)
-        .background(lexoraPalette(scheme).card)
+        .background(lexiconPalette(scheme).card)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(lexoraPalette(scheme).border, lineWidth: 1)
+                .stroke(lexiconPalette(scheme).border, lineWidth: 1)
         )
         .shadow(color: Color.black.opacity(0.04), radius: 4, x: 0, y: 2)
     }
@@ -180,11 +180,11 @@ struct MoreScreen: View {
     private func statLabel(value: Int, label: String) -> some View {
         HStack(spacing: 4) {
             Text("\(value)")
-                .font(.lexoraBody(11, weight: .semibold))
-                .foregroundStyle(lexoraPalette(scheme).foreground)
+                .font(.lexiconBody(11, weight: .semibold))
+                .foregroundStyle(lexiconPalette(scheme).foreground)
             Text(label)
-                .font(.lexoraBody(11))
-                .foregroundStyle(lexoraPalette(scheme).mutedForeground)
+                .font(.lexiconBody(11))
+                .foregroundStyle(lexiconPalette(scheme).mutedForeground)
         }
     }
 
@@ -195,14 +195,14 @@ struct MoreScreen: View {
             HStack(spacing: 6) {
                 Image(systemName: "heart.fill")
                     .font(.system(size: 11, weight: .regular))
-                    .foregroundStyle(lexoraPalette(scheme).accent)
+                    .foregroundStyle(lexiconPalette(scheme).accent)
                 Text("Crafted in the spirit of the Cotswolds")
-                    .font(.lexoraBody(11))
-                    .foregroundStyle(lexoraPalette(scheme).mutedForeground)
+                    .font(.lexiconBody(11))
+                    .foregroundStyle(lexiconPalette(scheme).mutedForeground)
             }
-            Text("Lexora · Words. Wisdom. Worlds.")
-                .font(.lexoraBody(10))
-                .foregroundStyle(lexoraPalette(scheme).mutedForeground.opacity(0.6))
+            Text("Lexicon · Words. Wisdom. Worlds.")
+                .font(.lexiconBody(10))
+                .foregroundStyle(lexiconPalette(scheme).mutedForeground.opacity(0.6))
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 24)
@@ -228,9 +228,9 @@ private struct SettingsGroup: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title.uppercased())
-                .font(.lexoraBody(11, weight: .semibold))
+                .font(.lexiconBody(11, weight: .semibold))
                 .tracking(1.4)
-                .foregroundStyle(lexoraPalette(scheme).mutedForeground)
+                .foregroundStyle(lexiconPalette(scheme).mutedForeground)
                 .padding(.horizontal, 4)
 
             VStack(spacing: 0) {
@@ -244,11 +244,11 @@ private struct SettingsGroup: View {
                     )
                 }
             }
-            .background(lexoraPalette(scheme).card)
+            .background(lexiconPalette(scheme).card)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .stroke(lexoraPalette(scheme).border, lineWidth: 1)
+                    .stroke(lexiconPalette(scheme).border, lineWidth: 1)
             )
             .shadow(color: Color.black.opacity(0.04), radius: 4, x: 0, y: 2)
         }
@@ -273,26 +273,26 @@ private struct SettingsRow: View {
                 // Icon in a rounded square (primary @ 10% opacity)
                 Image(systemName: icon)
                     .font(.system(size: 14, weight: .regular))
-                    .foregroundStyle(lexoraPalette(scheme).primary)
+                    .foregroundStyle(lexiconPalette(scheme).primary)
                     .frame(width: 32, height: 32)
-                    .background(lexoraPalette(scheme).primary.opacity(0.10))
+                    .background(lexiconPalette(scheme).primary.opacity(0.10))
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
 
                 Text(label)
-                    .font(.lexoraBody(14))
-                    .foregroundStyle(lexoraPalette(scheme).foreground)
+                    .font(.lexiconBody(14))
+                    .foregroundStyle(lexiconPalette(scheme).foreground)
 
                 Spacer()
 
                 if !value.isEmpty {
                     Text(value)
-                        .font(.lexoraBody(12))
-                        .foregroundStyle(lexoraPalette(scheme).mutedForeground)
+                        .font(.lexiconBody(12))
+                        .foregroundStyle(lexiconPalette(scheme).mutedForeground)
                 }
 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundStyle(lexoraPalette(scheme).mutedForeground.opacity(0.6))
+                    .foregroundStyle(lexiconPalette(scheme).mutedForeground.opacity(0.6))
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
@@ -303,7 +303,7 @@ private struct SettingsRow: View {
         .overlay(alignment: .top) {
             if !isFirst {
                 Rectangle()
-                    .fill(lexoraPalette(scheme).border)
+                    .fill(lexiconPalette(scheme).border)
                     .frame(height: 1)
                     .padding(.horizontal, 16)
             }
@@ -313,6 +313,6 @@ private struct SettingsRow: View {
 
 #Preview {
     MoreScreen()
-        .environmentObject(LexoraViewModel())
-        .environmentObject(LexoraThemeState())
+        .environmentObject(LexiconViewModel())
+        .environmentObject(LexiconThemeState())
 }

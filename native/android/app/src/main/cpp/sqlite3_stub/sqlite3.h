@@ -4,7 +4,7 @@
  *
  * This stub is NOT a real SQLite implementation. It declares just enough of
  * the SQLite C API to let engine.cpp compile and link. At runtime every
- * function returns failure so the Lexora engine falls back to its
+ * function returns failure so the Lexicon engine falls back to its
  * hash-table + DAWG path (engine.cpp already treats SQLite as optional).
  *
  * When a real SQLite3 is found via find_package(SQLite3) in CMakeLists.txt,
@@ -12,8 +12,8 @@
  * takes precedence because find_package adds its include path with higher
  * priority than the stub directory.
  */
-#ifndef LEXORA_SQLITE3_STUB_H
-#define LEXORA_SQLITE3_STUB_H
+#ifndef LEXICON_SQLITE3_STUB_H
+#define LEXICON_SQLITE3_STUB_H
 
 #include <stdint.h>
 
@@ -62,4 +62,4 @@ const unsigned char* sqlite3_column_text(sqlite3_stmt* stmt, int col);
 } /* extern "C" */
 #endif
 
-#endif /* LEXORA_SQLITE3_STUB_H */
+#endif /* LEXICON_SQLITE3_STUB_H */

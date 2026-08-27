@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(lexora-engine LANGUAGES C CXX VERSION 1.0.0)
+project(lexicon-engine LANGUAGES C CXX VERSION 1.0.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -24,31 +24,31 @@ add_compile_options(-O2 -Wall -Wextra)
 find_package(SQLite3 REQUIRED)
 
 # Collect sources
-file(GLOB LEXORA_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
-file(GLOB LEXORA_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/lexora/*.hpp ${CMAKE_CURRENT_SOURCE_DIR}/include/lexora/*.h)
+file(GLOB LEXICON_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+file(GLOB LEXICON_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/lexicon/*.hpp ${CMAKE_CURRENT_SOURCE_DIR}/include/lexicon/*.h)
 
 # Main library target
-add_library(lexora-engine ${LEXORA_SOURCES})
-target_include_directories(lexora-engine PUBLIC
+add_library(lexicon-engine ${LEXICON_SOURCES})
+target_include_directories(lexicon-engine PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
-target_link_libraries(lexora-engine PUBLIC SQLite::SQLite3)
+target_link_libraries(lexicon-engine PUBLIC SQLite::SQLite3)
 
 # For Android: also build as shared .so
 if(TARGET_ANDROID)
-    set_target_properties(lexora-engine PROPERTIES
-        OUTPUT_NAME lexora-engine
+    set_target_properties(lexicon-engine PROPERTIES
+        OUTPUT_NAME lexicon-engine
         SUFFIX .so
     )
 endif()
 
 # For iOS: build as framework
 if(TARGET_IOS)
-    set_target_properties(lexora-engine PROPERTIES
+    set_target_properties(lexicon-engine PROPERTIES
         FRAMEWORK TRUE
         FRAMEWORK_VERSION 1
-        OUTPUT_NAME LexoraEngine
-        MACOSX_FRAMEWORK_IDENTIFIER com.lexora.engine
+        OUTPUT_NAME LexiconEngine
+        MACOSX_FRAMEWORK_IDENTIFIER com.lexicon.engine
     )
 endif()
 
@@ -61,21 +61,21 @@ if(BUILD_TESTS)
         message(STATUS "Google Test not found. Tests will be skipped.")
         message(STATUS "To enable tests: install gtest or run cmake with -DFETCHCONTENT_SOURCE_DIR_GOOGLETEST=/path/to/gtest")
     else()
-        file(GLOB LEXORA_TEST_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_*.cpp)
-        add_executable(lexora-engine-tests ${LEXORA_TEST_SOURCES})
-        target_link_libraries(lexora-engine-tests PRIVATE lexora-engine GTest::GTest GTest::Main)
+        file(GLOB LEXICON_TEST_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_*.cpp)
+        add_executable(lexicon-engine-tests ${LEXICON_TEST_SOURCES})
+        target_link_libraries(lexicon-engine-tests PRIVATE lexicon-engine GTest::GTest GTest::Main)
         include(GoogleTest)
-        gtest_discover_tests(lexora-engine-tests)
+        gtest_discover_tests(lexicon-engine-tests)
     endif()
 endif()
 
 # Install
 include(GNUInstallDirs)
-install(TARGETS lexora-engine
+install(TARGETS lexicon-engine
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     FRAMEWORK DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/lexora
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/lexicon
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )

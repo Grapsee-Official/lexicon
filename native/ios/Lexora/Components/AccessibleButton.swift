@@ -1,11 +1,11 @@
 //
 //  AccessibleButton.swift
-//  Lexora
+//  Lexicon
 //
 //  P4-05 — VoiceOver / TalkBack accessibility hardening.
 //
 //  `AccessibleButton` is the canonical wrapper for every tappable element
-//  in Lexora. It enforces the three accessibility contracts that the
+//  in Lexicon. It enforces the three accessibility contracts that the
 //  P4-05 spec calls out as a HARD GATE:
 //
 //    1. Minimum 44pt × 44pt touch target (Apple HIG).
@@ -14,7 +14,7 @@
 //    3. `.isButton` accessibility trait (so VoiceOver announces
 //       "double-tap to activate").
 //
-//  Why a wrapper instead of just `.lexoraMinTouchTarget()` on every
+//  Why a wrapper instead of just `.lexiconMinTouchTarget()` on every
 //  `Button`? Two reasons:
 //
 //    a) Type-system enforcement. By making `label` a required `let` (not
@@ -29,7 +29,7 @@
 //
 //  Usage:
 //
-//    AccessibleButton(label: LexoraAccessibilityLabels.menu) {
+//    AccessibleButton(label: LexiconAccessibilityLabels.menu) {
 //        vm.openMenu()
 //    } content: {
 //        Image(systemName: "line.3.horizontal")
@@ -110,11 +110,11 @@ struct AccessibleButton<Label: View>: View {
                 // a 60×60 button is left untouched. `.contentShape`
                 // ensures the full expanded frame is tappable, not just
                 // the icon's tight bounding box.
-                .frame(minWidth: LexoraAccessibility.minTouchTarget,
-                       minHeight: LexoraAccessibility.minTouchTarget)
+                .frame(minWidth: LexiconAccessibility.minTouchTarget,
+                       minHeight: LexiconAccessibility.minTouchTarget)
                 .contentShape(Rectangle())
         }
-        // Always use `.plain` button style — the rest of the Lexora
+        // Always use `.plain` button style — the rest of the Lexicon
         // codebase consistently uses `.plain` to avoid the system blue
         // tint + press highlight, which would clash with the warm-cream
         // palette. (The `plainStyle` parameter is retained in the init
@@ -215,7 +215,7 @@ private struct OptionalSelectionTrait: ViewModifier {
 // MARK: - Preview
 
 #Preview("Plain icon button — 44pt enforced") {
-    AccessibleButton(label: LexoraAccessibilityLabels.menu) {
+    AccessibleButton(label: LexiconAccessibilityLabels.menu) {
         // open menu
     } content: {
         Image(systemName: "line.3.horizontal")
@@ -228,7 +228,7 @@ private struct OptionalSelectionTrait: ViewModifier {
 
 #Preview("Toggle button — value + selected state") {
     AccessibleButton(
-        label: LexoraAccessibilityLabels.bookmarkSave,
+        label: LexiconAccessibilityLabels.bookmarkSave,
         accessibilityValue: "Not saved",
         isSelected: false,
         hapticStyle: .medium

@@ -1,18 +1,18 @@
 //
-//  LexoraTheme.swift
-//  Lexora
+//  LexiconTheme.swift
+//  Lexicon
 //
 //  Environment-driven theme container + ViewModifier for applying the
-//  Lexora background and preferred color scheme at the root of the app.
+//  Lexicon background and preferred color scheme at the root of the app.
 //
 
 import SwiftUI
 
 /// Theme state held in the environment — drives the appearance-aware palette
 /// and persists the user's choice via @AppStorage.
-final class LexoraThemeState: ObservableObject {
+final class LexiconThemeState: ObservableObject {
     /// "light" | "dark" | "system"
-    @AppStorage("lexora.theme") var theme: String = "system"
+    @AppStorage("lexicon.theme") var theme: String = "system"
 
     var preferredScheme: ColorScheme? {
         switch theme {
@@ -36,13 +36,13 @@ final class LexoraThemeState: ObservableObject {
     }
 }
 
-/// ViewModifier that paints the Lexora background + applies the preferred scheme.
-struct LexoraThemeModifier: ViewModifier {
-    @EnvironmentObject private var themeState: LexoraThemeState
+/// ViewModifier that paints the Lexicon background + applies the preferred scheme.
+struct LexiconThemeModifier: ViewModifier {
+    @EnvironmentObject private var themeState: LexiconThemeState
 
     func body(content: Content) -> some View {
         ZStack {
-            LexoraColors.background
+            LexiconColors.background
                 .ignoresSafeArea()
             content
         }
@@ -53,12 +53,12 @@ struct LexoraThemeModifier: ViewModifier {
 
 extension View {
     /// Apply at the App root to paint the warm-cream background and bind the theme.
-    func lexoraTheme() -> some View {
-        modifier(LexoraThemeModifier())
+    func lexiconTheme() -> some View {
+        modifier(LexiconThemeModifier())
     }
 
     /// Resolved palette for the current color scheme (use inside any view).
-    func lexoraPalette(_ scheme: ColorScheme) -> LexoraPalette {
-        LexoraPalette(isDark: scheme == .dark)
+    func lexiconPalette(_ scheme: ColorScheme) -> LexiconPalette {
+        LexiconPalette(isDark: scheme == .dark)
     }
 }

@@ -8,7 +8,7 @@
 #    * Locate and validate the NDK (r25+)
 #    * Define the ABI whitelist (arm64-v8a, armeabi-v7a, x86_64)
 #    * Force ANDROID_PLATFORM=android-21 and ANDROID_STL=c++_shared
-#    * Expose lexora_install_android_shared_libraries(<target> <dest>) which
+#    * Expose lexicon_install_android_shared_libraries(<target> <dest>) which
 #      copies libc++_shared.so next to the engine .so
 # =============================================================================
 include_guard(GLOBAL)
@@ -65,16 +65,16 @@ endif()
 # One CMake invocation builds ONE ABI (NDK toolchain is single-ABI). Build all
 # three by invoking CMake three times — see README.md §Android for the helper
 # command, or wrap with build_android.sh.
-set(LEXORA_ANDROID_ABIS "arm64-v8a;armeabi-v7a;x86_64"
+set(LEXICON_ANDROID_ABIS "arm64-v8a;armeabi-v7a;x86_64"
     CACHE STRING "Android ABIs to build (one CMake invocation per ABI)")
 
-message(STATUS "Android ABIs (whitelist): ${LEXORA_ANDROID_ABIS}")
+message(STATUS "Android ABIs (whitelist): ${LEXICON_ANDROID_ABIS}")
 
 # Sanity: the active ABI must be in the whitelist.
-if(ANDROID_ABI AND NOT ANDROID_ABI IN_LIST LEXORA_ANDROID_ABIS)
+if(ANDROID_ABI AND NOT ANDROID_ABI IN_LIST LEXICON_ANDROID_ABIS)
     message(FATAL_ERROR
         "Unsupported ANDROID_ABI='${ANDROID_ABI}'.\n"
-        "Must be one of: ${LEXORA_ANDROID_ABIS}")
+        "Must be one of: ${LEXICON_ANDROID_ABIS}")
 endif()
 
 # -----------------------------------------------------------------------------
@@ -91,17 +91,17 @@ message(STATUS "Android platform: ${ANDROID_PLATFORM}")
 message(STATUS "Android STL:      ${ANDROID_STL}")
 
 # Output library name (matches the Android JNI convention
-# System.loadLibrary("lexora-engine")).
-set(LEXORA_ANDROID_OUTPUT_NAME "lexora-engine")
+# System.loadLibrary("lexicon-engine")).
+set(LEXICON_ANDROID_OUTPUT_NAME "lexicon-engine")
 
 # -----------------------------------------------------------------------------
-# lexora_install_android_shared_libraries(<target> <dest>)
+# lexicon_install_android_shared_libraries(<target> <dest>)
 #
 # Copies libc++_shared.so for the active ABI into <dest>, next to the engine
 # .so. Required because we link with ANDROID_STL=c++_shared — the app must ship
-# libc++_shared.so alongside liblexora-engine.so (or use libc++_static.a).
+# libc++_shared.so alongside liblexicon-engine.so (or use libc++_static.a).
 # -----------------------------------------------------------------------------
-function(lexora_install_android_shared_libraries _target _dest)
+function(lexicon_install_android_shared_libraries _target _dest)
     if(NOT ANDROID)
         return()
     endif()

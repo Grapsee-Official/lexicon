@@ -1,5 +1,5 @@
 // dawg.cpp — DAWG implementation
-#include "lexora/dawg.hpp"
+#include "lexicon/dawg.hpp"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -12,7 +12,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace lexora {
+namespace lexicon {
 
 Dawg::Dawg()
     : fd_(-1), mapped_data_(nullptr), mapped_size_(0),
@@ -46,7 +46,7 @@ bool Dawg::load_from_file(const char* path) {
     }
 
     header_ = static_cast<const DawgHeader*>(mapped_data_);
-    if (std::memcmp(header_->magic, "LEXORADG", 8) != 0) {
+    if (std::memcmp(header_->magic, "LEXICONDG", 8) != 0) {
         unload();
         return false;
     }
@@ -419,7 +419,7 @@ bool Dawg::save_to_file(const char* path) const {
     if (fd < 0) return false;
 
     DawgHeader hdr;
-    std::memcpy(hdr.magic, "LEXORADG", 8);
+    std::memcpy(hdr.magic, "LEXICONDG", 8);
     hdr.version = 1;
     hdr.node_count = static_cast<uint32_t>(mem_nodes_.size());
     hdr.root_offset = mem_root_offset_;
@@ -432,4 +432,4 @@ bool Dawg::save_to_file(const char* path) const {
     return true;
 }
 
-} // namespace lexora
+} // namespace lexicon

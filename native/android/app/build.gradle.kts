@@ -5,18 +5,18 @@ plugins {
 }
 
 android {
-    namespace = "com.lexora"
+    namespace = "com.lexicon"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.lexora"
+        applicationId = "com.lexicon"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
         versionName = "1.0.0"
         vectorDrawables { useSupportLibrary = true }
 
-        // ── Native build (liblexora-engine.so) ───────────────────────────
+        // ── Native build (liblexicon-engine.so) ───────────────────────────
         // The C++ engine + JNI bridge are compiled by CMake. ABIs are
         // limited to the two that ship with modern devices plus the
         // simulator slice — emulators/arm64-v8a covers physical devices,
@@ -65,7 +65,7 @@ android {
         buildConfig = true
     }
 
-    // ── CMake entry point for liblexora-engine.so ───────────────────────────
+    // ── CMake entry point for liblexicon-engine.so ───────────────────────────
     // Agp's externalNativeBuild block tells Gradle where the CMakeLists.txt
     // lives; AGP runs the NDK's cmake during assembleDebug/assembleRelease and
     // packages the resulting .so files under jniLibs/<abi>/.

@@ -1,5 +1,5 @@
-//  LexoraDebugMenu.swift
-//  Lexora
+//  LexiconDebugMenu.swift
+//  Lexicon
 //
 //  Per spec (P4-09, Week 23-24 — Beta testing, OOM monitoring, App Store /
 //  Play Store submission prep):
@@ -15,24 +15,24 @@
 //
 //  Wiring (in MoreScreen.swift):
 //  ```swift
-//  @StateObject private var debugTap = LexoraDebugTapCounter()
+//  @StateObject private var debugTap = LexiconDebugTapCounter()
 //  // ... existing About row:
-//  SettingsRow(icon: "info.circle", label: "About Lexora",
-//              value: "v\(LexoraBetaConfig.versionName)",
+//  SettingsRow(icon: "info.circle", label: "About Lexicon",
+//              value: "v\(LexiconBetaConfig.versionName)",
 //              action: { debugTap.onTap() })
 //  // ... at the top of the body:
-//  .lexoraDebugMenu(deps: .init(engine: engineOrNil,
+//  .lexiconDebugMenu(deps: .init(engine: engineOrNil,
 //                               onForceSync: { /* DeltaSyncClient */ },
 //                               onClearCache: { /* clear caches */ },
 //                               onResetDatabase: { /* delete *.bin */ },
-//                               crashLogProvider: LexoraDebugMenuDeps.defaultCrashLogProvider),
+//                               crashLogProvider: LexiconDebugMenuDeps.defaultCrashLogProvider),
 //                   isPresented: $debugTap.revealed)
 //  ```
 //
 //  ---------------------------------------------------------------------------
 //  KMM interop note
 //  ---------------------------------------------------------------------------
-//  The Kotlin common module `com.lexora.engine` defines `FeatureFlags`,
+//  The Kotlin common module `com.lexicon.engine` defines `FeatureFlags`,
 //  `FeatureFlag`, `BetaConfig`, and `BetaChannel`. When the KMM iOS framework
 //  is linked, those types are visible to Swift and the mirrors below should
 //  be replaced with `import <KMMFramework>` + the KMM types directly.
@@ -49,8 +49,8 @@ import os.log
 
 // MARK: - Feature flag mirrors (KMM common: FeatureFlag / FeatureFlags)
 
-/// Mirror of `com.lexora.engine.FeatureFlag`.
-public enum LexoraFeatureFlag: String, CaseIterable, Identifiable {
+/// Mirror of `com.lexicon.engine.FeatureFlag`.
+public enum LexiconFeatureFlag: String, CaseIterable, Identifiable {
     case fuzzySearchV2 = "FUZZY_SEARCH_V2"
     case cloudSync = "CLOUD_SYNC"
     case crashReporting = "CRASH_REPORTING"
@@ -95,9 +95,9 @@ public enum LexoraFeatureFlag: String, CaseIterable, Identifiable {
         case .fuzzySearchV2:
             return "New Levenshtein algorithm with early-exit pruning. Off until parity benchmarks pass."
         case .cloudSync:
-            return "Enable delta sync with the Lexora cloud server. Requires a logged-in account."
+            return "Enable delta sync with the Lexicon cloud server. Requires a logged-in account."
         case .crashReporting:
-            return "Upload crash stack traces to the Lexora crash endpoint. PII stripped before upload."
+            return "Upload crash stack traces to the Lexicon crash endpoint. PII stripped before upload."
         case .analytics:
             return "Aggregate, non-PII usage events. Off by default; user must opt in from Settings."
         case .dawgEnabledByDefault:
@@ -110,13 +110,13 @@ public enum LexoraFeatureFlag: String, CaseIterable, Identifiable {
     }
 }
 
-/// Mirror of `com.lexora.engine.BetaChannel`.
-public enum LexoraBetaChannel: String, CaseIterable {
+/// Mirror of `com.lexicon.engine.BetaChannel`.
+public enum LexiconBetaChannel: String, CaseIterable {
     case stable, beta, alpha
 }
 
-/// Mirror of `com.lexora.engine.BetaConfig`.
-public enum LexoraBetaConfig {
+/// Mirror of `com.lexicon.engine.BetaConfig`.
+public enum LexiconBetaConfig {
 
     /// Monotonically increasing across all channels and platforms. CI-injected in production.
     public static let buildNumber: Int = 1
@@ -127,18 +127,18 @@ public enum LexoraBetaConfig {
     /// Bumped whenever a flag is added, removed, or has its default changed.
     public static let featureFlagVersion: Int = 1
 
-    /// Base URL of the Lexora remote-config endpoint.
+    /// Base URL of the Lexicon remote-config endpoint.
     public static let remoteConfigURL: String =
-        "https://config.lexora.app/api/v1/feature-flags"
+        "https://config.lexicon.app/api/v1/feature-flags"
 
     /// Active channel for this build. Overwritten at app startup from a
     /// build-config-derived value.
-    public static var activeChannel: LexoraBetaChannel = .stable {
-        didSet { LexoraFeatureFlagStore.shared.setChannel(activeChannel) }
+    public static var activeChannel: LexiconBetaChannel = .stable {
+        didSet { LexiconFeatureFlagStore.shared.setChannel(activeChannel) }
     }
 
     /// True if the Debug Menu should be visible. On iOS, DEBUG builds are
-    /// the only ones that ship the LexoraDebugMenu type at all (the whole
+    /// the only ones that ship the LexiconDebugMenu type at all (the whole
     /// file is wrapped in `#if DEBUG`), so this always returns true here
     /// when called — but we keep the policy logic for parity with Android.
     public static func isDebugMenuVisible(isDebugBuild: Bool) -> Bool {
@@ -155,26 +155,26 @@ public enum LexoraBetaConfig {
 
     /// Channel-derived flag defaults. STABLE = base; BETA = +analytics +cloudSync;
     /// ALPHA = +fuzzySearchV2 +cloudSync +analytics.
-    public static func defaultFlags(for channel: LexoraBetaChannel) -> [String: Bool] {
+    public static func defaultFlags(for channel: LexiconBetaChannel) -> [String: Bool] {
         var base: [String: Bool] = [:]
-        for f in LexoraFeatureFlag.allCases { base[f.key] = f.defaultValue }
+        for f in LexiconFeatureFlag.allCases { base[f.key] = f.defaultValue }
         switch channel {
         case .stable:
             return base
         case .beta:
-            base[LexoraFeatureFlag.analytics.key] = true
-            base[LexoraFeatureFlag.cloudSync.key] = true
+            base[LexiconFeatureFlag.analytics.key] = true
+            base[LexiconFeatureFlag.cloudSync.key] = true
             return base
         case .alpha:
-            base[LexoraFeatureFlag.fuzzySearchV2.key] = true
-            base[LexoraFeatureFlag.cloudSync.key] = true
-            base[LexoraFeatureFlag.analytics.key] = true
+            base[LexiconFeatureFlag.fuzzySearchV2.key] = true
+            base[LexiconFeatureFlag.cloudSync.key] = true
+            base[LexiconFeatureFlag.analytics.key] = true
             return base
         }
     }
 }
 
-/// Mirror of `com.lexora.engine.FeatureFlags` — singleton flag store with
+/// Mirror of `com.lexicon.engine.FeatureFlags` — singleton flag store with
 /// the same resolution chain (debug > remote > channel > base default) and
 /// the same thread-safety contract (lock-free reads via volatile-ish
 /// `DispatchQueue.sync`-free snapshot).
@@ -183,15 +183,15 @@ public enum LexoraBetaConfig {
 /// and an atomic-ish `@Published` snapshot for reads. SwiftUI `@Published`
 /// is thread-safe for reads but emits on the main runloop; for hot-path
 /// reads use `currentValue` (one dictionary lookup, ~10 ns).
-public final class LexoraFeatureFlagStore: ObservableObject {
+public final class LexiconFeatureFlagStore: ObservableObject {
 
-    public static let shared = LexoraFeatureFlagStore()
+    public static let shared = LexiconFeatureFlagStore()
 
-    private let writeQueue = DispatchQueue(label: "com.lexora.featureflags.write")
-    private let logger = Logger(subsystem: "com.lexora", category: "FeatureFlags")
+    private let writeQueue = DispatchQueue(label: "com.lexicon.featureflags.write")
+    private let logger = Logger(subsystem: "com.lexicon", category: "FeatureFlags")
 
     /// Layers — mutated only on `writeQueue`.
-    private var channelDefaults: [String: Bool] = LexoraBetaConfig.defaultFlags(for: .stable)
+    private var channelDefaults: [String: Bool] = LexiconBetaConfig.defaultFlags(for: .stable)
     private var remoteOverrides: [String: Bool] = [:]
     private var debugOverrides: [String: Bool] = [:]
     private var _remoteConfigVersion: Int = 0
@@ -199,19 +199,19 @@ public final class LexoraFeatureFlagStore: ObservableObject {
 
     /// Flattened, read-only snapshot — published for SwiftUI reactivity.
     /// Reads consult this dictionary directly (one lookup, ~10 ns).
-    @Published public private(set) var currentValue: [String: Bool] = LexoraBetaConfig.defaultFlags(for: .stable)
+    @Published public private(set) var currentValue: [String: Bool] = LexiconBetaConfig.defaultFlags(for: .stable)
 
     private init() {}
 
     // MARK: - Reads
 
-    public func isEnabled(_ flag: LexoraFeatureFlag) -> Bool {
+    public func isEnabled(_ flag: LexiconFeatureFlag) -> Bool {
         currentValue[flag.key] ?? flag.defaultValue
     }
 
     public func isEnabled(key: String) -> Bool {
         if let v = currentValue[key] { return v }
-        return LexoraFeatureFlag(rawValue: key)?.defaultValue ?? false
+        return LexiconFeatureFlag(rawValue: key)?.defaultValue ?? false
     }
 
     public var remoteConfigVersion: Int {
@@ -228,9 +228,9 @@ public final class LexoraFeatureFlagStore: ObservableObject {
 
     // MARK: - Writes
 
-    public func setChannel(_ channel: LexoraBetaChannel) {
+    public func setChannel(_ channel: LexiconBetaChannel) {
         mutate { layer in
-            layer.channelDefaults = LexoraBetaConfig.defaultFlags(for: channel)
+            layer.channelDefaults = LexiconBetaConfig.defaultFlags(for: channel)
         }
     }
 
@@ -262,7 +262,7 @@ public final class LexoraFeatureFlagStore: ObservableObject {
         }
     }
 
-    public func setDebugOverride(_ flag: LexoraFeatureFlag, value: Bool?) {
+    public func setDebugOverride(_ flag: LexiconFeatureFlag, value: Bool?) {
         mutate { layer in
             if let v = value { layer.debugOverrides[flag.key] = v }
             else { layer.debugOverrides.removeValue(forKey: flag.key) }
@@ -303,7 +303,7 @@ public final class LexoraFeatureFlagStore: ObservableObject {
         var _remoteConfigVersion: Int
         var _remoteConfigEtag: String?
 
-        init(_ owner: LexoraFeatureFlagStore) {
+        init(_ owner: LexiconFeatureFlagStore) {
             self.channelDefaults = owner.channelDefaults
             self.remoteOverrides = owner.remoteOverrides
             self.debugOverrides = owner.debugOverrides
@@ -311,7 +311,7 @@ public final class LexoraFeatureFlagStore: ObservableObject {
             self._remoteConfigEtag = owner._remoteConfigEtag
         }
 
-        func commit(to owner: LexoraFeatureFlagStore) {
+        func commit(to owner: LexiconFeatureFlagStore) {
             owner.channelDefaults = channelDefaults
             owner.remoteOverrides = remoteOverrides
             owner.debugOverrides = debugOverrides
@@ -329,7 +329,7 @@ public final class LexoraFeatureFlagStore: ObservableObject {
             var resolved = self.channelDefaults
             for (k, v) in self.remoteOverrides { resolved[k] = v }
             for (k, v) in self.debugOverrides { resolved[k] = v }
-            for f in LexoraFeatureFlag.allCases where resolved[f.key] == nil {
+            for f in LexiconFeatureFlag.allCases where resolved[f.key] == nil {
                 resolved[f.key] = f.defaultValue
             }
             return resolved
@@ -346,10 +346,10 @@ public final class LexoraFeatureFlagStore: ObservableObject {
 /// gesture. Mirrors Android's "tap Build Number 7 times" developer-options
 /// activation.
 ///
-/// In release builds the whole `LexoraDebugMenu.swift` file is compiled out
+/// In release builds the whole `LexiconDebugMenu.swift` file is compiled out
 /// via `#if DEBUG`, so this type doesn't exist there — the host app must
 /// also wrap its usage in `#if DEBUG`.
-public final class LexoraDebugTapCounter: ObservableObject {
+public final class LexiconDebugTapCounter: ObservableObject {
 
     @Published public private(set) var taps: Int = 0
     @Published public private(set) var revealed: Bool = false
@@ -358,7 +358,7 @@ public final class LexoraDebugTapCounter: ObservableObject {
     private static let idleResetSeconds: TimeInterval = 3.0
 
     private var idleTimer: Timer?
-    private let logger = Logger(subsystem: "com.lexora", category: "DebugMenu")
+    private let logger = Logger(subsystem: "com.lexicon", category: "DebugMenu")
 
     public init() {}
 
@@ -396,20 +396,20 @@ public final class LexoraDebugTapCounter: ObservableObject {
 
 // MARK: - Dependencies
 
-/// Dependencies the `LexoraDebugMenu` view needs from the host app.
-public struct LexoraDebugMenuDeps {
-    public var engine: LexoraEngine?
+/// Dependencies the `LexiconDebugMenu` view needs from the host app.
+public struct LexiconDebugMenuDeps {
+    public var engine: LexiconEngine?
     public var onForceSync: () -> Void
     public var onClearCache: () -> Void
     public var onResetDatabase: () -> Void
     public var crashLogProvider: () -> String
 
     public init(
-        engine: LexoraEngine? = nil,
+        engine: LexiconEngine? = nil,
         onForceSync: @escaping () -> Void = {},
         onClearCache: @escaping () -> Void = {},
         onResetDatabase: @escaping () -> Void = {},
-        crashLogProvider: @escaping () -> String = LexoraDebugMenuDeps.defaultCrashLogProvider
+        crashLogProvider: @escaping () -> String = LexiconDebugMenuDeps.defaultCrashLogProvider
     ) {
         self.engine = engine
         self.onForceSync = onForceSync
@@ -418,7 +418,7 @@ public struct LexoraDebugMenuDeps {
         self.crashLogProvider = crashLogProvider
     }
 
-    /// Reads all JSON crash-log files written by `LexoraCrashReporter` and
+    /// Reads all JSON crash-log files written by `LexiconCrashReporter` and
     /// concatenates them (newest first). Returns "(no crashes recorded)"
     /// if the directory is empty or missing.
     public static let defaultCrashLogProvider: () -> String = {
@@ -445,7 +445,7 @@ public struct LexoraDebugMenuDeps {
 
 // MARK: - Benchmark result
 
-public struct LexoraBenchmarkResult: CustomStringConvertible {
+public struct LexiconBenchmarkResult: CustomStringConvertible {
     public let iterations: Int
     public let elapsedMillis: Double
     public let perLookupNanos: Double
@@ -459,23 +459,23 @@ public struct LexoraBenchmarkResult: CustomStringConvertible {
 
 // MARK: - Debug menu view
 
-public struct LexoraDebugMenu: View {
+public struct LexiconDebugMenu: View {
 
-    let deps: LexoraDebugMenuDeps
+    let deps: LexiconDebugMenuDeps
     let onDismiss: () -> Void
 
     @Environment(\.colorScheme) private var scheme
-    @ObservedObject private var flags = LexoraFeatureFlagStore.shared
+    @ObservedObject private var flags = LexiconFeatureFlagStore.shared
     @State private var memoryInfo: MemoryInfo?
     @State private var oomStats: String = ""
-    @State private var benchmarkResult: LexoraBenchmarkResult?
+    @State private var benchmarkResult: LexiconBenchmarkResult?
     @State private var benchmarkRunning: Bool = false
     @State private var crashLogExpanded: Bool = false
     @State private var crashLogText: String = ""
     @State private var confirmDialog: ConfirmDialog?
     @State private var toast: String?
 
-    public init(deps: LexoraDebugMenuDeps, onDismiss: @escaping () -> Void) {
+    public init(deps: LexiconDebugMenuDeps, onDismiss: @escaping () -> Void) {
         self.deps = deps
         self.onDismiss = onDismiss
     }
@@ -540,9 +540,9 @@ public struct LexoraDebugMenu: View {
     private var headerSection: some View {
         Section {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Lexora Debug Menu")
+                Text("Lexicon Debug Menu")
                     .font(.headline)
-                Text("Channel: \(LexoraBetaConfig.activeChannel.rawValue.uppercased())  ·  Build #\(LexoraBetaConfig.buildNumber)")
+                Text("Channel: \(LexiconBetaConfig.activeChannel.rawValue.uppercased())  ·  Build #\(LexiconBetaConfig.buildNumber)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -552,10 +552,10 @@ public struct LexoraDebugMenu: View {
 
     private var buildInfoSection: some View {
         Section("Build") {
-            InfoRow(label: "Channel", value: LexoraBetaConfig.activeChannel.rawValue.uppercased())
-            InfoRow(label: "Version name", value: LexoraBetaConfig.versionName)
-            InfoRow(label: "Build number", value: "\(LexoraBetaConfig.buildNumber)")
-            InfoRow(label: "Feature-flag schema", value: "\(LexoraBetaConfig.featureFlagVersion)")
+            InfoRow(label: "Channel", value: LexiconBetaConfig.activeChannel.rawValue.uppercased())
+            InfoRow(label: "Version name", value: LexiconBetaConfig.versionName)
+            InfoRow(label: "Build number", value: "\(LexiconBetaConfig.buildNumber)")
+            InfoRow(label: "Feature-flag schema", value: "\(LexiconBetaConfig.featureFlagVersion)")
             InfoRow(label: "Remote config v", value: "\(flags.remoteConfigVersion)")
             InfoRow(label: "Debug overrides", value: "\(flags.debugOverrideCount)")
         }
@@ -563,7 +563,7 @@ public struct LexoraDebugMenu: View {
 
     private var featureFlagsSection: some View {
         Section("Feature Flags") {
-            ForEach(LexoraFeatureFlag.allCases) { flag in
+            ForEach(LexiconFeatureFlag.allCases) { flag in
                 Toggle(isOn: Binding(
                     get: { flags.isEnabled(flag) },
                     set: { newVal in
@@ -752,15 +752,15 @@ public struct LexoraDebugMenu: View {
         benchmarkRunning = true
         DispatchQueue.global(qos: .userInitiated).async {
             // Warm-up so the first lookup doesn't pay for cold cache + JNI.
-            for _ in 0..<1_000 { _ = engine.lookup("lexora") }
+            for _ in 0..<1_000 { _ = engine.lookup("lexicon") }
             let tStart = DispatchTime.now()
             var hits = 0
-            let key = "lexora"
+            let key = "lexicon"
             for _ in 0..<1_000_000 {
                 if engine.lookup(key) != nil { hits += 1 }
             }
             let elapsed = DispatchTime.now().uptimeNanoseconds - tStart.uptimeNanoseconds
-            let result = LexoraBenchmarkResult(
+            let result = LexiconBenchmarkResult(
                 iterations: 1_000_000,
                 elapsedMillis: Double(elapsed) / 1_000_000.0,
                 perLookupNanos: Double(elapsed) / 1_000_000.0,
@@ -789,11 +789,11 @@ public struct LexoraDebugMenu: View {
     }
 
     private func refreshOomStats() {
-        // LexoraOOMMonitor is part of the same Lexora iOS module — read
+        // LexiconOOMMonitor is part of the same Lexicon iOS module — read
         // the current resident + peak bytes from its public `stats` getter.
         // `stats` is always safe to call (returns zeros if the mach call
         // fails), so we don't need to guard for "not started" here.
-        let stats = LexoraOOMMonitor.shared.stats
+        let stats = LexiconOOMMonitor.shared.stats
         oomStats = "\(formatBytes(stats.residentBytes)) (peak \(formatBytes(stats.peakResidentBytes)))"
     }
 
@@ -870,11 +870,11 @@ private enum ConfirmDialog: Identifiable {
 // MARK: - View modifier
 
 public extension View {
-    /// Attach the Lexora debug menu as a sheet. `isPresented` should be
-    /// bound to `LexoraDebugTapCounter.revealed`.
-    func lexoraDebugMenu(deps: LexoraDebugMenuDeps, isPresented: Binding<Bool>) -> some View {
+    /// Attach the Lexicon debug menu as a sheet. `isPresented` should be
+    /// bound to `LexiconDebugTapCounter.revealed`.
+    func lexiconDebugMenu(deps: LexiconDebugMenuDeps, isPresented: Binding<Bool>) -> some View {
         sheet(isPresented: isPresented) {
-            LexoraDebugMenu(deps: deps, onDismiss: { isPresented.wrappedValue = false })
+            LexiconDebugMenu(deps: deps, onDismiss: { isPresented.wrappedValue = false })
         }
     }
 }

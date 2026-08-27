@@ -1,4 +1,4 @@
-# Lexora cloud backend — PostgreSQL 16 + Ktor sync server
+# Lexicon cloud backend — PostgreSQL 16 + Ktor sync server
 #
 # Usage:
 #   docker compose up -d            # start PostgreSQL + Ktor server
@@ -8,24 +8,24 @@
 #   docker compose down -v          # stop containers + wipe PostgreSQL data
 #
 # On first startup the official postgres image auto-runs every *.sql file
-# mounted into /docker-entrypoint-initdb.d/, so lexora_postgres.sql is applied
+# mounted into /docker-entrypoint-initdb.d/, so lexicon_postgres.sql is applied
 # exactly once — only when the postgres_data volume is empty. To re-apply the
 # schema after that, run ./init-db.sh (idempotent — uses IF NOT EXISTS).
 #
 # Env vars (override via shell export or a .env file next to this compose file):
-#   POSTGRES_USER       default: lexora
-#   POSTGRES_PASSWORD   default: lexora_password
-#   POSTGRES_DB         default: lexora
+#   POSTGRES_USER       default: lexicon
+#   POSTGRES_PASSWORD   default: lexicon_password
+#   POSTGRES_DB         default: lexicon
 
 services:
   postgres:
     image: postgres:16
-    container_name: lexora-postgres
+    container_name: lexicon-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-lexora}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lexora_password}
-      POSTGRES_DB: ${POSTGRES_DB:-lexora}
+      POSTGRES_USER: ${POSTGRES_USER:-lexicon}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lexicon_password}
+      POSTGRES_DB: ${POSTGRES_DB:-lexicon}
     ports:
       - "5432:5432"
     volumes:
@@ -33,25 +33,25 @@ services:
       - postgres_data:/var/lib/postgresql/data
       # Run the schema SQL on first startup only (when the data volume is
       # empty). The file is mounted read-only to prevent accidental edits.
-      - ./schema/lexora_postgres.sql:/docker-entrypoint-initdb.d/01-lexora_postgres.sql:ro
+      - ./schema/lexicon_postgres.sql:/docker-entrypoint-initdb.d/01-lexicon_postgres.sql:ro
     healthcheck:
       # pg_isready is shipped inside the postgres:16 image.
       test:
         - "CMD-SHELL"
-        - "pg_isready -U ${POSTGRES_USER:-lexora} -d ${POSTGRES_DB:-lexora}"
+        - "pg_isready -U ${POSTGRES_USER:-lexicon} -d ${POSTGRES_DB:-lexicon}"
       interval: 5s
       timeout: 5s
       retries: 10
       start_period: 10s
 
   server:
-    # Ktor sync server (LexoraSyncServer.kt) — see server/Dockerfile for the
+    # Ktor sync server (LexiconSyncServer.kt) — see server/Dockerfile for the
     # Gradle build + JRE runtime image.
     build:
       context: ./server
       dockerfile: Dockerfile
-    image: lexora/sync-server:latest
-    container_name: lexora-server
+    image: lexicon/sync-server:latest
+    container_name: lexicon-server
     restart: unless-stopped
     depends_on:
       postgres:
@@ -59,10 +59,10 @@ services:
         # Ktor process never races the database on a cold start.
         condition: service_healthy
     environment:
-      # DATABASE_URL must be a JDBC URL (see LexoraSyncServer.kt line 56).
-      DATABASE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-lexora}
-      DATABASE_USER: ${POSTGRES_USER:-lexora}
-      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-lexora_password}
+      # DATABASE_URL must be a JDBC URL (see LexiconSyncServer.kt line 56).
+      DATABASE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-lexicon}
+      DATABASE_USER: ${POSTGRES_USER:-lexicon}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-lexicon_password}
     ports:
       - "8080:8080"
 

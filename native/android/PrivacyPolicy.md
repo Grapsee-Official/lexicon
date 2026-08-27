@@ -1,14 +1,14 @@
-# Lexora — Privacy Policy (Play Store)
+# Lexicon — Privacy Policy (Play Store)
 
 **Effective date:** 2026-01-01
 **Last updated:** 2026-01-01
-**Package:** `com.lexora`
-**Policy URL:** <https://lexora.app/privacy>
-**Contact:** <privacy@lexora.app>
+**Package:** `com.lexicon`
+**Policy URL:** <https://lexicon.app/privacy>
+**Contact:** <privacy@lexicon.app>
 
-> This document is the canonical privacy policy for the Lexora Android app.
+> This document is the canonical privacy policy for the Lexicon Android app.
 > The same substantive content is mirrored by the iOS privacy policy at
-> `/native/ios/Lexora/PrivacyPolicy.md`; only the formatting and the
+> `/native/ios/Lexicon/PrivacyPolicy.md`; only the formatting and the
 > "Data Safety" Play-Console section below are Android-specific. Where the
 > two documents disagree, this Play Store version is authoritative for the
 > Android package and the iOS version is authoritative for the iOS bundle.
@@ -17,18 +17,18 @@
 
 ## 1. Who we are
 
-Lexora ("we", "us", "our") publishes the Lexora Android application
-("Lexora", "the app"). Lexora is an offline-first English dictionary and
+Lexicon ("we", "us", "our") publishes the Lexicon Android application
+("Lexicon", "the app"). Lexicon is an offline-first English dictionary and
 word-exploration tool. The app's core engine — a C++ hash table + DAWG
 (Directed Acyclic Word Graph) implementation — runs entirely on your
 device. The cloud sync service that delivers optional language-pack updates
-is operated by Lexora and is documented in §3 below.
+is operated by Lexicon and is documented in §3 below.
 
 ---
 
 ## 2. What we collect — and why
 
-Lexora is built around a hard design rule: **your words stay on your
+Lexicon is built around a hard design rule: **your words stay on your
 device**. We do not collect your search history, your saved words, your
 collections, your voice recordings, or the photographs you point at the
 image-search camera. The only data that ever leaves your device is the
@@ -51,7 +51,7 @@ reporting service. The report contains:
   the ViewModel, and the engine JNI bridge — see
   `proguard-rules.pro §6` which keeps source file names and line numbers
   in release builds).
-* The native stack trace from `liblexora-engine.so` (symbolicated against
+* The native stack trace from `liblexicon-engine.so` (symbolicated against
   our build-server debug symbols; the symbols themselves are NOT shipped
   to your device).
 * The Android OS version, device model, and ABI (`arm64-v8a` or
@@ -81,7 +81,7 @@ The HTTP request contains:
   `SharedPreferences`, and never associated with a name, email, or
   advertising ID. This identifier exists only so the server can flag
   corrupt installs (see §2.1.3) without us knowing who you are.
-* The app's `User-Agent` header: `Lexora/1.0 (Android)`.
+* The app's `User-Agent` header: `Lexicon/1.0 (Android)`.
 
 The HTTP response contains the list of INSERT/UPDATE/DELETE word changes
 since your cursor, and the URL of a `.db.zst` language-pack file on the
@@ -103,7 +103,7 @@ continues normally.
   never uploaded. Clearable from Settings → Privacy & Data → Clear recent
   searches.
 * **Saved words & collections.** Stored in the local SQLite database
-  (`lexora.db`) under your app-private data directory. Never uploaded.
+  (`lexicon.db`) under your app-private data directory. Never uploaded.
 * **Voice-search audio.** Captured by the microphone, transcribed on-device
   by Android's `SpeechRecognizer`, and immediately discarded. The audio
   is never written to disk and never uploaded. Only the resulting text
@@ -123,8 +123,8 @@ continues normally.
 ## 3. The cloud sync service
 
 The optional cloud sync service is a Ktor application (see
-`native/cloud/server/LexoraSyncServer.kt`) running on infrastructure
-operated by Lexora. It exposes three endpoints:
+`native/cloud/server/LexiconSyncServer.kt`) running on infrastructure
+operated by Lexicon. It exposes three endpoints:
 
 | Method | Path                                       | Purpose                                  |
 |--------|-------------------------------------------|------------------------------------------|
@@ -143,7 +143,7 @@ debugging.
 ## 4. Permissions — and why each one is requested
 
 The Play Store requires developers to justify every Android permission
-their app requests. Lexora requests **only three** runtime permissions.
+their app requests. Lexicon requests **only three** runtime permissions.
 None of them is mandatory to use the core dictionary; each one unlocks a
 single optional feature and can be denied without breaking the app.
 
@@ -177,7 +177,7 @@ single optional feature and can be denied without breaking the app.
 * **Declared in:** `AndroidManifest.xml`
 * **Runtime requested:** Not a runtime permission — granted at install.
 * **Why:** Used **only** by the optional cloud sync client
-  (`com.lexora.engine.DeltaSyncClient`) when the user has opted in to
+  (`com.lexicon.engine.DeltaSyncClient`) when the user has opted in to
   cloud sync (Settings → Dictionary → Cloud sync, off by default). With
   sync off, the app makes zero network requests at runtime. The
   permission is still declared in the manifest because the sync code is
@@ -188,7 +188,7 @@ single optional feature and can be denied without breaking the app.
 ### 4.4 Permissions we do **not** request
 
 The following permissions are commonly requested by dictionary apps but
-**not** requested by Lexora. They are listed here explicitly so that the
+**not** requested by Lexicon. They are listed here explicitly so that the
 Play Console's Data Safety form and reviewers can verify our claims:
 
 | Permission                            | Why we don't need it                          |
@@ -238,7 +238,7 @@ nothing of yours to disclose even if served with such an order.
 
 ## 7. Children's privacy
 
-Lexora is a general-audience dictionary. We do not knowingly collect
+Lexicon is a general-audience dictionary. We do not knowingly collect
 personal information from children under 13. The Play Console "Target
 audience" setting is 13+, and the content rating is "Everyone". Because
 we collect no personal information from anyone — child or adult — the
@@ -255,7 +255,7 @@ your personal data. Because we collect no personal data linked to your
 identity, most of these rights are already satisfied by uninstalling the
 app — that deletes every byte we have stored about you, locally. For
 server-side data (the crash log and the sync metadata described in
-§2.1), contact <privacy@lexora.app> and we will action your request
+§2.1), contact <privacy@lexicon.app> and we will action your request
 within 30 days.
 
 ---
@@ -271,11 +271,11 @@ the top of this document is the canonical version marker.
 
 ## 10. Open source
 
-Lexora's C++ engine, JNI bridge, and sync server are published in the
+Lexicon's C++ engine, JNI bridge, and sync server are published in the
 project monorepo. You can audit exactly which symbols the engine exports
 and exactly which HTTP endpoints the server implements by reading
-`native/cpp/include/lexora/c_api.h` and
-`native/cloud/server/LexoraSyncServer.kt` respectively.
+`native/cpp/include/lexicon/c_api.h` and
+`native/cloud/server/LexiconSyncServer.kt` respectively.
 
 ---
 
@@ -284,8 +284,8 @@ and exactly which HTTP endpoints the server implements by reading
 Questions, requests, or complaints about this policy should be directed
 to:
 
-* **Email:** <privacy@lexora.app>
-* **Postal:** Lexora, Attn: Privacy, [publisher address on file with
+* **Email:** <privacy@lexicon.app>
+* **Postal:** Lexicon, Attn: Privacy, [publisher address on file with
   Play Console]
 
 We will acknowledge receipt within 5 business days.

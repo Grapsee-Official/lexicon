@@ -1,6 +1,6 @@
-// performance.cpp — Lexora performance profiling scaffolding implementation.
+// performance.cpp — Lexicon performance profiling scaffolding implementation.
 //
-// See include/lexora/performance.hpp for the design contract.
+// See include/lexicon/performance.hpp for the design contract.
 //
 // JSON output format (one event per line, NDJSON / JSON Lines):
 //
@@ -19,7 +19,7 @@
 //
 // C++17, no external deps. The file handle is opened lazily on first write
 // and held open for the process lifetime (one ofstream, mutex-guarded).
-#include "lexora/performance.hpp"
+#include "lexicon/performance.hpp"
 
 #include <algorithm>
 #include <cctype>
@@ -49,7 +49,7 @@
     #include <malloc/malloc.h>
 #endif
 
-namespace lexora {
+namespace lexicon {
 
 namespace {
 
@@ -81,7 +81,7 @@ inline double elapsed_us_between(std::chrono::steady_clock::time_point start,
 
 // ---------------------------------------------------------------------------
 //  trim — trim leading/trailing whitespace from a std::string_view. Used
-//  when parsing the LEXORA_PERF_LEVEL env var.
+//  when parsing the LEXICON_PERF_LEVEL env var.
 // ---------------------------------------------------------------------------
 std::string_view trim(std::string_view s) noexcept {
     while (!s.empty() && std::isspace(static_cast<unsigned char>(s.front()))) {
@@ -249,9 +249,9 @@ PerfLevel PerfConfig::initialize_from_env() {
         return level();
     }
 
-    // Read LEXORA_PERF_LEVEL.
+    // Read LEXICON_PERF_LEVEL.
     int parsed = 0;
-    if (const char* env = std::getenv("LEXORA_PERF_LEVEL")) {
+    if (const char* env = std::getenv("LEXICON_PERF_LEVEL")) {
         std::string_view sv = trim(env);
         if (!sv.empty()) {
             // Accept "0" / "1" / "2" or case-insensitive "off"/"basic"/"verbose".
@@ -270,8 +270,8 @@ PerfLevel PerfConfig::initialize_from_env() {
     }
     level_.store(parsed, std::memory_order_relaxed);
 
-    // Read LEXORA_PERF_LOG (optional).
-    if (const char* env = std::getenv("LEXORA_PERF_LOG")) {
+    // Read LEXICON_PERF_LOG (optional).
+    if (const char* env = std::getenv("LEXICON_PERF_LOG")) {
         std::string_view sv = trim(env);
         if (!sv.empty()) {
             // Lock-ordering contract: file_mu_ before path_mu_ when both
@@ -347,7 +347,7 @@ void PerfConfig::write_line(std::string_view json_line) const {
             // logging is broken (subsequent writes are then silently no-op'd
             // to avoid log spam on every measurement).
             std::fprintf(stderr,
-                "[lexora] PerfConfig: failed to open '%s' for writing — "
+                "[lexicon] PerfConfig: failed to open '%s' for writing — "
                 "perf events will be dropped.\n", path.c_str());
             return;
         }
@@ -752,4 +752,4 @@ void FrameTimer::reset() noexcept {
     buffer_full_ = false;
 }
 
-} // namespace lexora
+} // namespace lexicon

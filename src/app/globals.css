@@ -48,7 +48,7 @@
 }
 
 /*
-  Lexora — Cotswolds English countryside palette
+  Lexicon — Cotswolds English countryside palette
   Light: aged paper + sage + forest + dusty blue + terracotta + old-wood gold
   Dark:  midnight blue nocturnal-academia with antique gold
 */
@@ -193,7 +193,7 @@
   .font-body    { font-family: var(--font-inter), system-ui, sans-serif; }
   .font-long    { font-family: var(--font-lora), Georgia, serif; }
 
-  /* Lexora card elevation (light only — dark uses borders) */
+  /* Lexicon card elevation (light only — dark uses borders) */
   .shadow-card { box-shadow: var(--shadow-card); }
   .shadow-float { box-shadow: var(--shadow-float); }
 

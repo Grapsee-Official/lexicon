@@ -8,13 +8,13 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/z/my-project/native/cpp/src/c_api.cpp" "CMakeFiles/lexora-engine.dir/src/c_api.cpp.o" "gcc" "CMakeFiles/lexora-engine.dir/src/c_api.cpp.o.d"
-  "/home/z/my-project/native/cpp/src/dawg.cpp" "CMakeFiles/lexora-engine.dir/src/dawg.cpp.o" "gcc" "CMakeFiles/lexora-engine.dir/src/dawg.cpp.o.d"
-  "/home/z/my-project/native/cpp/src/engine.cpp" "CMakeFiles/lexora-engine.dir/src/engine.cpp.o" "gcc" "CMakeFiles/lexora-engine.dir/src/engine.cpp.o.d"
-  "/home/z/my-project/native/cpp/src/hash_table.cpp" "CMakeFiles/lexora-engine.dir/src/hash_table.cpp.o" "gcc" "CMakeFiles/lexora-engine.dir/src/hash_table.cpp.o.d"
-  "/home/z/my-project/native/cpp/src/levenshtein.cpp" "CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.o" "gcc" "CMakeFiles/lexora-engine.dir/src/levenshtein.cpp.o.d"
-  "/home/z/my-project/native/cpp/src/unicode.cpp" "CMakeFiles/lexora-engine.dir/src/unicode.cpp.o" "gcc" "CMakeFiles/lexora-engine.dir/src/unicode.cpp.o.d"
-  "" "liblexora-engine.so" "gcc" "CMakeFiles/lexora-engine.dir/link.d"
+  "/home/z/my-project/native/cpp/src/c_api.cpp" "CMakeFiles/lexicon-engine.dir/src/c_api.cpp.o" "gcc" "CMakeFiles/lexicon-engine.dir/src/c_api.cpp.o.d"
+  "/home/z/my-project/native/cpp/src/dawg.cpp" "CMakeFiles/lexicon-engine.dir/src/dawg.cpp.o" "gcc" "CMakeFiles/lexicon-engine.dir/src/dawg.cpp.o.d"
+  "/home/z/my-project/native/cpp/src/engine.cpp" "CMakeFiles/lexicon-engine.dir/src/engine.cpp.o" "gcc" "CMakeFiles/lexicon-engine.dir/src/engine.cpp.o.d"
+  "/home/z/my-project/native/cpp/src/hash_table.cpp" "CMakeFiles/lexicon-engine.dir/src/hash_table.cpp.o" "gcc" "CMakeFiles/lexicon-engine.dir/src/hash_table.cpp.o.d"
+  "/home/z/my-project/native/cpp/src/levenshtein.cpp" "CMakeFiles/lexicon-engine.dir/src/levenshtein.cpp.o" "gcc" "CMakeFiles/lexicon-engine.dir/src/levenshtein.cpp.o.d"
+  "/home/z/my-project/native/cpp/src/unicode.cpp" "CMakeFiles/lexicon-engine.dir/src/unicode.cpp.o" "gcc" "CMakeFiles/lexicon-engine.dir/src/unicode.cpp.o.d"
+  "" "liblexicon-engine.so" "gcc" "CMakeFiles/lexicon-engine.dir/link.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

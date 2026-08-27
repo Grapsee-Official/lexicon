@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <full-backup-content>
-    <include domain="sharedpref" path="lexora_prefs.xml"/>
+    <include domain="sharedpref" path="lexicon_prefs.xml"/>
 </full-backup-content>

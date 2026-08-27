@@ -3,8 +3,8 @@
 
     <!-- Base theme — declared in XML so the launch screen (before Compose loads)
          already shows the warm cream background, no white flash. -->
-    <style name="Theme.Lexora" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="android:windowBackground">@color/lexora_background</item>
+    <style name="Theme.Lexicon" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/lexicon_background</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
@@ -13,6 +13,6 @@
         <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="o_mr1">shortEdges</item>
     </style>
 
-    <style name="Theme.Lexora.Splash" parent="Theme.Lexora" />
+    <style name="Theme.Lexicon.Splash" parent="Theme.Lexicon" />
 
 </resources>

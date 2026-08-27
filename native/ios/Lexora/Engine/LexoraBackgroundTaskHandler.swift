@@ -1,10 +1,10 @@
-//  LexoraBackgroundTaskHandler.swift
-//  Lexora
+//  LexiconBackgroundTaskHandler.swift
+//  Lexicon
 //
 //  Per spec risk matrix: "iOS background app suspension — when the user selects
-//  text in the iOS Kindle app, Lexora must wake from a suspended state to process
+//  text in the iOS Kindle app, Lexicon must wake from a suspended state to process
 //  the request. iOS gives background apps milliseconds to respond before killing them.
-//  If Lexora does not use background execution tasks properly, the menu item will be dead on tap."
+//  If Lexicon does not use background execution tasks properly, the menu item will be dead on tap."
 //
 //  Solution: "Do use BGProcessingTaskRequest for execution time."
 //
@@ -12,21 +12,21 @@
 import UIKit
 import BackgroundTasks
 
-/// LexoraBackgroundTaskHandler — manages background execution for the
+/// LexiconBackgroundTaskHandler — manages background execution for the
 /// UIEditMenuInteraction hook. When the app is suspended and the user
-/// taps "Lexora" from a text selection in another app, this handler
+/// taps "Lexicon" from a text selection in another app, this handler
 /// requests background execution time to process the lookup.
 @available(iOS 16.0, *)
-class LexoraBackgroundTaskHandler {
+class LexiconBackgroundTaskHandler {
 
-    static let shared = LexoraBackgroundTaskHandler()
+    static let shared = LexiconBackgroundTaskHandler()
 
     private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
-    private var engine: LexoraEngine?
+    private var engine: LexiconEngine?
 
     private init() {}
 
-    func setEngine(_ engine: LexoraEngine) {
+    func setEngine(_ engine: LexiconEngine) {
         self.engine = engine
     }
 
@@ -35,7 +35,7 @@ class LexoraBackgroundTaskHandler {
     func registerBackgroundTasks() {
         // Register for background processing task
         BGTaskScheduler.shared.register(
-            forTaskWithIdentifier: "com.lexora.lookup",
+            forTaskWithIdentifier: "com.lexicon.lookup",
             using: nil
         ) { task in
             self.handleBackgroundLookup(task: task as! BGProcessingTask)
@@ -45,7 +45,7 @@ class LexoraBackgroundTaskHandler {
     /// Schedule a background processing task for an upcoming lookup.
     /// Call this when the app is about to be suspended.
     func scheduleBackgroundLookup() {
-        let request = BGProcessingTaskRequest(identifier: "com.lexora.lookup")
+        let request = BGProcessingTaskRequest(identifier: "com.lexicon.lookup")
         request.requiresNetworkConnectivity = false
         request.requiresExternalPower = false
         request.earliestBeginDate = Date(timeIntervalSinceNow: 1.0)
@@ -53,7 +53,7 @@ class LexoraBackgroundTaskHandler {
         do {
             try BGTaskScheduler.shared.submit(request)
         } catch {
-            print("[Lexora] Failed to schedule background task: \(error)")
+            print("[Lexicon] Failed to schedule background task: \(error)")
         }
     }
 
@@ -74,7 +74,7 @@ class LexoraBackgroundTaskHandler {
         }
 
         // Start a background task to keep the app alive
-        backgroundTask = UIApplication.shared.beginBackgroundTask(withName: "LexoraLookup") {
+        backgroundTask = UIApplication.shared.beginBackgroundTask(withName: "LexiconLookup") {
             // Expiration — the system is about to suspend us
             completed = true
             if self.backgroundTask != .invalid {
@@ -102,7 +102,7 @@ class LexoraBackgroundTaskHandler {
     /// Use this when the app is in the foreground but needs a few extra
     /// seconds to complete the engine lookup.
     func beginShortBackgroundTask(completion: @escaping () -> Void) {
-        let taskId = UIApplication.shared.beginBackgroundTask(withName: "LexoraQuickLookup") {
+        let taskId = UIApplication.shared.beginBackgroundTask(withName: "LexiconQuickLookup") {
             // Expiration
             completion()
         }

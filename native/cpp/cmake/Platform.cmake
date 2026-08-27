@@ -2,42 +2,42 @@
 #  cmake/Platform.cmake — platform detection and compile-flag helper.
 #
 #  Sets:
-#    LEXORA_PLATFORM  : "android" | "ios" | "macos" | "linux" | "unknown"
+#    LEXICON_PLATFORM  : "android" | "ios" | "macos" | "linux" | "unknown"
 #    Platform-specific cache variables (ANDROID_PLATFORM, ANDROID_ABI,
 #    CMAKE_OSX_DEPLOYMENT_TARGET, CMAKE_OSX_ARCHITECTURES, CMAKE_OSX_SYSROOT).
 #
 #  Defines:
-#    lexora_apply_platform_flags(<target>)
+#    lexicon_apply_platform_flags(<target>)
 #        Applies -O2 -Wall -Wextra -std=c++17 plus platform extras
 #        (visibility, -fPIC, -fembed-bitcode-marker, ...) as PRIVATE
 #        compile options on the given target. Also sets OUTPUT_NAME on Android
-#        so the .so lands as liblexora-engine.so.
+#        so the .so lands as liblexicon-engine.so.
 # =============================================================================
 include_guard(GLOBAL)
 
 # -----------------------------------------------------------------------------
 # Platform detection
 # -----------------------------------------------------------------------------
-if(NOT DEFINED LEXORA_PLATFORM)
+if(NOT DEFINED LEXICON_PLATFORM)
     if(ANDROID)
-        set(LEXORA_PLATFORM "android")
+        set(LEXICON_PLATFORM "android")
     elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
-        set(LEXORA_PLATFORM "ios")
+        set(LEXICON_PLATFORM "ios")
     elseif(APPLE)
-        set(LEXORA_PLATFORM "macos")
+        set(LEXICON_PLATFORM "macos")
     elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-        set(LEXORA_PLATFORM "linux")
+        set(LEXICON_PLATFORM "linux")
     else()
-        set(LEXORA_PLATFORM "unknown")
+        set(LEXICON_PLATFORM "unknown")
     endif()
 endif()
 
-message(STATUS "Lexora platform: ${LEXORA_PLATFORM} (CMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME})")
+message(STATUS "Lexicon platform: ${LEXICON_PLATFORM} (CMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME})")
 
 # -----------------------------------------------------------------------------
 # Platform-specific cache defaults
 # -----------------------------------------------------------------------------
-if(LEXORA_PLATFORM STREQUAL "android")
+if(LEXICON_PLATFORM STREQUAL "android")
     # ANDROID_ABI is normally set by the NDK toolchain; ensure a sane default.
     if(NOT ANDROID_ABI)
         set(ANDROID_ABI "arm64-v8a" CACHE STRING "Android ABI" FORCE)
@@ -52,7 +52,7 @@ if(LEXORA_PLATFORM STREQUAL "android")
     endif()
 endif()
 
-if(LEXORA_PLATFORM STREQUAL "ios")
+if(LEXICON_PLATFORM STREQUAL "ios")
     # iOS 16+ deployment target.
     if(NOT CMAKE_OSX_DEPLOYMENT_TARGET)
         set(CMAKE_OSX_DEPLOYMENT_TARGET "16.0" CACHE STRING "iOS deployment target" FORCE)
@@ -67,7 +67,7 @@ if(LEXORA_PLATFORM STREQUAL "ios")
     message(STATUS "  CMAKE_OSX_ARCHITECTURES     = ${CMAKE_OSX_ARCHITECTURES}")
 endif()
 
-if(LEXORA_PLATFORM STREQUAL "macos")
+if(LEXICON_PLATFORM STREQUAL "macos")
     if(NOT CMAKE_OSX_DEPLOYMENT_TARGET)
         set(CMAKE_OSX_DEPLOYMENT_TARGET "13.0" CACHE STRING "macOS deployment target" FORCE)
     endif()
@@ -78,37 +78,37 @@ endif()
 # Base compiler flags
 # -----------------------------------------------------------------------------
 # Applied to all platforms unless overridden below.
-set(LEXORA_BASE_CXX_FLAGS -O2 -Wall -Wextra)
+set(LEXICON_BASE_CXX_FLAGS -O2 -Wall -Wextra)
 
 # Note: -std=c++17 is set globally via CMAKE_CXX_STANDARD in the root CMakeLists,
 # but we add it explicitly here too so it is visible in the compile command for
 # IDEs and downstream consumers.
-list(APPEND LEXORA_BASE_CXX_FLAGS $<$<STREQUAL:${CMAKE_CXX_STANDARD},17>:-std=c++17>)
+list(APPEND LEXICON_BASE_CXX_FLAGS $<$<STREQUAL:${CMAKE_CXX_STANDARD},17>:-std=c++17>)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|AppleClang")
-    set(LEXORA_COMPILER_IS_CLANG ON)
-    list(APPEND LEXORA_BASE_CXX_FLAGS
+    set(LEXICON_COMPILER_IS_CLANG ON)
+    list(APPEND LEXICON_BASE_CXX_FLAGS
         -Wno-unused-parameter         # template-heavy code triggers this a lot
         -Wno-deprecated-declarations) # engine uses some legacy POSIX bits on Android
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    set(LEXORA_COMPILER_IS_GCC ON)
+    set(LEXICON_COMPILER_IS_GCC ON)
 elseif(MSVC)
     message(WARNING "MSVC is not officially supported; engine uses POSIX/Clang idioms.")
-    set(LEXORA_BASE_CXX_FLAGS /O2 /W4 /std:c++17 /EHsc /Zc:__cplusplus)
+    set(LEXICON_BASE_CXX_FLAGS /O2 /W4 /std:c++17 /EHsc /Zc:__cplusplus)
 endif()
 
 # -----------------------------------------------------------------------------
-# lexora_apply_platform_flags(<target>)
+# lexicon_apply_platform_flags(<target>)
 # -----------------------------------------------------------------------------
-function(lexora_apply_platform_flags _target)
+function(lexicon_apply_platform_flags _target)
     # Base flags.
-    target_compile_options(${_target} PRIVATE ${LEXORA_BASE_CXX_FLAGS})
+    target_compile_options(${_target} PRIVATE ${LEXICON_BASE_CXX_FLAGS})
 
-    if(LEXORA_PLATFORM STREQUAL "android")
+    if(LEXICON_PLATFORM STREQUAL "android")
         # PIE / PIC for shared library on Android.
         set_target_properties(${_target} PROPERTIES
             POSITION_INDEPENDENT_CODE ON
-            OUTPUT_NAME "lexora-engine")          # → liblexora-engine.so
+            OUTPUT_NAME "lexicon-engine")          # → liblexicon-engine.so
         target_compile_options(${_target} PRIVATE
             -fPIC
             -fvisibility=hidden
@@ -122,7 +122,7 @@ function(lexora_apply_platform_flags _target)
             -Wl,-z,defs -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now)
     endif()
 
-    if(LEXORA_PLATFORM STREQUAL "ios")
+    if(LEXICON_PLATFORM STREQUAL "ios")
         set_target_properties(${_target} PROPERTIES
             POSITION_INDEPENDENT_CODE ON
             OSX_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}")
@@ -137,7 +137,7 @@ function(lexora_apply_platform_flags _target)
             -Wl,-export_dynamic)
     endif()
 
-    if(LEXORA_PLATFORM STREQUAL "macos" OR LEXORA_PLATFORM STREQUAL "linux")
+    if(LEXICON_PLATFORM STREQUAL "macos" OR LEXICON_PLATFORM STREQUAL "linux")
         target_compile_options(${_target} PRIVATE
             -fvisibility=hidden
             -fvisibility-inlines-hidden)

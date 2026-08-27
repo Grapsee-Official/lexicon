@@ -1,6 +1,6 @@
 //
-//  LexoraColors.swift
-//  Lexora
+//  LexiconColors.swift
+//  Lexicon
 //
 //  Exact brand palette from the locked web build (Phase 1).
 //  Cotswolds English countryside: aged paper + sage + forest + dusty blue + terracotta + old-wood gold.
@@ -9,7 +9,7 @@
 import SwiftUI
 
 /// Color convenience initializer from a hex string (#RRGGBB or RRGGBB).
-/// Used by `LexoraColors` to define the exact brand palette.
+/// Used by `LexiconColors` to define the exact brand palette.
 extension Color {
     init(hex: String) {
         let cleaned = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
@@ -39,9 +39,9 @@ extension Color {
     }
 }
 
-/// The exact Lexora brand palette — light + dark variants.
+/// The exact Lexicon brand palette — light + dark variants.
 /// Mirrors `src/app/globals.css` token values 1:1.
-enum LexoraColors {
+enum LexiconColors {
     // MARK: - Light palette (locked web build)
     /// Warm cream — main background.  #FAF3E9
     static let background       = Color(hex: "FAF3E9")
@@ -80,16 +80,16 @@ enum LexoraColors {
 
 /// Appearance-aware color resolver — mirrors next-themes `resolvedTheme` behaviour.
 /// Returns the dark variant when `colorScheme == .dark`.
-struct LexoraPalette {
+struct LexiconPalette {
     let isDark: Bool
 
-    var background: Color      { isDark ? LexoraColors.backgroundDark      : LexoraColors.background }
-    var foreground: Color      { isDark ? LexoraColors.foregroundDark      : LexoraColors.foreground }
-    var primary: Color         { isDark ? LexoraColors.primaryDark         : LexoraColors.primary }
-    var accent: Color          { isDark ? LexoraColors.accentDark          : LexoraColors.accent }
-    var highlight: Color       { isDark ? LexoraColors.highlightDark       : LexoraColors.highlight }
-    var card: Color            { isDark ? LexoraColors.cardDark            : LexoraColors.card }
-    var muted: Color           { isDark ? LexoraColors.mutedDark           : LexoraColors.muted }
-    var mutedForeground: Color { isDark ? LexoraColors.mutedForegroundDark : LexoraColors.mutedForeground }
-    var border: Color          { isDark ? LexoraColors.borderDark          : LexoraColors.border }
+    var background: Color      { isDark ? LexiconColors.backgroundDark      : LexiconColors.background }
+    var foreground: Color      { isDark ? LexiconColors.foregroundDark      : LexiconColors.foreground }
+    var primary: Color         { isDark ? LexiconColors.primaryDark         : LexiconColors.primary }
+    var accent: Color          { isDark ? LexiconColors.accentDark          : LexiconColors.accent }
+    var highlight: Color       { isDark ? LexiconColors.highlightDark       : LexiconColors.highlight }
+    var card: Color            { isDark ? LexiconColors.cardDark            : LexiconColors.card }
+    var muted: Color           { isDark ? LexiconColors.mutedDark           : LexiconColors.muted }
+    var mutedForeground: Color { isDark ? LexiconColors.mutedForegroundDark : LexiconColors.mutedForeground }
+    var border: Color          { isDark ? LexiconColors.borderDark          : LexiconColors.border }
 }

@@ -1,10 +1,10 @@
 //
 //  ContentView.swift
-//  Lexora
+//  Lexicon
 //
 //  Root view orchestrator — translates `src/app/page.tsx`:
 //    <div flex min-h-screen flex-col bg-background>
-//      <LexoraHeader />
+//      <LexiconHeader />
 //      <main flex-1>
 //        {tabMeta[activeTab] && <sub-header />}
 //        <AnimatePresence mode="wait"> activeTab switch </AnimatePresence>
@@ -17,34 +17,34 @@
 //  Layout:
 //    ZStack {
 //      background
-//      VStack { LexoraHeader; activeScreen }   // screens own their bottom padding
+//      VStack { LexiconHeader; activeScreen }   // screens own their bottom padding
 //      BottomNav()                              // floating capsule overlay
 //      if vm.searchOpen { SearchModal() }       // full-screen search overlay
 //      if toastMessage != nil { ToastOverlay }  // brief "word not found" toast
 //    }
 //    .sheet(item: $vm.selectedWord) { WordDetailSheet(word:) }
-//    .lexoraEditMenu(engine: engine)            // iOS 16+ edit-menu integration
-//    .onReceive(.lexoraWordSelected) → vm.openWord
-//    .onReceive(.lexoraWordNotFound) → showToast
+//    .lexiconEditMenu(engine: engine)            // iOS 16+ edit-menu integration
+//    .onReceive(.lexiconWordSelected) → vm.openWord
+//    .onReceive(.lexiconWordNotFound) → showToast
 //
-//  LexoraEditMenuInteraction wiring (P3-FIX-09):
+//  LexiconEditMenuInteraction wiring (P3-FIX-09):
 //  ----------------------------------------------
-//  The `LexoraEditMenuInteraction` (UIEditMenuInteractionDelegate, iOS 16+)
-//  and its `LexoraEngine` dependency live alongside this file in
-//  `Engine/LexoraEditMenuInteraction.swift` + `Engine/LexoraEngine.swift`.
-//  Both are part of the same Lexora app target — Swift has no per-file
-//  `import` for same-module sources, so the symbols (`lexoraEditMenu`,
-//  `.lexoraWordSelected`, `.lexoraWordNotFound`, `LexoraEngine`) are
+//  The `LexiconEditMenuInteraction` (UIEditMenuInteractionDelegate, iOS 16+)
+//  and its `LexiconEngine` dependency live alongside this file in
+//  `Engine/LexiconEditMenuInteraction.swift` + `Engine/LexiconEngine.swift`.
+//  Both are part of the same Lexicon app target — Swift has no per-file
+//  `import` for same-module sources, so the symbols (`lexiconEditMenu`,
+//  `.lexiconWordSelected`, `.lexiconWordNotFound`, `LexiconEngine`) are
 //  resolved at compile time as long as those two files are listed in the
 //  Xcode target's "Compile Sources" build phase.
 //
-//  NOTE on `vm.engine`: the task spec calls for `.lexoraEditMenu(engine:
-//  vm.engine)`, but `LexoraViewModel` does not currently expose an
+//  NOTE on `vm.engine`: the task spec calls for `.lexiconEditMenu(engine:
+//  vm.engine)`, but `LexiconViewModel` does not currently expose an
 //  `engine` property and we cannot modify that file (task constraint:
-//  "Do NOT change any other file"). We hold a stable `LexoraEngine`
+//  "Do NOT change any other file"). We hold a stable `LexiconEngine`
 //  instance in `@State` here instead — the engine is cheap to construct
 //  and safe to retain for the view's lifetime, and this is the minimal
-//  deviation that keeps the wiring functional. If `LexoraViewModel` is
+//  deviation that keeps the wiring functional. If `LexiconViewModel` is
 //  later extended with an `engine` property, swap `engine: engine` →
 //  `engine: vm.engine` and delete the local `@State`.
 //
@@ -52,23 +52,23 @@
 import SwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject private var vm: LexoraViewModel
-    @EnvironmentObject private var theme: LexoraThemeState
+    @EnvironmentObject private var vm: LexiconViewModel
+    @EnvironmentObject private var theme: LexiconThemeState
     @Environment(\.colorScheme) private var scheme
 
-    // MARK: - Lexora EditMenu engine
+    // MARK: - Lexicon EditMenu engine
     //
-    // Stable `LexoraEngine` instance used by the UIEditMenuInteraction
+    // Stable `LexiconEngine` instance used by the UIEditMenuInteraction
     // delegate to resolve selected words. Held in `@State` so the same
     // engine (and its underlying C++ handle) survives SwiftUI re-renders.
     //
     // See file header for why this lives here rather than on `vm`.
-    @State private var engine = LexoraEngine()
+    @State private var engine = LexiconEngine()
 
-    // MARK: - Toast state (for .lexoraWordNotFound)
+    // MARK: - Toast state (for .lexiconWordNotFound)
     //
     // Briefly shown above the floating BottomNav when the user selects a
-    // word that isn't in the Lexora dictionary. Auto-dismisses after 2.5s
+    // word that isn't in the Lexicon dictionary. Auto-dismisses after 2.5s
     // via the `.task(id: toastMessage)` modifier on the ZStack — a new
     // toast cancels any pending dismissal so the latest message stays
     // visible for its full duration.
@@ -77,24 +77,24 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             // MARK: - Background — warm cream (#FAF3E9) light, midnight dark.
-            lexoraPalette(scheme).background
+            lexiconPalette(scheme).background
                 .ignoresSafeArea()
 
             // MARK: - Main column (header + active screen).
             // Screens own their `.padding(.bottom, 120)` so the floating
             // BottomNav capsule never overlaps their content.
             //
-            // `.lexoraEditMenu(engine:)` is attached to `activeScreen` so
+            // `.lexiconEditMenu(engine:)` is attached to `activeScreen` so
             // the UIEditMenuInteraction anchor sits inside the responder
             // chain of whichever screen currently owns the user's text
             // selection. (The modifier inserts a 0×0 anchor UIView via
-            // `LexoraEditMenuAnchor` — see `LexoraEditMenuInteraction.swift`.)
+            // `LexiconEditMenuAnchor` — see `LexiconEditMenuInteraction.swift`.)
             VStack(spacing: 0) {
-                LexoraHeader()
+                LexiconHeader()
 
                 activeScreen
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .lexoraEditMenu(engine: engine)
+                    .lexiconEditMenu(engine: engine)
             }
 
             // MARK: - Floating bottom nav overlay.
@@ -127,14 +127,14 @@ struct ContentView: View {
                         Image(systemName: "magnifyingglass")
                             .font(.system(size: 14, weight: .regular))
                         Text(toastMessage)
-                            .font(.lexoraBody(13))
+                            .font(.lexiconBody(13))
                             .lineLimit(2)
                             .fixedSize(horizontal: false, vertical: true)
                     }
-                    .foregroundStyle(lexoraPalette(scheme).background)
+                    .foregroundStyle(lexiconPalette(scheme).background)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 10)
-                    .background(lexoraPalette(scheme).foreground.opacity(0.92))
+                    .background(lexiconPalette(scheme).foreground.opacity(0.92))
                     .clipShape(Capsule())
                     .shadow(color: .black.opacity(0.15), radius: 8, y: 2)
                     .padding(.horizontal, 24)
@@ -145,11 +145,11 @@ struct ContentView: View {
                 .allowsHitTesting(false)
             }
         }
-        .background(LexoraColors.background)
+        .background(LexiconColors.background)
         // MARK: - Word detail sheet (presented when vm.selectedWord != nil)
         //
         // Driven by `vm.selectedWord` — set both by direct UI taps (trending
-        // tags, search results) and by the `.lexoraWordSelected` notification
+        // tags, search results) and by the `.lexiconWordSelected` notification
         // handler below (EditMenu lookup hit).
         .sheet(item: $vm.selectedWord) { word in
             WordDetailSheet(word: word)
@@ -171,18 +171,18 @@ struct ContentView: View {
             try? await Task.sleep(nanoseconds: 2_500_000_000)  // 2.5s
             toastMessage = nil
         }
-        // MARK: - Lexora EditMenu notification listeners
+        // MARK: - Lexicon EditMenu notification listeners
         //
-        // Posted by `LexoraEditMenuInteraction.performLookup(word:)`:
-        //   - .lexoraWordSelected  → userInfo["word"] = engine.lookup result
-        //   - .lexoraWordNotFound  → userInfo["word"] = String (original query)
+        // Posted by `LexiconEditMenuInteraction.performLookup(word:)`:
+        //   - .lexiconWordSelected  → userInfo["word"] = engine.lookup result
+        //   - .lexiconWordNotFound  → userInfo["word"] = String (original query)
         .onReceive(
-            NotificationCenter.default.publisher(for: .lexoraWordSelected)
+            NotificationCenter.default.publisher(for: .lexiconWordSelected)
         ) { note in
             handleWordSelected(note)
         }
         .onReceive(
-            NotificationCenter.default.publisher(for: .lexoraWordNotFound)
+            NotificationCenter.default.publisher(for: .lexiconWordNotFound)
         ) { note in
             handleWordNotFound(note)
         }
@@ -222,7 +222,7 @@ struct ContentView: View {
 
         case .more:
             subHeaderScreen(title: "Settings",
-                            subtitle: "Make Lexora yours") {
+                            subtitle: "Make Lexicon yours") {
                 MoreScreen()
             }
             .transition(activeTabTransition)
@@ -252,11 +252,11 @@ struct ContentView: View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.lexoraDisplay(20, weight: .semibold))
-                    .foregroundStyle(lexoraPalette(scheme).foreground)
+                    .font(.lexiconDisplay(20, weight: .semibold))
+                    .foregroundStyle(lexiconPalette(scheme).foreground)
                 Text(subtitle)
-                    .font(.lexoraBody(11))
-                    .foregroundStyle(lexoraPalette(scheme).mutedForeground)
+                    .font(.lexiconBody(11))
+                    .foregroundStyle(lexiconPalette(scheme).mutedForeground)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 16)
@@ -279,13 +279,13 @@ struct ContentView: View {
         )
     }
 
-    // MARK: - Lexora EditMenu notification handlers
+    // MARK: - Lexicon EditMenu notification handlers
     //
-    // The engine wrapper (`LexoraEngine.swift`) ships its own `WordEntry`
+    // The engine wrapper (`LexiconEngine.swift`) ships its own `WordEntry`
     // struct (`partOfSpeech: String`), distinct from the model
-    // `WordEntry` in `LexoraModels.swift` (`partOfSpeech: PartOfSpeech`).
-    // `LexoraEditMenuInteraction.performLookup` posts the engine's
-    // `WordEntry` in `.lexoraWordSelected`'s userInfo. To bridge the two
+    // `WordEntry` in `LexiconModels.swift` (`partOfSpeech: PartOfSpeech`).
+    // `LexiconEditMenuInteraction.performLookup` posts the engine's
+    // `WordEntry` in `.lexiconWordSelected`'s userInfo. To bridge the two
     // types without modifying either file (task constraint), we:
     //
     //   1. Try a direct cast to the model `WordEntry` — works if the
@@ -293,14 +293,14 @@ struct ContentView: View {
     //      is rewritten to return the model type.
     //   2. Fall back to `Mirror` reflection on the payload to extract the
     //      `word` string field from any struct, then re-resolve via
-    //      `LexoraData.dictionary` to obtain the model `WordEntry` (with
+    //      `LexiconData.dictionary` to obtain the model `WordEntry` (with
     //      the `PartOfSpeech` enum + any illustration asset).
     //   3. If resolution fails entirely, surface a "not found" toast so
     //      the user gets feedback either way.
 
     private func handleWordSelected(_ note: Notification) {
         guard let raw = note.userInfo?["word"] else {
-            showToast("Word not found in Lexora")
+            showToast("Word not found in Lexicon")
             return
         }
 
@@ -311,11 +311,11 @@ struct ContentView: View {
         }
 
         // (2) Reflect on the payload to extract the `word` string, then
-        //     re-resolve via LexoraData (case-insensitive match on the
-        //     word title — LexoraData stores canonical entries for all 18
+        //     re-resolve via LexiconData (case-insensitive match on the
+        //     word title — LexiconData stores canonical entries for all 18
         //     words the engine knows about).
         if let wordString = extractWordString(from: raw),
-           let resolved = LexoraData.dictionary.first(where: {
+           let resolved = LexiconData.dictionary.first(where: {
                $0.word.lowercased() == wordString.lowercased()
            }) {
             vm.openWord(resolved)
@@ -324,14 +324,14 @@ struct ContentView: View {
 
         // (3) Couldn't resolve — toast.
         let displayWord = extractWordString(from: raw) ?? "that word"
-        showToast("\"\(displayWord)\" isn't in Lexora yet")
+        showToast("\"\(displayWord)\" isn't in Lexicon yet")
     }
 
     private func handleWordNotFound(_ note: Notification) {
-        // `.lexoraWordNotFound` posts userInfo["word"] as the original
-        // String query (see LexoraEditMenuInteraction.performLookup).
+        // `.lexiconWordNotFound` posts userInfo["word"] as the original
+        // String query (see LexiconEditMenuInteraction.performLookup).
         let word = (note.userInfo?["word"] as? String) ?? "that word"
-        showToast("\"\(word)\" isn't in Lexora yet")
+        showToast("\"\(word)\" isn't in Lexicon yet")
     }
 
     /// Extract the `word` string field from any payload.
@@ -339,7 +339,7 @@ struct ContentView: View {
     /// Works for both the engine's `WordEntry` and the model `WordEntry`
     /// without compile-time knowledge of either type, by introspecting
     /// the value's children via `Mirror`. Also accepts a plain `String`
-    /// (used by `.lexoraWordNotFound`).
+    /// (used by `.lexiconWordNotFound`).
     private func extractWordString(from raw: Any) -> String? {
         if let s = raw as? String { return s }
         let mirror = Mirror(reflecting: raw)
@@ -363,6 +363,6 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .environmentObject(LexoraViewModel())
-        .environmentObject(LexoraThemeState())
+        .environmentObject(LexiconViewModel())
+        .environmentObject(LexiconThemeState())
 }

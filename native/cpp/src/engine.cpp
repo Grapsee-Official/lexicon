@@ -1,24 +1,24 @@
-// engine.cpp — Lexora Engine implementation (facade)
-#include "lexora/engine.hpp"
-#include "lexora/hash_table.hpp"
-#include "lexora/levenshtein.hpp"
-#include "lexora/dawg.hpp"
-#include "lexora/unicode.hpp"
+// engine.cpp — Lexicon Engine implementation (facade)
+#include "lexicon/engine.hpp"
+#include "lexicon/hash_table.hpp"
+#include "lexicon/levenshtein.hpp"
+#include "lexicon/dawg.hpp"
+#include "lexicon/unicode.hpp"
 
-#include "lexora/sqlite3_shim.h"
+#include "lexicon/sqlite3_shim.h"
 
 #include <fstream>
 #include <sstream>
 #include <cstring>
 #include <mutex>
 
-namespace lexora {
+namespace lexicon {
 
-struct LexoraEngine::Impl {
+struct LexiconEngine::Impl {
     MemoryMappedHashTable hash_table;
     Dawg dawg;
     LevenshteinAutomaton levenshtein;
-#ifdef LEXORA_USE_SQLITE
+#ifdef LEXICON_USE_SQLITE
     sqlite3* db = nullptr;
 #endif
     bool dawg_enabled = false;
@@ -26,7 +26,7 @@ struct LexoraEngine::Impl {
     mutable std::mutex mutex;
 
     ~Impl() {
-#ifdef LEXORA_USE_SQLITE
+#ifdef LEXICON_USE_SQLITE
         if (db) sqlite3_close(db);
 #endif
         hash_table.unload();
@@ -80,28 +80,28 @@ struct LexoraEngine::Impl {
     }
 };
 
-LexoraEngine::LexoraEngine() : impl_(std::make_unique<Impl>()) {}
-LexoraEngine::~LexoraEngine() = default;
+LexiconEngine::LexiconEngine() : impl_(std::make_unique<Impl>()) {}
+LexiconEngine::~LexiconEngine() = default;
 
-bool LexoraEngine::load_database(const std::string& db_dir) {
+bool LexiconEngine::load_database(const std::string& db_dir) {
     std::lock_guard<std::mutex> lock(impl_->mutex);
 
     // Load hash table
-    std::string ht_path = db_dir + "/lexora.ht";
+    std::string ht_path = db_dir + "/lexicon.ht";
     if (!impl_->hash_table.load_from_file(ht_path.c_str())) {
         return false;
     }
 
     // Load DAWG (optional — can be toggled)
-    std::string dawg_path = db_dir + "/lexora.dawg";
+    std::string dawg_path = db_dir + "/lexicon.dawg";
     if (impl_->dawg.load_from_file(dawg_path.c_str())) {
         impl_->dawg_enabled = true;
     }
 
-    // Open SQLite for full-text search (optional — only when LEXORA_USE_SQLITE
+    // Open SQLite for full-text search (optional — only when LEXICON_USE_SQLITE
     // is defined at compile time). Without it, hash table + DAWG still work.
-#ifdef LEXORA_USE_SQLITE
-    std::string sqlite_path = db_dir + "/lexora.sqlite";
+#ifdef LEXICON_USE_SQLITE
+    std::string sqlite_path = db_dir + "/lexicon.sqlite";
     if (sqlite3_open(sqlite_path.c_str(), &impl_->db) != SQLITE_OK) {
         // Non-fatal — hash table + DAWG still work
         impl_->db = nullptr;
@@ -115,7 +115,7 @@ bool LexoraEngine::load_database(const std::string& db_dir) {
     return true;
 }
 
-std::optional<WordEntry> LexoraEngine::lookup(std::string_view word) const {
+std::optional<WordEntry> LexiconEngine::lookup(std::string_view word) const {
     std::lock_guard<std::mutex> lock(impl_->mutex);
     if (!impl_->loaded) return std::nullopt;
 
@@ -135,9 +135,9 @@ std::optional<WordEntry> LexoraEngine::lookup(std::string_view word) const {
     return impl_->deserialize(value, value_len);
 }
 
-std::vector<LexoraSearchResult> LexoraEngine::fuzzy_search(std::string_view query, int max_distance, size_t limit) const {
+std::vector<LexiconSearchResult> LexiconEngine::fuzzy_search(std::string_view query, int max_distance, size_t limit) const {
     std::lock_guard<std::mutex> lock(impl_->mutex);
-    std::vector<LexoraSearchResult> results;
+    std::vector<LexiconSearchResult> results;
 
     if (!impl_->loaded) return results;
 
@@ -163,8 +163,8 @@ std::vector<LexoraSearchResult> LexoraEngine::fuzzy_search(std::string_view quer
     }
 
     // If we have SQLite, also get FTS5 candidates. Skipped entirely when
-    // SQLite support is not compiled in (LEXORA_USE_SQLITE undefined).
-#ifdef LEXORA_USE_SQLITE
+    // SQLite support is not compiled in (LEXICON_USE_SQLITE undefined).
+#ifdef LEXICON_USE_SQLITE
     if (impl_->db) {
         sqlite3_stmt* stmt;
         if (sqlite3_prepare_v2(impl_->db,
@@ -184,7 +184,7 @@ std::vector<LexoraSearchResult> LexoraEngine::fuzzy_search(std::string_view quer
     // Run Levenshtein on candidates
     auto matches = impl_->levenshtein.search(normalized, candidates, max_distance, limit);
 
-    // Convert to LexoraSearchResult with full entries
+    // Convert to LexiconSearchResult with full entries
     for (const auto& m : matches) {
         auto entry = get_word_by_id(m.word_id);
         if (entry) {
@@ -195,7 +195,7 @@ std::vector<LexoraSearchResult> LexoraEngine::fuzzy_search(std::string_view quer
     return results;
 }
 
-std::vector<std::string> LexoraEngine::prefix_search(std::string_view prefix, size_t limit) const {
+std::vector<std::string> LexiconEngine::prefix_search(std::string_view prefix, size_t limit) const {
     std::lock_guard<std::mutex> lock(impl_->mutex);
     if (!impl_->loaded || !impl_->dawg_enabled) return {};
 
@@ -203,8 +203,8 @@ std::vector<std::string> LexoraEngine::prefix_search(std::string_view prefix, si
     return impl_->dawg.prefix_search(normalized, limit);
 }
 
-std::optional<WordEntry> LexoraEngine::get_word_by_id(const std::string& id) const {
-#ifdef LEXORA_USE_SQLITE
+std::optional<WordEntry> LexiconEngine::get_word_by_id(const std::string& id) const {
+#ifdef LEXICON_USE_SQLITE
     if (!impl_->db) return std::nullopt;
 
     sqlite3_stmt* stmt;
@@ -239,7 +239,7 @@ std::optional<WordEntry> LexoraEngine::get_word_by_id(const std::string& id) con
 #endif
 }
 
-void LexoraEngine::enable_dawg(bool enabled) {
+void LexiconEngine::enable_dawg(bool enabled) {
     std::lock_guard<std::mutex> lock(impl_->mutex);
     if (enabled && !impl_->dawg.is_loaded()) {
         // Would need to reload from file — store the path
@@ -249,11 +249,11 @@ void LexoraEngine::enable_dawg(bool enabled) {
     impl_->dawg_enabled = enabled;
 }
 
-bool LexoraEngine::is_dawg_enabled() const {
+bool LexiconEngine::is_dawg_enabled() const {
     return impl_->dawg_enabled;
 }
 
-MemoryInfo LexoraEngine::get_memory_usage() const {
+MemoryInfo LexiconEngine::get_memory_usage() const {
     std::lock_guard<std::mutex> lock(impl_->mutex);
     return {
         impl_->hash_table.memory_usage_bytes(),
@@ -262,11 +262,11 @@ MemoryInfo LexoraEngine::get_memory_usage() const {
     };
 }
 
-void LexoraEngine::close() {
+void LexiconEngine::close() {
     std::lock_guard<std::mutex> lock(impl_->mutex);
     impl_->hash_table.unload();
     impl_->dawg.unload();
-#ifdef LEXORA_USE_SQLITE
+#ifdef LEXICON_USE_SQLITE
     if (impl_->db) {
         sqlite3_close(impl_->db);
         impl_->db = nullptr;
@@ -275,4 +275,4 @@ void LexoraEngine::close() {
     impl_->loaded = false;
 }
 
-} // namespace lexora
+} // namespace lexicon

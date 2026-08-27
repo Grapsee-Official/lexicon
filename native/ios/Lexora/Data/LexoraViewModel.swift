@@ -1,6 +1,6 @@
 //
-//  LexoraViewModel.swift
-//  Lexora
+//  LexiconViewModel.swift
+//  Lexicon
 //
 //  ObservableObject translation of the Zustand store in `src/lib/app-store.ts`.
 //
@@ -19,10 +19,10 @@ import Foundation
 import SwiftUI
 
 @MainActor
-final class LexoraViewModel: ObservableObject {
+final class LexiconViewModel: ObservableObject {
 
     // MARK: - Published state
-    @Published var activeTab: LexoraTab = .home
+    @Published var activeTab: LexiconTab = .home
     @Published var selectedWord: WordEntry? = nil
     @Published var searchOpen: Bool = false
     @Published var menuOpen: Bool = false
@@ -32,8 +32,8 @@ final class LexoraViewModel: ObservableObject {
     @Published var recentSearches: [String] = []
 
     // MARK: - Persistence keys
-    private let savedKey = "lexora.savedWordIds"
-    private let recentKey = "lexora.recentSearches"
+    private let savedKey = "lexicon.savedWordIds"
+    private let recentKey = "lexicon.recentSearches"
 
     // MARK: - Init
     init() {
@@ -41,7 +41,7 @@ final class LexoraViewModel: ObservableObject {
     }
 
     // MARK: - Tab + sheet actions
-    func setActiveTab(_ tab: LexoraTab) {
+    func setActiveTab(_ tab: LexiconTab) {
         activeTab = tab
     }
 

@@ -1,44 +1,44 @@
-# Lexora — iOS (Swift + SwiftUI)
+# Lexicon — iOS (Swift + SwiftUI)
 
-Native translation of the locked Lexora web prototype (Phase 1).
+Native translation of the locked Lexicon web prototype (Phase 1).
 Built with SwiftUI, iOS 16+, no third-party dependencies.
 
-> Source root: `/native/ios/Lexora/`
-> Xcode project: `/native/ios/Lexora.xcodeproj/project.pbxproj`
-> Asset source: `/native/ios/Lexora/Resources/` + `Assets.xcassets/`
+> Source root: `/native/ios/Lexicon/`
+> Xcode project: `/native/ios/Lexicon.xcodeproj/project.pbxproj`
+> Asset source: `/native/ios/Lexicon/Resources/` + `Assets.xcassets/`
 
 ---
 
 ## 1. Open the project in Xcode
 
 This folder ships with a **generated `.xcodeproj`** at
-`/native/ios/Lexora.xcodeproj/`.
+`/native/ios/Lexicon.xcodeproj/`.
 
 ### Option A — Use the generated project file
 
 1. Launch **Xcode 15.0+** (Xcode 14 also works on iOS 16 targets).
-2. **File → Open…** and navigate to `/native/ios/Lexora.xcodeproj`.
+2. **File → Open…** and navigate to `/native/ios/Lexicon.xcodeproj`.
 3. Xcode may offer to "fix up" the project — accept any auto-fix prompts
    (it sometimes rewrites the `project.pbxproj` to a newer object format).
 4. Select a simulator (iPhone 15 / iPhone 16 Pro recommended) and press **⌘R**.
 
 > **Note**: the `project.pbxproj` was hand-generated from a template. If Xcode
 > refuses to open the project or reports "missing files":
-> - In Xcode, select the **Lexora** target → **Build Phases** →
+> - In Xcode, select the **Lexicon** target → **Build Phases** →
 >   **Compile Sources** and **Copy Bundle Resources**.
 > - Use the **+** button to add any missing `.swift` / `.png` files from
->   `/native/ios/Lexora/`.
+>   `/native/ios/Lexicon/`.
 > - This is a one-time fix-up — Xcode will save the corrected `pbxproj`.
 
 ### Option B — Start fresh in Xcode (recommended if Option A fails)
 
 1. **File → New → Project…**
 2. Choose **iOS → App** template.
-3. Product name: **Lexora**. Interface: **SwiftUI**. Language: **Swift**.
+3. Product name: **Lexicon**. Interface: **SwiftUI**. Language: **Swift**.
 4. Save the project at `/native/ios/` (overwrite the existing `.xcodeproj`).
-5. In Finder, drag every file from `/native/ios/Lexora/` into the new
-   project's `Lexora` group, preserving the folder structure:
-   - `LexoraApp.swift`
+5. In Finder, drag every file from `/native/ios/Lexicon/` into the new
+   project's `Lexicon` group, preserving the folder structure:
+   - `LexiconApp.swift`
    - `ContentView.swift`
    - `Info.plist` (replace the auto-generated one)
    - `Assets.xcassets`
@@ -47,14 +47,14 @@ This folder ships with a **generated `.xcodeproj`** at
    - ✅ **Copy items if needed** (only if you didn't save the project at
      the same location)
    - ✅ **Create groups**
-   - ✅ **Add to target: Lexora**
+   - ✅ **Add to target: Lexicon**
 7. Press **⌘R**.
 
 ### Project settings to verify
 
 - **Target → General → Minimum Deployments**: `iOS 16.0`
-- **Target → General → Identity → Display Name**: `Lexora`
-- **Target → General → Identity → Bundle Identifier**: `com.lexora.app`
+- **Target → General → Identity → Display Name**: `Lexicon`
+- **Target → General → Identity → Bundle Identifier**: `com.lexicon.app`
 - **Target → Build Phases → Compile Sources** must include every `.swift` file
   (the generated `pbxproj` lists all 23 sources).
 - **Target → Build Phases → Copy Bundle Resources** must include every PNG in
@@ -70,10 +70,10 @@ This folder ships with a **generated `.xcodeproj`** at
    - **iPhone 16 Pro**
    - **iPhone SE (3rd generation)** — for small-screen testing
 3. Press **⌘R** (or click the ▶ Play button in the toolbar).
-4. The simulator launches, installs Lexora, and opens it.
+4. The simulator launches, installs Lexicon, and opens it.
 5. To switch between light/dark mode in the simulator:
    - **Features → Toggle Appearance** (or **⇧⌘A**)
-   - Or use the Lexora header's moon/sun toggle (top-right).
+   - Or use the Lexicon header's moon/sun toggle (top-right).
 
 ### Run on a physical device
 
@@ -116,15 +116,15 @@ You need at least these weights:
 
 ### Step 2 — Add them to the project
 
-1. Drag all 8 `.ttf` files into the `Lexora/Resources/` group in Xcode.
+1. Drag all 8 `.ttf` files into the `Lexicon/Resources/` group in Xcode.
 2. When prompted, check:
    - ✅ **Copy items if needed**
-   - ✅ **Add to target: Lexora**
+   - ✅ **Add to target: Lexicon**
 3. Verify the files appear under **Target → Build Phases → Copy Bundle Resources**.
 
 ### Step 3 — Register them in `Info.plist`
 
-Open `Lexora/Info.plist` and find the `UIAppFonts` array. Uncomment the
+Open `Lexicon/Info.plist` and find the `UIAppFonts` array. Uncomment the
 entries so it looks like:
 
 ```xml
@@ -143,9 +143,9 @@ entries so it looks like:
 
 ### Step 4 — Build & run
 
-`LexoraTypography.swift` will pick up the custom PostScript names
+`LexiconTypography.swift` will pick up the custom PostScript names
 automatically (via `Font.custom(_:size:relativeTo:)`) and resolve
-`Font.lexoraDisplay/lexoraBody/lexoraLong` to the real Google Fonts.
+`Font.lexiconDisplay/lexiconBody/lexiconLong` to the real Google Fonts.
 
 ---
 
@@ -164,8 +164,8 @@ All illustrations ship as **PNG** in `Resources/`:
 
 | File                                | Used by                              |
 | ----------------------------------- | ------------------------------------ |
-| `lexora-mark.png` (+@2x, @3x)       | `LexoraHeader` brand mark            |
-| `lexora-countryside.png` (+@2x, @3x)| `Hero` right column                  |
+| `lexicon-mark.png` (+@2x, @3x)       | `LexiconHeader` brand mark            |
+| `lexicon-countryside.png` (+@2x, @3x)| `Hero` right column                  |
 | `wotd-bg-light.png`                 | `WordOfTheDayCard` right-panel image |
 | `wotd-bg-dark.png`                  | `WordOfTheDayCard` (dark mode)       |
 | `cat-vocabulary.png`                | `CategoryCard`                       |
@@ -173,17 +173,17 @@ All illustrations ship as **PNG** in `Resources/`:
 | `cat-literature.png`                | `CategoryCard`                       |
 | `cat-science.png`                   | `CategoryCard`                       |
 | `article-1.png` / `article-2.png` / `article-3.png` | `ArticleCard`     |
-| `avatar-default.png`                | `LexoraHeader` profile avatar        |
+| `avatar-default.png`                | `LexiconHeader` profile avatar        |
 | `hero-light.png` / `hero-dark.png`  | reserved (Phase 3 — theme variants)  |
 | `paper-texture.png`                 | reserved (Phase 3 — paper noise)     |
 
-`lexora-mark.svg` and `lexora-countryside-day.svg` were rasterized to PNG via
+`lexicon-mark.svg` and `lexicon-countryside-day.svg` were rasterized to PNG via
 `sharp` at 1x/2x/3x using `rasterize-assets.js` (kept alongside this README
 for reproducibility).
 
 > To regenerate assets:
 > ```bash
-> cd /home/z/my-project && node native/ios/Lexora/rasterize-assets.js
+> cd /home/z/my-project && node native/ios/Lexicon/rasterize-assets.js
 > ```
 
 ---
@@ -192,10 +192,10 @@ for reproducibility).
 
 ```
 native/ios/
-├── Lexora.xcodeproj/
+├── Lexicon.xcodeproj/
 │   └── project.pbxproj         ← Generated Xcode project (23 sources + 19 PNGs)
-└── Lexora/
-    ├── LexoraApp.swift         ← @main entry, owns ViewModel + ThemeState
+└── Lexicon/
+    ├── LexiconApp.swift         ← @main entry, owns ViewModel + ThemeState
     ├── ContentView.swift       ← Root: Header + active tab + BottomNav + sheets
     ├── Info.plist              ← App metadata, fonts, launch screen, orientations
     ├── Assets.xcassets/
@@ -203,16 +203,16 @@ native/ios/
     │   ├── AccentColor.colorset/   ← Brand green #677554 tint
     │   └── AppIcon.appiconset/     ← App icon (icon-512.png)
     ├── Theme/
-    │   ├── LexoraColors.swift      ← Color(hex:) + exact brand palette (light/dark)
-    │   ├── LexoraTypography.swift  ← Fraunces / Inter / Lora + fallbacks
-    │   └── LexoraTheme.swift       ← ThemeState + LexoraThemeModifier
+    │   ├── LexiconColors.swift      ← Color(hex:) + exact brand palette (light/dark)
+    │   ├── LexiconTypography.swift  ← Fraunces / Inter / Lora + fallbacks
+    │   └── LexiconTheme.swift       ← ThemeState + LexiconThemeModifier
     ├── Models/
-    │   └── LexoraModels.swift      ← WordEntry, Category, Article, TrendingTag, Tab
+    │   └── LexiconModels.swift      ← WordEntry, Category, Article, TrendingTag, Tab
     ├── Data/
-    │   ├── LexoraData.swift        ← All 18 dictionary entries + helpers
-    │   └── LexoraViewModel.swift   ← ObservableObject (Zustand → @MainActor)
+    │   ├── LexiconData.swift        ← All 18 dictionary entries + helpers
+    │   └── LexiconViewModel.swift   ← ObservableObject (Zustand → @MainActor)
     ├── Components/
-    │   ├── LexoraHeader.swift
+    │   ├── LexiconHeader.swift
     │   ├── Hero.swift
     │   ├── FloatingSearchBar.swift
     │   ├── TrendingTagRow.swift
@@ -235,12 +235,12 @@ native/ios/
 
 ## 6. State management
 
-`LexoraViewModel` is the single source of truth — an `@MainActor ObservableObject`
+`LexiconViewModel` is the single source of truth — an `@MainActor ObservableObject`
 that translates the Zustand store 1:1:
 
 | Zustand state / action    | Swift equivalent                              |
 | ------------------------- | --------------------------------------------- |
-| `activeTab`               | `@Published var activeTab: LexoraTab`         |
+| `activeTab`               | `@Published var activeTab: LexiconTab`         |
 | `selectedWord`            | `@Published var selectedWord: WordEntry?`     |
 | `searchOpen`              | `@Published var searchOpen: Bool`             |
 | `menuOpen`                | `@Published var menuOpen: Bool`               |
@@ -249,7 +249,7 @@ that translates the Zustand store 1:1:
 | `toggleSave` / `isSaved`  | `toggleSave(_:)` / `isSaved(_:)`              |
 | `addRecentSearch`         | `addRecentSearch(_:)`                         |
 | `clearRecentSearches`     | `clearRecentSearches()`                       |
-| `persist` middleware      | `UserDefaults` (keys: `lexora.savedWordIds`, `lexora.recentSearches`) |
+| `persist` middleware      | `UserDefaults` (keys: `lexicon.savedWordIds`, `lexicon.recentSearches`) |
 
 Injected at the App root via `.environmentObject(viewModel)` and read
 in any view with `@EnvironmentObject`.
@@ -264,7 +264,7 @@ The root view orchestrator (`ContentView.swift`) mirrors `src/app/page.tsx`:
 ZStack {
     background                                   // warm cream #FAF3E9
     VStack {
-        LexoraHeader()                           // always rendered
+        LexiconHeader()                           // always rendered
         activeScreen                              // tab-switched
             .transition(.opacity.combined(with: .move(edge: .top)))
     }
@@ -281,7 +281,7 @@ Tabs (mirrors the web `tabMeta` map):
 | `home`         | —                | —                         | `HomeScreen`       |
 | `dictionary`   | Dictionary       | Browse the full lexicon   | `DictionaryScreen` |
 | `collections`  | Collections      | Your saved words          | `CollectionsScreen`|
-| `more`         | Settings         | Make Lexora yours         | `MoreScreen`       |
+| `more`         | Settings         | Make Lexicon yours         | `MoreScreen`       |
 | `search`       | —                | —                         | `HomeScreen` (behind modal) |
 
 ---
@@ -300,7 +300,7 @@ From `src/app/globals.css` — exact hex:
 | `--secondary`      | `#7C9297` | Dusty blue                        |
 | `--card`           | `#FBF4EA` | Card surface                      |
 
-Dark-mode variants live in `LexoraColors` (midnight blue + antique gold).
+Dark-mode variants live in `LexiconColors` (midnight blue + antique gold).
 
 ---
 
@@ -319,8 +319,8 @@ Dark-mode variants live in `LexoraColors` (midnight blue + antique gold).
 ### Fonts not loading
 - Verify all `.ttf` files appear under **Build Phases → Copy Bundle Resources**.
 - Verify `Info.plist`'s `UIAppFonts` array is uncommented.
-- If `LexoraFont.customFontsAvailable` returns `false`, the PostScript names
-  in `LexoraTypography.swift` may need updating — open the `.ttf` in Font Book
+- If `LexiconFont.customFontsAvailable` returns `false`, the PostScript names
+  in `LexiconTypography.swift` may need updating — open the `.ttf` in Font Book
   (macOS) to find the exact PostScript name.
 
 ### `.sheet` / `SearchModal` not appearing

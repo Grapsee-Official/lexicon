@@ -1,5 +1,5 @@
 # =============================================================================
-#  cmake/iOS.cmake — iOS build configuration for lexora-engine.
+#  cmake/iOS.cmake — iOS build configuration for lexicon-engine.
 #
 #  Loaded by the root CMakeLists when TARGET_IOS=ON (or when
 #  cmake/Toolchain-iOS.cmake has already set CMAKE_SYSTEM_NAME=iOS).
@@ -9,10 +9,10 @@
 #    * Force CMAKE_OSX_ARCHITECTURES=arm64 (no x86_64 simulator slice here)
 #    * Locate iphoneos SDK via xcrun
 #    * Bitcode: disabled per Xcode 14+; use -fembed-bitcode-marker for thinning
-#    * Expose lexora_make_ios_framework(<target>) which configures the target
-#      as LexoraEngine.framework
+#    * Expose lexicon_make_ios_framework(<target>) which configures the target
+#      as LexiconEngine.framework
 #
-#  Output: LexoraEngine.framework  (static binary inside, BUILD_SHARED_LIBS=OFF)
+#  Output: LexiconEngine.framework  (static binary inside, BUILD_SHARED_LIBS=OFF)
 # =============================================================================
 include_guard(GLOBAL)
 
@@ -61,23 +61,23 @@ message(STATUS "iOS sysroot:            ${CMAKE_OSX_SYSROOT}")
 # -----------------------------------------------------------------------------
 # Use the marker so App Store thinning still has sizing information, but do NOT
 # emit full bitcode (ENABLE_BITCODE=NO at the Xcode level).
-set(LEXORA_IOS_BITCODE_FLAGS "-fembed-bitcode-marker")
+set(LEXICON_IOS_BITCODE_FLAGS "-fembed-bitcode-marker")
 
 # Framework naming — must match the Java/JNI side (Android .so) and the Swift
 # wrapper in the iOS app.
-set(LEXORA_IOS_FRAMEWORK_NAME "LexoraEngine")
+set(LEXICON_IOS_FRAMEWORK_NAME "LexiconEngine")
 
 # -----------------------------------------------------------------------------
-# lexora_make_ios_framework(<target>)
+# lexicon_make_ios_framework(<target>)
 #
-# Configures <target> as LexoraEngine.framework. The actual FRAMEWORK property
-# is also set by the root CMakeLists (in the LEXORA_BUILD_FRAMEWORK branch);
+# Configures <target> as LexiconEngine.framework. The actual FRAMEWORK property
+# is also set by the root CMakeLists (in the LEXICON_BUILD_FRAMEWORK branch);
 # this function adds the iOS-specific Xcode attributes that cannot live in the
 # root file (they only make sense when targeting iOS).
 # -----------------------------------------------------------------------------
-function(lexora_make_ios_framework _target)
+function(lexicon_make_ios_framework _target)
     set_target_properties(${_target} PROPERTIES
-        OUTPUT_NAME                     "${LEXORA_IOS_FRAMEWORK_NAME}"
+        OUTPUT_NAME                     "${LEXICON_IOS_FRAMEWORK_NAME}"
         XCODE_ATTRIBUTE_ENABLE_BITCODE  "NO"
         XCODE_ATTRIBUTE_BITCODE_GENERATION_MODE "marker"
         XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET "${CMAKE_OSX_DEPLOYMENT_TARGET}"
@@ -85,6 +85,6 @@ function(lexora_make_ios_framework _target)
         XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY "1,2"     # iPhone + iPad
         XCODE_ATTRIBUTE_CODE_SIGNING_REQUIRED "NO"
         XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY  "")
-    message(STATUS "Configured ${_target} as ${LEXORA_IOS_FRAMEWORK_NAME}.framework "
+    message(STATUS "Configured ${_target} as ${LEXICON_IOS_FRAMEWORK_NAME}.framework "
                    "(arm64, iOS ${CMAKE_OSX_DEPLOYMENT_TARGET}, bitcode=NO marker)")
 endfunction()

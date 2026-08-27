@@ -20,14 +20,14 @@
 //   * ::testing::InitGoogleTest, RUN_ALL_TESTS.
 //
 // Usage:
-//   g++ -std=c++17 -pthread -Iinclude -Itests -DLEXORA_USE_GTEST_LITE_MAIN
+//   g++ -std=c++17 -pthread -Iinclude -Itests -DLEXICON_USE_GTEST_LITE_MAIN
 //       tests/test_hash_table.cpp src/hash_table.cpp -o test_hash_table
 //
 // This file is a TEST-ONLY helper. The CMake build (cmake/HashTable.cmake)
-// uses real GoogleTest via FetchContent when LEXORA_HASH_TABLE_BUILD_TESTS=ON.
+// uses real GoogleTest via FetchContent when LEXICON_HASH_TABLE_BUILD_TESTS=ON.
 
-#ifndef LEXORA_GTEST_LITE_HPP
-#define LEXORA_GTEST_LITE_HPP
+#ifndef LEXICON_GTEST_LITE_HPP
+#define LEXICON_GTEST_LITE_HPP
 
 #include <cstdio>
 #include <cstdlib>
@@ -39,7 +39,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace lexora_test_lite {
+namespace lexicon_test_lite {
 
 struct TestCase {
     const char* suite;
@@ -240,7 +240,7 @@ inline StreamingCheck make_false(const char* file, int line, bool abort,
             std::string("EXPECT_FALSE(") + expr_str + ") failed"};
 }
 
-}  // namespace lexora_test_lite
+}  // namespace lexicon_test_lite
 
 // ============================================================================
 // Public macros. Names match GoogleTest exactly so the same test source
@@ -252,7 +252,7 @@ inline StreamingCheck make_false(const char* file, int line, bool abort,
     namespace {                                                              \
     struct suite##_##name##_registrar {                                      \
         suite##_##name##_registrar() {                                       \
-            ::lexora_test_lite::Registrar(                                   \
+            ::lexicon_test_lite::Registrar(                                   \
                 #suite, #name, &suite##_##name##_impl);                      \
         }                                                                    \
     } reg_##suite##_##name;                                                  \
@@ -260,54 +260,54 @@ inline StreamingCheck make_false(const char* file, int line, bool abort,
     static void suite##_##name##_impl()
 
 #define EXPECT_TRUE(cond)                                                    \
-    ::lexora_test_lite::make_true(__FILE__, __LINE__, /*abort=*/false,       \
+    ::lexicon_test_lite::make_true(__FILE__, __LINE__, /*abort=*/false,       \
                                   #cond, static_cast<bool>(cond))
 #define EXPECT_FALSE(cond)                                                   \
-    ::lexora_test_lite::make_false(__FILE__, __LINE__, /*abort=*/false,      \
+    ::lexicon_test_lite::make_false(__FILE__, __LINE__, /*abort=*/false,      \
                                    #cond, static_cast<bool>(cond))
 
 #define EXPECT_EQ(a, b)                                                      \
-    ::lexora_test_lite::make_eq(__FILE__, __LINE__, /*abort=*/false,         \
+    ::lexicon_test_lite::make_eq(__FILE__, __LINE__, /*abort=*/false,         \
                                 #a, #b, (a), (b))
 #define EXPECT_NE(a, b)                                                      \
-    ::lexora_test_lite::make_ne(__FILE__, __LINE__, /*abort=*/false,         \
+    ::lexicon_test_lite::make_ne(__FILE__, __LINE__, /*abort=*/false,         \
                                 #a, #b, (a), (b))
 #define EXPECT_LT(a, b)                                                      \
-    ::lexora_test_lite::make_lt(__FILE__, __LINE__, /*abort=*/false,         \
+    ::lexicon_test_lite::make_lt(__FILE__, __LINE__, /*abort=*/false,         \
                                 #a, #b, (a), (b))
 #define EXPECT_LE(a, b)                                                      \
-    ::lexora_test_lite::make_le(__FILE__, __LINE__, /*abort=*/false,         \
+    ::lexicon_test_lite::make_le(__FILE__, __LINE__, /*abort=*/false,         \
                                 #a, #b, (a), (b))
 #define EXPECT_GT(a, b)                                                      \
-    ::lexora_test_lite::make_gt(__FILE__, __LINE__, /*abort=*/false,         \
+    ::lexicon_test_lite::make_gt(__FILE__, __LINE__, /*abort=*/false,         \
                                 #a, #b, (a), (b))
 #define EXPECT_GE(a, b)                                                      \
-    ::lexora_test_lite::make_ge(__FILE__, __LINE__, /*abort=*/false,         \
+    ::lexicon_test_lite::make_ge(__FILE__, __LINE__, /*abort=*/false,         \
                                 #a, #b, (a), (b))
 
 #define ASSERT_TRUE(cond)                                                    \
-    ::lexora_test_lite::make_true(__FILE__, __LINE__, /*abort=*/true,        \
+    ::lexicon_test_lite::make_true(__FILE__, __LINE__, /*abort=*/true,        \
                                   #cond, static_cast<bool>(cond))
 #define ASSERT_FALSE(cond)                                                   \
-    ::lexora_test_lite::make_false(__FILE__, __LINE__, /*abort=*/true,       \
+    ::lexicon_test_lite::make_false(__FILE__, __LINE__, /*abort=*/true,       \
                                    #cond, static_cast<bool>(cond))
 #define ASSERT_EQ(a, b)                                                      \
-    ::lexora_test_lite::make_eq(__FILE__, __LINE__, /*abort=*/true,          \
+    ::lexicon_test_lite::make_eq(__FILE__, __LINE__, /*abort=*/true,          \
                                 #a, #b, (a), (b))
 #define ASSERT_NE(a, b)                                                      \
-    ::lexora_test_lite::make_ne(__FILE__, __LINE__, /*abort=*/true,          \
+    ::lexicon_test_lite::make_ne(__FILE__, __LINE__, /*abort=*/true,          \
                                 #a, #b, (a), (b))
 #define ASSERT_LT(a, b)                                                      \
-    ::lexora_test_lite::make_lt(__FILE__, __LINE__, /*abort=*/true,          \
+    ::lexicon_test_lite::make_lt(__FILE__, __LINE__, /*abort=*/true,          \
                                 #a, #b, (a), (b))
 #define ASSERT_LE(a, b)                                                      \
-    ::lexora_test_lite::make_le(__FILE__, __LINE__, /*abort=*/true,          \
+    ::lexicon_test_lite::make_le(__FILE__, __LINE__, /*abort=*/true,          \
                                 #a, #b, (a), (b))
 #define ASSERT_GT(a, b)                                                      \
-    ::lexora_test_lite::make_gt(__FILE__, __LINE__, /*abort=*/true,          \
+    ::lexicon_test_lite::make_gt(__FILE__, __LINE__, /*abort=*/true,          \
                                 #a, #b, (a), (b))
 #define ASSERT_GE(a, b)                                                      \
-    ::lexora_test_lite::make_ge(__FILE__, __LINE__, /*abort=*/true,          \
+    ::lexicon_test_lite::make_ge(__FILE__, __LINE__, /*abort=*/true,          \
                                 #a, #b, (a), (b))
 
 // Pointer-null checks are intentionally NOT provided as bespoke macros --
@@ -321,7 +321,7 @@ inline StreamingCheck make_false(const char* file, int line, bool abort,
         const char* _sb = (b);                                               \
         bool _ok = (_sa != nullptr && _sb != nullptr &&                      \
                     std::string(_sa) == std::string(_sb));                   \
-        ::lexora_test_lite::StreamingCheck(                                  \
+        ::lexicon_test_lite::StreamingCheck(                                  \
             __FILE__, __LINE__, _ok, /*abort=*/false,                        \
             std::string("EXPECT_STREQ(" #a ", " #b                           \
                         ") failed: expected=\"") +                           \
@@ -332,7 +332,7 @@ inline StreamingCheck make_false(const char* file, int line, bool abort,
 // ----- GoogleTest compatibility namespace ---------------------------------
 namespace testing {
 inline void InitGoogleTest(int*, char**) { /* no-op */ }
-inline int RUN_ALL_TESTS() { return ::lexora_test_lite::run_all(); }
+inline int RUN_ALL_TESTS() { return ::lexicon_test_lite::run_all(); }
 }  // namespace testing
 
 // Real gtest exposes RUN_ALL_TESTS() as a global macro that dispatches into
@@ -340,4 +340,4 @@ inline int RUN_ALL_TESTS() { return ::lexora_test_lite::run_all(); }
 // against either implementation.
 #define RUN_ALL_TESTS() ::testing::RUN_ALL_TESTS()
 
-#endif  // LEXORA_GTEST_LITE_HPP
+#endif  // LEXICON_GTEST_LITE_HPP

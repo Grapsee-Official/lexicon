@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Lexora</string>
+    <string name="app_name">Lexicon</string>
 
     <!-- Brand -->
-    <string name="brand_wordmark">Lexora</string>
+    <string name="brand_wordmark">Lexicon</string>
     <string name="brand_tagline">Words. Wisdom. Worlds.</string>
 
     <!-- Hero -->

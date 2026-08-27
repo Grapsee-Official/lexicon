@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/z/my-project/native/cpp/src/hash_table.cpp" "CMakeFiles/lexora_hash_table_obj.dir/src/hash_table.cpp.o" "gcc" "CMakeFiles/lexora_hash_table_obj.dir/src/hash_table.cpp.o.d"
+  "/home/z/my-project/native/cpp/src/hash_table.cpp" "CMakeFiles/lexicon_hash_table_obj.dir/src/hash_table.cpp.o" "gcc" "CMakeFiles/lexicon_hash_table_obj.dir/src/hash_table.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

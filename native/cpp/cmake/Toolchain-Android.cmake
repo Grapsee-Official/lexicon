@@ -53,11 +53,11 @@ endif()
 
 # Validate ABI against the project whitelist before forwarding to the NDK
 # toolchain (the NDK would also catch this, but with a less informative error).
-set(_LEXORA_ANDROID_ABIS "arm64-v8a;armeabi-v7a;x86_64")
-if(NOT ANDROID_ABI IN_LIST _LEXORA_ANDROID_ABIS)
+set(_LEXICON_ANDROID_ABIS "arm64-v8a;armeabi-v7a;x86_64")
+if(NOT ANDROID_ABI IN_LIST _LEXICON_ANDROID_ABIS)
     message(FATAL_ERROR
         "Unsupported ANDROID_ABI='${ANDROID_ABI}'.\n"
-        "Must be one of: ${_LEXORA_ANDROID_ABIS}")
+        "Must be one of: ${_LEXICON_ANDROID_ABIS}")
 endif()
 
 if(NOT ANDROID_PLATFORM)

@@ -13,7 +13,7 @@
                 3A0000000000000000000003 /* CategoryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000003 /* CategoryCard.swift */; };
                 3A0000000000000000000004 /* FloatingSearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000004 /* FloatingSearchBar.swift */; };
                 3A0000000000000000000005 /* Hero.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000005 /* Hero.swift */; };
-                3A0000000000000000000006 /* LexoraHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000006 /* LexoraHeader.swift */; };
+                3A0000000000000000000006 /* LexiconHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000006 /* LexiconHeader.swift */; };
                 3A0000000000000000000007 /* SectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000007 /* SectionHeader.swift */; };
                 3A0000000000000000000008 /* TrendingTagRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000008 /* TrendingTagRow.swift */; };
                 3A0000000000000000000009 /* WordDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000009 /* WordDetailSheet.swift */; };
@@ -23,19 +23,19 @@
                 3A0000000000000000000011 /* DictionaryScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000011 /* DictionaryScreen.swift */; };
                 3A0000000000000000000012 /* CollectionsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000012 /* CollectionsScreen.swift */; };
                 3A0000000000000000000013 /* MoreScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000013 /* MoreScreen.swift */; };
-                3A0000000000000000000020 /* LexoraData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000020 /* LexoraData.swift */; };
-                3A0000000000000000000021 /* LexoraViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000021 /* LexoraViewModel.swift */; };
-                3A0000000000000000000030 /* LexoraModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000030 /* LexoraModels.swift */; };
-                3A0000000000000000000040 /* LexoraColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000040 /* LexoraColors.swift */; };
-                3A0000000000000000000041 /* LexoraTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000041 /* LexoraTheme.swift */; };
-                3A0000000000000000000042 /* LexoraTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000042 /* LexoraTypography.swift */; };
-                3A0000000000000000000050 /* LexoraApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000050 /* LexoraApp.swift */; };
+                3A0000000000000000000020 /* LexiconData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000020 /* LexiconData.swift */; };
+                3A0000000000000000000021 /* LexiconViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000021 /* LexiconViewModel.swift */; };
+                3A0000000000000000000030 /* LexiconModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000030 /* LexiconModels.swift */; };
+                3A0000000000000000000040 /* LexiconColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000040 /* LexiconColors.swift */; };
+                3A0000000000000000000041 /* LexiconTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000041 /* LexiconTheme.swift */; };
+                3A0000000000000000000042 /* LexiconTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000042 /* LexiconTypography.swift */; };
+                3A0000000000000000000050 /* LexiconApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000050 /* LexiconApp.swift */; };
                 3A0000000000000000000051 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000051 /* ContentView.swift */; };
 /* Swift sources — Engine */
-                3A0000000000000000000060 /* LexoraEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000060 /* LexoraEngine.swift */; };
-                3A0000000000000000000061 /* LexoraEditMenuInteraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000061 /* LexoraEditMenuInteraction.swift */; };
-                3A0000000000000000000062 /* LexoraBackgroundTaskHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000062 /* LexoraBackgroundTaskHandler.swift */; };
-                3A0000000000000000000063 /* LexoraColdStartOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000063 /* LexoraColdStartOptimizer.swift */; };
+                3A0000000000000000000060 /* LexiconEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000060 /* LexiconEngine.swift */; };
+                3A0000000000000000000061 /* LexiconEditMenuInteraction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000061 /* LexiconEditMenuInteraction.swift */; };
+                3A0000000000000000000062 /* LexiconBackgroundTaskHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000062 /* LexiconBackgroundTaskHandler.swift */; };
+                3A0000000000000000000063 /* LexiconColdStartOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000063 /* LexiconColdStartOptimizer.swift */; };
 /* PNG resources */
                 5A0000000000000000000001 /* article-1.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A0000000000000000000001 /* article-1.png */; };
                 5A0000000000000000000002 /* article-2.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A0000000000000000000002 /* article-2.png */; };
@@ -47,12 +47,12 @@
                 5A0000000000000000000008 /* cat-vocabulary.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A0000000000000000000008 /* cat-vocabulary.png */; };
                 5A0000000000000000000009 /* hero-dark.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A0000000000000000000009 /* hero-dark.png */; };
                 5A000000000000000000000A /* hero-light.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A000000000000000000000A /* hero-light.png */; };
-                5A000000000000000000000B /* lexora-countryside.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A000000000000000000000B /* lexora-countryside.png */; };
-                5A000000000000000000000C /* lexora-countryside@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A000000000000000000000C /* lexora-countryside@2x.png */; };
-                5A000000000000000000000D /* lexora-countryside@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A000000000000000000000D /* lexora-countryside@3x.png */; };
-                5A000000000000000000000E /* lexora-mark.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A000000000000000000000E /* lexora-mark.png */; };
-                5A000000000000000000000F /* lexora-mark@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A000000000000000000000F /* lexora-mark@2x.png */; };
-                5A0000000000000000000010 /* lexora-mark@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A0000000000000000000010 /* lexora-mark@3x.png */; };
+                5A000000000000000000000B /* lexicon-countryside.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A000000000000000000000B /* lexicon-countryside.png */; };
+                5A000000000000000000000C /* lexicon-countryside@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A000000000000000000000C /* lexicon-countryside@2x.png */; };
+                5A000000000000000000000D /* lexicon-countryside@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A000000000000000000000D /* lexicon-countryside@3x.png */; };
+                5A000000000000000000000E /* lexicon-mark.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A000000000000000000000E /* lexicon-mark.png */; };
+                5A000000000000000000000F /* lexicon-mark@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A000000000000000000000F /* lexicon-mark@2x.png */; };
+                5A0000000000000000000010 /* lexicon-mark@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A0000000000000000000010 /* lexicon-mark@3x.png */; };
                 5A0000000000000000000011 /* paper-texture.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A0000000000000000000011 /* paper-texture.png */; };
                 5A0000000000000000000012 /* wotd-bg-dark.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A0000000000000000000012 /* wotd-bg-dark.png */; };
                 5A0000000000000000000013 /* wotd-bg-light.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A0000000000000000000013 /* wotd-bg-light.png */; };
@@ -60,7 +60,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-                1A0000000000000000000015 /* Lexora.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lexora.app; sourceTree = BUILT_PRODUCTS_DIR; };
+                1A0000000000000000000015 /* Lexicon.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lexicon.app; sourceTree = BUILT_PRODUCTS_DIR; };
                 1A0000000000000000000016 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
                 1A0000000000000000000017 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* Swift sources — Components */
@@ -69,7 +69,7 @@
                 2A0000000000000000000003 /* CategoryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryCard.swift; sourceTree = "<group>"; };
                 2A0000000000000000000004 /* FloatingSearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingSearchBar.swift; sourceTree = "<group>"; };
                 2A0000000000000000000005 /* Hero.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Hero.swift; sourceTree = "<group>"; };
-                2A0000000000000000000006 /* LexoraHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexoraHeader.swift; sourceTree = "<group>"; };
+                2A0000000000000000000006 /* LexiconHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexiconHeader.swift; sourceTree = "<group>"; };
                 2A0000000000000000000007 /* SectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionHeader.swift; sourceTree = "<group>"; };
                 2A0000000000000000000008 /* TrendingTagRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendingTagRow.swift; sourceTree = "<group>"; };
                 2A0000000000000000000009 /* WordDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDetailSheet.swift; sourceTree = "<group>"; };
@@ -81,22 +81,22 @@
                 2A0000000000000000000012 /* CollectionsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionsScreen.swift; sourceTree = "<group>"; };
                 2A0000000000000000000013 /* MoreScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreScreen.swift; sourceTree = "<group>"; };
 /* Swift sources — Data */
-                2A0000000000000000000020 /* LexoraData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexoraData.swift; sourceTree = "<group>"; };
-                2A0000000000000000000021 /* LexoraViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexoraViewModel.swift; sourceTree = "<group>"; };
+                2A0000000000000000000020 /* LexiconData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexiconData.swift; sourceTree = "<group>"; };
+                2A0000000000000000000021 /* LexiconViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexiconViewModel.swift; sourceTree = "<group>"; };
 /* Swift sources — Models */
-                2A0000000000000000000030 /* LexoraModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexoraModels.swift; sourceTree = "<group>"; };
+                2A0000000000000000000030 /* LexiconModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexiconModels.swift; sourceTree = "<group>"; };
 /* Swift sources — Theme */
-                2A0000000000000000000040 /* LexoraColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexoraColors.swift; sourceTree = "<group>"; };
-                2A0000000000000000000041 /* LexoraTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexoraTheme.swift; sourceTree = "<group>"; };
-                2A0000000000000000000042 /* LexoraTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexoraTypography.swift; sourceTree = "<group>"; };
-/* Swift sources — Lexora root */
-                2A0000000000000000000050 /* LexoraApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexoraApp.swift; sourceTree = "<group>"; };
+                2A0000000000000000000040 /* LexiconColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexiconColors.swift; sourceTree = "<group>"; };
+                2A0000000000000000000041 /* LexiconTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexiconTheme.swift; sourceTree = "<group>"; };
+                2A0000000000000000000042 /* LexiconTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexiconTypography.swift; sourceTree = "<group>"; };
+/* Swift sources — Lexicon root */
+                2A0000000000000000000050 /* LexiconApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexiconApp.swift; sourceTree = "<group>"; };
                 2A0000000000000000000051 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 /* Swift sources — Engine */
-                2A0000000000000000000060 /* LexoraEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexoraEngine.swift; sourceTree = "<group>"; };
-                2A0000000000000000000061 /* LexoraEditMenuInteraction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexoraEditMenuInteraction.swift; sourceTree = "<group>"; };
-                2A0000000000000000000062 /* LexoraBackgroundTaskHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexoraBackgroundTaskHandler.swift; sourceTree = "<group>"; };
-                2A0000000000000000000063 /* LexoraColdStartOptimizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexoraColdStartOptimizer.swift; sourceTree = "<group>"; };
+                2A0000000000000000000060 /* LexiconEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexiconEngine.swift; sourceTree = "<group>"; };
+                2A0000000000000000000061 /* LexiconEditMenuInteraction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexiconEditMenuInteraction.swift; sourceTree = "<group>"; };
+                2A0000000000000000000062 /* LexiconBackgroundTaskHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexiconBackgroundTaskHandler.swift; sourceTree = "<group>"; };
+                2A0000000000000000000063 /* LexiconColdStartOptimizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexiconColdStartOptimizer.swift; sourceTree = "<group>"; };
 /* PNG resources */
                 4A0000000000000000000001 /* article-1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "article-1.png"; sourceTree = "<group>"; };
                 4A0000000000000000000002 /* article-2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "article-2.png"; sourceTree = "<group>"; };
@@ -108,12 +108,12 @@
                 4A0000000000000000000008 /* cat-vocabulary.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cat-vocabulary.png"; sourceTree = "<group>"; };
                 4A0000000000000000000009 /* hero-dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "hero-dark.png"; sourceTree = "<group>"; };
                 4A000000000000000000000A /* hero-light.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "hero-light.png"; sourceTree = "<group>"; };
-                4A000000000000000000000B /* lexora-countryside.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "lexora-countryside.png"; sourceTree = "<group>"; };
-                4A000000000000000000000C /* lexora-countryside@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "lexora-countryside@2x.png"; sourceTree = "<group>"; };
-                4A000000000000000000000D /* lexora-countryside@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "lexora-countryside@3x.png"; sourceTree = "<group>"; };
-                4A000000000000000000000E /* lexora-mark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "lexora-mark.png"; sourceTree = "<group>"; };
-                4A000000000000000000000F /* lexora-mark@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "lexora-mark@2x.png"; sourceTree = "<group>"; };
-                4A0000000000000000000010 /* lexora-mark@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "lexora-mark@3x.png"; sourceTree = "<group>"; };
+                4A000000000000000000000B /* lexicon-countryside.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "lexicon-countryside.png"; sourceTree = "<group>"; };
+                4A000000000000000000000C /* lexicon-countryside@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "lexicon-countryside@2x.png"; sourceTree = "<group>"; };
+                4A000000000000000000000D /* lexicon-countryside@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "lexicon-countryside@3x.png"; sourceTree = "<group>"; };
+                4A000000000000000000000E /* lexicon-mark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "lexicon-mark.png"; sourceTree = "<group>"; };
+                4A000000000000000000000F /* lexicon-mark@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "lexicon-mark@2x.png"; sourceTree = "<group>"; };
+                4A0000000000000000000010 /* lexicon-mark@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "lexicon-mark@3x.png"; sourceTree = "<group>"; };
                 4A0000000000000000000011 /* paper-texture.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "paper-texture.png"; sourceTree = "<group>"; };
                 4A0000000000000000000012 /* wotd-bg-dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "wotd-bg-dark.png"; sourceTree = "<group>"; };
                 4A0000000000000000000013 /* wotd-bg-light.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "wotd-bg-light.png"; sourceTree = "<group>"; };
@@ -133,7 +133,7 @@
                 1A0000000000000000000002 /* = */ = {
                         isa = PBXGroup;
                         children = (
-                                1A0000000000000000000003 /* Lexora */,
+                                1A0000000000000000000003 /* Lexicon */,
                                 1A000000000000000000000A /* Products */,
                         );
                         sourceTree = "<group>";
@@ -141,15 +141,15 @@
                 1A000000000000000000000A /* Products */ = {
                         isa = PBXGroup;
                         children = (
-                                1A0000000000000000000015 /* Lexora.app */,
+                                1A0000000000000000000015 /* Lexicon.app */,
                         );
                         name = Products;
                         sourceTree = "<group>";
                 };
-                1A0000000000000000000003 /* Lexora */ = {
+                1A0000000000000000000003 /* Lexicon */ = {
                         isa = PBXGroup;
                         children = (
-                                2A0000000000000000000050 /* LexoraApp.swift */,
+                                2A0000000000000000000050 /* LexiconApp.swift */,
                                 2A0000000000000000000051 /* ContentView.swift */,
                                 1A0000000000000000000016 /* Info.plist */,
                                 1A0000000000000000000017 /* Assets.xcassets */,
@@ -161,13 +161,13 @@
                                 1A0000000000000000000009 /* Resources */,
                                 1A0000000000000000000019 /* Engine */,
                         );
-                        path = Lexora;
+                        path = Lexicon;
                         sourceTree = "<group>";
                 };
                 1A0000000000000000000004 /* Components */ = {
                         isa = PBXGroup;
                         children = (
-                                2A0000000000000000000006 /* LexoraHeader.swift */,
+                                2A0000000000000000000006 /* LexiconHeader.swift */,
                                 2A0000000000000000000005 /* Hero.swift */,
                                 2A0000000000000000000004 /* FloatingSearchBar.swift */,
                                 2A0000000000000000000008 /* TrendingTagRow.swift */,
@@ -196,8 +196,8 @@
                 1A0000000000000000000006 /* Data */ = {
                         isa = PBXGroup;
                         children = (
-                                2A0000000000000000000020 /* LexoraData.swift */,
-                                2A0000000000000000000021 /* LexoraViewModel.swift */,
+                                2A0000000000000000000020 /* LexiconData.swift */,
+                                2A0000000000000000000021 /* LexiconViewModel.swift */,
                         );
                         path = Data;
                         sourceTree = "<group>";
@@ -205,7 +205,7 @@
                 1A0000000000000000000007 /* Models */ = {
                         isa = PBXGroup;
                         children = (
-                                2A0000000000000000000030 /* LexoraModels.swift */,
+                                2A0000000000000000000030 /* LexiconModels.swift */,
                         );
                         path = Models;
                         sourceTree = "<group>";
@@ -213,9 +213,9 @@
                 1A0000000000000000000008 /* Theme */ = {
                         isa = PBXGroup;
                         children = (
-                                2A0000000000000000000040 /* LexoraColors.swift */,
-                                2A0000000000000000000041 /* LexoraTheme.swift */,
-                                2A0000000000000000000042 /* LexoraTypography.swift */,
+                                2A0000000000000000000040 /* LexiconColors.swift */,
+                                2A0000000000000000000041 /* LexiconTheme.swift */,
+                                2A0000000000000000000042 /* LexiconTypography.swift */,
                         );
                         path = Theme;
                         sourceTree = "<group>";
@@ -223,12 +223,12 @@
                 1A0000000000000000000009 /* Resources */ = {
                         isa = PBXGroup;
                         children = (
-                                4A000000000000000000000E /* lexora-mark.png */,
-                                4A000000000000000000000F /* lexora-mark@2x.png */,
-                                4A0000000000000000000010 /* lexora-mark@3x.png */,
-                                4A000000000000000000000B /* lexora-countryside.png */,
-                                4A000000000000000000000C /* lexora-countryside@2x.png */,
-                                4A000000000000000000000D /* lexora-countryside@3x.png */,
+                                4A000000000000000000000E /* lexicon-mark.png */,
+                                4A000000000000000000000F /* lexicon-mark@2x.png */,
+                                4A0000000000000000000010 /* lexicon-mark@3x.png */,
+                                4A000000000000000000000B /* lexicon-countryside.png */,
+                                4A000000000000000000000C /* lexicon-countryside@2x.png */,
+                                4A000000000000000000000D /* lexicon-countryside@3x.png */,
                                 4A0000000000000000000013 /* wotd-bg-light.png */,
                                 4A0000000000000000000012 /* wotd-bg-dark.png */,
                                 4A0000000000000000000008 /* cat-vocabulary.png */,
@@ -249,10 +249,10 @@
                 1A0000000000000000000019 /* Engine */ = {
                         isa = PBXGroup;
                         children = (
-                                2A0000000000000000000060 /* LexoraEngine.swift */,
-                                2A0000000000000000000061 /* LexoraEditMenuInteraction.swift */,
-                                2A0000000000000000000062 /* LexoraBackgroundTaskHandler.swift */,
-                                2A0000000000000000000063 /* LexoraColdStartOptimizer.swift */,
+                                2A0000000000000000000060 /* LexiconEngine.swift */,
+                                2A0000000000000000000061 /* LexiconEditMenuInteraction.swift */,
+                                2A0000000000000000000062 /* LexiconBackgroundTaskHandler.swift */,
+                                2A0000000000000000000063 /* LexiconColdStartOptimizer.swift */,
                         );
                         path = Engine;
                         sourceTree = "<group>";
@@ -260,9 +260,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-                1A000000000000000000000B /* Lexora */ = {
+                1A000000000000000000000B /* Lexicon */ = {
                         isa = PBXNativeTarget;
-                        buildConfigurationList = 1A0000000000000000000010 /* Build configuration list for PBXNativeTarget "Lexora" */;
+                        buildConfigurationList = 1A0000000000000000000010 /* Build configuration list for PBXNativeTarget "Lexicon" */;
                         buildPhases = (
                                 1A000000000000000000000C /* Sources */,
                                 1A000000000000000000000D /* Frameworks */,
@@ -272,9 +272,9 @@
                         );
                         dependencies = (
                         );
-                        name = Lexora;
-                        productName = Lexora;
-                        productReference = 1A0000000000000000000015 /* Lexora.app */;
+                        name = Lexicon;
+                        productName = Lexicon;
+                        productReference = 1A0000000000000000000015 /* Lexicon.app */;
                         productType = "com.apple.product-type.application";
                 };
 /* End PBXNativeTarget section */
@@ -292,7 +292,7 @@
                                         };
                                 };
                         };
-                        buildConfigurationList = 1A000000000000000000000F /* Build configuration list for PBXProject "Lexora" */;
+                        buildConfigurationList = 1A000000000000000000000F /* Build configuration list for PBXProject "Lexicon" */;
                         compatibilityVersion = "Xcode 14.0";
                         developmentRegion = en;
                         hasScannedForEncodings = 0;
@@ -305,7 +305,7 @@
                         projectDirPath = "";
                         projectRoot = "";
                         targets = (
-                                1A000000000000000000000B /* Lexora */,
+                                1A000000000000000000000B /* Lexicon */,
                         );
                 };
 /* End PBXProject section */
@@ -326,12 +326,12 @@
                                 5A0000000000000000000008 /* cat-vocabulary.png in Resources */,
                                 5A0000000000000000000009 /* hero-dark.png in Resources */,
                                 5A000000000000000000000A /* hero-light.png in Resources */,
-                                5A000000000000000000000B /* lexora-countryside.png in Resources */,
-                                5A000000000000000000000C /* lexora-countryside@2x.png in Resources */,
-                                5A000000000000000000000D /* lexora-countryside@3x.png in Resources */,
-                                5A000000000000000000000E /* lexora-mark.png in Resources */,
-                                5A000000000000000000000F /* lexora-mark@2x.png in Resources */,
-                                5A0000000000000000000010 /* lexora-mark@3x.png in Resources */,
+                                5A000000000000000000000B /* lexicon-countryside.png in Resources */,
+                                5A000000000000000000000C /* lexicon-countryside@2x.png in Resources */,
+                                5A000000000000000000000D /* lexicon-countryside@3x.png in Resources */,
+                                5A000000000000000000000E /* lexicon-mark.png in Resources */,
+                                5A000000000000000000000F /* lexicon-mark@2x.png in Resources */,
+                                5A0000000000000000000010 /* lexicon-mark@3x.png in Resources */,
                                 5A0000000000000000000011 /* paper-texture.png in Resources */,
                                 5A0000000000000000000012 /* wotd-bg-dark.png in Resources */,
                                 5A0000000000000000000013 /* wotd-bg-light.png in Resources */,
@@ -345,9 +345,9 @@
                         isa = PBXSourcesBuildPhase;
                         buildActionMask = 2147483647;
                         files = (
-                                3A0000000000000000000050 /* LexoraApp.swift in Sources */,
+                                3A0000000000000000000050 /* LexiconApp.swift in Sources */,
                                 3A0000000000000000000051 /* ContentView.swift in Sources */,
-                                3A0000000000000000000006 /* LexoraHeader.swift in Sources */,
+                                3A0000000000000000000006 /* LexiconHeader.swift in Sources */,
                                 3A0000000000000000000005 /* Hero.swift in Sources */,
                                 3A0000000000000000000004 /* FloatingSearchBar.swift in Sources */,
                                 3A0000000000000000000008 /* TrendingTagRow.swift in Sources */,
@@ -362,16 +362,16 @@
                                 3A0000000000000000000011 /* DictionaryScreen.swift in Sources */,
                                 3A0000000000000000000012 /* CollectionsScreen.swift in Sources */,
                                 3A0000000000000000000013 /* MoreScreen.swift in Sources */,
-                                3A0000000000000000000020 /* LexoraData.swift in Sources */,
-                                3A0000000000000000000021 /* LexoraViewModel.swift in Sources */,
-                                3A0000000000000000000030 /* LexoraModels.swift in Sources */,
-                                3A0000000000000000000040 /* LexoraColors.swift in Sources */,
-                                3A0000000000000000000041 /* LexoraTheme.swift in Sources */,
-                                3A0000000000000000000042 /* LexoraTypography.swift in Sources */,
-                                3A0000000000000000000060 /* LexoraEngine.swift in Sources */,
-                                3A0000000000000000000061 /* LexoraEditMenuInteraction.swift in Sources */,
-                                3A0000000000000000000062 /* LexoraBackgroundTaskHandler.swift in Sources */,
-                                3A0000000000000000000063 /* LexoraColdStartOptimizer.swift in Sources */,
+                                3A0000000000000000000020 /* LexiconData.swift in Sources */,
+                                3A0000000000000000000021 /* LexiconViewModel.swift in Sources */,
+                                3A0000000000000000000030 /* LexiconModels.swift in Sources */,
+                                3A0000000000000000000040 /* LexiconColors.swift in Sources */,
+                                3A0000000000000000000041 /* LexiconTheme.swift in Sources */,
+                                3A0000000000000000000042 /* LexiconTypography.swift in Sources */,
+                                3A0000000000000000000060 /* LexiconEngine.swift in Sources */,
+                                3A0000000000000000000061 /* LexiconEditMenuInteraction.swift in Sources */,
+                                3A0000000000000000000062 /* LexiconBackgroundTaskHandler.swift in Sources */,
+                                3A0000000000000000000063 /* LexiconColdStartOptimizer.swift in Sources */,
                         );
                         runOnlyForDeploymentPostprocessing = 0;
                 };
@@ -504,12 +504,12 @@
                                 GENERATE_INFOPLIST_FILE = NO;
                                 HEADER_SEARCH_PATHS = (
                                         "$(inherited)",
-                                        "$(SRCROOT)/Lexora",
-                                        "$(SRCROOT)/Lexora/Engine",
+                                        "$(SRCROOT)/Lexicon",
+                                        "$(SRCROOT)/Lexicon/Engine",
                                         "$(SRCROOT)/../cpp/include",
                                 );
-                                INFOPLIST_FILE = Lexora/Info.plist;
-                                INFOPLIST_KEY_CFBundleDisplayName = Lexora;
+                                INFOPLIST_FILE = Lexicon/Info.plist;
+                                INFOPLIST_KEY_CFBundleDisplayName = Lexicon;
                                 INFOPLIST_KEY_UILaunchScreen_Generation = YES;
                                 INFOPLIST_KEY_UIRequiresFullScreen = NO;
                                 INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -520,10 +520,10 @@
                                         "@executable_path/Frameworks",
                                 );
                                 MARKETING_VERSION = 1.0.0;
-                                PRODUCT_BUNDLE_IDENTIFIER = com.lexora.app;
+                                PRODUCT_BUNDLE_IDENTIFIER = com.lexicon.app;
                                 PRODUCT_NAME = "$(TARGET_NAME)";
                                 SWIFT_EMIT_LOC_STRINGS = YES;
-                                SWIFT_OBJC_BRIDGING_HEADER = "Lexora/Engine/LexoraEngine-Bridging-Header.h";
+                                SWIFT_OBJC_BRIDGING_HEADER = "Lexicon/Engine/LexiconEngine-Bridging-Header.h";
                                 SWIFT_VERSION = 5.0;
                                 TARGETED_DEVICE_FAMILY = "1,2";
                         };
@@ -541,12 +541,12 @@
                                 GENERATE_INFOPLIST_FILE = NO;
                                 HEADER_SEARCH_PATHS = (
                                         "$(inherited)",
-                                        "$(SRCROOT)/Lexora",
-                                        "$(SRCROOT)/Lexora/Engine",
+                                        "$(SRCROOT)/Lexicon",
+                                        "$(SRCROOT)/Lexicon/Engine",
                                         "$(SRCROOT)/../cpp/include",
                                 );
-                                INFOPLIST_FILE = Lexora/Info.plist;
-                                INFOPLIST_KEY_CFBundleDisplayName = Lexora;
+                                INFOPLIST_FILE = Lexicon/Info.plist;
+                                INFOPLIST_KEY_CFBundleDisplayName = Lexicon;
                                 INFOPLIST_KEY_UILaunchScreen_Generation = YES;
                                 INFOPLIST_KEY_UIRequiresFullScreen = NO;
                                 INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -557,10 +557,10 @@
                                         "@executable_path/Frameworks",
                                 );
                                 MARKETING_VERSION = 1.0.0;
-                                PRODUCT_BUNDLE_IDENTIFIER = com.lexora.app;
+                                PRODUCT_BUNDLE_IDENTIFIER = com.lexicon.app;
                                 PRODUCT_NAME = "$(TARGET_NAME)";
                                 SWIFT_EMIT_LOC_STRINGS = YES;
-                                SWIFT_OBJC_BRIDGING_HEADER = "Lexora/Engine/LexoraEngine-Bridging-Header.h";
+                                SWIFT_OBJC_BRIDGING_HEADER = "Lexicon/Engine/LexiconEngine-Bridging-Header.h";
                                 SWIFT_VERSION = 5.0;
                                 TARGETED_DEVICE_FAMILY = "1,2";
                         };
@@ -569,7 +569,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-                1A000000000000000000000F /* Build configuration list for PBXProject "Lexora" */ = {
+                1A000000000000000000000F /* Build configuration list for PBXProject "Lexicon" */ = {
                         isa = XCConfigurationList;
                         buildConfigurations = (
                                 1A0000000000000000000011 /* Debug */,
@@ -578,7 +578,7 @@
                         defaultConfigurationIsVisible = 0;
                         defaultConfigurationName = Release;
                 };
-                1A0000000000000000000010 /* Build configuration list for PBXNativeTarget "Lexora" */ = {
+                1A0000000000000000000010 /* Build configuration list for PBXNativeTarget "Lexicon" */ = {
                         isa = XCConfigurationList;
                         buildConfigurations = (
                                 1A0000000000000000000013 /* Debug */,

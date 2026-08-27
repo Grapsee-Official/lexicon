@@ -1,4 +1,4 @@
-// test_performance.cpp — benchmark tests for the Lexora performance scaffolding.
+// test_performance.cpp — benchmark tests for the Lexicon performance scaffolding.
 //
 // Exercises the four instruments (ScopedTimer, LookupBenchmark, MemoryTracker,
 // FrameTimer) and uses them to measure the spec's hard-gate scenarios:
@@ -23,13 +23,13 @@
 // All benchmarks are self-contained: they build their own in-memory fixtures
 // (no dependency on a pre-built .ht / .dawg / .sqlite database).
 //
-// The JSON perf log is emitted to LEXORA_PERF_LOG (default /tmp/lexora_perf.log)
-// when LEXORA_PERF_LEVEL >= 1. Tests run cleanly at level 0 (no logging).
-#include "lexora/performance.hpp"
-#include "lexora/hash_table.hpp"
-#include "lexora/levenshtein.hpp"
-#include "lexora/dawg.hpp"
-#include "lexora/engine.hpp"
+// The JSON perf log is emitted to LEXICON_PERF_LOG (default /tmp/lexicon_perf.log)
+// when LEXICON_PERF_LEVEL >= 1. Tests run cleanly at level 0 (no logging).
+#include "lexicon/performance.hpp"
+#include "lexicon/hash_table.hpp"
+#include "lexicon/levenshtein.hpp"
+#include "lexicon/dawg.hpp"
+#include "lexicon/engine.hpp"
 
 #include <gtest/gtest.h>
 
@@ -43,7 +43,7 @@
 #include <thread>
 #include <vector>
 
-using namespace lexora;
+using namespace lexicon;
 
 namespace {
 // ---------------------------------------------------------------------------
@@ -70,7 +70,7 @@ std::string make_word(uint64_t i, uint64_t salt = 0) {
 // =============================================================================
 
 TEST(PerfConfigTest, DefaultsToOff) {
-    // Without env vars set (or with LEXORA_PERF_LEVEL=0), level should be Off
+    // Without env vars set (or with LEXICON_PERF_LEVEL=0), level should be Off
     // until initialize_from_env() is explicitly called with an env var present.
     // This test only checks the off-state behaviour — we don't manipulate the
     // global env to avoid interfering with other tests.
@@ -152,7 +152,7 @@ TEST(FrameTimerTest, CountsDroppedFramesAboveBudget) {
 TEST(MemoryTrackerTest, ProcessMemoryReturnsNonZeroRss) {
     MemorySnapshot snap = MemoryTracker::process_memory();
     // On any reasonable platform, RSS should be > 0 for a running process.
-    // (The test process has loaded gtest + the lexora lib — at least a few MB.)
+    // (The test process has loaded gtest + the lexicon lib — at least a few MB.)
     EXPECT_GT(snap.rss_bytes, 0u)
         << "RSS should be non-zero for a running process";
 }
@@ -178,7 +178,7 @@ protected:
         // acceptable for a benchmark file.
         // We only set the env var if it isn't already set, to honor an
         // explicit CI override.
-        if (std::getenv("LEXORA_PERF_LEVEL") == nullptr) {
+        if (std::getenv("LEXICON_PERF_LEVEL") == nullptr) {
             // Cannot use setenv safely in a portable test (some platforms
             // don't propagate). Instead, just call initialize_from_env and
             // rely on the default Off → no logs. The benchmarks still
@@ -323,15 +323,15 @@ TEST(PerformanceBenchmarkColdStart, SimulatedColdStartUnder500ms) {
     // load + first lookup), and measure wall-clock.
     //
     // This is a *simulation* — the real on-device measurement is done by
-    // LexoraColdStartOptimizer (Android/iOS). The simulation's job is to
+    // LexiconColdStartOptimizer (Android/iOS). The simulation's job is to
     // verify the scaffolding's plumbing works end-to-end and to catch
     // regressions in engine construction cost.
     auto t0 = std::chrono::steady_clock::now();
 
-    LexoraEngine engine;
+    LexiconEngine engine;
     // loadDatabase is expected to return false (no DB) — that's fine for
     // the simulation. We're measuring the construction + call overhead.
-    engine.load_database("/tmp/lexora_nonexistent_db");
+    engine.load_database("/tmp/lexicon_nonexistent_db");
     auto first_lookup = engine.lookup("hello");
 
     auto t1 = std::chrono::steady_clock::now();
@@ -353,8 +353,8 @@ TEST(PerformanceBenchmarkColdStart, SimulatedColdStartUnder500ms) {
     // noticeably inflate the cold-start measurement.
     {
         ScopedTimer t("cold_start.scoped");
-        LexoraEngine e2;
-        e2.load_database("/tmp/lexora_nonexistent_db");
+        LexiconEngine e2;
+        e2.load_database("/tmp/lexicon_nonexistent_db");
         e2.lookup("world");
     }
 }
@@ -433,11 +433,11 @@ TEST(FrameTimerScrollTest, SimulatedScrollWithJank) {
 
 // =============================================================================
 //  main() — only defined when the gtest_lite shim is in use (real GoogleTest
-//  provides its own main via gtest_main). When LEXORA_USE_GTEST_LITE_MAIN is
+//  provides its own main via gtest_main). When LEXICON_USE_GTEST_LITE_MAIN is
 //  defined (per tests/CMakeLists.txt), this main() drives the shim's
 //  registration-based test runner.
 // =============================================================================
-#ifdef LEXORA_USE_GTEST_LITE_MAIN
+#ifdef LEXICON_USE_GTEST_LITE_MAIN
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

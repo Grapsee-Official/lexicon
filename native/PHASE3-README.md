@@ -1,6 +1,6 @@
-# Lexora Phase 3 — C++ Engine + Native Hooks + Cloud Sync
+# Lexicon Phase 3 — C++ Engine + Native Hooks + Cloud Sync
 
-This directory contains the complete backend infrastructure for Lexora:
+This directory contains the complete backend infrastructure for Lexicon:
 - C++ dictionary engine (Hash Table, Levenshtein, DAWG, Unicode NFC)
 - KMM shared layer (Kotlin Multiplatform Mobile)
 - Android TextClassifier service (system-wide text selection hook)
@@ -14,7 +14,7 @@ This directory contains the complete backend infrastructure for Lexora:
 ```
 native/
 ├── cpp/                          # C++ dictionary engine
-│   ├── include/lexora/
+│   ├── include/lexicon/
 │   │   ├── hash_table.hpp        # Memory-mapped Robin Hood hash table
 │   │   ├── levenshtein.hpp       # Levenshtein automaton (≤2 edits)
 │   │   ├── dawg.hpp              # Toggleable DAWG for prefix search
@@ -46,24 +46,24 @@ native/
 ├── android/
 │   └── app/src/main/
 │       ├── cpp/
-│       │   └── lexora_jni.cpp    # JNI bridge (C++ ↔ Kotlin)
-│       └── java/com/lexora/textclassifier/
-│           ├── LexoraTextClassifierService.kt  # TextClassifier API hook
-│           └── LexoraTextClassifierApp.kt      # Memory pressure callbacks
+│       │   └── lexicon_jni.cpp    # JNI bridge (C++ ↔ Kotlin)
+│       └── java/com/lexicon/textclassifier/
+│           ├── LexiconTextClassifierService.kt  # TextClassifier API hook
+│           └── LexiconTextClassifierApp.kt      # Memory pressure callbacks
 │
 ├── ios/
-│   └── Lexora/Engine/
-│       ├── LexoraEngine.swift               # Swift wrapper for C ABI
-│       ├── LexoraEditMenuInteraction.swift   # UIEditMenuInteraction hook
-│       ├── LexoraBackgroundTaskHandler.swift # BGProcessingTaskRequest
-│       └── LexoraEngine-Bridging-Header.h    # C ABI import
+│   └── Lexicon/Engine/
+│       ├── LexiconEngine.swift               # Swift wrapper for C ABI
+│       ├── LexiconEditMenuInteraction.swift   # UIEditMenuInteraction hook
+│       ├── LexiconBackgroundTaskHandler.swift # BGProcessingTaskRequest
+│       └── LexiconEngine-Bridging-Header.h    # C ABI import
 │
 ├── cloud/
 │   ├── schema/
-│   │   ├── lexora_sqlite.sql    # SQLite FTS5 schema + WAL + triggers
-│   │   └── lexora_postgres.sql  # PostgreSQL cloud schema
+│   │   ├── lexicon_sqlite.sql    # SQLite FTS5 schema + WAL + triggers
+│   │   └── lexicon_postgres.sql  # PostgreSQL cloud schema
 │   └── server/
-│       └── LexoraSyncServer.kt  # Ktor cloud sync server
+│       └── LexiconSyncServer.kt  # Ktor cloud sync server
 │
 └── etl/
     └── scripts/
@@ -78,7 +78,7 @@ cd native/cpp
 mkdir build && cd build
 cmake .. -DBUILD_TESTS=ON
 make -j$(nproc)
-./lexora-engine-tests
+./lexicon-engine-tests
 ```
 
 ### C++ Engine for Android NDK
@@ -92,7 +92,7 @@ cmake .. \
   -DTARGET_ANDROID=ON \
   -DBUILD_SHARED_LIBS=ON
 make -j$(nproc)
-# Output: liblexora-engine.so
+# Output: liblexicon-engine.so
 ```
 
 ### C++ Engine for iOS
@@ -104,7 +104,7 @@ cmake .. \
   -DTARGET_IOS=ON \
   -DBUILD_SHARED_LIBS=OFF
 make -j$(nproc)
-# Output: LexoraEngine.framework
+# Output: LexiconEngine.framework
 ```
 
 ### KMM Module
@@ -146,8 +146,8 @@ No API keys are needed for building or testing the code locally.
 | 1M lookups in <50ms on Moto G | ✅ Hash table uses mmap + FNV-1a |
 | DAWG toggles without memory leak | ✅ load/unload cycle tested |
 | Kotlin/Swift can call C++ and receive strings | ✅ JNI + C ABI |
-| 'Lexora' appears in WhatsApp copy/paste menu | ✅ TextClassifierService |
-| 'Lexora' appears in Safari long-press menu | ✅ UIEditMenuInteraction |
+| 'Lexicon' appears in WhatsApp copy/paste menu | ✅ TextClassifierService |
+| 'Lexicon' appears in Safari long-press menu | ✅ UIEditMenuInteraction |
 | Device updates 100 words without FTS5 corruption | ✅ WAL mode + triggers |
 | Exact lookup succeeds for NFC-normalized Vietnamese | ✅ Unicode NFC module |
 | 95th percentile frame render <16ms | ✅ Pure C++ engine, no GC pauses |

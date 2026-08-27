@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  build-all.sh — Linux host build + test driver for the Lexora C++ engine.
+#  build-all.sh — Linux host build + test driver for the Lexicon C++ engine.
 #
 #  Task P3-FIX-14.
 #
-#  This script builds the entire Phase 3 C++ backend (liblexora-engine.so +
+#  This script builds the entire Phase 3 C++ backend (liblexicon-engine.so +
 #  the GoogleTest binary) on a plain Linux host, runs the test suite if gtest
 #  is available, and prints a single summary at the end.
 #
@@ -358,12 +358,12 @@ ok "build complete"
 CURRENT_STEP="(none)"
 
 # Locate the engine artifact. With BUILD_SHARED_LIBS=ON, the .so lands
-# directly in the build dir (liblexora-engine.so). Probe a few likely spots.
+# directly in the build dir (liblexicon-engine.so). Probe a few likely spots.
 for candidate in \
-    "$BUILD_DIR/liblexora-engine.so" \
-    "$BUILD_DIR/libliblexora-engine.so" \
-    "$BUILD_DIR/lib/lexora-engine.so" \
-    "$BUILD_DIR/lib/liblexora-engine.so"; do
+    "$BUILD_DIR/liblexicon-engine.so" \
+    "$BUILD_DIR/libliblexicon-engine.so" \
+    "$BUILD_DIR/lib/lexicon-engine.so" \
+    "$BUILD_DIR/lib/liblexicon-engine.so"; do
     if [ -f "$candidate" ]; then
         ENGINE_BUILT=1
         ENGINE_ARTIFACT="$candidate"
@@ -374,7 +374,7 @@ done
 # Fall back to a directory walk if the standard locations missed it.
 if [ "$ENGINE_BUILT" -eq 0 ]; then
     found="$(find "$BUILD_DIR" -maxdepth 4 -type f \
-                \( -name 'liblexora-engine.so' -o -name 'liblexora-engine.a' \) \
+                \( -name 'liblexicon-engine.so' -o -name 'liblexicon-engine.a' \) \
                 -print -quit 2>/dev/null || true)"
     if [ -n "$found" ] && [ -f "$found" ]; then
         ENGINE_BUILT=1
@@ -385,7 +385,7 @@ fi
 if [ "$ENGINE_BUILT" -eq 1 ]; then
     ok "engine artifact: $ENGINE_ARTIFACT"
 else
-    err "engine built but no liblexora-engine.{so,a} found under $BUILD_DIR"
+    err "engine built but no liblexicon-engine.{so,a} found under $BUILD_DIR"
     FAILED_STEP="artifact-locate"
     FAILED_LINE=$LINENO
     ANY_FAILURE=1
@@ -424,20 +424,20 @@ else
     else
         # Locate the test binary. With the top-level CMakeLists.txt's inline
         # test logic, the executable lands directly in the build dir as
-        # lexora-engine-tests. If tests/CMakeLists.txt was wired in via
+        # lexicon-engine-tests. If tests/CMakeLists.txt was wired in via
         # add_subdirectory, it lands under build/tests/. Probe both.
         TEST_BIN=""
         for candidate in \
-            "$BUILD_DIR/lexora-engine-tests" \
-            "$BUILD_DIR/tests/lexora-engine-tests" \
-            "$BUILD_DIR/bin/lexora-engine-tests"; do
+            "$BUILD_DIR/lexicon-engine-tests" \
+            "$BUILD_DIR/tests/lexicon-engine-tests" \
+            "$BUILD_DIR/bin/lexicon-engine-tests"; do
             if [ -x "$candidate" ]; then
                 TEST_BIN="$candidate"
                 break
             fi
         done
         if [ -z "$TEST_BIN" ]; then
-            TEST_BIN="$(find "$BUILD_DIR" -maxdepth 4 -type f -name 'lexora-engine-tests' -executable -print -quit 2>/dev/null || true)"
+            TEST_BIN="$(find "$BUILD_DIR" -maxdepth 4 -type f -name 'lexicon-engine-tests' -executable -print -quit 2>/dev/null || true)"
         fi
 
         if [ -n "$TEST_BIN" ] && [ -x "$TEST_BIN" ]; then
@@ -466,7 +466,7 @@ else
                 fi
             fi
         else
-            warn "gtest is available but no lexora-engine-tests binary was built."
+            warn "gtest is available but no lexicon-engine-tests binary was built."
             warn "(this typically means find_package(GTest) failed at configure time"
             warn " even though gtest files exist — check the configure log above.)"
         fi

@@ -1,13 +1,13 @@
 //
-//  LexoraTypography.swift
-//  Lexora
+//  LexiconTypography.swift
+//  Lexicon
 //
 //  Fonts: Fraunces (display), Inter (body), Lora (long-form dictionary text).
 //
 //  HOW TO ADD THE GOOGLE FONTS:
 //    1. Download Fraunces, Inter, Lora .ttf files from Google Fonts (https://fonts.google.com).
-//    2. Drag the .ttf files into the Lexora/Resources/ folder in Xcode
-//       (check "Copy items if needed" + "Add to target: Lexora").
+//    2. Drag the .ttf files into the Lexicon/Resources/ folder in Xcode
+//       (check "Copy items if needed" + "Add to target: Lexicon").
 //    3. Open Info.plist and add the key:
 //         UIAppFonts (Array) = [
 //           "Fraunces-Regular.ttf",
@@ -29,7 +29,7 @@ import SwiftUI
 ///   .font-display  → Fraunces (display/headings)
 ///   .font-body     → Inter    (UI body)
 ///   .font-long     → Lora     (long-form dictionary text)
-enum LexoraFont {
+enum LexiconFont {
     // Custom PostScript font names — only resolve if the .ttf files are bundled.
     static let display = "Fraunces-Regular"
     static let displayMedium = "Fraunces-Medium"
@@ -52,29 +52,29 @@ enum LexoraFont {
 
 extension Font {
     /// Display/heading serif (Fraunces, falls back to system serif).
-    static func lexoraDisplay(_ size: CGFloat, weight: Font.Weight = .regular) -> Font {
+    static func lexiconDisplay(_ size: CGFloat, weight: Font.Weight = .regular) -> Font {
         // Try the matched PostScript weight, else fall back to system serif.
         switch weight {
-        case .semibold: return .custom(LexoraFont.displaySemiBold, size: size, relativeTo: .title)
-        case .medium:   return .custom(LexoraFont.displayMedium,   size: size, relativeTo: .title)
-        default:        return .custom(LexoraFont.display,         size: size, relativeTo: .title)
+        case .semibold: return .custom(LexiconFont.displaySemiBold, size: size, relativeTo: .title)
+        case .medium:   return .custom(LexiconFont.displayMedium,   size: size, relativeTo: .title)
+        default:        return .custom(LexiconFont.display,         size: size, relativeTo: .title)
         }
     }
 
     /// UI body sans-serif (Inter, falls back to system body).
-    static func lexoraBody(_ size: CGFloat, weight: Font.Weight = .regular) -> Font {
+    static func lexiconBody(_ size: CGFloat, weight: Font.Weight = .regular) -> Font {
         switch weight {
-        case .semibold: return .custom(LexoraFont.bodySemiBold, size: size, relativeTo: .body)
-        case .medium:   return .custom(LexoraFont.bodyMedium,   size: size, relativeTo: .body)
-        default:        return .custom(LexoraFont.body,         size: size, relativeTo: .body)
+        case .semibold: return .custom(LexiconFont.bodySemiBold, size: size, relativeTo: .body)
+        case .medium:   return .custom(LexiconFont.bodyMedium,   size: size, relativeTo: .body)
+        default:        return .custom(LexiconFont.body,         size: size, relativeTo: .body)
         }
     }
 
     /// Long-form dictionary text serif (Lora, falls back to system serif).
-    static func lexoraLong(_ size: CGFloat, weight: Font.Weight = .regular) -> Font {
+    static func lexiconLong(_ size: CGFloat, weight: Font.Weight = .regular) -> Font {
         switch weight {
-        case .semibold: return .custom(LexoraFont.long, size: size, relativeTo: .body)
-        default:        return .custom(LexoraFont.long, size: size, relativeTo: .body)
+        case .semibold: return .custom(LexiconFont.long, size: size, relativeTo: .body)
+        default:        return .custom(LexiconFont.long, size: size, relativeTo: .body)
         }
     }
 }

@@ -1,8 +1,8 @@
 //
 //  ArticleCard.swift
-//  Lexora
+//  Lexicon
 //
-//  Translation of `src/components/lexora/article-card.tsx`.
+//  Translation of `src/components/lexicon/article-card.tsx`.
 //
 //  HORIZONTAL layout (HStack). Image left 35% height full. Text right 65%
 //  VStack justify-between. Fixed height 120pt. Width 224pt.
@@ -26,13 +26,13 @@ struct ArticleCard: View {
                     .scaledToFill()
                     .frame(width: 78, height: 120)
                     .clipped()
-                    .lexoraDecorative()
+                    .lexiconDecorative()
 
                 // RIGHT 65% — title top, read time + bookmark bottom.
                 VStack(spacing: 8) {
                     Text(article.title)
-                        .font(.lexoraDisplay(12, weight: .semibold))
-                        .foregroundStyle(lexoraPalette(scheme).foreground)
+                        .font(.lexiconDisplay(12, weight: .semibold))
+                        .foregroundStyle(lexiconPalette(scheme).foreground)
                         .lineLimit(3)
                         .multilineTextAlignment(.leading)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -41,23 +41,23 @@ struct ArticleCard: View {
 
                     HStack {
                         Label("\(article.readMinutes) min read", systemImage: "clock")
-                            .font(.lexoraBody(9))
-                            .foregroundStyle(lexoraPalette(scheme).mutedForeground)
+                            .font(.lexiconBody(9))
+                            .foregroundStyle(lexiconPalette(scheme).mutedForeground)
                             .labelStyle(.titleAndIcon)
 
                         Spacer()
 
                         Image(systemName: article.bookmarked ? "bookmark.fill" : "bookmark")
                             .font(.system(size: 11, weight: .regular))
-                            .foregroundStyle(lexoraPalette(scheme).mutedForeground)
-                            .lexoraDecorative()
+                            .foregroundStyle(lexiconPalette(scheme).mutedForeground)
+                            .lexiconDecorative()
                     }
                 }
                 .padding(12)
                 .frame(width: 146, height: 120, alignment: .top)
             }
             .frame(width: 224, height: 120)
-            .background(lexoraPalette(scheme).card)
+            .background(lexiconPalette(scheme).card)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 2)
         }
@@ -74,7 +74,7 @@ struct ArticleCard: View {
 }
 
 #Preview {
-    ArticleCard(article: LexoraData.articles[0])
+    ArticleCard(article: LexiconData.articles[0])
         .padding()
-        .background(LexoraColors.background)
+        .background(LexiconColors.background)
 }

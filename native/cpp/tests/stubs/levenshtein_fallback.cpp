@@ -2,7 +2,7 @@
 //
 // tests/stubs/levenshtein_fallback.cpp
 //
-// STOPGAP implementation of lexora::LevenshteinAutomaton.
+// STOPGAP implementation of lexicon::LevenshteinAutomaton.
 //
 // This file exists ONLY so the engine facade can link and run its tests
 // before the parallel Levenshtein module (task P3-02-CPP-LEVENSHTEIN)
@@ -18,9 +18,9 @@
 // CMake conditional in cmake/Engine.cmake that includes it will silently
 // skip it — see the `if(NOT EXISTS .../src/levenshtein.cpp)` guard).
 //
-// API surface mirrors include/lexora/levenshtein.hpp exactly.
+// API surface mirrors include/lexicon/levenshtein.hpp exactly.
 
-#include "lexora/levenshtein.hpp"
+#include "lexicon/levenshtein.hpp"
 
 #include <algorithm>
 #include <cstddef>
@@ -28,7 +28,7 @@
 #include <utility>
 #include <vector>
 
-namespace lexora {
+namespace lexicon {
 
 // ---------------------------------------------------------------------------
 // Internal types
@@ -185,4 +185,4 @@ std::vector<Match> LevenshteinAutomaton::search_with_edits(
     return out;
 }
 
-} // namespace lexora
+} // namespace lexicon

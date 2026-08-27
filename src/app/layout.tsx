@@ -31,10 +31,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Lexora — Words. Wisdom. Worlds.",
+  title: "Lexicon — Words. Wisdom. Worlds.",
   description:
     "A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word. Offline-first, system-wide on iOS & Android.",
-  applicationName: "Lexora",
+  applicationName: "Lexicon",
   manifest: "/manifest.json",
   icons: {
     icon: [
@@ -47,11 +47,11 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Lexora",
+    title: "Lexicon",
   },
   formatDetection: { telephone: false },
   keywords: [
-    "Lexora",
+    "Lexicon",
     "dictionary",
     "multilingual",
     "offline",

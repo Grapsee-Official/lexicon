@@ -1,6 +1,6 @@
-# Lexora — Android (Kotlin + Jetpack Compose)
+# Lexicon — Android (Kotlin + Jetpack Compose)
 
-Native Android port of the Lexora mobile-first PWA. Phase 2 of the project —
+Native Android port of the Lexicon mobile-first PWA. Phase 2 of the project —
 the web prototype (Phase 1) is locked and this is its 1:1 native translation.
 
 > **Tagline** — *Words. Wisdom. Worlds.*
@@ -10,7 +10,7 @@ the web prototype (Phase 1) is locked and this is its 1:1 native translation.
 ## What's inside
 
 A single-screen home feed built with **Jetpack Compose** + **Material 3**,
-using a custom `LexoraTheme` that reproduces the exact brand palette
+using a custom `LexiconTheme` that reproduces the exact brand palette
 (Cotswolds English countryside: warm cream paper, sage green, deep forest,
 terracotta, dusty blue, old-wood gold) and the same component hierarchy as
 the locked web build.
@@ -21,15 +21,15 @@ app/
 ├── proguard-rules.pro
 └── src/main/
     ├── AndroidManifest.xml
-    ├── java/com/lexora/
-    │   ├── MainActivity.kt                 ← entry point (setContent + LexoraTheme)
+    ├── java/com/lexicon/
+    │   ├── MainActivity.kt                 ← entry point (setContent + LexiconTheme)
     │   ├── data/
     │   │   ├── Models.kt                   ← WordEntry, Category, Article, etc.
-    │   │   ├── LexoraData.kt               ← 18 dictionary entries + categories + articles
-    │   │   ├── LexoraViewModel.kt          ← StateFlow-driven ViewModel (Zustand→ViewModel)
-    │   │   └── LexoraPrefs.kt              ← SharedPreferences persistence
+    │   │   ├── LexiconData.kt               ← 18 dictionary entries + categories + articles
+    │   │   ├── LexiconViewModel.kt          ← StateFlow-driven ViewModel (Zustand→ViewModel)
+    │   │   └── LexiconPrefs.kt              ← SharedPreferences persistence
     │   └── ui/
-    │       ├── theme/                      ← Color, Type, LexoraTheme
+    │       ├── theme/                      ← Color, Type, LexiconTheme
     │       ├── components/                 ← Header, Hero, SearchBar, WOTD, etc.
     │       └── screens/HomeScreen.kt       ← composition root
     └── res/
@@ -94,7 +94,7 @@ gradle wrapper --gradle-version 8.9
 
 Or use Android Studio's **Run ▶** button.
 
-> The `applicationId` is `com.lexora` (debug build adds the `.debug` suffix).
+> The `applicationId` is `com.lexicon` (debug build adds the `.debug` suffix).
 
 ---
 
@@ -138,18 +138,18 @@ No other code changes required.
 
 | Android component                         | Web component                              |
 |-------------------------------------------|--------------------------------------------|
-| `LexoraHeader.kt`                         | `src/components/lexora/header.tsx`         |
-| `Hero.kt` + `LeafSprig.kt`                | `src/components/lexora/hero.tsx`           |
-| `FloatingSearchBar.kt`                    | `src/components/lexora/floating-search-bar.tsx` |
-| `TrendingTagRow.kt`                       | `src/components/lexora/trending-tag-row.tsx` |
-| `WordOfTheDayCard.kt`                     | `src/components/lexora/word-of-the-day-card.tsx` |
-| `CategoryCard.kt`                         | `src/components/lexora/category-card.tsx`  |
-| `ArticleCard.kt`                          | `src/components/lexora/article-card.tsx`   |
-| `SectionHeader.kt`                        | `src/components/lexora/section-header.tsx` |
-| `BottomNav.kt`                            | `src/components/lexora/bottom-nav.tsx`     |
+| `LexiconHeader.kt`                         | `src/components/lexicon/header.tsx`         |
+| `Hero.kt` + `LeafSprig.kt`                | `src/components/lexicon/hero.tsx`           |
+| `FloatingSearchBar.kt`                    | `src/components/lexicon/floating-search-bar.tsx` |
+| `TrendingTagRow.kt`                       | `src/components/lexicon/trending-tag-row.tsx` |
+| `WordOfTheDayCard.kt`                     | `src/components/lexicon/word-of-the-day-card.tsx` |
+| `CategoryCard.kt`                         | `src/components/lexicon/category-card.tsx`  |
+| `ArticleCard.kt`                          | `src/components/lexicon/article-card.tsx`   |
+| `SectionHeader.kt`                        | `src/components/lexicon/section-header.tsx` |
+| `BottomNav.kt`                            | `src/components/lexicon/bottom-nav.tsx`     |
 | `HomeScreen.kt`                           | `src/app/page.tsx` (home tab branch)       |
-| `LexoraViewModel.kt`                      | `src/lib/app-store.ts` (Zustand store)     |
-| `LexoraData.kt`                           | `src/lib/lexora-data.ts`                   |
+| `LexiconViewModel.kt`                      | `src/lib/app-store.ts` (Zustand store)     |
+| `LexiconData.kt`                           | `src/lib/lexicon-data.ts`                   |
 
 ### Hard requirements honoured
 
@@ -165,7 +165,7 @@ No other code changes required.
 - **Bottom nav** is a floating pill with a 40 dp centre Search FAB.
 - **All icons** use the `Icons.Outlined.*` family — the thinnest standard
   Material line weight, matching the web's `strokeWidth={0.8}` aesthetic.
-- **State** is persisted via SharedPreferences (`lexora_prefs.xml`):
+- **State** is persisted via SharedPreferences (`lexicon_prefs.xml`):
   saved word IDs, recent searches, dark-mode toggle.
 
 ---
@@ -178,7 +178,7 @@ No other code changes required.
   ViewModel state but does not yet render an overlay. A `ModalBottomSheet`
   Compose replacement is the natural next step.
 - **Dictionary / Collections / More** tabs render a placeholder title for
-  now; the data layer (`LexoraData.getAlphabetSections`,
+  now; the data layer (`LexiconData.getAlphabetSections`,
   `searchWords`, `getWordById`) is already in place to populate them.
 - **Launcher icon**: a single 192×192 PNG is reused across all density
   buckets. For production, generate proper per-density PNGs or an adaptive
@@ -188,4 +188,4 @@ No other code changes required.
 
 ## License
 
-Project-internal — matches the rest of the Lexora monorepo.
+Project-internal — matches the rest of the Lexicon monorepo.

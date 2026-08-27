@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { WordEntry } from "@/lib/lexora-data";
+import type { WordEntry } from "@/lib/lexicon-data";
 
 export type TabKey = "home" | "dictionary" | "search" | "collections" | "more";
 
@@ -69,7 +69,7 @@ export const useAppStore = create<AppState>()(
       clearRecentSearches: () => set({ recentSearches: [] }),
     }),
     {
-      name: "lexora-app-store",
+      name: "lexicon-app-store",
       partialize: (s) => ({
         savedWordIds: s.savedWordIds,
         recentSearches: s.recentSearches,

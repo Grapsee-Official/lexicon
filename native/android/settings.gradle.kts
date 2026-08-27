@@ -20,5 +20,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Lexora"
+rootProject.name = "Lexicon"
 include(":app")

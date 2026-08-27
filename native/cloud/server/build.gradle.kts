@@ -1,25 +1,25 @@
-// build.gradle.kts — Lexora Ktor Cloud Sync Server
+// build.gradle.kts — Lexicon Ktor Cloud Sync Server
 // Ktor 2.3.7 / Kotlin 1.9.22 / PostgreSQL JDBC 42.7.2 / JRE 17
-// Layout: flat (LexoraSyncServer.kt lives in project root, not under src/main/kotlin).
+// Layout: flat (LexiconSyncServer.kt lives in project root, not under src/main/kotlin).
 
 plugins {
     kotlin("jvm") version "1.9.22"
     application
 }
 
-group = "com.lexora.cloud"
+group = "com.lexicon.cloud"
 version = "1.0.0"
 
 application {
     // The Kotlin compiler suffixes the file-level main() class with `Kt`.
-    mainClass.set("com.lexora.cloud.server.LexoraSyncServerKt")
+    mainClass.set("com.lexicon.cloud.server.LexiconSyncServerKt")
 }
 
 kotlin {
     jvmToolchain(17)
 }
 
-// Flat source layout: compile LexoraSyncServer.kt from the project root
+// Flat source layout: compile LexiconSyncServer.kt from the project root
 // while excluding Gradle's own build/ output directory.
 sourceSets {
     main {
@@ -70,8 +70,8 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     }
 }
 
-// Produce a runnable distribution (build/install/lexora-sync-server/) via
+// Produce a runnable distribution (build/install/lexicon-sync-server/) via
 // `gradle installDist` — used by the Dockerfile's runtime stage.
 tasks.named<CreateStartScripts>("startScripts") {
-    applicationName = "lexora-sync-server"
+    applicationName = "lexicon-sync-server"
 }

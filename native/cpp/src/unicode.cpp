@@ -2,11 +2,11 @@
 // unicode.cpp — Unicode NFC normalization (simplified, no ICU)
 // Covers Latin (incl. Vietnamese), Greek, Cyrillic common cases.
 // Full Unicode 15.1 table would be embedded in unicode_data.hpp.
-#include "lexora/unicode.hpp"
+#include "lexicon/unicode.hpp"
 #include <unordered_map>
 #include <algorithm>
 
-namespace lexora::unicode {
+namespace lexicon::unicode {
 
 // UTF-8 decode
 static int utf8_decode(const char* s, size_t len, size_t& i, char32_t& cp) {
@@ -683,4 +683,4 @@ std::string strip_diacritics(std::string_view input) {
     return utf32_to_utf8(stripped);
 }
 
-} // namespace lexora::unicode
+} // namespace lexicon::unicode

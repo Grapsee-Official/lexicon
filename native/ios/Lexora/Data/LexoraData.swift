@@ -1,15 +1,15 @@
 //
-//  LexoraData.swift
-//  Lexora
+//  LexiconData.swift
+//  Lexicon
 //
-//  Mock data — straight translation of `src/lib/lexora-data.ts`.
+//  Mock data — straight translation of `src/lib/lexicon-data.ts`.
 //  Contains all 18 dictionary entries, 4 categories, 3 articles,
 //  trending tags, and the Word of the Day.
 //
 
 import Foundation
 
-enum LexoraData {
+enum LexiconData {
     // MARK: - Trending tags
     static let trendingTags: [TrendingTag] = [
         TrendingTag(label: "Ephemeral",  wordId: "ephemeral"),
@@ -347,11 +347,11 @@ enum LexoraData {
     ]
 
     // MARK: - Categories
-    static let categories: [LexoraCategory] = [
-        LexoraCategory(id: "vocabulary", title: "Vocabulary", subtitle: "Expand your words",     illustration: "cat-vocabulary"),
-        LexoraCategory(id: "geography",  title: "Geography",  subtitle: "Places & names",         illustration: "cat-geography"),
-        LexoraCategory(id: "literature", title: "Literature", subtitle: "Terms & references",     illustration: "cat-literature"),
-        LexoraCategory(id: "science",    title: "Science",    subtitle: "Concepts & terms",       illustration: "cat-science"),
+    static let categories: [LexiconCategory] = [
+        LexiconCategory(id: "vocabulary", title: "Vocabulary", subtitle: "Expand your words",     illustration: "cat-vocabulary"),
+        LexiconCategory(id: "geography",  title: "Geography",  subtitle: "Places & names",         illustration: "cat-geography"),
+        LexiconCategory(id: "literature", title: "Literature", subtitle: "Terms & references",     illustration: "cat-literature"),
+        LexiconCategory(id: "science",    title: "Science",    subtitle: "Concepts & terms",       illustration: "cat-science"),
     ]
 
     // MARK: - Articles
@@ -379,7 +379,7 @@ enum LexoraData {
         ),
     ]
 
-    // MARK: - Helper functions (mirrors src/lib/lexora-data.ts)
+    // MARK: - Helper functions (mirrors src/lib/lexicon-data.ts)
 
     /// Lookup a word entry by id (used by trending tags, search, etc.).
     static func getWordById(_ id: String) -> WordEntry? {

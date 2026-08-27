@@ -1,8 +1,8 @@
 // test_levenshtein.cpp — Google Test for LevenshteinAutomaton
-#include "lexora/levenshtein.hpp"
+#include "lexicon/levenshtein.hpp"
 #include <gtest/gtest.h>
 
-using namespace lexora;
+using namespace lexicon;
 
 TEST(LevenshteinTest, ExactMatch) {
     LevenshteinAutomaton lev;

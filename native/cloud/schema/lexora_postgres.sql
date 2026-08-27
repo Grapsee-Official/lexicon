@@ -1,4 +1,4 @@
--- Lexora PostgreSQL Cloud Schema
+-- Lexicon PostgreSQL Cloud Schema
 -- Per spec: "PostgreSQL (Confirmed)" for cloud backend.
 -- Per spec: "Do batch insert processed words into PostgreSQL using COPY command."
 
@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS integrity_log (
 
 -- Crash logs (per task P4-03)
 -- Receives crash reports from Android (CrashReporter.kt) and iOS
--- (LexoraCrashReporter.swift) via POST /api/v1/crash-report. The JSON wire
+-- (LexiconCrashReporter.swift) via POST /api/v1/crash-report. The JSON wire
 -- format is documented in CrashReportEndpoint.kt::CrashReport.
 --
 -- Column naming:

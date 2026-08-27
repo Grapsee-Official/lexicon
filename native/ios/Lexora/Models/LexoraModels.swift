@@ -1,8 +1,8 @@
 //
-//  LexoraModels.swift
-//  Lexora
+//  LexiconModels.swift
+//  Lexicon
 //
-//  Native Swift translations of the TypeScript types in `src/lib/lexora-data.ts`.
+//  Native Swift translations of the TypeScript types in `src/lib/lexicon-data.ts`.
 //  All structs are Codable + Identifiable so they can be used in SwiftUI lists,
 //  encoded to UserDefaults, and diffed with ForEach.
 //
@@ -35,7 +35,7 @@ struct WordEntry: Codable, Identifiable, Hashable {
 }
 
 /// Category tile — 1:1 translation of `Category`.
-struct LexoraCategory: Codable, Identifiable, Hashable {
+struct LexiconCategory: Codable, Identifiable, Hashable {
     let id: String
     let title: String
     let subtitle: String
@@ -62,6 +62,6 @@ struct TrendingTag: Codable, Identifiable, Hashable {
 }
 
 /// Bottom-nav tab keys (matches `TabKey`).
-enum LexoraTab: String, CaseIterable, Codable {
+enum LexiconTab: String, CaseIterable, Codable {
     case home, dictionary, search, collections, more
 }

@@ -1,9 +1,9 @@
 # =============================================================================
-#  CMakeLists.txt — Android app module build for liblexora-engine.so
+#  CMakeLists.txt — Android app module build for liblexicon-engine.so
 #
 #  Compiles the shared C++ engine (from ../../../../../cpp/src) together with
-#  the JNI bridge (lexora_jni.cpp in this directory) into a single shared
-#  library that the Kotlin side loads via System.loadLibrary("lexora-engine").
+#  the JNI bridge (lexicon_jni.cpp in this directory) into a single shared
+#  library that the Kotlin side loads via System.loadLibrary("lexicon-engine").
 #
 #  Path note: this file lives at
 #    <repo>/native/android/app/src/main/cpp/CMakeLists.txt
@@ -13,7 +13,7 @@
 # =============================================================================
 cmake_minimum_required(VERSION 3.22.1)
 
-project(lexora-engine LANGUAGES C CXX VERSION 1.0.0)
+project(lexicon-engine LANGUAGES C CXX VERSION 1.0.0)
 
 # -----------------------------------------------------------------------------
 # 1. C++17
@@ -27,54 +27,54 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 # 2. Locate the shared engine sources.
 #    5 levels up from this file → <repo>/native/
 # -----------------------------------------------------------------------------
-set(LEXORA_ENGINE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../cpp")
-set(LEXORA_SRC_DIR    "${LEXORA_ENGINE_ROOT}/src")
-set(LEXORA_INCLUDE_DIR "${LEXORA_ENGINE_ROOT}/include")
+set(LEXICON_ENGINE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../cpp")
+set(LEXICON_SRC_DIR    "${LEXICON_ENGINE_ROOT}/src")
+set(LEXICON_INCLUDE_DIR "${LEXICON_ENGINE_ROOT}/include")
 
-if(NOT EXISTS "${LEXORA_SRC_DIR}/engine.cpp")
+if(NOT EXISTS "${LEXICON_SRC_DIR}/engine.cpp")
     message(FATAL_ERROR
-        "Lexora engine sources not found at ${LEXORA_SRC_DIR}. "
+        "Lexicon engine sources not found at ${LEXICON_SRC_DIR}. "
         "Expected <repo>/native/cpp/src/engine.cpp. Check the relative path "
         "in this CMakeLists.txt.")
 endif()
 
 # Engine source manifest (must match the standalone native/cpp/CMakeLists.txt).
-set(LEXORA_ENGINE_SOURCES
-    "${LEXORA_SRC_DIR}/engine.cpp"
-    "${LEXORA_SRC_DIR}/c_api.cpp"
-    "${LEXORA_SRC_DIR}/hash_table.cpp"
-    "${LEXORA_SRC_DIR}/unicode.cpp"
-    "${LEXORA_SRC_DIR}/dawg.cpp"
-    "${LEXORA_SRC_DIR}/levenshtein.cpp"
+set(LEXICON_ENGINE_SOURCES
+    "${LEXICON_SRC_DIR}/engine.cpp"
+    "${LEXICON_SRC_DIR}/c_api.cpp"
+    "${LEXICON_SRC_DIR}/hash_table.cpp"
+    "${LEXICON_SRC_DIR}/unicode.cpp"
+    "${LEXICON_SRC_DIR}/dawg.cpp"
+    "${LEXICON_SRC_DIR}/levenshtein.cpp"
 )
 
 # -----------------------------------------------------------------------------
 # 3. JNI bridge
 # -----------------------------------------------------------------------------
-set(LEXORA_JNI_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/lexora_jni.cpp")
+set(LEXICON_JNI_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/lexicon_jni.cpp")
 
-if(NOT EXISTS "${LEXORA_JNI_SOURCE}")
-    message(FATAL_ERROR "JNI bridge not found: ${LEXORA_JNI_SOURCE}")
+if(NOT EXISTS "${LEXICON_JNI_SOURCE}")
+    message(FATAL_ERROR "JNI bridge not found: ${LEXICON_JNI_SOURCE}")
 endif()
 
 # -----------------------------------------------------------------------------
-# 4. Shared library target — liblexora-engine.so
+# 4. Shared library target — liblexicon-engine.so
 # -----------------------------------------------------------------------------
-add_library(lexora-engine SHARED
-    ${LEXORA_ENGINE_SOURCES}
-    ${LEXORA_JNI_SOURCE}
+add_library(lexicon-engine SHARED
+    ${LEXICON_ENGINE_SOURCES}
+    ${LEXICON_JNI_SOURCE}
 )
 
-target_include_directories(lexora-engine PUBLIC
-    ${LEXORA_INCLUDE_DIR}
+target_include_directories(lexicon-engine PUBLIC
+    ${LEXICON_INCLUDE_DIR}
 )
 
 # hash_table.cpp ships a passthrough normalize_nfc that is shadowed by the
 # real symbol in unicode.cpp. Suppress it the same way the standalone build
 # does (see native/cpp/cmake/Engine.cmake).
 set_source_files_properties(
-    "${LEXORA_SRC_DIR}/hash_table.cpp"
-    PROPERTIES COMPILE_DEFINITIONS LEXORA_UNICODE_EXTERNAL
+    "${LEXICON_SRC_DIR}/hash_table.cpp"
+    PROPERTIES COMPILE_DEFINITIONS LEXICON_UNICODE_EXTERNAL
 )
 
 # -----------------------------------------------------------------------------
@@ -88,28 +88,28 @@ set_source_files_properties(
 # -----------------------------------------------------------------------------
 find_package(SQLite3 QUIET)
 if(SQLite3_FOUND)
-    target_link_libraries(lexora-engine PUBLIC SQLite::SQLite3)
-    message(STATUS "Lexora: using system SQLite3 (${SQLite3_VERSION})")
+    target_link_libraries(lexicon-engine PUBLIC SQLite::SQLite3)
+    message(STATUS "Lexicon: using system SQLite3 (${SQLite3_VERSION})")
 else()
     message(STATUS
-        "Lexora: SQLite3 not found via find_package — using built-in stub. "
+        "Lexicon: SQLite3 not found via find_package — using built-in stub. "
         "Engine will run without FTS5 (hash table + DAWG remain functional).")
-    target_include_directories(lexora-engine PRIVATE
+    target_include_directories(lexicon-engine PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/sqlite3_stub")
-    target_sources(lexora-engine PRIVATE
+    target_sources(lexicon-engine PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/sqlite3_stub/sqlite3_stub.c")
 endif()
 
 # -----------------------------------------------------------------------------
 # 6. Android runtime deps + hardening flags.
 #    - log: __android_log_print used by NDK (and any logging we add later).
-#    - visibility hidden: only JNI exports (Java_com_lexora_engine_*) are
+#    - visibility hidden: only JNI exports (Java_com_lexicon_engine_*) are
 #      left visible thanks to the JNI ABI's extern "C" + default visibility.
 # -----------------------------------------------------------------------------
 find_library(LOG_LIB log)
-target_link_libraries(lexora-engine PUBLIC ${LOG_LIB})
+target_link_libraries(lexicon-engine PUBLIC ${LOG_LIB})
 
-target_compile_options(lexora-engine PRIVATE
+target_compile_options(lexicon-engine PRIVATE
     -O2
     -Wall -Wextra
     -Wno-unused-parameter
@@ -121,7 +121,7 @@ target_compile_options(lexora-engine PRIVATE
     -fdata-sections
 )
 
-target_link_options(lexora-engine PRIVATE
+target_link_options(lexicon-engine PRIVATE
     -Wl,--gc-sections
     -Wl,--exclude-libs,ALL
     -Wl,-z,defs
@@ -130,8 +130,8 @@ target_link_options(lexora-engine PRIVATE
     -Wl,-z,now
 )
 
-# Output name → lib<OUTPUT_NAME>.so → liblexora-engine.so
-set_target_properties(lexora-engine PROPERTIES
-    OUTPUT_NAME "lexora-engine"
+# Output name → lib<OUTPUT_NAME>.so → liblexicon-engine.so
+set_target_properties(lexicon-engine PROPERTIES
+    OUTPUT_NAME "lexicon-engine"
     SUFFIX ".so"
 )

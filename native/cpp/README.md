@@ -1,13 +1,13 @@
-# Lexora C++ Engine — Build System
+# Lexicon C++ Engine — Build System
 
-C++17 cross-platform build for the **lexora-engine** library, producing:
+C++17 cross-platform build for the **lexicon-engine** library, producing:
 
 | Target              | Output                              | Toolchain                            |
 | ------------------- | ----------------------------------- | ------------------------------------ |
-| Android (NDK r25+)  | `liblexora-engine.so`               | `cmake/Toolchain-Android.cmake`      |
-| iOS (16.0+)         | `LexoraEngine.framework`            | `cmake/Toolchain-iOS.cmake`          |
-| Linux / macOS host  | `liblexora-engine.{so,dylib}`       | system compiler                      |
-| Tests               | `lexora-engine-tests`               | Google Test (vendored / system)      |
+| Android (NDK r25+)  | `liblexicon-engine.so`               | `cmake/Toolchain-Android.cmake`      |
+| iOS (16.0+)         | `LexiconEngine.framework`            | `cmake/Toolchain-iOS.cmake`          |
+| Linux / macOS host  | `liblexicon-engine.{so,dylib}`       | system compiler                      |
+| Tests               | `lexicon-engine-tests`               | Google Test (vendored / system)      |
 
 Requires **CMake ≥ 3.22** (first-class iOS framework + `gtest_discover_tests` PRE_TEST mode).
 
@@ -31,7 +31,7 @@ native/cpp/
 │   ├── Dawg.cmake
 │   ├── Unicode.cmake
 │   └── Engine.cmake
-├── include/lexora/                # Public headers (engine.hpp, c_api.h, …)
+├── include/lexicon/                # Public headers (engine.hpp, c_api.h, …)
 ├── src/                           # Implementation (.cpp)
 └── tests/
     ├── CMakeLists.txt             # Test binary + gtest_discover_tests
@@ -43,11 +43,11 @@ native/cpp/
 
 Each `cmake/<Module>.cmake` file is included with `OPTIONAL` from the root and MAY:
 
-1. Append source files to the `LEXORA_SOURCES` list variable, **and/or**
-2. Append public headers to the `LEXORA_HEADERS` list variable, **and/or**
-3. Declare an OBJECT library named `lexora_<module>_obj` for isolated compilation.
+1. Append source files to the `LEXICON_SOURCES` list variable, **and/or**
+2. Append public headers to the `LEXICON_HEADERS` list variable, **and/or**
+3. Declare an OBJECT library named `lexicon_<module>_obj` for isolated compilation.
 
-If none of the fragments populate `LEXORA_SOURCES`, the root falls back to globbing
+If none of the fragments populate `LEXICON_SOURCES`, the root falls back to globbing
 `src/*.cpp` so the build is functional even before all parallel-agent fragments land.
 
 ---
@@ -60,9 +60,9 @@ If none of the fragments populate `LEXORA_SOURCES`, the root falls back to globb
 | `BUILD_TESTS`                   | ON        | Build Google Test binaries (host builds only)                 |
 | `TARGET_ANDROID`                | OFF       | Mark as Android cross-compile (loads AndroidNDK.cmake)        |
 | `TARGET_IOS`                    | OFF       | Mark as iOS cross-compile (loads iOS.cmake, sets framework)   |
-| `LEXORA_BUILD_FRAMEWORK`        | OFF       | Produce Apple `.framework` bundle                             |
-| `LEXORA_PER_FILE_TESTS`         | OFF       | Build one test binary per `test_*.cpp` (in addition to aggregate) |
-| `LEXORA_ALLOW_GTEST_DOWNLOAD`   | OFF       | Allow `FetchContent` to download GoogleTest if missing        |
+| `LEXICON_BUILD_FRAMEWORK`        | OFF       | Produce Apple `.framework` bundle                             |
+| `LEXICON_PER_FILE_TESTS`         | OFF       | Build one test binary per `test_*.cpp` (in addition to aggregate) |
+| `LEXICON_ALLOW_GTEST_DOWNLOAD`   | OFF       | Allow `FetchContent` to download GoogleTest if missing        |
 
 Default `BUILD_SHARED_LIBS` is **ON for Android/Linux, OFF for iOS** (static framework).
 
@@ -101,7 +101,7 @@ done
 Output (per ABI):
 
 ```
-build/android-$ABI/lib/liblexora-engine.so
+build/android-$ABI/lib/liblexicon-engine.so
 build/android-$ABI/lib/libc++_shared.so   # copied next to the engine .so
 ```
 
@@ -112,7 +112,7 @@ Wire these into the consuming Android app under `app/src/main/jniLibs/<ABI>/`
 ### Option B — ndk-build (legacy)
 
 If your existing build pipeline uses `Android.mk` files instead of CMake, you can
-hand-write an `Android.mk` that compiles `src/*.cpp` and produces `liblexora-engine.so`.
+hand-write an `Android.mk` that compiles `src/*.cpp` and produces `liblexicon-engine.so`.
 This task does **not** generate `Android.mk` files; the recommended path is Option A.
 
 ### JNI side
@@ -120,10 +120,10 @@ This task does **not** generate `Android.mk` files; the recommended path is Opti
 The Java/Kotlin side loads the library by its unversioned name:
 
 ```kotlin
-companion object { init { System.loadLibrary("lexora-engine") } }
+companion object { init { System.loadLibrary("lexicon-engine") } }
 ```
 
-Native functions are declared in `include/lexora/c_api.h`.
+Native functions are declared in `include/lexicon/c_api.h`.
 
 ---
 
@@ -142,7 +142,7 @@ cd native/cpp
 cmake -G Xcode -S . -B build/ios \
   -DCMAKE_TOOLCHAIN_FILE=cmake/Toolchain-iOS.cmake \
   -DTARGET_IOS=ON \
-  -DLEXORA_BUILD_FRAMEWORK=ON \
+  -DLEXICON_BUILD_FRAMEWORK=ON \
   -DBUILD_SHARED_LIBS=OFF \
   -DBUILD_TESTS=OFF
 cmake --build build/ios --config Release
@@ -151,22 +151,22 @@ cmake --build build/ios --config Release
 Output:
 
 ```
-build/ios/Release/LexoraEngine.framework
+build/ios/Release/LexiconEngine.framework
 ```
 
 The framework contains:
 
-- `LexoraEngine`       — static archive (arm64)
+- `LexiconEngine`       — static archive (arm64)
 - `Headers/`           — public headers (`engine.hpp`, `c_api.h`, …)
 - `Info.plist`         — auto-generated bundle metadata
 
 ### Embed in an Xcode app
 
-1. Drag `LexoraEngine.framework` into the Xcode project navigator (under the
-   Lexora target's "Frameworks, Libraries, and Embedded Content" section).
+1. Drag `LexiconEngine.framework` into the Xcode project navigator (under the
+   Lexicon target's "Frameworks, Libraries, and Embedded Content" section).
 2. Set **Embed** = "Embed & Sign" (or "Do Not Embed" if you link statically and
    only need the headers).
-3. Add `#import <LexoraEngine/c_api.h>` (or `#include <LexoraEngine/engine.hpp>`)
+3. Add `#import <LexiconEngine/c_api.h>` (or `#include <LexiconEngine/engine.hpp>`)
    where needed.
 
 ### iOS simulator
@@ -177,9 +177,9 @@ lipo the two into a fat framework (standard Xcframework workflow):
 
 ```bash
 xcodebuild -create-xcframework \
-  -framework build/ios/Release/LexoraEngine.framework \
-  -framework build/ios-sim/Release/LexoraEngine.framework \
-  -output build/LexoraEngine.xcframework
+  -framework build/ios/Release/LexiconEngine.framework \
+  -framework build/ios-sim/Release/LexiconEngine.framework \
+  -output build/LexiconEngine.xcframework
 ```
 
 ### Bitcode
@@ -201,8 +201,8 @@ cmake --build build/host -j
 Outputs:
 
 ```
-build/host/lib/liblexora-engine.so       # or .a if -DBUILD_SHARED_LIBS=OFF
-build/host/bin/lexora-engine-tests       # test binary
+build/host/lib/liblexicon-engine.so       # or .a if -DBUILD_SHARED_LIBS=OFF
+build/host/bin/lexicon-engine-tests       # test binary
 ```
 
 ### Run tests
@@ -211,7 +211,7 @@ build/host/bin/lexora-engine-tests       # test binary
 cd build/host
 ctest --output-on-failure
 # or run the binary directly:
-./bin/lexora-engine-tests --gtest_color=yes
+./bin/lexicon-engine-tests --gtest_color=yes
 ```
 
 ---
@@ -236,7 +236,7 @@ for, in order:
    - Debian/Ubuntu: `sudo apt install libgtest-dev`
    - Fedora/RHEL:   `sudo dnf install gtest-devel`
    - macOS (brew):  `brew install googletest`
-3. **(Opt-in) Network fetch** — pass `-DLEXORA_ALLOW_GTEST_DOWNLOAD=ON` to allow
+3. **(Opt-in) Network fetch** — pass `-DLEXICON_ALLOW_GTEST_DOWNLOAD=ON` to allow
    `FetchContent` to fetch `release-1.14.0` from GitHub.
 
 If none of these succeed, the test build is **skipped with a warning** — the
@@ -250,7 +250,7 @@ appear in `ctest` without re-running CMake.
 
 ### Per-file test binaries
 
-For isolating failures, pass `-DLEXORA_PER_FILE_TESTS=ON` to also build one
+For isolating failures, pass `-DLEXICON_PER_FILE_TESTS=ON` to also build one
 binary per `test_*.cpp` file (named after the file stem, e.g. `test_hash_table`).
 
 ---
@@ -263,8 +263,8 @@ binary per `test_*.cpp` file (named after the file stem, e.g. `test_hash_table`)
 | `Unsupported ANDROID_ABI='...'`                          | Must be one of `arm64-v8a`, `armeabi-v7a`, `x86_64`                                          |
 | `Could not locate iphoneos SDK via xcrun`                | Run `xcode-select -p`; if missing, `sudo xcode-select --install`                             |
 | `CMake Error: ... FRAMEWORK ...`                         | Use the Xcode generator (`-G Xcode`) for iOS framework builds                                |
-| `Google Test is NOT available`                           | Clone `tests/googletest/` (see §6) or `-DLEXORA_ALLOW_GTEST_DOWNLOAD=ON`                     |
-| `liblexora-engine.so` runs but `UnsatisfiedLinkError`    | Ensure `libc++_shared.so` is shipped alongside the engine .so in `jniLibs/<ABI>/`           |
+| `Google Test is NOT available`                           | Clone `tests/googletest/` (see §6) or `-DLEXICON_ALLOW_GTEST_DOWNLOAD=ON`                     |
+| `liblexicon-engine.so` runs but `UnsatisfiedLinkError`    | Ensure `libc++_shared.so` is shipped alongside the engine .so in `jniLibs/<ABI>/`           |
 
 ---
 
@@ -288,15 +288,15 @@ binary per `test_*.cpp` file (named after the file stem, e.g. `test_hash_table`)
 After a full build, the expected outputs are:
 
 ```
-build/android-arm64-v8a/lib/liblexora-engine.so
+build/android-arm64-v8a/lib/liblexicon-engine.so
 build/android-arm64-v8a/lib/libc++_shared.so
-build/android-armeabi-v7a/lib/liblexora-engine.so
+build/android-armeabi-v7a/lib/liblexicon-engine.so
 build/android-armeabi-v7a/lib/libc++_shared.so
-build/android-x86_64/lib/liblexora-engine.so
+build/android-x86_64/lib/liblexicon-engine.so
 build/android-x86_64/lib/libc++_shared.so
-build/ios/Release/LexoraEngine.framework/
-build/host/lib/liblexora-engine.so
-build/host/bin/lexora-engine-tests
+build/ios/Release/LexiconEngine.framework/
+build/host/lib/liblexicon-engine.so
+build/host/bin/lexicon-engine-tests
 ```
 
 Pass these into the Android Gradle build (under `jniLibs/`) and the Xcode

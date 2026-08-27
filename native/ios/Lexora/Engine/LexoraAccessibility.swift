@@ -1,40 +1,40 @@
 //
-//  LexoraAccessibility.swift
-//  Lexora
+//  LexiconAccessibility.swift
+//  Lexicon
 //
 //  P4-05 — VoiceOver / TalkBack accessibility hardening.
 //
 //  Apple HIG mandates a 44pt × 44pt minimum touch target. This file
-//  centralises every Lexora accessibility convention so the rest of the
+//  centralises every Lexicon accessibility convention so the rest of the
 //  codebase can opt-in via a single, greppable API surface:
 //
-//    1. Minimum touch target — `LexoraAccessibility.minTouchTargetSize`
-//       (44×44) + `.lexoraMinTouchTarget()` modifier.
+//    1. Minimum touch target — `LexiconAccessibility.minTouchTargetSize`
+//       (44×44) + `.lexiconMinTouchTarget()` modifier.
 //    2. VoiceOver label / hint / heading ViewModifiers (thin wrappers over
 //       SwiftUI's accessibility modifiers — they exist so audits can grep
-//       for `.lexoraAccessibilityLabel` and find every custom label in
+//       for `.lexiconAccessibilityLabel` and find every custom label in
 //       one pass, and so heading level + `.isHeader` trait are applied
 //       together consistently).
-//    3. `LexoraAccessibilityLabels` — canonical VoiceOver strings for every
+//    3. `LexiconAccessibilityLabels` — canonical VoiceOver strings for every
 //       icon-only button in the app (matches the P4-05 spec verbatim).
-//    4. `LexoraAccessibilityTraits` convenience — `.isButton` / `.isHeader`
+//    4. `LexiconAccessibilityTraits` convenience — `.isButton` / `.isHeader`
 //       applied together with the label so a button is never label-less
 //       nor trait-less.
-//    5. Dynamic Type — every `Font.lexora*` factory already uses
+//    5. Dynamic Type — every `Font.lexicon*` factory already uses
 //       `.custom(_, relativeTo:)` so text scales with the user's
 //       preferred content size category automatically; the
-//       `.lexoraDynamicType()` modifier is a no-op audit marker +
+//       `.lexiconDynamicType()` modifier is a no-op audit marker +
 //       enforces `.minimumScaleFactor` so layouts never clip.
-//    6. Reduce Motion — `.lexoraMotion(...)` respects
+//    6. Reduce Motion — `.lexiconMotion(...)` respects
 //       `@Environment(\.accessibilityReduceMotion)`; returns the unmodified
 //       value when the user has enabled Reduce Motion in Settings.
-//    7. VoiceOver focus management — `LexoraVoiceOverFocus` enum + a
+//    7. VoiceOver focus management — `LexiconVoiceOverFocus` enum + a
 //       `@AccessibilityFocusState` convenience; SearchModal binds it to
 //       move focus to the results list when results appear.
 //
 //  HARD GATE (per spec P4-05): 100% touch target compliance. Every
 //  interactive element in `Components/` MUST be ≥ 44×44pt. The
-//  `.lexoraMinTouchTarget()` modifier is applied to every Button /
+//  `.lexiconMinTouchTarget()` modifier is applied to every Button /
 //  tappable area in the codebase via either direct call or via the
 //  `AccessibleButton` wrapper.
 //
@@ -44,7 +44,7 @@ import UIKit
 
 // MARK: - Minimum touch target (Apple HIG: 44pt × 44pt)
 
-enum LexoraAccessibility {
+enum LexiconAccessibility {
     /// Apple Human Interface Guidelines minimum touch target size.
     /// Used as the floor for every interactive element in the app.
     static let minTouchTargetSize: CGSize = CGSize(width: 44, height: 44)
@@ -60,13 +60,13 @@ enum LexoraAccessibility {
 
     /// True when the user has enabled Reduce Motion (Settings →
     /// Accessibility → Motion → Reduce Motion). Respected by
-    /// `.lexoraMotion(...)`.
+    /// `.lexiconMotion(...)`.
     static var reduceMotionEnabled: Bool {
         UIAccessibility.isReduceMotionEnabled
     }
 
     /// True when the user has enabled Bold Text (Settings → Accessibility
-    /// → Display & Text Size → Bold Text). Used by `LexoraTypography`
+    /// → Display & Text Size → Bold Text). Used by `LexiconTypography`
     /// fallback weights.
     static var boldTextEnabled: Bool {
         UIAccessibility.isBoldTextEnabled
@@ -80,15 +80,15 @@ enum LexoraAccessibility {
 //  which toggles between `bookmarkSave` and `bookmarkRemove`).
 //
 
-enum LexoraAccessibilityLabels {
-    // Hamburger (LexoraHeader left)
+enum LexiconAccessibilityLabels {
+    // Hamburger (LexiconHeader left)
     static let menu              = "Open navigation menu"
     // Magnifying glass icon (FloatingSearchBar, BottomNav center, SearchModal field)
     static let search            = "Search for a word"
     static let openSearch        = "Open search"
-    // Bell (LexoraHeader right)
+    // Bell (LexiconHeader right)
     static let bell              = "Notifications, new items available"
-    // Avatar (LexoraHeader right)
+    // Avatar (LexiconHeader right)
     static let avatar            = "Open profile"
     // speaker.wave.2 (WordOfTheDayCard, WordDetailSheet)
     static let volume            = "Pronounce word"
@@ -119,11 +119,11 @@ enum LexoraAccessibilityLabels {
 //  SwiftUI's `Button` already advertises `.isButton` automatically, but
 //  custom tappable areas (e.g. `.onTapGesture` on a ZStack) do NOT — they
 //  must add the trait manually so VoiceOver announces "double-tap to
-//  activate" instead of just reading the label. `LexoraAccessibilityTraits`
+//  activate" instead of just reading the label. `LexiconAccessibilityTraits`
 //  bundles the trait + label application together so they can't drift.
 //
 
-enum LexoraAccessibilityTraits {
+enum LexiconAccessibilityTraits {
     /// Apply to any tappable element so VoiceOver announces it as a button.
     static let button: AccessibilityTraits = .isButton
     /// Apply to section titles so VoiceOver announces "heading" and the
@@ -133,11 +133,11 @@ enum LexoraAccessibilityTraits {
 
 // MARK: - Heading levels (iOS 17+ `.accessibilityHeading`, iOS 16 fallback)
 
-/// Lexora heading levels — mirror SwiftUI's `AccessibilityHeadingLevel`
+/// Lexicon heading levels — mirror SwiftUI's `AccessibilityHeadingLevel`
 /// (iOS 17+) so the same call site works on iOS 16 by falling back to
 /// `.accessibilityAddTraits(.isHeader)` (loses the level metadata but
 /// preserves the "heading" announcement + rotor navigation).
-enum LexoraHeadingLevel {
+enum LexiconHeadingLevel {
     case h1, h2, h3, h4, h5, h6
 
     @available(iOS 17.0, *)
@@ -165,7 +165,7 @@ enum LexoraHeadingLevel {
 //  other screen that needs to programmatically focus an element).
 //
 
-enum LexoraVoiceOverFocus: Hashable {
+enum LexiconVoiceOverFocus: Hashable {
     case searchField       // SearchModal's TextField
     case searchResults     // SearchModal's results list header
     case wordDetailHeader  // WordDetailSheet's word title (future use)
@@ -181,20 +181,20 @@ extension View {
     /// Adds a VoiceOver label to the receiver.
     ///
     /// Thin wrapper over `accessibilityLabel(Text:)` — exists so audits
-    /// can grep for `.lexoraAccessibilityLabel` and find every custom
+    /// can grep for `.lexiconAccessibilityLabel` and find every custom
     /// label in the codebase in one pass.
     ///
     /// - Parameter label: The string VoiceOver reads when the element
     ///   receives focus. For icon-only buttons, use a verb phrase
     ///   ("Open navigation menu", not "Menu icon").
     @inlinable
-    func lexoraAccessibilityLabel<S: StringProtocol>(_ label: S) -> some View {
+    func lexiconAccessibilityLabel<S: StringProtocol>(_ label: S) -> some View {
         accessibilityLabel(Text(String(label)))
     }
 
     /// Localized-string overload (for `LocalizedStringKey` constants).
     @inlinable
-    func lexoraAccessibilityLabel(_ label: LocalizedStringKey) -> some View {
+    func lexiconAccessibilityLabel(_ label: LocalizedStringKey) -> some View {
         accessibilityLabel(Text(label))
     }
 
@@ -206,12 +206,12 @@ extension View {
     /// "Hints" enabled in VoiceOver settings. Use sparingly — only for
     /// non-obvious actions (e.g. "Searches the offline dictionary").
     @inlinable
-    func lexoraAccessibilityHint<S: StringProtocol>(_ hint: S) -> some View {
+    func lexiconAccessibilityHint<S: StringProtocol>(_ hint: S) -> some View {
         accessibilityHint(Text(String(hint)))
     }
 
     @inlinable
-    func lexoraAccessibilityHint(_ hint: LocalizedStringKey) -> some View {
+    func lexiconAccessibilityHint(_ hint: LocalizedStringKey) -> some View {
         accessibilityHint(Text(hint))
     }
 
@@ -229,7 +229,7 @@ extension View {
     /// "Etymology", "Explore by Category", etc.) so VoiceOver users can
     /// skim the screen via the Headings rotor.
     @ViewBuilder
-    func lexoraAccessibilityHeading(_ level: LexoraHeadingLevel) -> some View {
+    func lexiconAccessibilityHeading(_ level: LexiconHeadingLevel) -> some View {
         if #available(iOS 17.0, *) {
             self.accessibilityHeading(level.swiftUIHeading)
         } else {
@@ -257,7 +257,7 @@ extension View {
     /// `AccessibleButton` wrapper applies it automatically; ad-hoc
     /// `Button { } label: { ... }` calls must apply it manually.
     @inlinable
-    func lexoraMinTouchTarget(min: CGFloat = LexoraAccessibility.minTouchTarget) -> some View {
+    func lexiconMinTouchTarget(min: CGFloat = LexiconAccessibility.minTouchTarget) -> some View {
         self
             .frame(minWidth: min, minHeight: min)
             .contentShape(Rectangle())
@@ -275,7 +275,7 @@ extension View {
     /// measure for cases where the Button is wrapped in modifiers that
     /// strip the trait (e.g. `.overlay`).
     @inlinable
-    func lexoraAsButton(
+    func lexiconAsButton(
         labeled label: String,
         hint: String? = nil,
         minTouchTarget: Bool = true
@@ -290,8 +290,8 @@ extension View {
         if minTouchTarget {
             modified = AnyView(
                 modified
-                    .frame(minWidth: LexoraAccessibility.minTouchTarget,
-                           minHeight: LexoraAccessibility.minTouchTarget)
+                    .frame(minWidth: LexiconAccessibility.minTouchTarget,
+                           minHeight: LexiconAccessibility.minTouchTarget)
                     .contentShape(Rectangle())
             )
         }
@@ -305,26 +305,26 @@ extension View {
     /// Apply to section titles so VoiceOver users can navigate via the
     /// Headings rotor.
     @inlinable
-    func lexoraAsHeader(
+    func lexiconAsHeader(
         labeled label: String? = nil,
-        level: LexoraHeadingLevel = .h2
+        level: LexiconHeadingLevel = .h2
     ) -> some View {
         var modified: AnyView = AnyView(self)
         if let label = label {
             modified = AnyView(modified.accessibilityLabel(Text(label)))
         }
         return AnyView(
-            modified.lexoraAccessibilityHeading(level)
+            modified.lexiconAccessibilityHeading(level)
         )
     }
 
     // MARK: Dynamic Type — audit marker + scale-factor safety net
     //
-    //  All `Font.lexora*` factories already use `.custom(_, relativeTo:)`
+    //  All `Font.lexicon*` factories already use `.custom(_, relativeTo:)`
     //  so they scale with the user's preferred content size category
     //  (XS → XXXL, plus accessibility sizes AX5). This modifier is a
     //  no-op that:
-    //    1. Serves as an audit marker — grep for `.lexoraDynamicType`
+    //    1. Serves as an audit marker — grep for `.lexiconDynamicType`
     //       to find every Text/Label that's been verified for Dynamic
     //       Type compliance.
     //    2. Applies a defensive `.minimumScaleFactor(0.7)` so a Text
@@ -333,7 +333,7 @@ extension View {
     //       `.lineLimit(1)` for single-line labels.
     //
     @inlinable
-    func lexoraDynamicType(minimumScaleFactor: CGFloat = 0.7) -> some View {
+    func lexiconDynamicType(minimumScaleFactor: CGFloat = 0.7) -> some View {
         self.minimumScaleFactor(minimumScaleFactor)
     }
 
@@ -345,15 +345,15 @@ extension View {
     //  animation, exactly like `.animation(_:value:)`.
     //
     //  Use anywhere the codebase previously called `.animation(.easeInOut,
-    //  value:)` — replacing those calls with `.lexoraMotion(.easeInOut,
+    //  value:)` — replacing those calls with `.lexiconMotion(.easeInOut,
     //  value:)` makes the entire app Reduce-Motion-compliant in one pass.
     //
     @inlinable
-    func lexoraMotion<V: Equatable>(
+    func lexiconMotion<V: Equatable>(
         _ animation: Animation? = .default,
         value: V
     ) -> some View {
-        modifier(LexoraReduceMotionModifier(animation: animation, value: value))
+        modifier(LexiconReduceMotionModifier(animation: animation, value: value))
     }
 
     // MARK: Decorative-element marker
@@ -365,13 +365,13 @@ extension View {
     //  navigating.
     //
     @inlinable
-    func lexoraDecorative() -> some View {
+    func lexiconDecorative() -> some View {
         accessibilityHidden(true)
     }
 
     // MARK: Group composite views into a single VoiceOver element
     //
-    //  Composite controls (e.g. LexoraHeader's brand lockup = mark + title
+    //  Composite controls (e.g. LexiconHeader's brand lockup = mark + title
     //  + tagline = 3 separate Text elements) become ONE VoiceOver element
     //  whose label is the concatenation of the children. Without this,
     //  VoiceOver reads each Text separately, forcing 3 swipe gestures to
@@ -381,7 +381,7 @@ extension View {
     //  equivalent of `UIAccessibility.accessibilityElements = [combined]`.
     //
     @inlinable
-    func lexoraCombinedElement() -> some View {
+    func lexiconCombinedElement() -> some View {
         accessibilityElement(children: .combine)
     }
 
@@ -390,7 +390,7 @@ extension View {
     //  P4-05 spec §7. Use `@AccessibilityFocusState` directly in any
     //  view that needs to programmatically move VoiceOver focus:
     //
-    //    @AccessibilityFocusState private var voFocus: LexoraVoiceOverFocus?
+    //    @AccessibilityFocusState private var voFocus: LexiconVoiceOverFocus?
     //    ...
     //    someView.accessibilityFocused($voFocus, equals: .searchResults)
     //
@@ -401,13 +401,13 @@ extension View {
 
 // MARK: - Reduce Motion ViewModifier
 
-/// Backing ViewModifier for `View.lexoraMotion(_:value:)`.
+/// Backing ViewModifier for `View.lexiconMotion(_:value:)`.
 ///
 /// Reads `@Environment(\.accessibilityReduceMotion)` and conditionally
 /// applies the animation. When Reduce Motion is enabled, the view is
 /// returned without animation — SwiftUI's default instantaneous state
 /// change is used instead.
-private struct LexoraReduceMotionModifier<V: Equatable>: ViewModifier {
+private struct LexiconReduceMotionModifier<V: Equatable>: ViewModifier {
     let animation: Animation?
     let value: V
 
@@ -427,11 +427,11 @@ private struct LexoraReduceMotionModifier<V: Equatable>: ViewModifier {
 //  VoiceOver focus management (P4-05 §7):
 //
 //  Use `@AccessibilityFocusState` directly in any view that needs to
-//  programmatically move VoiceOver focus. The `LexoraVoiceOverFocus`
+//  programmatically move VoiceOver focus. The `LexiconVoiceOverFocus`
 //  enum (declared above) is the canonical focus-target namespace.
 //  Example from `SearchModal.swift`:
 //
-//    @AccessibilityFocusState private var voFocus: LexoraVoiceOverFocus?
+//    @AccessibilityFocusState private var voFocus: LexiconVoiceOverFocus?
 //
 //    var body: some View {
 //        resultsList

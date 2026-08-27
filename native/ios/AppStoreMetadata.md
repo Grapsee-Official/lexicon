@@ -1,12 +1,12 @@
-# Lexora — App Store Connect Submission Metadata
+# Lexicon — App Store Connect Submission Metadata
 
 This document is the single source of truth for the App Store Connect listing
-of **Lexora — Words. Wisdom. Worlds.** Every field below maps 1:1 to a field
-in App Store Connect → My Apps → Lexora → App Information / App Store tab.
+of **Lexicon — Words. Wisdom. Worlds.** Every field below maps 1:1 to a field
+in App Store Connect → My Apps → Lexicon → App Information / App Store tab.
 
 > **Submission owner:** fill in before submission.
-> **Bundle ID:** `com.lexora.app`
-> **SKU:** `com.lexora.app.ios` (suggested — used internally by App Store Connect, never shown to users)
+> **Bundle ID:** `com.lexicon.app`
+> **SKU:** `com.lexicon.app.ios` (suggested — used internally by App Store Connect, never shown to users)
 > **Primary language:** English (U.S.) — `en-US`
 
 ---
@@ -14,31 +14,31 @@ in App Store Connect → My Apps → Lexora → App Information / App Store tab.
 ## 1. App name
 
 ```
-Lexora — Words. Wisdom. Worlds.
+Lexicon — Words. Wisdom. Worlds.
 ```
 
 - **Field limit:** 30 characters.
 - **Length of submitted value:** 31 characters including spaces and em dashes.
 
 > ⚠️ **App Store Connect limit is 30 characters for the App Name field.** The
-> full marketing name "Lexora — Words. Wisdom. Worlds." (31 chars) **exceeds**
+> full marketing name "Lexicon — Words. Wisdom. Worlds." (31 chars) **exceeds**
 > the 30-char limit when the em dash is counted as 1 character (it is, per
 > Apple's UTF-8 byte counting).
 >
-> **Recommended resolution:** submit the App Name as **`Lexora`** (6 chars,
+> **Recommended resolution:** submit the App Name as **`Lexicon`** (6 chars,
 > the on-home-screen display name from `CFBundleDisplayName`), and put the
 > tagline **`Words. Wisdom. Worlds.`** in the **Subtitle** field instead (it
 > fits — see §2).
 >
 > If you want the marketing name to appear in the search-result title, you
 > have two options:
-> 1. Shorten to **`Lexora — Words. Wisdom.`** (24 chars) for the App Name.
-> 2. Keep `Lexora` as the App Name and rely on the Subtitle to carry the
+> 1. Shorten to **`Lexicon — Words. Wisdom.`** (24 chars) for the App Name.
+> 2. Keep `Lexicon` as the App Name and rely on the Subtitle to carry the
 >    tagline (recommended — this is what Apple's own apps do).
 
 | Field | Value | Length |
 | --- | --- | --- |
-| **App Name** (30-char limit) | `Lexora` | 6 ✓ |
+| **App Name** (30-char limit) | `Lexicon` | 6 ✓ |
 | **Subtitle** (30-char limit) | `Offline Multilingual Dictionary` | 31 ⚠ |
 
 Wait — see §2 below; the subtitle also needs trimming.
@@ -64,7 +64,7 @@ Offline Multilingual Dictionary
 > | **C** | `Multilingual Dictionary` | 24 ✓ |
 > | **D** | `Words. Wisdom. Worlds.` (use tagline here, see §1) | 23 ✓ |
 >
-> **Recommended final choice:** App Name = `Lexora`, Subtitle =
+> **Recommended final choice:** App Name = `Lexicon`, Subtitle =
 > `Offline Dictionary` — the word "multilingual" is well covered by the
 > keyword list (§4) and the description (§3).
 
@@ -77,9 +77,9 @@ Offline Multilingual Dictionary
 > future expansion.
 
 ```
-Lexora — Words. Wisdom. Worlds.
+Lexicon — Words. Wisdom. Worlds.
 
-Carry the world's words in your pocket. Lexora is an offline-first multilingual dictionary designed for readers, writers, students, and the endlessly curious — a calm, beautiful reference that works whether you're online or miles from a signal.
+Carry the world's words in your pocket. Lexicon is an offline-first multilingual dictionary designed for readers, writers, students, and the endlessly curious — a calm, beautiful reference that works whether you're online or miles from a signal.
 
 NO INTERNET? NO PROBLEM
 Every language pack ships pre-indexed on your device. Look up a word in English, Spanish, French, German, Italian, Portuguese, or Dutch in milliseconds — no spinning loader, no roaming charges, no privacy compromises. Airplane mode is a feature, not a limitation.
@@ -102,7 +102,7 @@ RICH ENTRIES, RENDERED WITH CARE
 Every entry includes phonetics, part of speech, multiple definitions, etymology, synonyms, antonyms, and example sentences drawn from literature and journalism. Long-form text is set in a serif designed for sustained reading — no eye strain, no clutter.
 
 PRIVATE BY DESIGN
-Lexora collects no personal data. No accounts. No advertising SDKs. No analytics trackers. Anonymous crash reports (device model, OS version, stack trace — never your words, never your identity) can be disabled anytime in Settings. Crash logs are deleted after 30 days. That's the entire privacy story.
+Lexicon collects no personal data. No accounts. No advertising SDKs. No analytics trackers. Anonymous crash reports (device model, OS version, stack trace — never your words, never your identity) can be disabled anytime in Settings. Crash logs are deleted after 30 days. That's the entire privacy story.
 
 BEAUTIFUL ON EVERY DEVICE
 • iPhone — portrait-optimized, edge-to-edge, one-handed.
@@ -116,9 +116,9 @@ WORKS WITH YOUR SYSTEM
 • Spotlight indexing — search your saved words from the system search.
 • Shortcuts — build "look up word" actions into your automations.
 
-Lexora is built by a small team of writers, engineers, and language lovers. We make it for the person who reads three books at once, the student writing a paper at 2 a.m., the traveler puzzling over a menu, and the parent answering "what does that word mean, mama?" — for everyone who believes a good dictionary is a kind of magic.
+Lexicon is built by a small team of writers, engineers, and language lovers. We make it for the person who reads three books at once, the student writing a paper at 2 a.m., the traveler puzzling over a menu, and the parent answering "what does that word mean, mama?" — for everyone who believes a good dictionary is a kind of magic.
 
-Words. Wisdom. Worlds. Welcome to Lexora.
+Words. Wisdom. Worlds. Welcome to Lexicon.
 ```
 
 ### What's a Feature?
@@ -186,7 +186,7 @@ dictionary,offline,multilingual,translate,vocabulary,language,reference,definiti
 
 Both categories are appropriate for an offline multilingual dictionary:
 
-- **Education** is the primary because Lexora is explicitly designed for
+- **Education** is the primary because Lexicon is explicitly designed for
   students, language learners, and readers building vocabulary. The
   in-app Vocabulary category, Word of the Day, and curated category
   collections reinforce the education positioning.
@@ -209,7 +209,7 @@ Both categories are appropriate for an offline multilingual dictionary:
 
 ### App Store Connect age-rating questionnaire answers
 
-Answer **None** to every content question. Lexora contains no objectionable
+Answer **None** to every content question. Lexicon contains no objectionable
 content. Specifically:
 
 | Question | Answer |
@@ -224,9 +224,9 @@ content. Specifically:
 | Simulated gambling | None |
 | Sexual content or nudity | None |
 | Graphic sexual content or nudity | None |
-| Unrestricted web access | No (Lexora has no in-app browser; all web links open in Safari via `UIApplication.open(_:options:)`) |
+| Unrestricted web access | No (Lexicon has no in-app browser; all web links open in Safari via `UIApplication.open(_:options:)`) |
 | Gambling with real currency | No |
-| /USER-generated content | No (Lexora is read-only; users cannot post content) |
+| /USER-generated content | No (Lexicon is read-only; users cannot post content) |
 
 Result: **4+** — suitable for all ages. No age-gating, no parental controls
 required.
@@ -246,7 +246,7 @@ required.
 
 > "Data Not Collected" is a specific Apple-defined label. It indicates that
 > the developer does not collect any data from the app at all. Because
-> Lexora's crash reports and sync metadata are both **anonymous, non-personal,
+> Lexicon's crash reports and sync metadata are both **anonymous, non-personal,
 > and not linked to the user or device** (see `PrivacyPolicy.md` §4), they
 > fall **outside** Apple's definition of "data collected from the app" for
 > nutrition-label purposes — they are technical telemetry, not personal or
@@ -256,7 +256,7 @@ required.
 
 | Data type | Collected? | Linked to user? | Used for tracking? | Notes |
 | --- | --- | --- | --- | --- |
-| Contact Info (name, email, phone) | No | — | — | Lexora has no account system |
+| Contact Info (name, email, phone) | No | — | — | Lexicon has no account system |
 | Identifiers (user ID, device ID) | No | — | — | IDFA never requested; IDFV never read |
 | Location (precise, coarse) | No | — | — | No Core Location usage |
 | User Content (photos, videos, audio, game content, etc.) | No | — | — | On-device only; never transmitted |
@@ -272,7 +272,7 @@ required.
 
 ### Tracking disclosure
 
-- **Used to track you?** **No.** Lexora does not track. The app does not
+- **Used to track you?** **No.** Lexicon does not track. The app does not
   request ATT (App Tracking Transparency) authorisation, because there is
   nothing to track.
 
@@ -308,7 +308,7 @@ should be:
 ### Current state of the project's icon
 
 The Xcode asset catalog at
-`native/ios/Lexora/Assets.xcassets/AppIcon.appiconset/Contents.json` declares
+`native/ios/Lexicon/Assets.xcassets/AppIcon.appiconset/Contents.json` declares
 a single 1024×1024 entry pointing at the file `icon-512.png`. **The file
 `icon-512.png` is a 512×512 source image, not a true 1024×1024 image** — it is
 being upscaled by the asset catalog at build time, which App Review will
@@ -319,7 +319,7 @@ reject.
 1. Generate a true **1024 × 1024 PNG** icon (no transparency, no rounded
    corners — iOS applies the corner mask automatically).
 2. Save it as
-   `native/ios/Lexora/Assets.xcassets/AppIcon.appiconset/icon-1024.png`.
+   `native/ios/Lexicon/Assets.xcassets/AppIcon.appiconset/icon-1024.png`.
 3. Edit `Contents.json` to point the 1024×1024 entry at the new file:
    ```json
    {
@@ -331,20 +331,20 @@ reject.
    ```
 4. Validate the icon in Xcode: open the asset catalog, select `AppIcon`, and
    confirm the 1024×1024 slot shows no warning triangle.
-5. Upload the same 1024×1024 PNG to **App Store Connect → Lexora → App Store
+5. Upload the same 1024×1024 PNG to **App Store Connect → Lexicon → App Store
    tab → App Store Icon**. (App Store Connect uses the same single 1024×1024
    image; Xcode's asset catalog is for the on-device icon set, but the source
    image is the same.)
 
 ### Design notes for the icon
 
-- The brand mark `lexora-mark.png` (currently in `Resources/`) is the
-  starting point. It uses the brand palette from `LexoraColors.swift`:
+- The brand mark `lexicon-mark.png` (currently in `Resources/`) is the
+  starting point. It uses the brand palette from `LexiconColors.swift`:
   background `#FAF3E9` (warm cream), foreground `#677554` (brand green) or
   `#31462F` (deep green).
 - Avoid using text in the icon — small icons on the home screen render text
   illegibly.
-- Do not include the words "Lexora" or "Dictionary" in the icon itself;
+- Do not include the words "Lexicon" or "Dictionary" in the icon itself;
   Apple's icon guidelines discourage text-heavy icons.
 - Test the icon at small sizes (40×40, 60×60) on both light and dark
   home-screen backgrounds before submission.
@@ -354,7 +354,7 @@ reject.
 ## 9. Screenshots
 
 App Store Connect requires screenshots for **every device size you support**.
-Lexora targets iPhone (portrait only) and iPad (all orientations). The
+Lexicon targets iPhone (portrait only) and iPad (all orientations). The
 following screenshot sets are required for v1.0.
 
 ### 9.1 Required screenshot sets
@@ -384,7 +384,7 @@ weight:
 | 3 | DictionaryScreen | "Search that thinks like you." | Active search showing fuzzy-match results for a misspelled query. |
 | 4 | CollectionsScreen | "Your private lexicon." | Saved words grid; emphasise privacy ("stored on your device, never shared"). |
 | 5 | MoreScreen → Settings | "Private by design." | Settings screen with the Crash Reporting toggle visible. |
-| 6 | iPad split-view | "Built for iPad." | (iPad only) Lexora running in Split View alongside Notes; show how the on-device dictionary composes with other apps. |
+| 6 | iPad split-view | "Built for iPad." | (iPad only) Lexicon running in Split View alongside Notes; show how the on-device dictionary composes with other apps. |
 
 ### 9.3 Screenshot production guidelines
 
@@ -441,12 +441,12 @@ For v1.0, produce **one** 15–30 second preview for the iPhone 6.7" set.
 
 | Time | Shot | Voice-over / on-screen text |
 | --- | --- | --- |
-| 0:00–0:03 | App icon animation → app launches; HomeScreen scrolls in | (no voice-over) "Lexora" caption fades in |
+| 0:00–0:03 | App icon animation → app launches; HomeScreen scrolls in | (no voice-over) "Lexicon" caption fades in |
 | 0:03–0:08 | Tap on Word of the Day card → WordDetailSheet slides up; camera slowly pans down the entry showing etymology → synonyms → example | "Every word, fully told." |
 | 0:08–0:14 | Dismiss sheet → tap search → type "serendipidy" (misspelled) → tap top fuzzy result → correct word's entry | "Search that forgives typos." |
 | 0:14–0:20 | Swipe to Collections tab → tap the bookmark on a word → it appears in the saved grid | "Save the words you love." |
 | 0:20–0:25 | Open Settings → toggle Crash Reporting off → toggle Auto-update language packs off | "Private by design. Always." |
-| 0:25–0:30 | Quick montage: dark mode → iPad split view → close | "Words. Wisdom. Worlds. Lexora." |
+| 0:25–0:30 | Quick montage: dark mode → iPad split view → close | "Words. Wisdom. Worlds. Lexicon." |
 
 ### 10.3 Production guidelines
 
@@ -457,7 +457,7 @@ For v1.0, produce **one** 15–30 second preview for the iPhone 6.7" set.
 - **No pricing info** in the video (Apple's policy: prices change across
   regions; showing a price causes re-review when prices update).
 - **No personal data** in the video — use the bundled sample words
-  (LexoraData.swift ships 18 entries; pick the most visually appealing
+  (LexiconData.swift ships 18 entries; pick the most visually appealing
   ones — "serendipity", "petrichor", "wanderlust" are recommended).
 - **Localize on-screen text** for the same 7 languages as the description.
 - **Add closed captions** in App Store Connect for accessibility (a separate
@@ -471,21 +471,21 @@ For v1.0, produce **one** 15–30 second preview for the iPhone 6.7" set.
 
 | Field | Value | Notes |
 | --- | --- | --- |
-| **Support URL** (required) | `https://lexora.app/support` | Must be a real, reachable URL before submission. |
-| **Marketing URL** (optional but recommended) | `https://lexora.app` | The product landing page. |
-| **Privacy Policy URL** (required) | `https://lexora.app/privacy` | Must serve an HTML rendering of `Lexora/PrivacyPolicy.md` verbatim. Apple reviews this URL during submission. |
-| **Copyright** | `© 2025 Lexora` | Matches `NSHumanReadableCopyright` in `Info.plist`. |
+| **Support URL** (required) | `https://lexicon.app/support` | Must be a real, reachable URL before submission. |
+| **Marketing URL** (optional but recommended) | `https://lexicon.app` | The product landing page. |
+| **Privacy Policy URL** (required) | `https://lexicon.app/privacy` | Must serve an HTML rendering of `Lexicon/PrivacyPolicy.md` verbatim. Apple reviews this URL during submission. |
+| **Copyright** | `© 2025 Lexicon` | Matches `NSHumanReadableCopyright` in `Info.plist`. |
 
 ### 11.2 Routing — Demo Account / Sign-in
 
-> **Not applicable.** Lexora has no account system. Leave this field blank.
+> **Not applicable.** Lexicon has no account system. Leave this field blank.
 
 ### 11.3 Routing — Notes for App Review
 
 Paste the following note in **App Review Information → Notes**:
 
 ```
-Lexora is an offline-first multilingual dictionary. It requires no
+Lexicon is an offline-first multilingual dictionary. It requires no
 account, no sign-in, and no network connection for core functionality.
 
 To review:
@@ -496,7 +496,7 @@ To review:
    to verify.
 4. Open More → Settings → toggle Crash Reporting off (no UI change
    required, but verify the toggle persists across app restarts).
-5. Airplane-mode test: enable iOS Airplane Mode → relaunch Lexora →
+5. Airplane-mode test: enable iOS Airplane Mode → relaunch Lexicon →
    verify the dictionary still works fully offline.
 
 Optional features:
@@ -507,7 +507,7 @@ Optional features:
   prompt for camera permission. This uses the on-device Vision
   framework — no images leave the device.
 
-Privacy: Lexora collects no personal data. See the Privacy Policy URL
+Privacy: Lexicon collects no personal data. See the Privacy Policy URL
 for details.
 ```
 
@@ -541,13 +541,13 @@ Use this checklist before clicking "Add for Review" in App Store Connect.
 
 ### Metadata
 
-- [ ] App Name = `Lexora` (≤ 30 chars)
+- [ ] App Name = `Lexicon` (≤ 30 chars)
 - [ ] Subtitle = `Offline Dictionary` (≤ 30 chars) — see §2
 - [ ] Primary Category = `Education`
 - [ ] Secondary Category = `Reference`
 - [ ] Content Rights — answer "Does this app contain, show, or access
       third-party content?" → **No** (all dictionary content is original,
-      curated by the Lexora team)
+      curated by the Lexicon team)
 - [ ] Age Rating questionnaire complete → 4+
 - [ ] App Privacy labels complete → "Data Not Collected" (see §7)
 - [ ] IDFA answer = **No**
@@ -556,10 +556,10 @@ Use this checklist before clicking "Add for Review" in App Store Connect.
 
 ### URLs
 
-- [ ] Support URL reachable: `https://lexora.app/support`
-- [ ] Marketing URL reachable: `https://lexora.app`
-- [ ] Privacy Policy URL reachable: `https://lexora.app/privacy` (must
-      serve an HTML rendering of `Lexora/PrivacyPolicy.md`)
+- [ ] Support URL reachable: `https://lexicon.app/support`
+- [ ] Marketing URL reachable: `https://lexicon.app`
+- [ ] Privacy Policy URL reachable: `https://lexicon.app/privacy` (must
+      serve an HTML rendering of `Lexicon/PrivacyPolicy.md`)
 
 ### Build
 
@@ -598,7 +598,7 @@ Use this checklist before clicking "Add for Review" in App Store Connect.
 For the "What's New" section in App Store Connect:
 
 ```
-Welcome to Lexora — Words. Wisdom. Worlds.
+Welcome to Lexicon — Words. Wisdom. Worlds.
 
 This is the first public release.
 
@@ -623,7 +623,7 @@ This is the first public release.
 After submission:
 
 1. **App Review status** — check daily at
-   App Store Connect → My Apps → Lexora → Activity.
+   App Store Connect → My Apps → Lexicon → Activity.
 2. **Phased release** — enable the 7-day phased rollout for v1.0 (default
    setting in App Store Connect → Releases).
 3. **Crash reports** — once the app is live, monitor the crash-reporting
@@ -631,11 +631,11 @@ After submission:
    ship a patch release if a crash exceeds 0.1% of sessions.
 4. **App Store reviews** — respond to every user review within 7 days.
 5. **Privacy policy updates** — if any new data category is added in a
-   future release, update `Lexora/PrivacyPolicy.md` AND the App Privacy
+   future release, update `Lexicon/PrivacyPolicy.md` AND the App Privacy
    labels in App Store Connect BEFORE the new build is submitted.
 
 ---
 
-*This document is the canonical App Store Connect submission spec for Lexora
+*This document is the canonical App Store Connect submission spec for Lexicon
 v1.0. Any change to the app name, subtitle, description, keywords,
 categories, age rating, or privacy labels must be reflected here first.*

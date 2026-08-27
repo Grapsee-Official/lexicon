@@ -1,8 +1,8 @@
 //
 //  FloatingSearchBar.swift
-//  Lexora
+//  Lexicon
 //
-//  Translation of `src/components/lexora/floating-search-bar.tsx`.
+//  Translation of `src/components/lexicon/floating-search-bar.tsx`.
 //
 //  Capsule shape: search icon + "Search for a word..." placeholder
 //  + camera icon + mic icon. All thin strokes.
@@ -11,7 +11,7 @@
 import SwiftUI
 
 struct FloatingSearchBar: View {
-    @EnvironmentObject private var vm: LexoraViewModel
+    @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
 
     var placeholder: String = "Search for a word..."
@@ -24,33 +24,33 @@ struct FloatingSearchBar: View {
             HStack(spacing: 10) {
                 Image(systemName: "magnifyingglass")
                     .font(.system(size: 14, weight: .regular))
-                    .foregroundStyle(lexoraPalette(scheme).foreground.opacity(0.5))
-                    .lexoraDecorative()
+                    .foregroundStyle(lexiconPalette(scheme).foreground.opacity(0.5))
+                    .lexiconDecorative()
 
                 Text(placeholder)
-                    .font(.lexoraBody(13))
-                    .foregroundStyle(lexoraPalette(scheme).mutedForeground.opacity(0.7))
+                    .font(.lexiconBody(13))
+                    .foregroundStyle(lexiconPalette(scheme).mutedForeground.opacity(0.7))
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 Image(systemName: "camera")
                     .font(.system(size: 14, weight: .regular))
-                    .foregroundStyle(lexoraPalette(scheme).foreground.opacity(0.4))
-                    .lexoraDecorative()
+                    .foregroundStyle(lexiconPalette(scheme).foreground.opacity(0.4))
+                    .lexiconDecorative()
 
                 Image(systemName: "mic")
                     .font(.system(size: 14, weight: .regular))
-                    .foregroundStyle(lexoraPalette(scheme).foreground.opacity(0.4))
-                    .lexoraDecorative()
+                    .foregroundStyle(lexiconPalette(scheme).foreground.opacity(0.4))
+                    .lexiconDecorative()
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
-            .background(lexoraPalette(scheme).card)
+            .background(lexiconPalette(scheme).card)
             .clipShape(Capsule())
-            .overlay(Capsule().stroke(lexoraPalette(scheme).border, lineWidth: 1))
+            .overlay(Capsule().stroke(lexiconPalette(scheme).border, lineWidth: 1))
             .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 2)
             // Capsule is ~33pt tall visually (10+13+10). Expand the hit
             // area to ≥ 44pt without changing the visual capsule size.
-            .lexoraMinTouchTarget()
+            .lexiconMinTouchTarget()
             .contentShape(Capsule())
         }
         .buttonStyle(.plain)
@@ -59,7 +59,7 @@ struct FloatingSearchBar: View {
         // "Search for a word..." — VoiceOver reads that as the button's
         // visible text, but the explicit label "Open search" is clearer
         // about the action).
-        .accessibilityLabel(Text(LexoraAccessibilityLabels.openSearch))
+        .accessibilityLabel(Text(LexiconAccessibilityLabels.openSearch))
         .accessibilityHint(Text("Opens the full-screen search overlay"))
         .accessibilityAddTraits(.isButton)
     }
@@ -67,7 +67,7 @@ struct FloatingSearchBar: View {
 
 #Preview {
     FloatingSearchBar()
-        .environmentObject(LexoraViewModel())
+        .environmentObject(LexiconViewModel())
         .padding()
-        .background(LexoraColors.background)
+        .background(LexiconColors.background)
 }

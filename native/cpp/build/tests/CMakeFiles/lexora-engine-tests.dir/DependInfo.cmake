@@ -8,10 +8,10 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/z/my-project/native/cpp/tests/test_dawg.cpp" "tests/CMakeFiles/lexora-engine-tests.dir/test_dawg.cpp.o" "gcc" "tests/CMakeFiles/lexora-engine-tests.dir/test_dawg.cpp.o.d"
-  "/home/z/my-project/native/cpp/tests/test_engine.cpp" "tests/CMakeFiles/lexora-engine-tests.dir/test_engine.cpp.o" "gcc" "tests/CMakeFiles/lexora-engine-tests.dir/test_engine.cpp.o.d"
-  "/home/z/my-project/native/cpp/tests/test_hash_table.cpp" "tests/CMakeFiles/lexora-engine-tests.dir/test_hash_table.cpp.o" "gcc" "tests/CMakeFiles/lexora-engine-tests.dir/test_hash_table.cpp.o.d"
-  "" "bin/lexora-engine-tests" "gcc" "tests/CMakeFiles/lexora-engine-tests.dir/link.d"
+  "/home/z/my-project/native/cpp/tests/test_dawg.cpp" "tests/CMakeFiles/lexicon-engine-tests.dir/test_dawg.cpp.o" "gcc" "tests/CMakeFiles/lexicon-engine-tests.dir/test_dawg.cpp.o.d"
+  "/home/z/my-project/native/cpp/tests/test_engine.cpp" "tests/CMakeFiles/lexicon-engine-tests.dir/test_engine.cpp.o" "gcc" "tests/CMakeFiles/lexicon-engine-tests.dir/test_engine.cpp.o.d"
+  "/home/z/my-project/native/cpp/tests/test_hash_table.cpp" "tests/CMakeFiles/lexicon-engine-tests.dir/test_hash_table.cpp.o" "gcc" "tests/CMakeFiles/lexicon-engine-tests.dir/test_hash_table.cpp.o.d"
+  "" "bin/lexicon-engine-tests" "gcc" "tests/CMakeFiles/lexicon-engine-tests.dir/link.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

@@ -1,4 +1,4 @@
-// KMM build.gradle.kts — Kotlin Multiplatform library module for the Lexora engine.
+// KMM build.gradle.kts — Kotlin Multiplatform library module for the Lexicon engine.
 // Targets Android (JNI bridge to the native C++ engine) and iOS (C-interop).
 //
 // Fixed in P3-FIX-05:
@@ -59,7 +59,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.lexora.engine"
+    namespace = "com.lexicon.engine"
     compileSdk = 34
 
     defaultConfig {

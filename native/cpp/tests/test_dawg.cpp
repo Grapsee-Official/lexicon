@@ -1,13 +1,13 @@
 // test_dawg.cpp — Google Test for DAWG
-#include "lexora/dawg.hpp"
+#include "lexicon/dawg.hpp"
 #include <gtest/gtest.h>
 #include <cstdio>
 
-using namespace lexora;
+using namespace lexicon;
 
 class DawgTest : public ::testing::Test {
 protected:
-    const char* test_file = "/tmp/lexora_test.dawg";
+    const char* test_file = "/tmp/lexicon_test.dawg";
     std::vector<std::string> words = {
         "apple", "application", "apply", "banana", "band", "bandana",
         "cat", "car", "card", "care", "careful"

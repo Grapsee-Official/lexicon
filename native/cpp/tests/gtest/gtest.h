@@ -16,15 +16,15 @@
 // pulls only this stub will fail with "undefined reference to main" by
 // design. The header exists for compile-time validation only.
 //
-// Production build (cmake/GoogleTest.cmake with LEXORA_GTEST_AVAILABLE=ON)
+// Production build (cmake/GoogleTest.cmake with LEXICON_GTEST_AVAILABLE=ON)
 // adds the real gtest include path BEFORE this directory, so an
 // `#include <gtest/gtest.h>` resolves to the real GoogleTest header and
 // this stub is never seen.
 //
 // The macros and types below have the SAME names as real GoogleTest so
 // the same test sources compile unchanged against either implementation.
-#ifndef LEXORA_TESTS_GTEST_STUB_H
-#define LEXORA_TESTS_GTEST_STUB_H
+#ifndef LEXICON_TESTS_GTEST_STUB_H
+#define LEXICON_TESTS_GTEST_STUB_H
 
 // ============================================================================
 // ::testing::Test — fixture base class.
@@ -33,7 +33,7 @@
 // HasFailure(), Setup() vs SetUp(), etc.). We surface only the public API
 // the test sources under tests/ actually use: the virtual SetUp() and
 // TearDown() hooks that fixture subclasses override, and a virtual
-// destructor so fixtures with members of non-trivial types (LexoraEngine,
+// destructor so fixtures with members of non-trivial types (LexiconEngine,
 // std::string, ...) destroy cleanly.
 // ============================================================================
 namespace testing {
@@ -52,13 +52,13 @@ class Test {
 // and then yields a StreamingSink temporary; operator<< is a no-op that
 // returns *this so chains of arbitrary length compile without effect.
 // ============================================================================
-namespace lexora_gtest_stub {
+namespace lexicon_gtest_stub {
 class StreamingSink {
    public:
     template <typename T>
     StreamingSink& operator<<(const T&) noexcept { return *this; }
 };
-}  // namespace lexora_gtest_stub
+}  // namespace lexicon_gtest_stub
 
 // ============================================================================
 // TEST(suite, name) — free-standing test.
@@ -105,44 +105,44 @@ class StreamingSink {
 // at the source level so test files compile unchanged against real gtest.
 // ============================================================================
 #define EXPECT_TRUE(cond)                                                    \
-    (static_cast<void>(cond), ::lexora_gtest_stub::StreamingSink{})
+    (static_cast<void>(cond), ::lexicon_gtest_stub::StreamingSink{})
 #define EXPECT_FALSE(cond)                                                   \
-    (static_cast<void>(cond), ::lexora_gtest_stub::StreamingSink{})
+    (static_cast<void>(cond), ::lexicon_gtest_stub::StreamingSink{})
 #define EXPECT_EQ(a, b)                                                      \
     (static_cast<void>(a), static_cast<void>(b),                             \
-     ::lexora_gtest_stub::StreamingSink{})
+     ::lexicon_gtest_stub::StreamingSink{})
 #define EXPECT_NE(a, b)                                                      \
     (static_cast<void>(a), static_cast<void>(b),                             \
-     ::lexora_gtest_stub::StreamingSink{})
+     ::lexicon_gtest_stub::StreamingSink{})
 #define EXPECT_LT(a, b)                                                      \
     (static_cast<void>(a), static_cast<void>(b),                             \
-     ::lexora_gtest_stub::StreamingSink{})
+     ::lexicon_gtest_stub::StreamingSink{})
 #define EXPECT_LE(a, b)                                                      \
     (static_cast<void>(a), static_cast<void>(b),                             \
-     ::lexora_gtest_stub::StreamingSink{})
+     ::lexicon_gtest_stub::StreamingSink{})
 #define EXPECT_GT(a, b)                                                      \
     (static_cast<void>(a), static_cast<void>(b),                             \
-     ::lexora_gtest_stub::StreamingSink{})
+     ::lexicon_gtest_stub::StreamingSink{})
 #define EXPECT_GE(a, b)                                                      \
     (static_cast<void>(a), static_cast<void>(b),                             \
-     ::lexora_gtest_stub::StreamingSink{})
+     ::lexicon_gtest_stub::StreamingSink{})
 
 #define ASSERT_TRUE(cond)                                                    \
-    (static_cast<void>(cond), ::lexora_gtest_stub::StreamingSink{})
+    (static_cast<void>(cond), ::lexicon_gtest_stub::StreamingSink{})
 #define ASSERT_FALSE(cond)                                                   \
-    (static_cast<void>(cond), ::lexora_gtest_stub::StreamingSink{})
+    (static_cast<void>(cond), ::lexicon_gtest_stub::StreamingSink{})
 #define ASSERT_EQ(a, b)                                                      \
     (static_cast<void>(a), static_cast<void>(b),                             \
-     ::lexora_gtest_stub::StreamingSink{})
+     ::lexicon_gtest_stub::StreamingSink{})
 #define ASSERT_NE(a, b)                                                      \
     (static_cast<void>(a), static_cast<void>(b),                             \
-     ::lexora_gtest_stub::StreamingSink{})
+     ::lexicon_gtest_stub::StreamingSink{})
 
 // EXPECT_STREQ — included for parity with the real gtest public API; none
 // of the bundled test_*.cpp files currently use it, but it is harmless.
 #define EXPECT_STREQ(a, b)                                                   \
     (static_cast<void>(a), static_cast<void>(b),                             \
-     ::lexora_gtest_stub::StreamingSink{})
+     ::lexicon_gtest_stub::StreamingSink{})
 
 // ============================================================================
 // ::testing::InitGoogleTest / RUN_ALL_TESTS — no-ops for parity.
@@ -159,4 +159,4 @@ inline int RUN_ALL_TESTS() { return 0; }
 }  // namespace testing
 #define RUN_ALL_TESTS() ::testing::RUN_ALL_TESTS()
 
-#endif  // LEXORA_TESTS_GTEST_STUB_H
+#endif  // LEXICON_TESTS_GTEST_STUB_H

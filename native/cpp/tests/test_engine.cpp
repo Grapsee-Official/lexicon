@@ -1,12 +1,12 @@
 #include <thread>
 #include <atomic>
-// test_engine.cpp — Google Test for LexoraEngine (end-to-end)
-#include "lexora/engine.hpp"
+// test_engine.cpp — Google Test for LexiconEngine (end-to-end)
+#include "lexicon/engine.hpp"
 #include <gtest/gtest.h>
 #include <filesystem>
 #include <fstream>
 
-using namespace lexora;
+using namespace lexicon;
 
 // Note: These tests require a pre-built database.
 // In CI, the ETL pipeline would run first to generate the .ht + .dawg + .sqlite files.
@@ -15,7 +15,7 @@ using namespace lexora;
 
 class EngineTest : public ::testing::Test {
 protected:
-    LexoraEngine engine;
+    LexiconEngine engine;
 };
 
 TEST_F(EngineTest, LookupWithoutDatabaseReturnsNullopt) {

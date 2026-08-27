@@ -1,8 +1,8 @@
 // test_unicode.cpp — Google Test for Unicode NFC normalization
-#include "lexora/unicode.hpp"
+#include "lexicon/unicode.hpp"
 #include <gtest/gtest.h>
 
-using namespace lexora::unicode;
+using namespace lexicon::unicode;
 
 TEST(UnicodeTest, AsciiPassthrough) {
     EXPECT_EQ(normalize_nfc("hello"), "hello");

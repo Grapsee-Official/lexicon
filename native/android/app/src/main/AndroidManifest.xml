@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
-        android:name=".LexoraApplication"
+        android:name=".LexiconApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -11,7 +11,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Lexora"
+        android:theme="@style/Theme.Lexicon"
         tools:targetApi="34">
 
         <activity
@@ -19,7 +19,7 @@
             android:exported="true"
             android:windowSoftInputMode="adjustResize"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|uiMode|density|fontScale"
-            android:theme="@style/Theme.Lexora">
+            android:theme="@style/Theme.Lexicon">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -27,7 +27,7 @@
         </activity>
 
         <service
-            android:name=".textclassifier.LexoraTextClassifierService"
+            android:name=".textclassifier.LexiconTextClassifierService"
             android:permission="android.permission.BIND_TEXTCLASSIFIER_SERVICE"
             android:exported="true">
             <intent-filter>
@@ -35,9 +35,9 @@
             </intent-filter>
         </service>
 
-        <receiver android:name=".textclassifier.LexoraWordActionReceiver" android:exported="true">
+        <receiver android:name=".textclassifier.LexiconWordActionReceiver" android:exported="true">
             <intent-filter>
-                <action android:name="com.lexora.LOOKUP_WORD" />
+                <action android:name="com.lexicon.LOOKUP_WORD" />
             </intent-filter>
         </receiver>
     </application>

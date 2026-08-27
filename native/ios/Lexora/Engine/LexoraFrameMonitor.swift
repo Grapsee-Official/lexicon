@@ -1,5 +1,5 @@
-//  LexoraFrameMonitor.swift
-//  Lexora
+//  LexiconFrameMonitor.swift
+//  Lexicon
 //
 //  Per spec hard gates:
 //    * "95th percentile frame render time <16ms (60fps) during list scrolling"
@@ -18,7 +18,7 @@
 //  budget (default 16.67 ms @ 60 Hz), the frame is counted as **jank**.
 //
 //  This is the iOS equivalent of Android's [Choreographer.FrameCallback]
-//  (see native/android/app/src/main/java/com/lexora/engine/FrameMonitor.kt).
+//  (see native/android/app/src/main/java/com/lexicon/engine/FrameMonitor.kt).
 //  Both platforms report identical [ScreenStats] JSON shapes so the ETL
 //  perf-collector can parse them with the same code path.
 //
@@ -37,7 +37,7 @@
 //  # JSON output
 //
 //  When `stopScreen(_:)` is called, a `frame_stats` event is emitted in
-//  the same NDJSON format as the C++ `lexora::PerfConfig` perf log:
+//  the same NDJSON format as the C++ `lexicon::PerfConfig` perf log:
 //
 //    {"ts": <epoch_ms>, "type": "frame_stats", "data": {
 //      "screen": "<name>", "total_frames": N, "dropped_frames": M,
@@ -46,7 +46,7 @@
 //      "p50_ms": <ms>, "p95_ms": <ms>, "p99_ms": <ms>
 //    }}
 //
-//  The log path defaults to `<cachesDirectory>/lexora_perf.log` (matching
+//  The log path defaults to `<cachesDirectory>/lexicon_perf.log` (matching
 //  the C++ side's intent of writing to the app's cache dir on iOS).
 //  Override via `setLogPath(_:)` if you want to co-locate with the
 //  engine's perf log.
@@ -76,8 +76,8 @@
 //  struct HomeScreen: View {
 //      var body: some View {
 //          ContentView()
-//              .onAppear { LexoraFrameMonitor.shared.startScreen("home") }
-//              .onDisappear { LexoraFrameMonitor.shared.stopScreen("home") }
+//              .onAppear { LexiconFrameMonitor.shared.startScreen("home") }
+//              .onDisappear { LexiconFrameMonitor.shared.stopScreen("home") }
 //      }
 //  }
 //  ```
@@ -90,13 +90,13 @@ import Foundation
 import QuartzCore
 import os.log
 
-/// LexoraFrameMonitor — singleton that tracks per-screen frame render
+/// LexiconFrameMonitor — singleton that tracks per-screen frame render
 /// times via CADisplayLink and enforces the spec's jank hard gates.
-public final class LexoraFrameMonitor {
+public final class LexiconFrameMonitor {
 
     // MARK: - Singleton
 
-    public static let shared = LexoraFrameMonitor()
+    public static let shared = LexiconFrameMonitor()
 
     // MARK: - Public data types
 
@@ -144,7 +144,7 @@ public final class LexoraFrameMonitor {
     public static let defaultFrameBudgetMs: Double = 16.67
 
     /// Override the JSON perf log path. Defaults to
-    /// `<cachesDirectory>/lexora_perf.log`. Pass nil to disable file
+    /// `<cachesDirectory>/lexicon_perf.log`. Pass nil to disable file
     /// logging (events still go to os.Logger).
     public func setLogPath(_ path: String?) {
         lock.lock(); defer { lock.unlock() }
@@ -172,7 +172,7 @@ public final class LexoraFrameMonitor {
     ///     exceeds this are counted as drops. Default 16.67 ms (60 fps).
     ///     Use 8.33 for 120 Hz ProMotion displays, 11.11 for 90 Hz.
     public func startScreen(_ screenName: String,
-                            frameBudgetMs: Double = LexoraFrameMonitor.defaultFrameBudgetMs) {
+                            frameBudgetMs: Double = LexiconFrameMonitor.defaultFrameBudgetMs) {
         lock.lock()
         if screens[screenName] == nil {
             screens[screenName] = ScreenAccumulator(screenName: screenName,
@@ -244,7 +244,7 @@ public final class LexoraFrameMonitor {
 
     // MARK: - Private state
 
-    private let logger = Logger(subsystem: "com.lexora", category: "FrameMonitor")
+    private let logger = Logger(subsystem: "com.lexicon", category: "FrameMonitor")
     private let lock = NSLock()
 
     /// Per-screen accumulators. Modified under `lock`. The accumulator
@@ -267,7 +267,7 @@ public final class LexoraFrameMonitor {
     private var logPath: String? = defaultLogPath()
 
     private init() {
-        logger.info("LexoraFrameMonitor initialized — logPath=\(self.logPath ?? "<nil>")")
+        logger.info("LexiconFrameMonitor initialized — logPath=\(self.logPath ?? "<nil>")")
     }
 
     // MARK: - CADisplayLink lifecycle
@@ -555,14 +555,14 @@ public final class LexoraFrameMonitor {
         return (v * 10000.0).rounded() / 10000.0
     }
 
-    /// Default perf log path: `<Caches>/lexora_perf.log` (per Apple's
+    /// Default perf log path: `<Caches>/lexicon_perf.log` (per Apple's
     /// file system guidelines, cache is the right place for diagnostic
     /// logs that can be deleted to reclaim space).
     private static func defaultLogPath() -> String? {
         let urls = FileManager.default.urls(for: .cachesDirectory,
                                             in: .userDomainMask)
         guard let cachesURL = urls.first else { return nil }
-        return cachesURL.appendingPathComponent("lexora_perf.log").path
+        return cachesURL.appendingPathComponent("lexicon_perf.log").path
     }
 
     // MARK: - Test-only hooks

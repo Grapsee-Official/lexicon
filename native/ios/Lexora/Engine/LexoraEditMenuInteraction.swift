@@ -1,36 +1,36 @@
-//  LexoraEditMenuInteraction.swift
-//  Lexora
+//  LexiconEditMenuInteraction.swift
+//  Lexicon
 //
 //  Per spec: "Do use UIEditMenuInteraction (iOS 16+). Do not use UIMenuController (deprecated).
 //  Conform a shared UIApplicationDelegate to UIEditMenuInteractionDelegate.
 //  Implement editMenuInteraction(_:menuFor:suggestedActions:) to inject a UICommand
-//  with a 'Lexora' action alongside Copy/Paste."
+//  with a 'Lexicon' action alongside Copy/Paste."
 //
 
 import UIKit
 import SwiftUI
 
-/// LexoraEditMenuDelegate — injects "Lexora" into the iOS text selection menu.
+/// LexiconEditMenuDelegate — injects "Lexicon" into the iOS text selection menu.
 ///
-/// Usage: attach `.editMenuInteraction(LexoraEditMenuInteraction())` to any
-/// view that should show the Lexora action when text is selected.
+/// Usage: attach `.editMenuInteraction(LexiconEditMenuInteraction())` to any
+/// view that should show the Lexicon action when text is selected.
 /// Or set it globally on the UIApplication's key window.
 @available(iOS 16.0, *)
-public class LexoraEditMenuInteraction: NSObject, UIEditMenuInteractionDelegate {
+public class LexiconEditMenuInteraction: NSObject, UIEditMenuInteractionDelegate {
 
-    private var engine: LexoraEngine?
+    private var engine: LexiconEngine?
 
-    public init(engine: LexoraEngine? = nil) {
+    public init(engine: LexiconEngine? = nil) {
         self.engine = engine
         super.init()
     }
 
-    public func setEngine(_ engine: LexoraEngine) {
+    public func setEngine(_ engine: LexiconEngine) {
         self.engine = engine
     }
 
     /// Called by the system when the text selection menu is about to appear.
-    /// We inject a "Lexora" action alongside Copy/Paste/Share.
+    /// We inject a "Lexicon" action alongside Copy/Paste/Share.
     public func editMenuInteraction(
         _ interaction: UIEditMenuInteraction,
         menuFor configuration: UIEditMenuConfiguration,
@@ -49,11 +49,11 @@ public class LexoraEditMenuInteraction: NSObject, UIEditMenuInteractionDelegate 
             return UIMenu(children: suggestedActions)
         }
 
-        // Create the Lexora lookup action
-        let lexoraAction = UIAction(
-            title: "Lexora: \(word)",
+        // Create the Lexicon lookup action
+        let lexiconAction = UIAction(
+            title: "Lexicon: \(word)",
             image: UIImage(systemName: "book"),
-            identifier: UIAction.Identifier("com.lexora.lookup"),
+            identifier: UIAction.Identifier("com.lexicon.lookup"),
             state: .off,
             handler: { [weak self] _ in
                 self?.performLookup(word: word)
@@ -61,23 +61,23 @@ public class LexoraEditMenuInteraction: NSObject, UIEditMenuInteractionDelegate 
         )
 
         // Create a submenu or inline action
-        let lexoraMenu = UIMenu(
-            title: "Lexora",
+        let lexiconMenu = UIMenu(
+            title: "Lexicon",
             image: UIImage(systemName: "book.closed"),
-            identifier: UIMenu.Identifier("com.lexora.menu"),
+            identifier: UIMenu.Identifier("com.lexicon.menu"),
             options: [.displayInline],
-            children: [lexoraAction]
+            children: [lexiconAction]
         )
 
-        // Insert Lexora at the beginning, followed by the system's suggested actions
-        return UIMenu(children: [lexoraMenu] + suggestedActions)
+        // Insert Lexicon at the beginning, followed by the system's suggested actions
+        return UIMenu(children: [lexiconMenu] + suggestedActions)
     }
 
     /// Perform the dictionary lookup and present the result.
     private func performLookup(word: String) {
         // Quick lookup — must be fast (millisecond budget for background wake)
         guard let engine = engine else {
-            print("[Lexora] Engine not initialized")
+            print("[Lexicon] Engine not initialized")
             return
         }
 
@@ -86,7 +86,7 @@ public class LexoraEditMenuInteraction: NSObject, UIEditMenuInteractionDelegate 
             // Post a notification to present the WordDetailSheet
             DispatchQueue.main.async {
                 NotificationCenter.default.post(
-                    name: .lexoraWordSelected,
+                    name: .lexiconWordSelected,
                     object: nil,
                     userInfo: ["word": entry]
                 )
@@ -95,7 +95,7 @@ public class LexoraEditMenuInteraction: NSObject, UIEditMenuInteractionDelegate 
             // Word not found — show a brief alert
             DispatchQueue.main.async {
                 NotificationCenter.default.post(
-                    name: .lexoraWordNotFound,
+                    name: .lexiconWordNotFound,
                     object: nil,
                     userInfo: ["word": word]
                 )
@@ -117,44 +117,44 @@ public class LexoraEditMenuInteraction: NSObject, UIEditMenuInteractionDelegate 
 // MARK: - Notification Names
 
 extension Notification.Name {
-    static let lexoraWordSelected = Notification.Name("LexoraWordSelected")
-    static let lexoraWordNotFound = Notification.Name("LexoraWordNotFound")
+    static let lexiconWordSelected = Notification.Name("LexiconWordSelected")
+    static let lexiconWordNotFound = Notification.Name("LexiconWordNotFound")
 }
 
 // MARK: - SwiftUI View Extension
 
 extension View {
-    /// Attaches the Lexora edit menu interaction to this view.
-    /// When the user selects text and the context menu appears, a "Lexora"
+    /// Attaches the Lexicon edit menu interaction to this view.
+    /// When the user selects text and the context menu appears, a "Lexicon"
     /// action is injected alongside Copy/Paste.
     @available(iOS 16.0, *)
-    func lexoraEditMenu(engine: LexoraEngine? = nil) -> some View {
-        modifier(LexoraEditMenuModifier(engine: engine))
+    func lexiconEditMenu(engine: LexiconEngine? = nil) -> some View {
+        modifier(LexiconEditMenuModifier(engine: engine))
     }
 }
 
 @available(iOS 16.0, *)
-struct LexoraEditMenuModifier: ViewModifier {
-    let engine: LexoraEngine?
+struct LexiconEditMenuModifier: ViewModifier {
+    let engine: LexiconEngine?
     @State private var interaction: UIEditMenuInteraction?
 
     func body(content: Content) -> some View {
         content
             .background(
-                LexoraEditMenuAnchor(engine: engine, interaction: $interaction)
+                LexiconEditMenuAnchor(engine: engine, interaction: $interaction)
                     .frame(width: 0, height: 0)
             )
     }
 }
 
 @available(iOS 16.0, *)
-struct LexoraEditMenuAnchor: UIViewRepresentable {
-    let engine: LexoraEngine?
+struct LexiconEditMenuAnchor: UIViewRepresentable {
+    let engine: LexiconEngine?
     @Binding var interaction: UIEditMenuInteraction?
 
     func makeUIView(context: Context) -> UIView {
         let view = UIView()
-        let delegate = LexoraEditMenuInteraction(engine: engine)
+        let delegate = LexiconEditMenuInteraction(engine: engine)
         let interaction = UIEditMenuInteraction(delegate: delegate)
         view.addInteraction(interaction)
         self.interaction = interaction

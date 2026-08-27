@@ -1,11 +1,11 @@
 //
 //  WordDetailSheet.swift
-//  Lexora
+//  Lexicon
 //
-//  Translation of `src/components/lexora/word-detail-sheet.tsx`.
+//  Translation of `src/components/lexicon/word-detail-sheet.tsx`.
 //
 //  Bottom sheet showing the full dictionary entry for a word:
-//    - Header: "LEXORA ENTRY" label (sparkles), word title (Fraunces ~30pt),
+//    - Header: "LEXICON ENTRY" label (sparkles), word title (Fraunces ~30pt),
 //      phonetic (italic) + part of speech (lowercase), 3 action buttons
 //      (speaker.wave.2, bookmark fill/outline, share).
 //    - Definitions: numbered list, Lora 15pt.
@@ -27,10 +27,10 @@ import SwiftUI
 struct WordDetailSheet: View {
     let word: WordEntry
 
-    @EnvironmentObject private var vm: LexoraViewModel
+    @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
 
-    private var palette: LexoraPalette { lexoraPalette(scheme) }
+    private var palette: LexiconPalette { lexiconPalette(scheme) }
 
     var body: some View {
         ScrollView {
@@ -60,13 +60,13 @@ struct WordDetailSheet: View {
             HStack(alignment: .top, spacing: 12) {
                 // Left: label + title + phonetic/pos
                 VStack(alignment: .leading, spacing: 6) {
-                    // "LEXORA ENTRY" label with sparkles icon (highlight color)
+                    // "LEXICON ENTRY" label with sparkles icon (highlight color)
                     HStack(spacing: 6) {
                         Image(systemName: "sparkles")
                             .font(.system(size: 11, weight: .regular))
                             .foregroundStyle(palette.highlight)
-                        Text("LEXORA ENTRY")
-                            .font(.lexoraBody(10, weight: .semibold))
+                        Text("LEXICON ENTRY")
+                            .font(.lexiconBody(10, weight: .semibold))
                             .tracking(1.6)
                             .foregroundStyle(palette.highlight)
                     }
@@ -76,22 +76,22 @@ struct WordDetailSheet: View {
                     // the word title first when the sheet opens, and can
                     // use the Headings rotor to return to it.
                     Text(word.word)
-                        .font(.lexoraDisplay(30, weight: .semibold))
+                        .font(.lexiconDisplay(30, weight: .semibold))
                         .foregroundStyle(palette.foreground)
                         .lineSpacing(2)
                         .fixedSize(horizontal: false, vertical: true)
-                        .lexoraAccessibilityHeading(.h1)
+                        .lexiconAccessibilityHeading(.h1)
 
                     // Phonetic (italic muted) · part of speech (lowercase)
                     HStack(spacing: 6) {
                         Text(word.phonetic)
-                            .font(.lexoraBody(13).italic())
+                            .font(.lexiconBody(13).italic())
                             .foregroundStyle(palette.mutedForeground)
                         Text("·")
-                            .font(.lexoraBody(13))
+                            .font(.lexiconBody(13))
                             .foregroundStyle(palette.foreground.opacity(0.4))
                         Text(word.partOfSpeech.displayValue)
-                            .font(.lexoraBody(13))
+                            .font(.lexiconBody(13))
                             .foregroundStyle(palette.foreground.opacity(0.6))
                     }
                 }
@@ -104,7 +104,7 @@ struct WordDetailSheet: View {
                 HStack(spacing: 8) {
                     circleButton(
                         icon: "speaker.wave.2",
-                        label: LexoraAccessibilityLabels.volume
+                        label: LexiconAccessibilityLabels.volume
                     ) {
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     }
@@ -113,8 +113,8 @@ struct WordDetailSheet: View {
                     circleButton(
                         icon: saved ? "bookmark.fill" : "bookmark",
                         label: saved
-                            ? LexoraAccessibilityLabels.bookmarkRemove
-                            : LexoraAccessibilityLabels.bookmarkSave,
+                            ? LexiconAccessibilityLabels.bookmarkRemove
+                            : LexiconAccessibilityLabels.bookmarkSave,
                         saved: saved
                     ) {
                         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
@@ -123,7 +123,7 @@ struct WordDetailSheet: View {
 
                     circleButton(
                         icon: "square.and.arrow.up",
-                        label: LexoraAccessibilityLabels.share
+                        label: LexiconAccessibilityLabels.share
                     ) {
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     }
@@ -135,7 +135,7 @@ struct WordDetailSheet: View {
     /// Circular 40×40 VISUAL action button with card background + border.
     ///
     /// The visual circle is 40×40 (matches the locked web spec), but the
-    /// `.lexoraMinTouchTarget()` modifier expands the tappable frame to
+    /// `.lexiconMinTouchTarget()` modifier expands the tappable frame to
     /// ≥ 44×44 so the button meets the P4-05 hard gate. The 4pt expansion
     /// is transparent — it sits in the `HStack(spacing: 8)` padding
     /// between buttons, so the visual layout is unchanged.
@@ -163,7 +163,7 @@ struct WordDetailSheet: View {
                         lineWidth: 1
                     )
                 )
-                .lexoraMinTouchTarget()
+                .lexiconMinTouchTarget()
         }
         .buttonStyle(.plain)
         .accessibilityLabel(Text(label))
@@ -183,11 +183,11 @@ struct WordDetailSheet: View {
                 ForEach(Array(word.definitions.enumerated()), id: \.offset) { idx, def in
                     HStack(alignment: .top, spacing: 12) {
                         Text("\(idx + 1).")
-                            .font(.lexoraBody(12, weight: .medium))
+                            .font(.lexiconBody(12, weight: .medium))
                             .foregroundStyle(palette.highlight)
                             .frame(width: 16, alignment: .leading)
                         Text(def)
-                            .font(.lexoraLong(15))
+                            .font(.lexiconLong(15))
                             .foregroundStyle(palette.foreground.opacity(0.9))
                             .lineSpacing(3)
                             .fixedSize(horizontal: false, vertical: true)
@@ -203,7 +203,7 @@ struct WordDetailSheet: View {
         VStack(alignment: .leading, spacing: 8) {
             sectionHeader(icon: "sparkles", title: "Etymology")
             Text(word.etymology)
-                .font(.lexoraLong(13))
+                .font(.lexiconLong(13))
                 .foregroundStyle(palette.foreground.opacity(0.8))
                 .lineSpacing(3)
                 .fixedSize(horizontal: false, vertical: true)
@@ -225,10 +225,10 @@ struct WordDetailSheet: View {
                 .font(.system(size: 14, weight: .regular))
                 .foregroundStyle(palette.highlight)
             Text("Origin:")
-                .font(.lexoraBody(13))
+                .font(.lexiconBody(13))
                 .foregroundStyle(palette.mutedForeground)
             Text(word.language)
-                .font(.lexoraBody(13))
+                .font(.lexiconBody(13))
                 .foregroundStyle(palette.foreground.opacity(0.9))
                 .lineLimit(2)
             Spacer(minLength: 0)
@@ -277,7 +277,7 @@ struct WordDetailSheet: View {
     /// Blockquote with a 2pt left border (highlight @ 60%) + Lora italic 14pt text.
     private func blockquote(_ text: String) -> some View {
         Text(text)
-            .font(.lexoraLong(14).italic())
+            .font(.lexiconLong(14).italic())
             .foregroundStyle(palette.foreground.opacity(0.8))
             .lineSpacing(3)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -304,18 +304,18 @@ struct WordDetailSheet: View {
                 .font(.system(size: 11, weight: .regular))
                 .foregroundStyle(palette.foreground.opacity(0.6))
             Text(title.uppercased())
-                .font(.lexoraBody(11, weight: .semibold))
+                .font(.lexiconBody(11, weight: .semibold))
                 .tracking(1.4)
                 .foregroundStyle(palette.foreground.opacity(0.6))
         }
-        .lexoraCombinedElement()
-        .lexoraAccessibilityHeading(.h3)
+        .lexiconCombinedElement()
+        .lexiconAccessibilityHeading(.h3)
     }
 
     /// Pill tag: capsule shape with tinted background + border.
     private func pill(text: String, tint: Color, foregroundOpacity: Double) -> some View {
         Text(text)
-            .font(.lexoraBody(12))
+            .font(.lexiconBody(12))
             .foregroundStyle(palette.foreground.opacity(foregroundOpacity))
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
@@ -379,6 +379,6 @@ private struct FlowLayout: Layout {
 }
 
 #Preview {
-    WordDetailSheet(word: LexoraData.wordOfTheDay)
-        .environmentObject(LexoraViewModel())
+    WordDetailSheet(word: LexiconData.wordOfTheDay)
+        .environmentObject(LexiconViewModel())
 }

@@ -1,8 +1,8 @@
 //
 //  CollectionsScreen.swift
-//  Lexora
+//  Lexicon
 //
-//  Translation of `src/components/lexora/screens/collections-screen.tsx`.
+//  Translation of `src/components/lexicon/screens/collections-screen.tsx`.
 //
 //  Two states:
 //    EMPTY  — watercolour empty state (cat-literature illustration, bookmark
@@ -21,7 +21,7 @@
 import SwiftUI
 
 struct CollectionsScreen: View {
-    @EnvironmentObject private var vm: LexoraViewModel
+    @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
 
     /// Drives the staggered mount-in animation.
@@ -30,7 +30,7 @@ struct CollectionsScreen: View {
     /// Filter the master dictionary by saved ids, deduped + alpha sorted.
     private var savedWords: [WordEntry] {
         let savedSet = Set(vm.savedWordIds)
-        return LexoraData.dictionary
+        return LexiconData.dictionary
             .filter { savedSet.contains($0.id) }
             .sorted { $0.word < $1.word }
     }
@@ -47,7 +47,7 @@ struct CollectionsScreen: View {
         }
         .animation(.easeInOut(duration: 0.25), value: savedWords.count)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(LexoraColors.background)
+        .background(LexiconColors.background)
     }
 
     // MARK: - Saved words list
@@ -58,12 +58,12 @@ struct CollectionsScreen: View {
                 // Title row
                 HStack(alignment: .firstTextBaseline) {
                     Text("Saved Words")
-                        .font(.lexoraDisplay(24, weight: .semibold))
-                        .foregroundStyle(lexoraPalette(scheme).foreground)
+                        .font(.lexiconDisplay(24, weight: .semibold))
+                        .foregroundStyle(lexiconPalette(scheme).foreground)
                     Spacer()
                     Text("\(savedWords.count) \(savedWords.count == 1 ? "word" : "words")")
-                        .font(.lexoraBody(11))
-                        .foregroundStyle(lexoraPalette(scheme).mutedForeground)
+                        .font(.lexiconBody(11))
+                        .foregroundStyle(lexiconPalette(scheme).mutedForeground)
                 }
                 .padding(.horizontal, 4)
                 .opacity(appeared ? 1 : 0)
@@ -85,11 +85,11 @@ struct CollectionsScreen: View {
                         )
                     }
                 }
-                .background(lexoraPalette(scheme).card)
+                .background(lexiconPalette(scheme).card)
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(lexoraPalette(scheme).border, lineWidth: 1)
+                        .stroke(lexiconPalette(scheme).border, lineWidth: 1)
                 )
                 .shadow(color: Color.black.opacity(0.04), radius: 4, x: 0, y: 2)
             }
@@ -115,7 +115,7 @@ private struct EmptyCollectionState: View {
             ZStack(alignment: .bottomTrailing) {
                 // Soft glow behind the illustration (web `bg-primary/10 blur-2xl`)
                 Circle()
-                    .fill(lexoraPalette(scheme).primary.opacity(0.10))
+                    .fill(lexiconPalette(scheme).primary.opacity(0.10))
                     .frame(width: 160, height: 160)
                     .blur(radius: 28)
 
@@ -131,12 +131,12 @@ private struct EmptyCollectionState: View {
                 // Bookmark badge (overlapping bottom-right corner)
                 Image(systemName: "bookmark.fill")
                     .font(.system(size: 18, weight: .regular))
-                    .foregroundStyle(lexoraPalette(scheme).highlight)
+                    .foregroundStyle(lexiconPalette(scheme).highlight)
                     .frame(width: 44, height: 44)
-                    .background(lexoraPalette(scheme).card)
+                    .background(lexiconPalette(scheme).card)
                     .clipShape(Circle())
                     .overlay(
-                        Circle().stroke(lexoraPalette(scheme).border, lineWidth: 1)
+                        Circle().stroke(lexiconPalette(scheme).border, lineWidth: 1)
                     )
                     .shadow(color: Color.black.opacity(0.08), radius: 4, x: 0, y: 2)
                     .offset(x: 8, y: 8)
@@ -146,14 +146,14 @@ private struct EmptyCollectionState: View {
 
             // Headline
             Text("Your collection awaits")
-                .font(.lexoraDisplay(20, weight: .semibold))
-                .foregroundStyle(lexoraPalette(scheme).foreground)
+                .font(.lexiconDisplay(20, weight: .semibold))
+                .foregroundStyle(lexiconPalette(scheme).foreground)
                 .multilineTextAlignment(.center)
 
             // Description
             Text("Tap the bookmark icon on any word to save it here. Build your own private herbarium of language.")
-                .font(.lexoraBody(13))
-                .foregroundStyle(lexoraPalette(scheme).mutedForeground)
+                .font(.lexiconBody(13))
+                .foregroundStyle(lexiconPalette(scheme).mutedForeground)
                 .multilineTextAlignment(.center)
                 .lineSpacing(3)
                 .padding(.horizontal, 32)
@@ -165,18 +165,18 @@ private struct EmptyCollectionState: View {
             HStack(spacing: 6) {
                 Image(systemName: "sparkles")
                     .font(.system(size: 11, weight: .regular))
-                    .foregroundStyle(lexoraPalette(scheme).highlight)
+                    .foregroundStyle(lexiconPalette(scheme).highlight)
                 Text("Saved words sync offline across all your devices")
-                    .font(.lexoraBody(11))
-                    .foregroundStyle(lexoraPalette(scheme).mutedForeground)
+                    .font(.lexiconBody(11))
+                    .foregroundStyle(lexiconPalette(scheme).mutedForeground)
                     .lineLimit(1)
                     .minimumScaleFactor(0.85)
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
-            .background(lexoraPalette(scheme).card)
+            .background(lexiconPalette(scheme).card)
             .clipShape(Capsule())
-            .overlay(Capsule().stroke(lexoraPalette(scheme).border, lineWidth: 1))
+            .overlay(Capsule().stroke(lexiconPalette(scheme).border, lineWidth: 1))
 
             Spacer(minLength: 0)
         }
@@ -203,23 +203,23 @@ private struct SavedRow: View {
                 // Filled bookmark icon (accent)
                 Image(systemName: "bookmark.fill")
                     .font(.system(size: 13, weight: .regular))
-                    .foregroundStyle(lexoraPalette(scheme).highlight)
+                    .foregroundStyle(lexiconPalette(scheme).highlight)
                     .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(alignment: .firstTextBaseline, spacing: 6) {
                         Text(entry.word)
-                            .font(.lexoraDisplay(15, weight: .semibold))
-                            .foregroundStyle(lexoraPalette(scheme).foreground)
+                            .font(.lexiconDisplay(15, weight: .semibold))
+                            .foregroundStyle(lexiconPalette(scheme).foreground)
                             .lineLimit(1)
                         Text(entry.partOfSpeech.displayValue)
-                            .font(.lexoraBody(10).italic())
-                            .foregroundStyle(lexoraPalette(scheme).mutedForeground)
+                            .font(.lexiconBody(10).italic())
+                            .foregroundStyle(lexiconPalette(scheme).mutedForeground)
                             .lineLimit(1)
                     }
                     Text(entry.definitions.first ?? "")
-                        .font(.lexoraLong(12))
-                        .foregroundStyle(lexoraPalette(scheme).foreground.opacity(0.7))
+                        .font(.lexiconLong(12))
+                        .foregroundStyle(lexiconPalette(scheme).foreground.opacity(0.7))
                         .lineLimit(1)
                 }
 
@@ -228,7 +228,7 @@ private struct SavedRow: View {
                 // Volume icon
                 Image(systemName: "speaker.wave.2")
                     .font(.system(size: 13, weight: .regular))
-                    .foregroundStyle(lexoraPalette(scheme).mutedForeground)
+                    .foregroundStyle(lexiconPalette(scheme).mutedForeground)
                     .accessibilityHidden(true)
 
                 // Remove (trash) button
@@ -238,7 +238,7 @@ private struct SavedRow: View {
                 } label: {
                     Image(systemName: "trash")
                         .font(.system(size: 14, weight: .regular))
-                        .foregroundStyle(lexoraPalette(scheme).mutedForeground.opacity(0.6))
+                        .foregroundStyle(lexiconPalette(scheme).mutedForeground.opacity(0.6))
                         .frame(width: 28, height: 28)
                         .contentShape(Rectangle())
                 }
@@ -254,7 +254,7 @@ private struct SavedRow: View {
         .overlay(alignment: .top) {
             if !isFirst {
                 Rectangle()
-                    .fill(lexoraPalette(scheme).border)
+                    .fill(lexiconPalette(scheme).border)
                     .frame(height: 1)
                     .padding(.horizontal, 16)
             }
@@ -264,5 +264,5 @@ private struct SavedRow: View {
 
 #Preview {
     CollectionsScreen()
-        .environmentObject(LexoraViewModel())
+        .environmentObject(LexiconViewModel())
 }

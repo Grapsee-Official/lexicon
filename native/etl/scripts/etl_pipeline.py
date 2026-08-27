@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Lexora ETL Pipeline — wiktextract → NFC normalize → SQLite FTS5 → Zstd compress
+Lexicon ETL Pipeline — wiktextract → NFC normalize → SQLite FTS5 → Zstd compress
 
 Per spec:
   - "Do use wiktextract to parse the latest enwiktionary XML dump."
@@ -136,7 +136,7 @@ def parse_wiktextract_json(input_path: str) -> Dict[str, List[WordEntry]]:
 
 def create_sqlite_db(db_path: str, words: List[WordEntry], lang_code: str):
     """Create a SQLite database with FTS5 index for one language."""
-    schema_path = Path(__file__).parent.parent.parent / "cloud" / "schema" / "lexora_sqlite.sql"
+    schema_path = Path(__file__).parent.parent.parent / "cloud" / "schema" / "lexicon_sqlite.sql"
     schema_sql = schema_path.read_text(encoding="utf-8")
 
     conn = sqlite3.connect(db_path)
@@ -278,7 +278,7 @@ def run_pipeline(input_path: str, output_dir: str):
         print(f"      {len(words)} unique entries")
 
         print(f"[4/5] Building SQLite FTS5: {lang_code}")
-        db_path = os.path.join(output_dir, f"lexora_{lang_code}.db")
+        db_path = os.path.join(output_dir, f"lexicon_{lang_code}.db")
         create_sqlite_db(db_path, words, lang_code)
 
         print(f"[5/5] Compressing with Zstd-19: {lang_code}")
@@ -296,7 +296,7 @@ def run_pipeline(input_path: str, output_dir: str):
     print("\n✅ ETL pipeline complete!")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Lexora ETL Pipeline")
+    parser = argparse.ArgumentParser(description="Lexicon ETL Pipeline")
     parser.add_argument("--input", required=True, help="Path to wiktextract output JSON")
     parser.add_argument("--output", required=True, help="Output directory")
     args = parser.parse_args()

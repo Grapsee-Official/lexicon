@@ -1,8 +1,8 @@
 //
 //  Hero.swift
-//  Lexora
+//  Lexicon
 //
-//  Translation of `src/components/lexora/hero.tsx`.
+//  Translation of `src/components/lexicon/hero.tsx`.
 //
 //  SIMPLE 2-COLUMN HStack:
 //    LEFT:  headline + paragraph (text)
@@ -17,7 +17,7 @@
 import SwiftUI
 
 struct Hero: View {
-    @EnvironmentObject private var vm: LexoraViewModel
+    @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
 
     var body: some View {
@@ -26,8 +26,8 @@ struct Hero: View {
             VStack(alignment: .leading, spacing: 8) {
                 headline
                 Text("A timeless dictionary crafted for curious minds.")
-                    .font(.lexoraBody(11))
-                    .foregroundStyle(lexoraPalette(scheme).foreground.opacity(0.6))
+                    .font(.lexiconBody(11))
+                    .foregroundStyle(lexiconPalette(scheme).foreground.opacity(0.6))
                     .lineSpacing(2)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -39,11 +39,11 @@ struct Hero: View {
             // itself is decorative (the label conveys the action).
             HStack {
                 Spacer()
-                Image("lexora-countryside")
+                Image("lexicon-countryside")
                     .resizable()
                     .scaledToFit()
                     .frame(maxHeight: 200)
-                    .lexoraDecorative()
+                    .lexiconDecorative()
             }
             .frame(maxWidth: .infinity)
             .contentShape(Rectangle())
@@ -51,14 +51,14 @@ struct Hero: View {
                 UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 vm.openSearch()
             }
-            .accessibilityLabel(Text(LexoraAccessibilityLabels.search))
+            .accessibilityLabel(Text(LexiconAccessibilityLabels.search))
             .accessibilityHint(Text("Opens the search overlay"))
             .accessibilityAddTraits(.isButton)
-            .lexoraMinTouchTarget()
+            .lexiconMinTouchTarget()
         }
         .padding(.horizontal, 16)
         .padding(.top, 8)
-        .background(LexoraColors.background)
+        .background(LexiconColors.background)
     }
 
     /// Headline "Discover the / World of Words [sprig]" — brand green serif.
@@ -76,19 +76,19 @@ struct Hero: View {
                         .frame(width: 20, height: 20)
                         // Decorative sprig — the headline text already
                         // conveys the meaning; the sprig is ornamental.
-                        .lexoraDecorative()
+                        .lexiconDecorative()
                 }
             }
         }
-        .font(.lexoraDisplay(28, weight: .medium))
-        .foregroundStyle(LexoraColors.primary)
+        .font(.lexiconDisplay(28, weight: .medium))
+        .foregroundStyle(LexiconColors.primary)
         .tracking(-0.4)
         .lineSpacing(0)
         // Tight leading (1.05) — match web `leading-[1.05]`.
         .frame(maxWidth: .infinity, alignment: .leading)
-        .lexoraCombinedElement()
+        .lexiconCombinedElement()
         .accessibilityLabel(Text("Discover the World of Words"))
-        .lexoraAccessibilityHeading(.h1)
+        .lexiconAccessibilityHeading(.h1)
     }
 }
 
@@ -112,7 +112,7 @@ struct BotanicalSprig: View {
                 .offset(x: 9, y: -3)
             // Top crown leaf
             Capsule()
-                .fill(LexoraColors.primary.opacity(0.9))
+                .fill(LexiconColors.primary.opacity(0.9))
                 .frame(width: 9, height: 5.6)
                 .offset(x: 0, y: -13)
         }
@@ -121,19 +121,19 @@ struct BotanicalSprig: View {
 
     private var stem: some View {
         Rectangle()
-            .fill(LexoraColors.primary)
+            .fill(LexiconColors.primary)
             .frame(width: 0.8, height: 32)
             .offset(y: 0)
     }
 
     private var leaf: some View {
         Capsule()
-            .fill(LexoraColors.primary.opacity(0.85))
+            .fill(LexiconColors.primary.opacity(0.85))
     }
 }
 
 #Preview {
     Hero()
-        .environmentObject(LexoraViewModel())
-        .background(LexoraColors.background)
+        .environmentObject(LexiconViewModel())
+        .background(LexiconColors.background)
 }

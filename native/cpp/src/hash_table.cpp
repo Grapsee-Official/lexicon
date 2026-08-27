@@ -1,5 +1,5 @@
 // hash_table.cpp — Implementation of memory-mapped Robin Hood hash table
-#include "lexora/hash_table.hpp"
+#include "lexicon/hash_table.hpp"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <iostream>
 
-namespace lexora {
+namespace lexicon {
 
 namespace {
 
@@ -98,7 +98,7 @@ bool MemoryMappedHashTable::load_from_file(const char* path) {
 
     // Parse header
     header_ = static_cast<const MmapHeader*>(mapped_data_);
-    if (std::memcmp(header_->magic, "LEXORAHT", 8) != 0) {
+    if (std::memcmp(header_->magic, "LEXICONHT", 8) != 0) {
         unload();
         return false;
     }
@@ -222,7 +222,7 @@ bool MemoryMappedHashTable::save_to_file(const char* path) const {
     if (fd < 0) return false;
 
     MmapHeader hdr;
-    std::memcpy(hdr.magic, "LEXORAHT", 8);
+    std::memcpy(hdr.magic, "LEXICONHT", 8);
     hdr.version = 1;
     hdr.entry_count = entry_count_;
     hdr.bucket_count = static_cast<uint32_t>(mem_buckets_.size());
@@ -271,4 +271,4 @@ void MemoryMappedHashTable::unload() {
     in_memory_mode_ = false;
 }
 
-} // namespace lexora
+} // namespace lexicon

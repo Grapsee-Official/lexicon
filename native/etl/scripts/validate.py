@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Lexora ETL — Validation Script
+Lexicon ETL — Validation Script
 =============================================================================
 
 Per spec:
@@ -16,8 +16,8 @@ Standalone companion to etl_pipeline.py. Run it:
 
 Usage:
   python3 validate.py --json words.json
-  python3 validate.py --db ./output/lexora_en.db
-  python3 validate.py --db ./output/lexora_en.db.zst
+  python3 validate.py --db ./output/lexicon_en.db
+  python3 validate.py --db ./output/lexicon_en.db.zst
   python3 validate.py --db-dir ./output
   python3 validate.py --db-dir ./output --report rejected.json
 
@@ -31,7 +31,7 @@ Rule interpretation:
       * JSON mode  (pre-ETL):  accepts `definitions`  OR  `translations`
         (wiktextract may provide translations that etl_pipeline.py currently
         drops on the floor — flagging only when BOTH are empty).
-      * SQLite mode (post-ETL): the lexora_sqlite.sql schema has no
+      * SQLite mode (post-ETL): the lexicon_sqlite.sql schema has no
         `translations` column, so only `definitions` is checked. This also
         re-confirms that etl_pipeline.validate_entries() did its job.
   - "unclosed HTML tags": uses the same regex as
@@ -275,7 +275,7 @@ def validate_db(path: str) -> Report:
     tmp_path: Optional[str] = None
     try:
         conn, tmp_path = _open_db(path)
-        # Columns per native/cloud/schema/lexora_sqlite.sql. There is no
+        # Columns per native/cloud/schema/lexicon_sqlite.sql. There is no
         # `translations` column, so Rule 1 here checks `definitions` only.
         rows = conn.execute(
             "SELECT id, word, definitions, etymology, examples, language "
@@ -370,7 +370,7 @@ def validate_db_dir(dir_path: str) -> Report:
 def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(
         prog="validate.py",
-        description="Lexora ETL validator — enforces the two spec hard gates: "
+        description="Lexicon ETL validator — enforces the two spec hard gates: "
                     "(1) every word ID has ≥1 definition/translation, "
                     "(2) no unclosed HTML tags.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -382,8 +382,8 @@ Exit codes:
 
 Examples:
   python3 validate.py --json words.json
-  python3 validate.py --db ./output/lexora_en.db
-  python3 validate.py --db ./output/lexora_en.db.zst
+  python3 validate.py --db ./output/lexicon_en.db
+  python3 validate.py --db ./output/lexicon_en.db.zst
   python3 validate.py --db-dir ./output --report rejected.json
 """,
     )

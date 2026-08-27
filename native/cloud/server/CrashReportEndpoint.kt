@@ -5,11 +5,11 @@
 //   * Accepts JSON: { device_model, os_version, app_version, crash_type,
 //                     stack_trace, memory_stats, timestamp }
 //   * Stores in PostgreSQL `crash_logs` table (CREATE TABLE added to
-//     schema/lexora_postgres.sql).
+//     schema/lexicon_postgres.sql).
 //
 // Wiring: this file declares an extension function on Ktor's `Route`
 // receiver. It is mounted inside the existing `/api/v1` route block in
-// `LexoraSyncServer.kt::lexoraRoutes()` via a single line:
+// `LexiconSyncServer.kt::lexiconRoutes()` via a single line:
 //
 //     route("/api/v1") {
 //         …existing routes…
@@ -17,11 +17,11 @@
 //     }
 //
 // The data class uses snake_case field names so Gson (with default config,
-// matching the rest of LexoraSyncServer.kt) deserialises the wire JSON
+// matching the rest of LexiconSyncServer.kt) deserialises the wire JSON
 // directly without any @SerializedName annotations or FieldNamingPolicy
 // tweaks. This keeps the server config consistent across all routes.
 
-package com.lexora.cloud.server
+package com.lexicon.cloud.server
 
 import com.google.gson.Gson
 import io.ktor.http.*

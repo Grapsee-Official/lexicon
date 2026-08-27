@@ -1,14 +1,14 @@
 // test_hash_table.cpp — Google Test for MemoryMappedHashTable
-#include "lexora/hash_table.hpp"
+#include "lexicon/hash_table.hpp"
 #include <gtest/gtest.h>
 #include <cstdio>
 #include <fstream>
 
-using namespace lexora;
+using namespace lexicon;
 
 class HashTableTest : public ::testing::Test {
 protected:
-    const char* test_file = "/tmp/lexora_test.ht";
+    const char* test_file = "/tmp/lexicon_test.ht";
 
     void SetUp() override {
         // Create a test hash table file

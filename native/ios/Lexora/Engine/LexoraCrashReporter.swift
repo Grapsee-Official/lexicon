@@ -1,5 +1,5 @@
-//  LexoraCrashReporter.swift
-//  Lexora
+//  LexiconCrashReporter.swift
+//  Lexicon
 //
 //  Per task P4-03 — dependency-free crash reporting scaffolding for iOS.
 //
@@ -21,10 +21,10 @@
 //    Failures retain the file so the next launch can retry.
 //
 //  Wiring (NOT done here — caller's responsibility):
-//    In `LexoraApp.swift` `@main` or in `AppDelegate.application(_:didFinishLaunchingWithOptions:)`:
+//    In `LexiconApp.swift` `@main` or in `AppDelegate.application(_:didFinishLaunchingWithOptions:)`:
 //
-//        LexoraCrashReporter.shared.install()
-//        LexoraCrashReporter.shared.uploadPendingCrashLogs()
+//        LexiconCrashReporter.shared.install()
+//        LexiconCrashReporter.shared.uploadPendingCrashLogs()
 //
 //  Constraints:
 //    * NO Firebase Crashlytics (the spec forbids it).
@@ -40,17 +40,17 @@ import os.log
 import UIKit
 #endif
 
-/// LexoraCrashReporter — process-wide singleton owning crash capture + upload.
+/// LexiconCrashReporter — process-wide singleton owning crash capture + upload.
 ///
 /// All three capture paths (NSException, signal handlers, and the deferred
 /// uploader) share the same on-disk layout and JSON schema so the cloud
 /// server's single `POST /api/v1/crash-report` endpoint can ingest them all
 /// uniformly.
-public final class LexoraCrashReporter {
+public final class LexiconCrashReporter {
 
     // MARK: - Singleton
 
-    public static let shared = LexoraCrashReporter()
+    public static let shared = LexiconCrashReporter()
 
     // MARK: - Configuration
 
@@ -62,7 +62,7 @@ public final class LexoraCrashReporter {
 
     // MARK: - Private state
 
-    private let logger = Logger(subsystem: "com.lexora", category: "CrashReporter")
+    private let logger = Logger(subsystem: "com.lexicon", category: "CrashReporter")
     private let lock = NSLock()
     private var installed = false
 
@@ -110,7 +110,7 @@ public final class LexoraCrashReporter {
         )
 
         NSSetUncaughtExceptionHandler { exception in
-            LexoraCrashReporter.shared.recordException(exception)
+            LexiconCrashReporter.shared.recordException(exception)
         }
 
         installSignalHandlers()
@@ -210,7 +210,7 @@ public final class LexoraCrashReporter {
         // — Swift closures can't capture context here. We capture nothing
         // and route through the singleton instead.
         let handler: @convention(c) (Int32) -> Void = { receivedSig in
-            LexoraCrashReporter.shared.recordNativeSignal(receivedSig)
+            LexiconCrashReporter.shared.recordNativeSignal(receivedSig)
         }
 
         let signals: [Int32] = [SIGSEGV, SIGABRT, SIGBUS]
@@ -419,7 +419,7 @@ public final class LexoraCrashReporter {
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
         req.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-        req.setValue("Lexora-CrashReporter/1.0 (iOS)", forHTTPHeaderField: "User-Agent")
+        req.setValue("Lexicon-CrashReporter/1.0 (iOS)", forHTTPHeaderField: "User-Agent")
         req.timeoutInterval = 15.0
         req.httpBody = body
 

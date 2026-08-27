@@ -1,8 +1,8 @@
-// LexoraSyncServer.kt — Ktor cloud sync server
+// LexiconSyncServer.kt — Ktor cloud sync server
 // Per spec: "PostgreSQL (Confirmed)", "Ktor Client (Proposed)"
 // Per spec: "Device updates 100 new words without FTS5 corruption."
 
-package com.lexora.cloud.server
+package com.lexicon.cloud.server
 
 import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.*
@@ -54,13 +54,13 @@ fun main() {
         }
         install(CORS) { anyHost() }
         install(Compression) { gzip() }
-        routing { lexoraRoutes() }
+        routing { lexiconRoutes() }
     }.start(wait = true)
 }
 
-fun Application.lexoraRoutes() {
-    val dbUrl = System.getenv("DATABASE_URL") ?: "jdbc:postgresql://localhost:5432/lexora"
-    val dbUser = System.getenv("DATABASE_USER") ?: "lexora"
+fun Application.lexiconRoutes() {
+    val dbUrl = System.getenv("DATABASE_URL") ?: "jdbc:postgresql://localhost:5432/lexicon"
+    val dbUser = System.getenv("DATABASE_USER") ?: "lexicon"
     val dbPass = System.getenv("DATABASE_PASSWORD") ?: ""
 
     route("/api/v1") {

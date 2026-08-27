@@ -1,8 +1,8 @@
 //
 //  DictionaryScreen.swift
-//  Lexora
+//  Lexicon
 //
-//  Translation of `src/components/lexora/screens/dictionary-screen.tsx`.
+//  Translation of `src/components/lexicon/screens/dictionary-screen.tsx`.
 //
 //  Alphabetical browse with:
 //    • sticky A–Z quick index (horizontal ScrollView of letter circles)
@@ -17,10 +17,10 @@
 import SwiftUI
 
 struct DictionaryScreen: View {
-    @EnvironmentObject private var vm: LexoraViewModel
+    @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
 
-    private let sections: [(letter: String, entries: [WordEntry])] = LexoraData.getAlphabetSections()
+    private let sections: [(letter: String, entries: [WordEntry])] = LexiconData.getAlphabetSections()
     @State private var activeLetterIndex: Int = 0
 
     var body: some View {
@@ -73,7 +73,7 @@ struct DictionaryScreen: View {
                 }
             }
         }
-        .background(LexoraColors.background)
+        .background(LexiconColors.background)
     }
 
     // MARK: - A–Z quick index
@@ -91,18 +91,18 @@ struct DictionaryScreen: View {
                         }
                     } label: {
                         Text(section.letter)
-                            .font(.lexoraDisplay(11, weight: active ? .semibold : .regular))
+                            .font(.lexiconDisplay(11, weight: active ? .semibold : .regular))
                             .foregroundStyle(active
-                                             ? lexoraPalette(scheme).primaryForeground
-                                             : lexoraPalette(scheme).mutedForeground)
+                                             ? lexiconPalette(scheme).primaryForeground
+                                             : lexiconPalette(scheme).mutedForeground)
                             .frame(width: 26, height: 26)
                             .background(
                                 Circle()
-                                    .fill(active ? lexoraPalette(scheme).primary : Color.clear)
+                                    .fill(active ? lexiconPalette(scheme).primary : Color.clear)
                             )
                             .overlay(
                                 Circle()
-                                    .stroke(active ? Color.clear : lexoraPalette(scheme).border, lineWidth: 1)
+                                    .stroke(active ? Color.clear : lexiconPalette(scheme).border, lineWidth: 1)
                             )
                     }
                     .buttonStyle(.plain)
@@ -113,11 +113,11 @@ struct DictionaryScreen: View {
             .padding(.vertical, 8)
         }
         .background(
-            lexoraPalette(scheme).card
+            lexiconPalette(scheme).card
                 .opacity(0.92)
                 .overlay(alignment: .bottom) {
                     Rectangle()
-                        .fill(lexoraPalette(scheme).border)
+                        .fill(lexiconPalette(scheme).border)
                         .frame(height: 1)
                 }
                 .ignoresSafeArea(edges: .horizontal)
@@ -137,17 +137,17 @@ private struct DictionarySection: View {
             // Header: large serif letter + divider + count
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text(section.letter)
-                    .font(.lexoraDisplay(18, weight: .semibold))
-                    .foregroundStyle(lexoraPalette(scheme).primary)
+                    .font(.lexiconDisplay(18, weight: .semibold))
+                    .foregroundStyle(lexiconPalette(scheme).primary)
                     .fixedSize(horizontal: true, vertical: false)
 
                 Rectangle()
-                    .fill(lexoraPalette(scheme).border)
+                    .fill(lexiconPalette(scheme).border)
                     .frame(height: 1)
 
                 Text("\(section.entries.count) \(section.entries.count == 1 ? "word" : "words")")
-                    .font(.lexoraBody(10))
-                    .foregroundStyle(lexoraPalette(scheme).mutedForeground)
+                    .font(.lexiconBody(10))
+                    .foregroundStyle(lexiconPalette(scheme).mutedForeground)
                     .fixedSize(horizontal: true, vertical: false)
             }
             .padding(.horizontal, 4)
@@ -162,11 +162,11 @@ private struct DictionarySection: View {
                     )
                 }
             }
-            .background(lexoraPalette(scheme).card)
+            .background(lexiconPalette(scheme).card)
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .stroke(lexoraPalette(scheme).border, lineWidth: 1)
+                    .stroke(lexiconPalette(scheme).border, lineWidth: 1)
             )
             .shadow(color: Color.black.opacity(0.04), radius: 4, x: 0, y: 2)
         }
@@ -190,17 +190,17 @@ private struct DictionaryRow: View {
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(alignment: .firstTextBaseline, spacing: 6) {
                         Text(entry.word)
-                            .font(.lexoraDisplay(14, weight: .semibold))
-                            .foregroundStyle(lexoraPalette(scheme).foreground)
+                            .font(.lexiconDisplay(14, weight: .semibold))
+                            .foregroundStyle(lexiconPalette(scheme).foreground)
                             .lineLimit(1)
                         Text(entry.partOfSpeech.displayValue)
-                            .font(.lexoraBody(10).italic())
-                            .foregroundStyle(lexoraPalette(scheme).mutedForeground)
+                            .font(.lexiconBody(10).italic())
+                            .foregroundStyle(lexiconPalette(scheme).mutedForeground)
                             .lineLimit(1)
                     }
                     Text(entry.definitions.first ?? "")
-                        .font(.lexoraLong(12))
-                        .foregroundStyle(lexoraPalette(scheme).foreground.opacity(0.7))
+                        .font(.lexiconLong(12))
+                        .foregroundStyle(lexiconPalette(scheme).foreground.opacity(0.7))
                         .lineLimit(1)
                 }
 
@@ -208,7 +208,7 @@ private struct DictionaryRow: View {
 
                 Image(systemName: "speaker.wave.2")
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundStyle(lexoraPalette(scheme).mutedForeground)
+                    .foregroundStyle(lexiconPalette(scheme).mutedForeground)
                     .accessibilityHidden(true)
             }
             .padding(.horizontal, 12)
@@ -220,7 +220,7 @@ private struct DictionaryRow: View {
         .overlay(alignment: .top) {
             if !isFirst {
                 Rectangle()
-                    .fill(lexoraPalette(scheme).border)
+                    .fill(lexiconPalette(scheme).border)
                     .frame(height: 1)
                     .padding(.horizontal, 12)
             }
@@ -241,5 +241,5 @@ private struct SectionTopPreferenceKey: PreferenceKey {
 
 #Preview {
     DictionaryScreen()
-        .environmentObject(LexoraViewModel())
+        .environmentObject(LexiconViewModel())
 }

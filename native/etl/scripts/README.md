@@ -1,4 +1,4 @@
-# Lexora ETL Pipeline
+# Lexicon ETL Pipeline
 
 Converts the latest English Wiktionary XML dump into 36 per-language
 SQLite FTS5 databases, compressed with Zstandard, ready for in-app packaging
@@ -16,8 +16,8 @@ words.json
         │                          SQLite FTS5 build, Zstd-19 compress
         ▼
 output/
-├── lexora_en.db.zst          ← one compressed .db per language
-├── lexora_fr.db.zst
+├── lexicon_en.db.zst          ← one compressed .db per language
+├── lexicon_fr.db.zst
 ├── ...
 └── manifest.json             ← SHA-256 + word counts + schema version
 ```
@@ -45,7 +45,7 @@ The canonical source is Wikimedia's own dump host. Pull the latest
 *pages-articles* XML, bz2-compressed:
 
 ```bash
-mkdir -p ~/lexora-etl/dump && cd ~/lexora-etl/dump
+mkdir -p ~/lexicon-etl/dump && cd ~/lexicon-etl/dump
 
 # Latest snapshot (~1.2 GB compressed, ~6 GB uncompressed)
 curl -L -O https://dumps.wikimedia.org/enwiktionary/latest/enwiktionary-latest-pages-articles.xml.bz2
@@ -77,7 +77,7 @@ enwiktionary-latest-pages-articles.xml     (~6 GB)
 word entry with its language codes, definitions, etymology, examples, etc.
 
 ```bash
-cd ~/lexora-etl
+cd ~/lexicon-etl
 
 wiktextract \
   --pages dump/enwiktionary-latest-pages-articles.xml \
@@ -114,7 +114,7 @@ two spec rules:
 ```bash
 cd /path/to/my-project/native/etl/scripts
 
-python3 validate.py --json ~/lexora-etl/words.json
+python3 validate.py --json ~/lexicon-etl/words.json
 ```
 
 Exit code `0` = every entry passes; exit code `1` = at least one entry was
@@ -128,7 +128,7 @@ rejected. Pass `--report rejected.json` to dump the offending IDs.
 cd /path/to/my-project/native/etl/scripts
 
 python3 etl_pipeline.py \
-  --input  ~/lexora-etl/words.json \
+  --input  ~/lexicon-etl/words.json \
   --output ./output
 ```
 
@@ -140,8 +140,8 @@ What it does, per stage (matches the spec's hard gates):
 3. **NFC-normalize** every text field (definitions, etymology, examples,
    synonyms, antonyms, word itself) — per spec.
 4. **Deduplicate** by `sha256(word + language + part_of_speech)`.
-5. **Build** one `lexora_<lang>.db` per language using the shared schema at
-   `native/cloud/schema/lexora_sqlite.sql` (FTS5 with
+5. **Build** one `lexicon_<lang>.db` per language using the shared schema at
+   `native/cloud/schema/lexicon_sqlite.sql` (FTS5 with
    `tokenize='porter unicode61'`, external-content tables, WAL mode,
    delta-sync triggers).
 6. **Compress** each `.db` with Zstd level 19, `--ultra`, multithreaded
@@ -154,9 +154,9 @@ Output layout:
 
 ```
 output/
-├── lexora_en.db.zst
-├── lexora_fr.db.zst
-├── lexora_de.db.zst
+├── lexicon_en.db.zst
+├── lexicon_fr.db.zst
+├── lexicon_de.db.zst
 ├── …                          (one per supported language, 36 total)
 └── manifest.json
 ```
@@ -185,14 +185,14 @@ from this `scripts/` folder). It bakes in Python 3.11, `zstandard`, and
 beyond Docker itself.
 
 The build context **must** be the `native/` directory (not `native/etl/`)
-so the shared SQLite schema at `native/cloud/schema/lexora_sqlite.sql` is
+so the shared SQLite schema at `native/cloud/schema/lexicon_sqlite.sql` is
 in scope:
 
 ```bash
 cd /path/to/my-project/native
 
 # Build the image once
-docker build -f etl/Dockerfile -t lexora-etl .
+docker build -f etl/Dockerfile -t lexicon-etl .
 ```
 
 Run wiktextract + ETL + validate in one shot, mounting the dump and output
@@ -200,9 +200,9 @@ dir:
 
 ```bash
 docker run --rm -it \
-  -v "$HOME/lexora-etl:/work" \
+  -v "$HOME/lexicon-etl:/work" \
   -v "$(pwd)/etl/output:/out" \
-  lexora-etl \
+  lexicon-etl \
   bash -c '
     wiktextract --pages /work/dump/enwiktionary-latest-pages-articles.xml \
                 --output /work/words.json &&
@@ -227,7 +227,7 @@ matrix.
 | `validate.py` | Standalone validator enforcing "≥1 definition per word ID" and "no unclosed HTML" |
 | `requirements.txt` | Python deps (just `zstandard` — wiktextract is installed separately) |
 | `../Dockerfile` | Reproducible build environment (Python 3.11-slim + zstandard + wiktextract) |
-| `../../cloud/schema/lexora_sqlite.sql` | The FTS5 schema applied to every per-language `.db` |
+| `../../cloud/schema/lexicon_sqlite.sql` | The FTS5 schema applied to every per-language `.db` |
 
 ## Troubleshooting
 

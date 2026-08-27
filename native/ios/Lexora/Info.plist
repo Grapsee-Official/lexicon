@@ -7,7 +7,7 @@
 
     <!-- Display name shown under the app icon on the home screen. -->
     <key>CFBundleDisplayName</key>
-    <string>Lexora</string>
+    <string>Lexicon</string>
 
     <key>CFBundleExecutable</key>
     <string>$(EXECUTABLE_NAME)</string>
@@ -35,7 +35,7 @@
 
     <!--
       UIAppFonts — uncomment & add entries AFTER dragging the Google Fonts
-      .ttf files into Resources/. See LexoraTypography.swift for the
+      .ttf files into Resources/. See LexiconTypography.swift for the
       exact file names expected. Without these keys, the app falls back
       gracefully to system serif / sans-serif.
 
@@ -86,7 +86,7 @@
         <string>UIInterfaceOrientationLandscapeRight</string>
     </array>
 
-    <!-- No status-bar hiding — Lexora keeps the system bar transparent over the warm cream bg. -->
+    <!-- No status-bar hiding — Lexicon keeps the system bar transparent over the warm cream bg. -->
     <key>UIStatusBarStyle</key>
     <string>UIStatusBarStyleDefault</string>
 
@@ -108,11 +108,11 @@
     -->
     <!--
     <key>NSCameraUsageDescription</key>
-    <string>Lexora uses the camera to scan and look up words.</string>
+    <string>Lexicon uses the camera to scan and look up words.</string>
     <key>NSMicrophoneUsageDescription</key>
-    <string>Lexora uses the microphone for voice search.</string>
+    <string>Lexicon uses the microphone for voice search.</string>
     <key>NSPhotoLibraryUsageDescription</key>
-    <string>Lexora can save word illustrations to your photo library.</string>
+    <string>Lexicon can save word illustrations to your photo library.</string>
     -->
 </dict>
 </plist>

@@ -8,8 +8,8 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/z/my-project/native/cpp/src/c_api.cpp" "CMakeFiles/lexora_engine_obj.dir/src/c_api.cpp.o" "gcc" "CMakeFiles/lexora_engine_obj.dir/src/c_api.cpp.o.d"
-  "/home/z/my-project/native/cpp/src/engine.cpp" "CMakeFiles/lexora_engine_obj.dir/src/engine.cpp.o" "gcc" "CMakeFiles/lexora_engine_obj.dir/src/engine.cpp.o.d"
+  "/home/z/my-project/native/cpp/src/c_api.cpp" "CMakeFiles/lexicon_engine_obj.dir/src/c_api.cpp.o" "gcc" "CMakeFiles/lexicon_engine_obj.dir/src/c_api.cpp.o.d"
+  "/home/z/my-project/native/cpp/src/engine.cpp" "CMakeFiles/lexicon_engine_obj.dir/src/engine.cpp.o" "gcc" "CMakeFiles/lexicon_engine_obj.dir/src/engine.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

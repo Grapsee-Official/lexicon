@@ -1,5 +1,5 @@
-//  LexoraOOMMonitor.swift
-//  Lexora
+//  LexiconOOMMonitor.swift
+//  Lexicon
 //
 //  Per spec risk matrix: "iOS background app suspension — milliseconds to
 //  respond before killing." When iOS posts
@@ -28,14 +28,14 @@ import Foundation
 import UIKit
 import os.log
 
-/// LexoraOOMMonitor — singleton watchdog that listens for iOS memory
+/// LexiconOOMMonitor — singleton watchdog that listens for iOS memory
 /// pressure and the background-task expiration events, and translates
-/// them into DAWG-unload + cache-flush actions on the shared LexoraEngine.
-public final class LexoraOOMMonitor {
+/// them into DAWG-unload + cache-flush actions on the shared LexiconEngine.
+public final class LexiconOOMMonitor {
 
     // MARK: - Singleton
 
-    public static let shared = LexoraOOMMonitor()
+    public static let shared = LexiconOOMMonitor()
 
     // MARK: - Public types
 
@@ -76,12 +76,12 @@ public final class LexoraOOMMonitor {
 
     // MARK: - Private state
 
-    private let logger = Logger(subsystem: "com.lexora", category: "OOM")
+    private let logger = Logger(subsystem: "com.lexicon", category: "OOM")
     private let lock = NSLock()
 
     /// The engine. Set via [setEngine] once the cold-start optimizer has
     /// finished warming. Nil until then — recovery paths tolerate nil.
-    private var engine: LexoraEngine?
+    private var engine: LexiconEngine?
 
     /// Optional crash reporter. Defaults to os.Logger only.
     private var crashReporter: CrashReporter?
@@ -112,7 +112,7 @@ public final class LexoraOOMMonitor {
     /// Bind the engine. Called once the cold-start optimizer has finished
     /// warming. The monitor uses the engine to (a) unload the DAWG on
     /// pressure and (b) read native memory usage for OOM reports.
-    public func setEngine(_ engine: LexoraEngine) {
+    public func setEngine(_ engine: LexiconEngine) {
         lock.lock(); defer { lock.unlock() }
         self.engine = engine
         logger.info("OOM: engine bound")
@@ -293,7 +293,7 @@ public final class LexoraOOMMonitor {
         )
     }
 
-    /// Flush caches. Currently a placeholder — wire to LexoraViewModel
+    /// Flush caches. Currently a placeholder — wire to LexiconViewModel
     /// cache-flush hooks when those are added (mirror the Android
     /// OOMMonitor.registerCacheFlusher API).
     private func flushCaches(reason: String) {
@@ -328,7 +328,7 @@ public final class LexoraOOMMonitor {
         }
         lock.unlock()
 
-        let taskId = UIApplication.shared.beginBackgroundTask(withName: "LexoraOOM") { [weak self] in
+        let taskId = UIApplication.shared.beginBackgroundTask(withName: "LexiconOOM") { [weak self] in
             // Expiration — the system is about to suspend us. Force-shed.
             self?.handleBackgroundExpiration()
         }

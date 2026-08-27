@@ -1,5 +1,5 @@
-//  LexoraColdStartOptimizer.swift
-//  Lexora
+//  LexiconColdStartOptimizer.swift
+//  Lexicon
 //
 //  Per spec: "Cold start optimization. Hard gate: <500ms cold start on iPhone SE."
 //
@@ -20,10 +20,10 @@
 //       be inspected in Console.app / Instruments.
 //
 //  Intended call sites (NOT modified by this change):
-//    - App delegate / @main:  await LexoraColdStartOptimizer.shared.warmEngine(dbDir: ...)
-//    - Root view .onAppear:   LexoraColdStartOptimizer.shared.scheduleDawgWarmAfterFirstRender()
+//    - App delegate / @main:  await LexiconColdStartOptimizer.shared.warmEngine(dbDir: ...)
+//    - Root view .onAppear:   LexiconColdStartOptimizer.shared.scheduleDawgWarmAfterFirstRender()
 //
-//  The C++ engine's `lexora_engine_load` loads both the hash table and the
+//  The C++ engine's `lexicon_engine_load` loads both the hash table and the
 //  DAWG in one call (see native/cpp/src/engine.cpp). To honor the "DAWG
 //  lazy" requirement without modifying the C ABI, this optimizer calls
 //  `loadDatabase` then immediately `enableDawg(false)` to unload the DAWG
@@ -33,20 +33,20 @@
 import Foundation
 import os.log
 
-/// LexoraColdStartOptimizer — singleton that owns the warmed LexoraEngine
+/// LexiconColdStartOptimizer — singleton that owns the warmed LexiconEngine
 /// and enforces the <500ms cold-start hard gate.
-public final class LexoraColdStartOptimizer {
+public final class LexiconColdStartOptimizer {
 
     // MARK: - Singleton
 
-    public static let shared = LexoraColdStartOptimizer()
+    public static let shared = LexiconColdStartOptimizer()
 
     // MARK: - Public state
 
     /// The cached engine. `nil` until `warmEngine(dbDir:)` completes Phase 1
     /// (hash table load). Once set, never rebuilt — callers should hold the
     /// returned reference for the lifetime of the app.
-    public private(set) var engine: LexoraEngine?
+    public private(set) var engine: LexiconEngine?
 
     /// Live snapshot of all timing metrics. Reflects DAWG load completion
     /// even after the initial cold-start measurement was taken.
@@ -89,7 +89,7 @@ public final class LexoraColdStartOptimizer {
 
     // MARK: - Private state
 
-    private let logger = Logger(subsystem: "com.lexora", category: "ColdStart")
+    private let logger = Logger(subsystem: "com.lexicon", category: "ColdStart")
     private let lock = NSLock()
 
     /// Captured once at singleton init. This is the earliest moment the
@@ -143,16 +143,16 @@ public final class LexoraColdStartOptimizer {
     /// prefix/fuzzy search.
     ///
     /// - Parameter dbDir: Absolute path to the directory containing
-    ///   `lexora.ht`, `lexora.dawg`, and `lexora.sqlite`.
-    /// - Returns: The cached `LexoraEngine`, or `nil` on failure. Subsequent
+    ///   `lexicon.ht`, `lexicon.dawg`, and `lexicon.sqlite`.
+    /// - Returns: The cached `LexiconEngine`, or `nil` on failure. Subsequent
     ///   calls return the same cached instance without re-loading.
     @discardableResult
-    public func warmEngine(dbDir: String) async -> LexoraEngine? {
+    public func warmEngine(dbDir: String) async -> LexiconEngine? {
         // Fast path — no lock needed for the read; the write path is
         // serialized under `lock` in `loadHashTablePhase`.
         if let existing = engine { return existing }
 
-        return await withCheckedContinuation { (continuation: CheckedContinuation<LexoraEngine?, Never>) in
+        return await withCheckedContinuation { (continuation: CheckedContinuation<LexiconEngine?, Never>) in
             DispatchQueue.global(qos: .userInteractive).async { [weak self] in
                 guard let self = self else {
                     continuation.resume(returning: nil)
@@ -229,7 +229,7 @@ public final class LexoraColdStartOptimizer {
     /// Phase 1: create the engine, load the database (hash table + DAWG),
     /// then immediately disable the DAWG so its cost is excluded from the
     /// cold-start measurement. MUST be called off the main thread.
-    private func loadHashTablePhase(dbDir: String) -> LexoraEngine? {
+    private func loadHashTablePhase(dbDir: String) -> LexiconEngine? {
         lock.lock(); defer { lock.unlock() }
 
         // Double-check after acquiring the lock — another caller may have
@@ -239,17 +239,17 @@ public final class LexoraColdStartOptimizer {
         let phaseStart = CFAbsoluteTimeGetCurrent()
         logger.info("Cold start: Phase 1 begin — hash table only (dbDir=\(dbDir, privacy: .public))")
 
-        let newEngine = LexoraEngine()
+        let newEngine = LexiconEngine()
         guard newEngine.loadDatabase(dbDir: dbDir) else {
             logger.error("Cold start: Phase 1 FAILED — loadDatabase returned false for \(dbDir, privacy: .public)")
             return nil
         }
 
-        // The C++ `lexora_engine_load` loads both hash table and DAWG in
+        // The C++ `lexicon_engine_load` loads both hash table and DAWG in
         // one shot. Immediately disable the DAWG so its memory + load time
         // are excluded from the cold-start gate. Exact lookup (hash table)
         // is sufficient for the initial home screen render and for the
-        // iOS text-selection "Lexora" menu action.
+        // iOS text-selection "Lexicon" menu action.
         newEngine.enableDawg(false)
 
         let phaseEnd = CFAbsoluteTimeGetCurrent()

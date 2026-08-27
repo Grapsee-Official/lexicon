@@ -1,26 +1,26 @@
 //
-//  LexoraHeader.swift
-//  Lexora
+//  LexiconHeader.swift
+//  Lexicon
 //
-//  Translation of `src/components/lexora/header.tsx`.
+//  Translation of `src/components/lexicon/header.tsx`.
 //
 //  Transparent bar so it flows seamlessly into the hero below.
-//  Hamburger (left) + brand lockup (mark + "Lexora" + tagline, mr-auto)
+//  Hamburger (left) + brand lockup (mark + "Lexicon" + tagline, mr-auto)
 //  + theme toggle + bell + avatar (right).
 //  All icons thin stroke (1.0–1.2).
 //
 
 import SwiftUI
 
-struct LexoraHeader: View {
-    @EnvironmentObject private var vm: LexoraViewModel
-    @EnvironmentObject private var theme: LexoraThemeState
+struct LexiconHeader: View {
+    @EnvironmentObject private var vm: LexiconViewModel
+    @EnvironmentObject private var theme: LexiconThemeState
     @Environment(\.colorScheme) private var scheme
 
     var body: some View {
         HStack(spacing: 8) {
             // LEFT: hamburger — spec label "Open navigation menu".
-            button(action: { vm.openMenu() }, label: LexoraAccessibilityLabels.menu) {
+            button(action: { vm.openMenu() }, label: LexiconAccessibilityLabels.menu) {
                 Image(systemName: "line.3.horizontal")
                     .font(.system(size: 16, weight: .thin))
                     .foregroundStyle(foregroundAt80)
@@ -28,31 +28,31 @@ struct LexoraHeader: View {
 
             // Brand lockup — pushes right cluster to the right edge (mr-auto).
             // Combined into ONE VoiceOver element so the user hears
-            // "Lexora, Words. Wisdom. Worlds." in one swipe instead of three.
+            // "Lexicon, Words. Wisdom. Worlds." in one swipe instead of three.
             HStack(spacing: 8) {
-                Image("lexora-mark")
+                Image("lexicon-mark")
                     .resizable()
                     .renderingMode(.original)
                     .frame(width: 36, height: 36)
-                    .lexoraDecorative()
+                    .lexiconDecorative()
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Lexora")
-                        .font(.lexoraDisplay(18, weight: .regular))
+                    Text("Lexicon")
+                        .font(.lexiconDisplay(18, weight: .regular))
                         .tracking(-0.4)
-                        .foregroundStyle(lexoraPalette(scheme).foreground)
+                        .foregroundStyle(lexiconPalette(scheme).foreground)
 
                     // Tagline — TITLE CASE (NOT uppercase), tracking 0.08em.
                     Text("Words. Wisdom. Worlds.")
-                        .font(.lexoraBody(8))
+                        .font(.lexiconBody(8))
                         .tracking(0.6)
-                        .foregroundStyle(lexoraPalette(scheme).mutedForeground)
+                        .foregroundStyle(lexiconPalette(scheme).mutedForeground)
                 }
             }
             .layoutPriority(1)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .lexoraCombinedElement()
-            .accessibilityLabel(Text("Lexora. Words. Wisdom. Worlds."))
+            .lexiconCombinedElement()
+            .accessibilityLabel(Text("Lexicon. Words. Wisdom. Worlds."))
 
             // RIGHT: theme toggle + bell + avatar.
             // Spec labels: bell → "Notifications, new items available",
@@ -61,15 +61,15 @@ struct LexoraHeader: View {
             button(
                 action: { theme.toggle() },
                 label: theme.preferredScheme == .dark
-                    ? LexoraAccessibilityLabels.themeToggleLight
-                    : LexoraAccessibilityLabels.themeToggleDark
+                    ? LexiconAccessibilityLabels.themeToggleLight
+                    : LexiconAccessibilityLabels.themeToggleDark
             ) {
                 Image(systemName: theme.preferredScheme == .dark ? "sun.max" : "moon")
                     .font(.system(size: 16, weight: .thin))
                     .foregroundStyle(foregroundAt80)
             }
 
-            button(action: {}, label: LexoraAccessibilityLabels.bell) {
+            button(action: {}, label: LexiconAccessibilityLabels.bell) {
                 ZStack(alignment: .topTrailing) {
                     Image(systemName: "bell")
                         .font(.system(size: 16, weight: .thin))
@@ -77,20 +77,20 @@ struct LexoraHeader: View {
                     // Notification dot — decorative (the bell label already
                     // says "new items available"), so hide from VoiceOver.
                     Circle()
-                        .fill(LexoraColors.accent)
+                        .fill(LexiconColors.accent)
                         .frame(width: 5, height: 5)
                         .offset(x: 4, y: -4)
-                        .lexoraDecorative()
+                        .lexiconDecorative()
                 }
             }
 
-            button(action: {}, label: LexoraAccessibilityLabels.avatar) {
+            button(action: {}, label: LexiconAccessibilityLabels.avatar) {
                 Image("avatar-default")
                     .resizable()
                     .scaledToFill()
                     .frame(width: 36, height: 36)
                     .clipShape(Circle())
-                    .overlay(Circle().stroke(lexoraPalette(scheme).border, lineWidth: 1))
+                    .overlay(Circle().stroke(lexiconPalette(scheme).border, lineWidth: 1))
             }
         }
         .frame(height: 56)
@@ -100,7 +100,7 @@ struct LexoraHeader: View {
 
     // MARK: - Helpers
     private var foregroundAt80: Color {
-        lexoraPalette(scheme).foreground.opacity(0.8)
+        lexiconPalette(scheme).foreground.opacity(0.8)
     }
 
     private func button(
@@ -114,12 +114,12 @@ struct LexoraHeader: View {
         }) {
             content()
                 // Visual size stays at 36×36 (matches the locked web spec);
-                // the `.lexoraMinTouchTarget()` modifier below expands the
+                // the `.lexiconMinTouchTarget()` modifier below expands the
                 // TAPPABLE frame to ≥ 44×44 without changing the visual
                 // icon size. Apple-HIG-compliant — visual size is a design
                 // decision, hit area is an accessibility contract.
                 .frame(width: 36, height: 36)
-                .lexoraMinTouchTarget()
+                .lexiconMinTouchTarget()
         }
         .accessibilityLabel(Text(label))
         .accessibilityAddTraits(.isButton)
@@ -128,8 +128,8 @@ struct LexoraHeader: View {
 }
 
 #Preview {
-    LexoraHeader()
-        .environmentObject(LexoraViewModel())
-        .environmentObject(LexoraThemeState())
-        .background(LexoraColors.background)
+    LexiconHeader()
+        .environmentObject(LexiconViewModel())
+        .environmentObject(LexiconThemeState())
+        .background(LexiconColors.background)
 }

@@ -1,9 +1,9 @@
 // levenshtein.cpp — Levenshtein automaton implementation
-#include "lexora/levenshtein.hpp"
+#include "lexicon/levenshtein.hpp"
 #include <algorithm>
 #include <cstring>
 
-namespace lexora {
+namespace lexicon {
 
 LevenshteinAutomaton::LevenshteinAutomaton() {}
 
@@ -152,4 +152,4 @@ void LevenshteinAutomaton::build_peq(std::string_view pattern, uint64_t peq[256]
     }
 }
 
-} // namespace lexora
+} // namespace lexicon

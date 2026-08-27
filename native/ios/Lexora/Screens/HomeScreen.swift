@@ -1,6 +1,6 @@
 //
 //  HomeScreen.swift
-//  Lexora
+//  Lexicon
 //
 //  Translation of the home tab composition in `src/app/page.tsx`.
 //
@@ -12,7 +12,7 @@
 import SwiftUI
 
 struct HomeScreen: View {
-    @EnvironmentObject private var vm: LexoraViewModel
+    @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
 
     var body: some View {
@@ -24,10 +24,10 @@ struct HomeScreen: View {
                 FloatingSearchBar()
                     .padding(.horizontal, 16)
 
-                TrendingTagRow(tags: LexoraData.trendingTags)
+                TrendingTagRow(tags: LexiconData.trendingTags)
                     .padding(.horizontal, 16)
 
-                WordOfTheDayCard(word: LexoraData.wordOfTheDay)
+                WordOfTheDayCard(word: LexiconData.wordOfTheDay)
                     .padding(.horizontal, 16)
 
                 // ── Explore by Category ──
@@ -35,7 +35,7 @@ struct HomeScreen: View {
                     SectionHeader(title: "Explore by Category", actionLabel: "View all")
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
-                            ForEach(LexoraData.categories) { c in
+                            ForEach(LexiconData.categories) { c in
                                 CategoryCard(category: c)
                             }
                         }
@@ -48,7 +48,7 @@ struct HomeScreen: View {
                     SectionHeader(title: "From the Library", actionLabel: "View all articles")
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
-                            ForEach(LexoraData.articles) { a in
+                            ForEach(LexiconData.articles) { a in
                                 ArticleCard(article: a)
                             }
                         }
@@ -59,12 +59,12 @@ struct HomeScreen: View {
             .padding(.top, 4)
             .padding(.bottom, 120) // clear floating bottom nav
         }
-        .background(LexoraColors.background)
+        .background(LexiconColors.background)
     }
 }
 
 #Preview {
     HomeScreen()
-        .environmentObject(LexoraViewModel())
-        .background(LexoraColors.background)
+        .environmentObject(LexiconViewModel())
+        .background(LexiconColors.background)
 }

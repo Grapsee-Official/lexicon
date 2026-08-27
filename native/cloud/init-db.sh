@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# init-db.sh — wait for PostgreSQL to be ready, then apply the Lexora schema.
+# init-db.sh — wait for PostgreSQL to be ready, then apply the Lexicon schema.
 #
 # This is a manual / fallback initializer. On a fresh `docker compose up` the
-# postgres image already auto-applies schema/lexora_postgres.sql on first
+# postgres image already auto-applies schema/lexicon_postgres.sql on first
 # startup via /docker-entrypoint-initdb.d/. Use this script when:
 #   - The data volume already existed and you want to (re-)apply the schema.
 #   - You are pointing at an external PostgreSQL instance.
@@ -13,8 +13,8 @@
 #
 # Usage:
 #   ./init-db.sh                                              # use defaults below
-#   PGHOST=localhost PGPORT=5432 PGUSER=lexora PGDATABASE=lexora \
-#     PGPASSWORD=lexora_password ./init-db.sh
+#   PGHOST=localhost PGPORT=5432 PGUSER=lexicon PGDATABASE=lexicon \
+#     PGPASSWORD=lexicon_password ./init-db.sh
 #   SCHEMA_FILE=/path/to/custom.sql ./init-db.sh              # override schema
 #   MAX_WAIT_SECONDS=120 ./init-db.sh                         # extend wait
 #
@@ -28,14 +28,14 @@ set -euo pipefail
 # --- Configuration (env-overridable) -----------------------------------------
 PGHOST="${PGHOST:-localhost}"
 PGPORT="${PGPORT:-5432}"
-PGUSER="${PGUSER:-lexora}"
-PGDATABASE="${PGDATABASE:-lexora}"
-PGPASSWORD="${PGPASSWORD:-lexora_password}"
+PGUSER="${PGUSER:-lexicon}"
+PGDATABASE="${PGDATABASE:-lexicon}"
+PGPASSWORD="${PGPASSWORD:-lexicon_password}"
 MAX_WAIT_SECONDS="${MAX_WAIT_SECONDS:-60}"
 
 # Resolve the schema file relative to this script so it works regardless of CWD.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SCHEMA_FILE="${SCHEMA_FILE:-${SCRIPT_DIR}/schema/lexora_postgres.sql}"
+SCHEMA_FILE="${SCHEMA_FILE:-${SCRIPT_DIR}/schema/lexicon_postgres.sql}"
 
 # --- Pre-flight checks -------------------------------------------------------
 if [[ ! -f "$SCHEMA_FILE" ]]; then

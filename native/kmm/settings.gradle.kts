@@ -1,5 +1,5 @@
 // settings.gradle.kts — KMM library build root.
-// Standalone Gradle build for the Lexora Kotlin Multiplatform engine module.
+// Standalone Gradle build for the Lexicon Kotlin Multiplatform engine module.
 // (For composite builds, this module can also be `includeBuild`-ed from the
 //  Android app project at ../android.)
 
@@ -25,4 +25,4 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "LexoraEngine"
+rootProject.name = "LexiconEngine"

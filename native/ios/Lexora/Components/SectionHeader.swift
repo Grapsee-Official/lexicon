@@ -1,8 +1,8 @@
 //
 //  SectionHeader.swift
-//  Lexora
+//  Lexicon
 //
-//  Translation of `src/components/lexora/section-header.tsx`.
+//  Translation of `src/components/lexicon/section-header.tsx`.
 //
 //  Title left + "View all →" right (highlight color). NO divider line.
 //
@@ -18,15 +18,15 @@ struct SectionHeader: View {
     var body: some View {
         HStack(spacing: 8) {
             Text(title)
-                .font(.lexoraDisplay(15, weight: .semibold))
+                .font(.lexiconDisplay(15, weight: .semibold))
                 .tracking(-0.2)
-                .foregroundStyle(lexoraPalette(scheme).foreground)
+                .foregroundStyle(lexiconPalette(scheme).foreground)
                 .lineLimit(1)
                 .layoutPriority(1)
                 // Mark as h2 heading so VoiceOver users can navigate
                 // between sections (Explore by Category, Trending Now,
                 // Recent Articles, etc.) via the Headings rotor.
-                .lexoraAccessibilityHeading(.h2)
+                .lexiconAccessibilityHeading(.h2)
 
             Spacer(minLength: 4)
 
@@ -39,12 +39,12 @@ struct SectionHeader: View {
                     Image(systemName: "arrow.right")
                         .font(.system(size: 11, weight: .semibold))
                 }
-                .font(.lexoraBody(11, weight: .medium))
-                .foregroundStyle(lexoraPalette(scheme).highlight)
+                .font(.lexiconBody(11, weight: .medium))
+                .foregroundStyle(lexiconPalette(scheme).highlight)
                 // The text-only "View all →" button is ~16pt tall — well
                 // below the 44pt minimum. Expand the hit area without
                 // resizing the visual label.
-                .lexoraMinTouchTarget()
+                .lexiconMinTouchTarget()
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -58,5 +58,5 @@ struct SectionHeader: View {
 #Preview {
     SectionHeader(title: "Explore by Category", actionLabel: "View all")
         .padding()
-        .background(LexoraColors.background)
+        .background(LexiconColors.background)
 }

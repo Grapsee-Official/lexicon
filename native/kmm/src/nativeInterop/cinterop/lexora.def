@@ -1,27 +1,27 @@
-# lexora.def - cinterop definition for the Lexora C ABI.
+# lexicon.def - cinterop definition for the Lexicon C ABI.
 #
 # Imports c_api.h so the Kotlin/Native compiler can see the C struct types
-# (LexoraWordEntry, LexoraSearchResults, LexoraMemoryInfo) defined there.
-# The struct types are referenced from LexoraEngine.ios.kt as
-# `lexora.LexoraWordEntry`, `lexora.LexoraSearchResults`, etc.
+# (LexiconWordEntry, LexiconSearchResults, LexiconMemoryInfo) defined there.
+# The struct types are referenced from LexiconEngine.ios.kt as
+# `lexicon.LexiconWordEntry`, `lexicon.LexiconSearchResults`, etc.
 #
-# The C functions themselves (lexora_engine_create, lexora_engine_load, ...)
+# The C functions themselves (lexicon_engine_create, lexicon_engine_load, ...)
 # are NOT consumed via the cinterop-generated top-level stubs. Instead, they
-# are bound explicitly in LexoraEngine.ios.kt as @SymbolName-annotated
+# are bound explicitly in LexiconEngine.ios.kt as @SymbolName-annotated
 # `external fun` declarations with explicit kotlinx.cinterop types. This gives
 # the iOS bridge full control over nullability and pointer types.
 #
-# The actual linking of liblexora-engine.a (or the .framework equivalent)
+# The actual linking of liblexicon-engine.a (or the .framework equivalent)
 # must be configured in build.gradle.kts via the `binaries` / linkerOpts
 # blocks for each iosX64/iosArm64/iosSimulatorArm64 target, and the cinterop
 # must be registered:
 #
 #   kotlin {
-#       iosX64().compilations.main.cinterops.create("lexora") {
-#           defFile = file("src/nativeInterop/cinterop/lexora.def")
+#       iosX64().compilations.main.cinterops.create("lexicon") {
+#           defFile = file("src/nativeInterop/cinterop/lexicon.def")
 #       }
-#       iosArm64().compilations.main.cinterops.create("lexora") { ... }
-#       iosSimulatorArm64().compilations.main.cinterops.create("lexora") { ... }
+#       iosArm64().compilations.main.cinterops.create("lexicon") { ... }
+#       iosSimulatorArm64().compilations.main.cinterops.create("lexicon") { ... }
 #   }
 #
 # `headers` lists the header file(s) to parse (just the file name; the
@@ -34,10 +34,10 @@
 # `compilerOpts` adds the include directory for c_api.h. The path below is
 # relative to the KMM module directory (native/kmm/). If your build resolves
 # paths from a different root, override via build.gradle.kts:
-#   cinterops.create("lexora") {
-#       compilerOpts("-I${projectDir}/../cpp/include/lexora")
+#   cinterops.create("lexicon") {
+#       compilerOpts("-I${projectDir}/../cpp/include/lexicon")
 #   }
 
 headers = c_api.h
 headerFilter = c_api.h
-compilerOpts = -I../cpp/include/lexora
+compilerOpts = -I../cpp/include/lexicon

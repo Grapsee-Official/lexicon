@@ -1,4 +1,4 @@
-# Lexora ETL Pipeline — Python dependencies
+# Lexicon ETL Pipeline — Python dependencies
 #
 # Only the libraries imported by etl_pipeline.py / validate.py belong here.
 # wiktextract is intentionally NOT listed here: it is a standalone CLI tool
