@@ -1,0 +1,1424 @@
+.lexora-hero {
+  --bg: #f3ebdd;
+  --text: #1f281f;
+  --muted: #657067;
+  --primary: #657d5a;
+  --deep: #31462f;
+  --secondary: #7c9297;
+  --accent: #c98267;
+  --highlight: #a58a61;
+  --surface: rgba(255, 252, 245, 0.92);
+  --border: rgba(49, 70, 47, 0.12);
+
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ================================================================
+   NAVIGATION
+   ================================================================ */
+
+.lexora-nav {
+  position: relative;
+  z-index: 20;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+  min-height: 84px;
+
+  padding: 16px 22px 10px;
+}
+
+.lexora-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-right: auto;
+  margin-left: 16px;
+}
+
+.lexora-brand-mark {
+  width: 58px;
+  height: 58px;
+  flex: 0 0 58px;
+
+  display: grid;
+  place-items: center;
+}
+
+.lexora-brand-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.lexora-brand-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1;
+}
+
+.lexora-brand-name {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--deep);
+}
+
+.lexora-brand-tagline {
+  margin-top: 3px;
+
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 8.5px;
+  font-weight: 500;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+
+  color: rgba(49, 70, 47, 0.67);
+}
+
+.lexora-icon-button {
+  position: relative;
+
+  display: grid;
+  place-items: center;
+
+  width: 42px;
+  height: 42px;
+
+  border: 0;
+  padding: 0;
+  border-radius: 50%;
+
+  background: transparent;
+  color: var(--deep);
+
+  cursor: pointer;
+}
+
+.lexora-icon-button:hover {
+  background: rgba(101, 125, 90, 0.08);
+}
+
+.lexora-nav > .lexora-icon-button {
+  flex: 0 0 42px;
+}
+
+.lexora-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lexora-notification-dot {
+  position: absolute;
+
+  top: 7px;
+  right: 7px;
+
+  width: 7px;
+  height: 7px;
+
+  border-radius: 50%;
+  background: var(--accent);
+  border: 1px solid var(--bg);
+}
+
+.lexora-profile {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+
+  padding: 0;
+
+  overflow: hidden;
+
+  border: 1px solid rgba(49, 70, 47, 0.1);
+  border-radius: 50%;
+
+  background: transparent;
+
+  cursor: pointer;
+}
+
+.lexora-profile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ================================================================
+   HERO
+   ================================================================ */
+
+.lexora-hero-inner {
+  position: relative;
+
+  min-height: 580px;
+
+  padding:
+    42px
+    22px
+    56px;
+
+  display: flex;
+  align-items: flex-start;
+}
+
+.lexora-content {
+  position: relative;
+  z-index: 10;
+
+  width: min(48%, 500px);
+
+  display: flex;
+  flex-direction: column;
+
+  padding-top: 38px;
+}
+
+.lexora-copy h1 {
+  margin: 0;
+
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(48px, 6vw, 78px);
+  font-weight: 600;
+  line-height: 0.91;
+  letter-spacing: -0.035em;
+
+  color: var(--text);
+}
+
+.lexora-copy h1 span {
+  color: var(--primary);
+  white-space: nowrap;
+}
+
+.lexora-leaf {
+  display: inline-block;
+
+  width: 34px;
+  height: 34px;
+
+  margin-left: 8px;
+  vertical-align: -2px;
+
+  color: var(--highlight);
+}
+
+.lexora-copy p {
+  max-width: 440px;
+
+  margin: 28px 0 0;
+
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.75;
+
+  color: var(--muted);
+}
+
+/* ================================================================
+   SEARCH
+   ================================================================ */
+
+.lexora-search-shell {
+  position: relative;
+  z-index: 12;
+
+  display: flex;
+  align-items: center;
+
+  width: min(100%, 480px);
+  height: 62px;
+
+  margin-top: 34px;
+
+  padding: 0 17px;
+
+  border: 1px solid rgba(49, 70, 47, 0.08);
+  border-radius: 999px;
+
+  background: var(--surface);
+
+  box-shadow:
+    0 12px 32px rgba(49, 70, 47, 0.09),
+    0 2px 5px rgba(49, 70, 47, 0.04);
+
+  backdrop-filter: blur(12px);
+}
+
+.lexora-search-icon {
+  flex: 0 0 auto;
+  color: var(--deep);
+  opacity: 0.78;
+}
+
+.lexora-search-shell input {
+  min-width: 0;
+  flex: 1;
+
+  margin-left: 13px;
+
+  border: 0;
+  outline: 0;
+
+  background: transparent;
+
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.lexora-search-shell input::placeholder {
+  color: rgba(49, 70, 47, 0.47);
+}
+
+.lexora-search-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-left: 10px;
+}
+
+.lexora-search-actions button {
+  display: grid;
+  place-items: center;
+
+  width: 34px;
+  height: 34px;
+
+  padding: 0;
+  border: 0;
+
+  border-radius: 50%;
+
+  background: transparent;
+  color: var(--deep);
+
+  cursor: pointer;
+}
+
+.lexora-search-actions button:hover {
+  background: rgba(101, 125, 90, 0.08);
+}
+
+/* ================================================================
+   CHIPS
+   ================================================================ */
+
+.lexora-popular {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  width: min(100%, 560px);
+
+  margin-top: 16px;
+
+  overflow-x: auto;
+
+  scrollbar-width: none;
+}
+
+.lexora-popular::-webkit-scrollbar {
+  display: none;
+}
+
+.lexora-chip {
+  flex: 0 0 auto;
+
+  height: 38px;
+
+  padding: 0 17px;
+
+  border: 1px solid rgba(49, 70, 47, 0.1);
+  border-radius: 999px;
+
+  background: rgba(255, 252, 245, 0.55);
+
+  color: var(--deep);
+
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 450;
+
+  white-space: nowrap;
+
+  cursor: pointer;
+}
+
+.lexora-chip:hover {
+  background: rgba(101, 125, 90, 0.09);
+}
+
+.lexora-chip--grid {
+  width: 42px;
+  padding: 0;
+
+  display: grid;
+  place-items: center;
+}
+
+/* ================================================================
+   ILLUSTRATION
+   ================================================================ */
+
+.lexora-art {
+  position: absolute;
+  z-index: 3;
+
+  top: 0;
+  right: -4%;
+
+  width: 64%;
+  height: 100%;
+
+  pointer-events: none;
+}
+
+.lexora-art img {
+  position: absolute;
+
+  right: 0;
+  top: 0;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+  object-position: right center;
+
+  user-select: none;
+}
+
+/* ================================================================
+   DARK MODE
+   ================================================================ */
+
+.lexora-hero--dark {
+  --bg: #0f1622;
+  --text: #f0eadf;
+  --muted: #c8c4ba;
+  --primary: #9aaa78;
+  --deep: #d4a45a;
+  --secondary: #334a5e;
+  --surface: rgba(20, 28, 40, 0.9);
+  --border: rgba(240, 216, 154, 0.12);
+}
+
+.lexora-hero--dark .lexora-brand-name {
+  color: #f0d89a;
+}
+
+.lexora-hero--dark .lexora-brand-tagline {
+  color: rgba(240, 216, 154, 0.68);
+}
+
+.lexora-hero--dark .lexora-icon-button,
+.lexora-hero--dark .lexora-search-icon,
+.lexora-hero--dark .lexora-search-actions button {
+  color: #d4a45a;
+}
+
+.lexora-hero--dark .lexora-chip {
+  background: rgba(15, 22, 34, 0.5);
+  border-color: rgba(212, 164, 90, 0.18);
+  color: #d8c7a7;
+}
+
+/* ================================================================
+   RESPONSIVE
+   ================================================================ */
+
+@media (max-width: 900px) {
+  .lexora-hero-inner {
+    min-height: 650px;
+    padding-top: 26px;
+  }
+
+  .lexora-content {
+    width: 58%;
+    padding-top: 25px;
+  }
+
+  .lexora-copy h1 {
+    font-size: clamp(46px, 8vw, 65px);
+  }
+
+  .lexora-art {
+    width: 62%;
+    right: -8%;
+  }
+}
+
+@media (max-width: 680px) {
+  .lexora-nav {
+    min-height: 70px;
+    padding: 12px 16px 4px;
+  }
+
+  .lexora-brand {
+    margin-left: 7px;
+    gap: 7px;
+  }
+
+  .lexora-brand-mark {
+    width: 49px;
+    height: 49px;
+    flex-basis: 49px;
+  }
+
+  .lexora-brand-name {
+    font-size: 24px;
+  }
+
+  .lexora-brand-tagline {
+    font-size: 7px;
+    letter-spacing: 0.12em;
+  }
+
+  .lexora-nav-actions {
+    gap: 1px;
+  }
+
+  .lexora-nav-actions .lexora-icon-button:first-child {
+    display: none;
+  }
+
+  .lexora-profile {
+    width: 43px;
+    height: 43px;
+    flex-basis: 43px;
+  }
+
+  .lexora-hero-inner {
+    min-height: 590px;
+    padding:
+      25px
+      16px
+      42px;
+  }
+
+  .lexora-content {
+    width: 100%;
+    padding-top: 0;
+  }
+
+  .lexora-copy {
+    width: min(74%, 390px);
+  }
+
+  .lexora-copy h1 {
+    font-size: clamp(42px, 11vw, 58px);
+    line-height: 0.94;
+  }
+
+  .lexora-copy p {
+    width: min(76%, 350px);
+    margin-top: 22px;
+
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  .lexora-leaf {
+    width: 27px;
+    height: 27px;
+    margin-left: 4px;
+  }
+
+  .lexora-search-shell {
+    width: min(100%, 460px);
+    height: 55px;
+    margin-top: 25px;
+  }
+
+  .lexora-search-shell input {
+    font-size: 14px;
+  }
+
+  .lexora-art {
+    width: 88%;
+    height: 72%;
+
+    right: -28%;
+    top: 7%;
+  }
+
+  .lexora-popular {
+    width: calc(100vw - 32px);
+    margin-right: -16px;
+  }
+
+  .lexora-chip {
+    height: 36px;
+    padding: 0 15px;
+  }
+}
+
+@media (max-width: 430px) {
+  .lexora-nav {
+    padding-inline: 12px;
+  }
+
+  .lexora-brand-name {
+    font-size: 22px;
+  }
+
+  .lexora-brand-tagline {
+    font-size: 6.7px;
+  }
+
+  .lexora-content {
+    position: relative;
+  }
+
+  .lexora-copy {
+    width: 72%;
+  }
+
+  .lexora-copy h1 {
+    font-size: 43px;
+  }
+
+  .lexora-copy p {
+    width: 80%;
+    font-size: 13px;
+  }
+
+  .lexora-art {
+    width: 92%;
+    right: -34%;
+    top: 11%;
+  }
+
+  .lexora-search-shell {
+    width: calc(100vw - 32px);
+  }
+}
+
+@media (max-width: 360px) {
+  .lexora-brand-mark {
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
+  }
+
+  .lexora-brand-name {
+    font-size: 20px;
+  }
+
+  .lexora-copy h1 {
+    font-size: 39px;
+  }
+
+  .lexora-copy p {
+    width: 83%;
+  }
+}
+
+/* ============================================================
+   PASS 02 — MOBILE OVERRIDE: CONTENT-DRIVEN HERO
+   Forces the hero to be driven by content rhythm, NOT screen height.
+   ============================================================ */
+
+.lexora-hero-inner {
+  min-height: 0 !important;
+  height: auto !important;
+  display: block !important;
+  padding: 24px 16px 20px !important;
+}
+
+.lexora-content {
+  width: 100% !important;
+  padding-top: 0 !important;
+}
+
+.lexora-copy {
+  width: 72% !important;
+  max-width: 300px;
+}
+
+.lexora-art {
+  width: 64vw !important;
+  max-width: 280px;
+  height: 360px !important;
+  top: 72px !important;
+  right: -8px !important;
+}
+
+.lexora-search-shell {
+  width: 100% !important;
+  max-width: none !important;
+  height: 56px !important;
+  margin-top: 24px !important;
+}
+
+.lexora-popular {
+  width: 100% !important;
+  margin-top: 14px !important;
+}
+
+@media (max-width: 430px) {
+  .lexora-hero-inner {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  .lexora-copy h1 {
+    font-size: 45px !important;
+    line-height: 0.93 !important;
+  }
+
+  .lexora-copy p {
+    width: 292px !important;
+    max-width: calc(100vw - 96px) !important;
+    margin-top: 22px !important;
+  }
+
+  .lexora-art {
+    width: 66vw !important;
+    right: -12px !important;
+    top: 78px !important;
+    opacity: 1 !important;
+  }
+}
+
+@media (max-width: 375px) {
+  .lexora-copy h1 {
+    font-size: 42px !important;
+  }
+
+  .lexora-copy p {
+    max-width: calc(100vw - 88px) !important;
+  }
+
+  .lexora-art {
+    width: 69vw !important;
+    right: -18px !important;
+  }
+}
+
+/* ============================================================
+   PASS 03 — PRECISION: NAV/typography/icon fidelity
+   ============================================================ */
+
+@media (max-width: 430px) {
+  .lexora-nav {
+    height: 76px !important;
+    min-height: 76px !important;
+    padding: 10px 16px 6px !important;
+    align-items: center !important;
+  }
+
+  .lexora-nav > .lexora-icon-button {
+    width: 36px !important;
+    height: 36px !important;
+    color: #657D5A !important;
+  }
+
+  .lexora-brand {
+    margin-left: 6px !important;
+    gap: 8px !important;
+  }
+
+  .lexora-brand-mark {
+    width: 49px !important;
+    height: 49px !important;
+    flex-basis: 49px !important;
+  }
+
+  .lexora-brand-name {
+    font-family: "Cormorant Garamond", Georgia, serif !important;
+    font-size: 25px !important;
+    font-weight: 500 !important;
+    line-height: 0.92 !important;
+    letter-spacing: -0.02em !important;
+    color: #31462F !important;
+  }
+
+  .lexora-brand-tagline {
+    margin-top: 3px !important;
+    font-size: 7px !important;
+    font-weight: 400 !important;
+    letter-spacing: 0.11em !important;
+    text-transform: none !important;
+    color: rgba(49, 70, 47, 0.58) !important;
+  }
+
+  .lexora-nav-actions {
+    gap: 5px !important;
+  }
+
+  .lexora-nav-actions .lexora-icon-button {
+    width: 36px !important;
+    height: 36px !important;
+    color: #657D5A !important;
+  }
+
+  .lexora-notification-dot {
+    width: 5px !important;
+    height: 5px !important;
+    top: 5px !important;
+    right: 5px !important;
+    background: #C98267 !important;
+  }
+
+  .lexora-profile {
+    width: 44px !important;
+    height: 44px !important;
+    flex-basis: 44px !important;
+    border: 1px solid rgba(49,70,47,.08) !important;
+  }
+
+  .lexora-hero-inner {
+    position: relative !important;
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 14px 16px 18px !important;
+    display: block !important;
+  }
+
+  .lexora-content {
+    position: relative !important;
+    z-index: 10 !important;
+    width: 100% !important;
+    padding-top: 0 !important;
+  }
+
+  .lexora-copy {
+    position: relative !important;
+    z-index: 11 !important;
+    width: 73% !important;
+    max-width: 292px !important;
+  }
+
+  .lexora-copy h1 {
+    margin: 0 !important;
+    font-size: 45px !important;
+    line-height: 0.93 !important;
+    font-weight: 500 !important;
+    letter-spacing: -0.038em !important;
+    color: #1F281F !important;
+  }
+
+  .lexora-copy h1 span {
+    color: #657D5A !important;
+  }
+
+  .lexora-leaf {
+    width: 24px !important;
+    height: 24px !important;
+    margin-left: 4px !important;
+    vertical-align: 0 !important;
+    color: #A58A61 !important;
+  }
+
+  .lexora-copy p {
+    width: 292px !important;
+    max-width: calc(100vw - 94px) !important;
+    margin: 22px 0 0 !important;
+    font-family: Inter, sans-serif !important;
+    font-size: 13.5px !important;
+    line-height: 1.65 !important;
+    font-weight: 400 !important;
+    color: rgba(49, 70, 47, 0.62) !important;
+  }
+
+  .lexora-art {
+    position: absolute !important;
+    z-index: 3 !important;
+    top: 70px !important;
+    right: -12px !important;
+    width: 66vw !important;
+    max-width: 280px !important;
+    height: 355px !important;
+    opacity: 1 !important;
+    pointer-events: none !important;
+  }
+
+  .lexora-art img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    object-position: right top !important;
+  }
+
+  .lexora-search-shell {
+    position: relative !important;
+    z-index: 15 !important;
+    width: 100% !important;
+    height: 56px !important;
+    margin-top: 24px !important;
+    padding: 0 15px !important;
+    border-radius: 999px !important;
+    background: rgba(255,252,245,.95) !important;
+    border: 1px solid rgba(49,70,47,.06) !important;
+    box-shadow: 0 8px 22px rgba(49,70,47,.08), 0 2px 4px rgba(49,70,47,.04) !important;
+  }
+
+  .lexora-search-icon {
+    width: 21px !important;
+    height: 21px !important;
+    color: #657D5A !important;
+  }
+
+  .lexora-search-shell input {
+    margin-left: 11px !important;
+    font-size: 14px !important;
+    color: #31462F !important;
+  }
+
+  .lexora-search-actions {
+    gap: 6px !important;
+    margin-left: 7px !important;
+  }
+
+  .lexora-search-actions button {
+    width: 32px !important;
+    height: 32px !important;
+    color: #657D5A !important;
+  }
+
+  .lexora-popular {
+    position: relative !important;
+    z-index: 16 !important;
+    width: 100% !important;
+    margin-top: 14px !important;
+    margin-right: 0 !important;
+    gap: 8px !important;
+    overflow-x: auto !important;
+  }
+
+  .lexora-chip {
+    height: 36px !important;
+    padding: 0 15px !important;
+    border: 1px solid rgba(49,70,47,.10) !important;
+    background: rgba(255,252,245,.56) !important;
+    color: #31462F !important;
+    font-size: 12.5px !important;
+    font-weight: 400 !important;
+  }
+
+  .lexora-chip--grid {
+    display: grid !important;
+    width: 38px !important;
+    min-width: 38px !important;
+    padding: 0 !important;
+  }
+}
+
+@media (max-width: 375px) {
+  .lexora-brand-name {
+    font-size: 23px !important;
+  }
+  .lexora-brand-tagline {
+    font-size: 6.7px !important;
+  }
+  .lexora-copy {
+    width: 74% !important;
+  }
+  .lexora-copy h1 {
+    font-size: 42px !important;
+  }
+  .lexora-copy p {
+    max-width: calc(100vw - 88px) !important;
+  }
+  .lexora-art {
+    width: 68vw !important;
+    right: -16px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .lexora-nav {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+  .lexora-brand-mark {
+    width: 46px !important;
+    height: 46px !important;
+    flex-basis: 46px !important;
+  }
+  .lexora-brand-name {
+    font-size: 21px !important;
+  }
+  .lexora-copy h1 {
+    font-size: 40px !important;
+  }
+  .lexora-copy p {
+    max-width: calc(100vw - 82px) !important;
+  }
+  .lexora-art {
+    width: 71vw !important;
+    right: -20px !important;
+  }
+}
+
+/* ============================================================
+   PASS 03B — VISUAL FIDELITY OVERRIDE
+   Corrects visual weight + asset treatment. Does NOT change structure.
+   ============================================================ */
+
+@media (max-width: 430px) {
+  body {
+    margin: 0 !important;
+    background: #F3EBDD !important;
+  }
+
+  .lexora-hero {
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow: hidden !important;
+    border: 0 !important;
+    outline: 0 !important;
+  }
+
+  .lexora-nav {
+    height: 76px !important;
+    min-height: 76px !important;
+    padding: 10px 16px 6px !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    background: #F3EBDD !important;
+  }
+
+  .lexora-nav .lexora-icon-button {
+    width: 36px !important;
+    height: 36px !important;
+    color: #657D5A !important;
+  }
+
+  .lexora-nav .lexora-icon-button svg {
+    stroke-width: 1.25 !important;
+  }
+
+  .lexora-brand {
+    margin-left: 6px !important;
+    gap: 8px !important;
+  }
+
+  .lexora-brand-mark {
+    width: 49px !important;
+    height: 49px !important;
+    flex-basis: 49px !important;
+  }
+
+  .lexora-brand-name {
+    font-family: "Cormorant Garamond", Georgia, serif !important;
+    font-size: 25px !important;
+    font-weight: 500 !important;
+    line-height: 0.95 !important;
+    letter-spacing: -0.018em !important;
+    color: #31462F !important;
+  }
+
+  .lexora-brand-tagline {
+    margin-top: 3px !important;
+    font-family: Inter, sans-serif !important;
+    font-size: 7px !important;
+    font-weight: 400 !important;
+    text-transform: none !important;
+    letter-spacing: 0.025em !important;
+    color: rgba(49, 70, 47, 0.52) !important;
+  }
+
+  .lexora-notification svg {
+    stroke-width: 1.25 !important;
+  }
+
+  .lexora-notification-dot {
+    width: 5px !important;
+    height: 5px !important;
+    top: 5px !important;
+    right: 5px !important;
+    background: #C98267 !important;
+    border: 0 !important;
+  }
+
+  .lexora-profile {
+    width: 44px !important;
+    height: 44px !important;
+    flex-basis: 44px !important;
+    border: 1px solid rgba(49, 70, 47, 0.08) !important;
+    box-shadow: none !important;
+  }
+
+  .lexora-copy h1 {
+    font-family: "Cormorant Garamond", Georgia, serif !important;
+    font-weight: 500 !important;
+    font-size: 45px !important;
+    line-height: 0.94 !important;
+    letter-spacing: -0.025em !important;
+    color: #1F281F !important;
+    text-rendering: geometricPrecision !important;
+    -webkit-font-smoothing: antialiased !important;
+  }
+
+  .lexora-copy h1 span {
+    color: #657D5A !important;
+  }
+
+  .lexora-leaf {
+    width: 28px !important;
+    height: 28px !important;
+    margin-left: 5px !important;
+    vertical-align: -1px !important;
+    color: #A58A61 !important;
+  }
+
+  /* Hide old teardrop path so the new 3-leaf sprig (ellipse/line) shows */
+  .lexora-leaf path {
+    display: none !important;
+  }
+
+  .lexora-copy p {
+    margin-top: 22px !important;
+    width: 292px !important;
+    max-width: calc(100vw - 94px) !important;
+    font-family: Inter, sans-serif !important;
+    font-size: 13.5px !important;
+    font-weight: 400 !important;
+    line-height: 1.65 !important;
+    color: rgba(49, 70, 47, 0.62) !important;
+  }
+
+  .lexora-art {
+    top: 70px !important;
+    right: -10px !important;
+    width: 66vw !important;
+    max-width: 280px !important;
+    height: 355px !important;
+    opacity: 1 !important;
+  }
+
+  .lexora-art img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    object-position: right top !important;
+    filter: none !important;
+    transform: none !important;
+  }
+
+  /* Art-fade override — kept for legacy but the div was removed from TSX
+     so the SVG's genuine organic transparent edges show. */
+  .lexora-art-fade {
+    inset: 0 !important;
+    background:
+      linear-gradient(
+        90deg,
+        #F3EBDD 0%,
+        rgba(243,235,221,.99) 14%,
+        rgba(243,235,221,.88) 24%,
+        rgba(243,235,221,.62) 34%,
+        rgba(243,235,221,.28) 44%,
+        rgba(243,235,221,0) 57%
+      ) !important;
+    clip-path: none !important;
+    border: 0 !important;
+  }
+
+  .lexora-search-shell {
+    height: 56px !important;
+    margin-top: 24px !important;
+    background: rgba(255,252,245,.96) !important;
+    border: 1px solid rgba(49,70,47,.07) !important;
+    box-shadow: 0 7px 20px rgba(49,70,47,.07) !important;
+  }
+
+  .lexora-search-shell svg {
+    stroke-width: 1.35 !important;
+  }
+
+  .lexora-search-shell input {
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    color: #657067 !important;
+  }
+
+  .lexora-search-shell input::placeholder {
+    color: rgba(49,70,47,.43) !important;
+  }
+
+  .lexora-search-actions button svg {
+    stroke-width: 1.35 !important;
+  }
+
+  .lexora-chip {
+    height: 36px !important;
+    border: 1px solid rgba(49,70,47,.09) !important;
+    background: rgba(255,252,245,.55) !important;
+    color: #657067 !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+  }
+
+  .lexora-chip--grid {
+    display: grid !important;
+    width: 38px !important;
+    min-width: 38px !important;
+    padding: 0 !important;
+  }
+
+  .lexora-chip--grid svg {
+    stroke-width: 1.3 !important;
+  }
+}
+
+@media (max-width: 375px) {
+  .lexora-copy h1 {
+    font-size: 42px !important;
+  }
+  .lexora-brand-name {
+    font-size: 23px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .lexora-copy h1 {
+    font-size: 40px !important;
+  }
+  .lexora-brand-name {
+    font-size: 21px !important;
+  }
+  .lexora-brand-mark {
+    width: 46px !important;
+    height: 46px !important;
+    flex-basis: 46px !important;
+  }
+}
+
+/* ============================================================
+   PASS 03C — Final corrections from side-by-side comparison
+   ============================================================ */
+
+@media (max-width: 430px) {
+  /* Icon strokes — reference is MORE delicate than 1.25 */
+  .lexora-nav .lexora-icon-button svg,
+  .lexora-notification svg,
+  .lexora-search-shell svg,
+  .lexora-search-actions button svg,
+  .lexora-chip--grid svg {
+    stroke-width: 1 !important;
+  }
+
+  /* Tagline — 0.52 is too faint, reference is legible */
+  .lexora-brand-tagline {
+    color: rgba(49, 70, 47, 0.65) !important;
+  }
+
+  /* Search bar — reference is more compact, softer shadow */
+  .lexora-search-shell {
+    height: 50px !important;
+    margin-top: 20px !important;
+    box-shadow: 0 4px 14px rgba(49,70,47,0.06) !important;
+  }
+
+  .lexora-search-shell input {
+    font-size: 13px !important;
+  }
+
+  .lexora-search-icon {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .lexora-search-actions button {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  .lexora-search-actions button svg {
+    width: 17px !important;
+    height: 17px !important;
+  }
+
+  /* Chips — reference is shorter, tighter gaps */
+  .lexora-chip {
+    height: 32px !important;
+    padding: 0 13px !important;
+    font-size: 11.5px !important;
+    border-color: rgba(49,70,47,0.07) !important;
+  }
+
+  .lexora-popular {
+    gap: 6px !important;
+    margin-top: 12px !important;
+  }
+
+  .lexora-chip--grid {
+    width: 32px !important;
+    min-width: 32px !important;
+  }
+
+  .lexora-chip--grid svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  /* Headline — slightly lighter color to match reference's soft black */
+  .lexora-copy h1 {
+    color: #2A3329 !important;
+  }
+
+  /* Description — slightly more opaque for readability */
+  .lexora-copy p {
+    color: rgba(49, 70, 47, 0.7) !important;
+  }
+
+  /* Artwork — ensure no filter/mask interferes with genuine SVG transparency */
+  .lexora-art img {
+    filter: none !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+  }
+}
+
+/* ============================================================
+   POSITION FIX — FINAL
+   Artwork moves UP (above its previous position) per user instruction.
+   ============================================================ */
+
+@media (max-width: 430px) {
+  .lexora-art {
+    top: 40px !important;
+  }
+}
+
+@media (max-width: 375px) {
+  .lexora-art {
+    top: 38px !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .lexora-art {
+    top: 36px !important;
+  }
+}
+
+/* ============================================================
+   FINAL FIX — Addresses all remaining discrepancies
+   ============================================================ */
+
+@media (max-width: 430px) {
+  /* 1. Nav icons — even thinner, more delicate */
+  .lexora-nav .lexora-icon-button svg,
+  .lexora-notification svg,
+  .lexora-search-shell svg,
+  .lexora-search-actions button svg,
+  .lexora-chip--grid svg {
+    stroke-width: 0.75 !important;
+  }
+
+  /* 2. Headline — regular weight, not medium */
+  .lexora-copy h1 {
+    font-weight: 400 !important;
+  }
+
+  /* 3. "Words" color — desaturated sage, not harsh forest green */
+  .lexora-copy h1 span {
+    color: #7A8B6E !important;
+  }
+
+  /* 4. Leaf icon — match desaturated sage + correct size */
+  .lexora-leaf {
+    color: #8A9A7B !important;
+    width: 26px !important;
+    height: 26px !important;
+  }
+
+  /* 5. Paragraph — reduce max-width so text doesn't crash into artwork */
+  .lexora-copy p {
+    max-width: calc(100vw - 140px) !important;
+    width: 250px !important;
+    padding-right: 10px !important;
+  }
+
+  /* 6. Chips — reduce width so all 5 fit in 390px viewport */
+  .lexora-chip {
+    height: 30px !important;
+    padding: 0 11px !important;
+    font-size: 11px !important;
+  }
+
+  .lexora-popular {
+    gap: 5px !important;
+  }
+
+  .lexora-chip--grid {
+    width: 30px !important;
+    min-width: 30px !important;
+  }
+
+  .lexora-chip--grid svg {
+    width: 13px !important;
+    height: 13px !important;
+  }
+
+  /* 7. Artwork — smooth rendering, soften hard transparent edges */
+  .lexora-art img {
+    image-rendering: auto !important;
+    -webkit-font-smoothing: antialiased !important;
+  }
+}
+
+/* ============================================================
+   FIX 2 — Icon strokes fixed via TSX props (0.8).
+   Adjust headline weight + Words color + leaf size.
+   ============================================================ */
+
+@media (max-width: 430px) {
+  /* Headline — reference is bold serif (600), not ultra-heavy 700+ nor too light 400 */
+  .lexora-copy h1 {
+    font-weight: 600 !important;
+  }
+
+  /* "Words" — more desaturated sage */
+  .lexora-copy h1 span {
+    color: #8FA392 !important;
+  }
+
+  /* Leaf — bigger so 3-leaf detail is visible */
+  .lexora-leaf {
+    width: 30px !important;
+    height: 30px !important;
+    color: #8FA392 !important;
+  }
+}
+
+/* ============================================================
+   FIX 3 — Paragraph padding: prevent text collision with artwork
+   ============================================================ */
+
+@media (max-width: 430px) {
+  .lexora-copy p {
+    max-width: calc(100vw - 160px) !important;
+    width: 230px !important;
+    padding-right: 20px !important;
+    margin-top: 18px !important;
+  }
+}
+
+/* ============================================================
+   FIX 4 — Headline weight: 500 (medium, not too bold not too light)
+   ============================================================ */
+
+@media (max-width: 430px) {
+  .lexora-copy h1 {
+    font-weight: 500 !important;
+  }
+}

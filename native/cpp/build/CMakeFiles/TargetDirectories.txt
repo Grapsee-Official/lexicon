@@ -1,0 +1,8 @@
+/home/z/my-project/native/cpp/build/CMakeFiles/lexora-engine.dir
+/home/z/my-project/native/cpp/build/CMakeFiles/test.dir
+/home/z/my-project/native/cpp/build/CMakeFiles/edit_cache.dir
+/home/z/my-project/native/cpp/build/CMakeFiles/rebuild_cache.dir
+/home/z/my-project/native/cpp/build/CMakeFiles/list_install_components.dir
+/home/z/my-project/native/cpp/build/CMakeFiles/install.dir
+/home/z/my-project/native/cpp/build/CMakeFiles/install/local.dir
+/home/z/my-project/native/cpp/build/CMakeFiles/install/strip.dir
