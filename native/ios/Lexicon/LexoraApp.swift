@@ -34,7 +34,7 @@ struct LexoraApp: App {
                 .environmentObject(viewModel)
                 .environmentObject(themeState)
                 // Apply the Lexora background + preferred color scheme at the root.
-                .lexoraTheme()
+                .lexiconTheme()
         }
     }
 }

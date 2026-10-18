@@ -1,12 +1,12 @@
-package com.lexora
+package com.lexicon
 
 import android.app.Application
 import android.util.Log
 
 /**
- * LexoraApplication — app-level entry point.
+ * LexiconApplication — app-level entry point.
  *
- * Registered in `AndroidManifest.xml` via `android:name=".LexoraApplication"`.
+ * Registered in `AndroidManifest.xml` via `android:name=".LexiconApplication"`.
  *
  * Responsibilities:
  *  - Single startup log line for debugging / logcat grep.
@@ -14,16 +14,16 @@ import android.util.Log
  *    reporters, strict-mode configuration in debug builds, …).
  *
  * The UI / state / persistence layers are owned by Compose and the
- * [com.lexora.data.LexoraViewModel]; this class is intentionally thin so
+ * [com.lexicon.data.LexiconViewModel]; this class is intentionally thin so
  * nothing here can block the first frame.
  *
- * Dark / light mode is driven entirely by [com.lexora.data.LexoraViewModel]
+ * Dark / light mode is driven entirely by [com.lexicon.data.LexiconViewModel]
  * (the in-app theme toggle), NOT by the system configuration. The
  * Activity is registered with `android:configChanges="uiMode"` in the
  * manifest so a system dark-mode flip does not recreate the Activity and
  * override the user's in-app preference.
  */
-class LexoraApplication : Application() {
+class LexiconApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
@@ -34,10 +34,10 @@ class LexoraApplication : Application() {
         } catch (e: Exception) {
             "unknown"
         }
-        Log.d(TAG, "LexoraApplication initialised — v$versionName")
+        Log.d(TAG, "LexiconApplication initialised — v$versionName")
     }
 
     companion object {
-        private const val TAG = "Lexora"
+        private const val TAG = "Lexicon"
     }
 }

@@ -69,7 +69,7 @@ import kotlin.math.ceil
  * # Verbosity
  *
  * Verbose mode (set via [setVerbose] = true, or via the
- * `LEXICON_PERF_LEVEL=2` env var on debuggable builds) emits a per-jank
+ * `LEXORA_PERF_LEVEL=2` env var on debuggable builds) emits a per-jank
  * `frame_jank` event for every dropped frame. This is high-volume — use
  * only during profiling sessions, never in production.
  *
@@ -193,7 +193,7 @@ class FrameMonitor private constructor(
      * Pass null to disable file logging (events still go to logcat).
      *
      * The C++ [lexicon::PerfConfig] writes to the same path by default
-     * (set via `LEXICON_PERF_LOG` env var on the native side). Opening
+     * (set via `LEXORA_PERF_LOG` env var on the native side). Opening
      * the same file in append mode from both languages is safe on
      * Android's POSIX filesystem — each write is a single `write(2)`
      * syscall, which is atomic for sizes ≤ PIPE_BUF (4 KB on Linux).
