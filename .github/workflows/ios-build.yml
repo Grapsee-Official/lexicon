@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build C++ Engine for iOS
+      - name: Build C++ Engine as static library for iOS
         run: |
           cd native/cpp
           mkdir build-ios && cd build-ios
@@ -30,19 +30,29 @@ jobs:
             -DBUILD_SHARED_LIBS=OFF \
             -DBUILD_TESTS=OFF
           make -j$(nproc)
+          # Create a fat library location that Xcode can find
+          mkdir -p ../../ios/Lexicon/Engine/lib
+          cp liblexicon-engine.a ../../ios/Lexicon/Engine/lib/liblexicon-engine.a
+          # Copy headers
+          cp -r ../include/lexicon ../../ios/Lexicon/Engine/lib/
+          echo "Static library built and copied"
 
       - name: List Xcode schemes
         run: |
           cd native/ios
           xcodebuild -project Lexicon.xcodeproj -list
 
-      - name: Build iOS App
+      - name: Build iOS App (with C++ linked)
         run: |
           cd native/ios
-          xcodebuild -project Lexicon.xcodeproj \
+          xcodebuild \
+            -project Lexicon.xcodeproj \
             -scheme Lexicon \
             -sdk iphonesimulator \
             -destination 'platform=iOS Simulator,name=iPhone 15' \
+            -configuration Debug \
+            OTHER_LDFLAGS='$(inherited) -llexicon-engine -L$(SRCROOT)/Lexicon/Engine/lib' \
+            HEADER_SEARCH_PATHS='$(inherited) $(SRCROOT)/Lexicon/Engine/lib $(SRCROOT)/../cpp/include' \
             build 2>&1
 
       - name: Build KMM iOS target
