@@ -47,7 +47,7 @@ import UIKit
 public enum LexiconAccessibility {
     /// Apple Human Interface Guidelines minimum touch target size.
     /// Used as the floor for every interactive element in the app.
-    static public static let minTouchTargetSize: CGSize = CGSize(width: 44, height: 44)
+    public static let minTouchTargetSize: CGSize = CGSize(width: 44, height: 44)
 
     /// Convenience CGFloat for `frame(minWidth:minHeight:)`.
     static let minTouchTarget: CGFloat = 44
@@ -407,7 +407,7 @@ extension View {
 /// applies the animation. When Reduce Motion is enabled, the view is
 /// returned without animation — SwiftUI's default instantaneous state
 /// change is used instead.
-private public struct LexiconReduceMotionModifier<V: Equatable>: ViewModifier {
+public struct LexiconReduceMotionModifier<V: Equatable>: ViewModifier {
     let animation: Animation?
     let value: V
 

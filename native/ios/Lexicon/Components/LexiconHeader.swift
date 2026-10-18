@@ -114,12 +114,12 @@ struct LexiconHeader: View {
         }) {
             content()
                 // Visual size stays at 36×36 (matches the locked web spec);
-                // the `.lexiconMinTouchTarget())` modifier below expands the
+                // the `.lexiconMinTouchTarget()` modifier below expands the
                 // TAPPABLE frame to ≥ 44×44 without changing the visual
                 // icon size. Apple-HIG-compliant — visual size is a design
                 // decision, hit area is an accessibility contract.
                 .frame(width: 36, height: 36)
-                .lexiconMinTouchTarget())
+                .lexiconMinTouchTarget()
         }
         .accessibilityLabel(Text(label))
         .accessibilityAddTraits(.isButton)

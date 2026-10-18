@@ -50,7 +50,7 @@
 import SwiftUI
 import UIKit
 
-struct AccessibleButton<Label: View>: View {
+public struct AccessibleButton<Label: View>: View {
     // MARK: - Required parameters
 
     /// VoiceOver label. Required (non-optional) so the compiler rejects
