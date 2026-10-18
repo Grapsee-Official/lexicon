@@ -413,7 +413,7 @@ public struct LexiconReduceMotionModifier<V: Equatable>: ViewModifier {
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    func body(content: Content) -> some View {
+    public func body(content: Content) -> some View {
         if reduceMotion {
             content
         } else {
