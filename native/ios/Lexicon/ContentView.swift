@@ -22,7 +22,7 @@
 //      if vm.searchOpen { SearchModal() }       // full-screen search overlay
 //      if toastMessage != nil { ToastOverlay }  // brief "word not found" toast
 //    }
-//    .sheet(item: $vm.selectedWord) { WordDetailSheet(word:) }
+//    .sheet(item: selectedWordBinding) { WordDetailSheet(word:) }   // see selectedWordBinding below
 //    .lexiconEditMenu(engine: engine)            // iOS 16+ edit-menu integration
 //    .onReceive(.lexiconWordSelected) → vm.openWord
 //    .onReceive(.lexiconWordNotFound) → showToast
@@ -73,6 +73,35 @@ struct ContentView: View {
     // toast cancels any pending dismissal so the latest message stays
     // visible for its full duration.
     @State private var toastMessage: String? = nil
+
+    // MARK: - Selected-word binding for `.sheet(item:)`
+    //
+    // `LexiconViewModel` is `@MainActor`-isolated, and `$vm.selectedWord`
+    // (the `EnvironmentObject.Wrapper`'s `subscript(dynamicMember:)`
+    // projection) doesn't reliably produce a usable `Binding<WordEntry?>`
+    // under stricter Swift concurrency checks — the wrapper's get/set
+    // closures don't carry the MainActor isolation needed to touch
+    // `selectedWord`, so the compiler emits:
+    //   - "cannot call value of non-function type 'Binding<Subject>''
+    //   - "referencing subscript 'subscript(dynamicMember:)' requires
+    //      wrapper 'EnvironmentObject<LexiconViewModel>.Wrapper'"
+    // at the `.sheet(item: $vm.selectedWord)` call site.
+    //
+    // Constructing the binding explicitly here makes the actor hop
+    // explicit: the `get`/`set` closures inherit `ContentView`'s
+    // MainActor isolation (SwiftUI `View`s are `@MainActor`-isolated
+    // by default), so touching `vm.selectedWord` is provably on the
+    // main actor and the wrapper subscript is bypassed entirely.
+    // `.sheet(item:)` then resolves cleanly against `Binding<WordEntry?>`,
+    // and the trailing closure's `word` parameter can be inferred (we
+    // still annotate it explicitly below as a belt-and-suspenders fix
+    // for the "cannot infer type of closure parameter" error).
+    private var selectedWordBinding: Binding<WordEntry?> {
+        Binding(
+            get: { vm.selectedWord },
+            set: { vm.selectedWord = $0 }
+        )
+    }
 
     var body: some View {
         ZStack {
@@ -151,7 +180,7 @@ struct ContentView: View {
         // Driven by `vm.selectedWord` — set both by direct UI taps (trending
         // tags, search results) and by the `.lexiconWordSelected` notification
         // handler below (EditMenu lookup hit).
-        .sheet(item: $vm.selectedWord) { word in
+        .sheet(item: selectedWordBinding) { (word: WordEntry) in
             WordDetailSheet(word: word)
                 .environmentObject(vm)
                 .environmentObject(theme)
@@ -285,18 +314,24 @@ struct ContentView: View {
     // struct (`partOfSpeech: String`), distinct from the model
     // `WordEntry` in `LexiconModels.swift` (`partOfSpeech: PartOfSpeech`).
     // `LexiconEditMenuInteraction.performLookup` posts the engine's
-    // `WordEntry` in `.lexiconWordSelected`'s userInfo. To bridge the two
-    // types without modifying either file (task constraint), we:
+    // `WordEntry` in `.lexiconWordSelected`'s userInfo. Both types share
+    // the same unqualified name `WordEntry` at module scope, so an
+    // explicit `raw as? WordEntry` cast is ambiguous and trips the
+    // "cannot infer type of closure parameter" / "subscript(dynamicMember:)
+    // requires wrapper" cascade at the call sites below. We resolve the
+    // payload purely by reflection — extract the `word` string field from
+    // any struct (engine `WordEntry`, model `WordEntry`, or a plain
+    // `String`), then re-resolve via `LexiconData.dictionary` to obtain
+    // the canonical model `WordEntry` (with the `PartOfSpeech` enum + any
+    // illustration asset). If resolution fails entirely, we surface a
+    // "not found" toast so the user gets feedback either way.
     //
-    //   1. Try a direct cast to the model `WordEntry` — works if the
-    //      engine's `WordEntry` is later removed/renamed or if the engine
-    //      is rewritten to return the model type.
-    //   2. Fall back to `Mirror` reflection on the payload to extract the
-    //      `word` string field from any struct, then re-resolve via
-    //      `LexiconData.dictionary` to obtain the model `WordEntry` (with
-    //      the `PartOfSpeech` enum + any illustration asset).
-    //   3. If resolution fails entirely, surface a "not found" toast so
-    //      the user gets feedback either way.
+    // The explicit `(entry: WordEntry)` annotation on the `first(where:)`
+    // closure pins the parameter to the model `WordEntry` (the element
+    // type of `LexiconData.dictionary`), so the compiler doesn't have to
+    // infer it through the ambiguous module-scope `WordEntry` name —
+    // this is the same belt-and-suspenders pattern used on the
+    // `.sheet(item:)` closure above.
 
     private func handleWordSelected(_ note: Notification) {
         guard let raw = note.userInfo?["word"] else {
@@ -304,25 +339,19 @@ struct ContentView: View {
             return
         }
 
-        // (1) Direct cast — model `WordEntry`.
-        if let entry = raw as? WordEntry {
-            vm.openWord(entry)
-            return
-        }
-
-        // (2) Reflect on the payload to extract the `word` string, then
-        //     re-resolve via LexiconData (case-insensitive match on the
-        //     word title — LexiconData stores canonical entries for all 18
-        //     words the engine knows about).
+        // Reflect on the payload to extract the `word` string, then
+        // re-resolve via LexiconData (case-insensitive match on the
+        // word title — LexiconData stores canonical entries for all 18
+        // words the engine knows about).
         if let wordString = extractWordString(from: raw),
-           let resolved = LexiconData.dictionary.first(where: {
-               $0.word.lowercased() == wordString.lowercased()
+           let resolved = LexiconData.dictionary.first(where: { (entry: WordEntry) in
+               entry.word.lowercased() == wordString.lowercased()
            }) {
             vm.openWord(resolved)
             return
         }
 
-        // (3) Couldn't resolve — toast.
+        // Couldn't resolve — toast.
         let displayWord = extractWordString(from: raw) ?? "that word"
         showToast("\"\(displayWord)\" isn't in Lexicon yet")
     }
