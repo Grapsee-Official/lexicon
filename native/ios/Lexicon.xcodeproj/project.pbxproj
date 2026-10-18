@@ -128,13 +128,13 @@
                 4A0000000000000000000011 /* paper-texture.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "paper-texture.png"; sourceTree = "<group>"; };
                 4A0000000000000000000012 /* wotd-bg-dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "wotd-bg-dark.png"; sourceTree = "<group>"; };
                 4A0000000000000000000013 /* wotd-bg-light.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "wotd-bg-light.png"; sourceTree = "<group>"; };
-				2A0000000000000000000070 /* engine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = engine.cpp; path = "../../cpp/src/engine.cpp"; sourceTree = "<group>"; };
-				2A0000000000000000000071 /* c_api.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = c_api.cpp; path = "../../cpp/src/c_api.cpp"; sourceTree = "<group>"; };
-				2A0000000000000000000072 /* hash_table.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = hash_table.cpp; path = "../../cpp/src/hash_table.cpp"; sourceTree = "<group>"; };
-				2A0000000000000000000073 /* levenshtein.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = levenshtein.cpp; path = "../../cpp/src/levenshtein.cpp"; sourceTree = "<group>"; };
-				2A0000000000000000000074 /* dawg.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = dawg.cpp; path = "../../cpp/src/dawg.cpp"; sourceTree = "<group>"; };
-				2A0000000000000000000075 /* unicode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = unicode.cpp; path = "../../cpp/src/unicode.cpp"; sourceTree = "<group>"; };
-				2A0000000000000000000076 /* performance.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = performance.cpp; path = "../../cpp/src/performance.cpp"; sourceTree = "<group>"; };
+				2A0000000000000000000070 /* engine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = engine.cpp; path = "../cpp/src/engine.cpp"; sourceTree = SOURCE_ROOT; };
+				2A0000000000000000000071 /* c_api.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = c_api.cpp; path = "../cpp/src/c_api.cpp"; sourceTree = SOURCE_ROOT; };
+				2A0000000000000000000072 /* hash_table.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = hash_table.cpp; path = "../cpp/src/hash_table.cpp"; sourceTree = SOURCE_ROOT; };
+				2A0000000000000000000073 /* levenshtein.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = levenshtein.cpp; path = "../cpp/src/levenshtein.cpp"; sourceTree = SOURCE_ROOT; };
+				2A0000000000000000000074 /* dawg.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = dawg.cpp; path = "../cpp/src/dawg.cpp"; sourceTree = SOURCE_ROOT; };
+				2A0000000000000000000075 /* unicode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = unicode.cpp; path = "../cpp/src/unicode.cpp"; sourceTree = SOURCE_ROOT; };
+				2A0000000000000000000076 /* performance.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = performance.cpp; path = "../cpp/src/performance.cpp"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
