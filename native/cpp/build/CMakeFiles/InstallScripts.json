@@ -1,7 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"/home/z/my-project/native/cpp/build/cmake_install.cmake"
-	],
-	"Parallel" : false
-}
