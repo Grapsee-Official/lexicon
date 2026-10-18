@@ -42,8 +42,7 @@ jobs:
         run: |
           cd native/android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
-        continue-on-error: true
+          ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK if built
         if: success()
