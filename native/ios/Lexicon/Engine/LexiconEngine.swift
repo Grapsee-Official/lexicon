@@ -88,7 +88,7 @@ public class LexiconEngine {
 
         for i in 0..<count {
             let result = resultsPtr.pointee.results![i]
-            let engineEntry = convertEntry(result.entry)
+            let engineEntry = convertEntryEntry(result.entry)
             let appEntry = toAppEntry(engineEntry)
             results.append(SearchResult(entry: appEntry, editDistance: Int(result.edit_distance)))
         }
@@ -125,13 +125,11 @@ public class LexiconEngine {
             return MemoryInfo(hashTableBytes: 0, dawgBytes: 0, totalBytes: 0)
         }
         let info = lexicon_engine_get_memory_usage(handle)
-        return info.useContents { val in
-            return MemoryInfo(
-                hashTableBytes: val.hash_table_bytes,
-                dawgBytes: val.dawg_bytes,
-                totalBytes: val.total_bytes
-            )
-        }
+        return MemoryInfo(
+            hashTableBytes: info.hash_table_bytes,
+            dawgBytes: info.dawg_bytes,
+            totalBytes: info.total_bytes
+        )
     }
 
     /// Close and release all resources.
@@ -148,7 +146,22 @@ public class LexiconEngine {
     /// intermediate `EngineWordEntry`. This is a straight 1:1 lift of the C
     /// struct fields into Swift `String` / `[String]` — no semantic mapping
     /// happens here; that lives in `toAppEntry(_:)`.
-    private func convertEntry(_ entry: LexiconWordEntry) -> EngineWordEntry {
+    private func convertEntryEntry(_ entry: LexiconWordEntry) -> EngineWordEntry {
+        return EngineWordEntry(
+            id: stringFromC(entry.id),
+            word: stringFromC(entry.word),
+            phonetic: stringFromC(entry.phonetic),
+            partOfSpeech: stringFromC(entry.part_of_speech),
+            definitions: stringArray(from: entry.definitions, count: Int(entry.definition_count)),
+            etymology: stringFromC(entry.etymology),
+            synonyms: stringArray(from: entry.synonyms, count: Int(entry.synonym_count)),
+            antonyms: stringArray(from: entry.antonyms, count: Int(entry.antonym_count)),
+            examples: stringArray(from: entry.examples, count: Int(entry.example_count)),
+            language: stringFromC(entry.language)
+        )
+    }
+
+    private func convertEntry(_ entryPtr: UnsafePointer<LexiconWordEntry>) -> EngineWordEntry {
         let entry = entryPtr.pointee
 
         let definitions = stringArray(from: entry.definitions, count: Int(entry.definition_count))

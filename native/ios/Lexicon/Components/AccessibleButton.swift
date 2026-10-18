@@ -29,9 +29,9 @@
 //
 //  Usage:
 //
-//    AccessibleButton(label: LexiconAccessibilityLabels.menu, action: {
+//    AccessibleButton(label: LexiconAccessibilityLabels.menu) {
 //        vm.openMenu()
-//    }, content: {
+//    } content: {
 //        Image(systemName: "line.3.horizontal")
 //            .font(.system(size: 16, weight: .thin))
 //            .foregroundStyle(foregroundAt80)
@@ -215,9 +215,9 @@ private struct OptionalSelectionTrait: ViewModifier {
 // MARK: - Preview
 
 #Preview("Plain icon button — 44pt enforced") {
-    AccessibleButton(label: LexiconAccessibilityLabels.menu, action: {
+    AccessibleButton(label: LexiconAccessibilityLabels.menu) {
         // open menu
-    }, content: {
+    } content: {
         Image(systemName: "line.3.horizontal")
             .font(.system(size: 16, weight: .thin))
             .foregroundStyle(.black.opacity(0.8))
@@ -234,7 +234,7 @@ private struct OptionalSelectionTrait: ViewModifier {
         hapticStyle: .medium
     ) {
         // toggle save
-    }, content: {
+    } content: {
         Image(systemName: "bookmark")
             .font(.system(size: 16, weight: .regular))
             .foregroundStyle(.black.opacity(0.8))
@@ -251,7 +251,7 @@ private struct OptionalSelectionTrait: ViewModifier {
             isSelected: true
         ) {
             // select home
-        }, content: {
+        } content: {
             VStack(spacing: 2) {
                 Image(systemName: "house.fill")
                     .font(.system(size: 16, weight: .semibold))
@@ -265,7 +265,7 @@ private struct OptionalSelectionTrait: ViewModifier {
             isSelected: false
         ) {
             // select dictionary
-        }, content: {
+        } content: {
             VStack(spacing: 2) {
                 Image(systemName: "book")
                     .font(.system(size: 16, weight: .regular))
