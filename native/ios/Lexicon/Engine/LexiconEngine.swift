@@ -125,11 +125,13 @@ public class LexiconEngine {
             return MemoryInfo(hashTableBytes: 0, dawgBytes: 0, totalBytes: 0)
         }
         let info = lexicon_engine_get_memory_usage(handle)
-        return MemoryInfo(
-            hashTableBytes: info.pointee.hash_table_bytes,
-            dawgBytes: info.pointee.dawg_bytes,
-            totalBytes: info.pointee.total_bytes
-        )
+        return info.useContents { val in
+            return MemoryInfo(
+                hashTableBytes: val.hash_table_bytes,
+                dawgBytes: val.dawg_bytes,
+                totalBytes: val.total_bytes
+            )
+        }
     }
 
     /// Close and release all resources.
@@ -146,7 +148,7 @@ public class LexiconEngine {
     /// intermediate `EngineWordEntry`. This is a straight 1:1 lift of the C
     /// struct fields into Swift `String` / `[String]` — no semantic mapping
     /// happens here; that lives in `toAppEntry(_:)`.
-    private func convertEntry(_ entryPtr: UnsafePointer<LexiconWordEntry>) -> EngineWordEntry {
+    private func convertEntry(_ entry: LexiconWordEntry) -> EngineWordEntry {
         let entry = entryPtr.pointee
 
         let definitions = stringArray(from: entry.definitions, count: Int(entry.definition_count))

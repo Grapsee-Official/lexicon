@@ -155,7 +155,7 @@ struct AccessibleButton<Label: View>: View {
 //
 
 extension AccessibleButton {
-    init(
+    public init(
         label: String,
         hint: String? = nil,
         accessibilityValue: String? = nil,
