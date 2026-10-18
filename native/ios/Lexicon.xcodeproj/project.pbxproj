@@ -59,13 +59,13 @@
                 5A0000000000000000000012 /* wotd-bg-dark.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A0000000000000000000012 /* wotd-bg-dark.png */; };
                 5A0000000000000000000013 /* wotd-bg-light.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A0000000000000000000013 /* wotd-bg-light.png */; };
                 1A0000000000000000000018 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000017 /* Assets.xcassets */; };
-				3A0000000000000000003A0070 /* engine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000002A0070 /* engine.cpp */; };
-				3A0000000000000000003A0071 /* c_api.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000002A0071 /* c_api.cpp */; };
-				3A0000000000000000003A0072 /* hash_table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000002A0072 /* hash_table.cpp */; };
-				3A0000000000000000003A0073 /* levenshtein.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000002A0073 /* levenshtein.cpp */; };
-				3A0000000000000000003A0074 /* dawg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000002A0074 /* dawg.cpp */; };
-				3A0000000000000000003A0075 /* unicode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000002A0075 /* unicode.cpp */; };
-				3A0000000000000000003A0076 /* performance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000002A0076 /* performance.cpp */; };
+				3A0000000000000000000070 /* engine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000070 /* engine.cpp */; };
+				3A0000000000000000000071 /* c_api.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000071 /* c_api.cpp */; };
+				3A0000000000000000000072 /* hash_table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000072 /* hash_table.cpp */; };
+				3A0000000000000000000073 /* levenshtein.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000073 /* levenshtein.cpp */; };
+				3A0000000000000000000074 /* dawg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000074 /* dawg.cpp */; };
+				3A0000000000000000000075 /* unicode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000075 /* unicode.cpp */; };
+				3A0000000000000000000076 /* performance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000076 /* performance.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -128,13 +128,13 @@
                 4A0000000000000000000011 /* paper-texture.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "paper-texture.png"; sourceTree = "<group>"; };
                 4A0000000000000000000012 /* wotd-bg-dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "wotd-bg-dark.png"; sourceTree = "<group>"; };
                 4A0000000000000000000013 /* wotd-bg-light.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "wotd-bg-light.png"; sourceTree = "<group>"; };
-				2A0000000000000000002A0070 /* engine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = engine.cpp; path = "../../cpp/src/engine.cpp"; sourceTree = "<group>"; };
-				2A0000000000000000002A0071 /* c_api.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = c_api.cpp; path = "../../cpp/src/c_api.cpp"; sourceTree = "<group>"; };
-				2A0000000000000000002A0072 /* hash_table.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = hash_table.cpp; path = "../../cpp/src/hash_table.cpp"; sourceTree = "<group>"; };
-				2A0000000000000000002A0073 /* levenshtein.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = levenshtein.cpp; path = "../../cpp/src/levenshtein.cpp"; sourceTree = "<group>"; };
-				2A0000000000000000002A0074 /* dawg.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = dawg.cpp; path = "../../cpp/src/dawg.cpp"; sourceTree = "<group>"; };
-				2A0000000000000000002A0075 /* unicode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = unicode.cpp; path = "../../cpp/src/unicode.cpp"; sourceTree = "<group>"; };
-				2A0000000000000000002A0076 /* performance.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = performance.cpp; path = "../../cpp/src/performance.cpp"; sourceTree = "<group>"; };
+				2A0000000000000000000070 /* engine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = engine.cpp; path = "../../cpp/src/engine.cpp"; sourceTree = "<group>"; };
+				2A0000000000000000000071 /* c_api.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = c_api.cpp; path = "../../cpp/src/c_api.cpp"; sourceTree = "<group>"; };
+				2A0000000000000000000072 /* hash_table.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = hash_table.cpp; path = "../../cpp/src/hash_table.cpp"; sourceTree = "<group>"; };
+				2A0000000000000000000073 /* levenshtein.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = levenshtein.cpp; path = "../../cpp/src/levenshtein.cpp"; sourceTree = "<group>"; };
+				2A0000000000000000000074 /* dawg.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = dawg.cpp; path = "../../cpp/src/dawg.cpp"; sourceTree = "<group>"; };
+				2A0000000000000000000075 /* unicode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = unicode.cpp; path = "../../cpp/src/unicode.cpp"; sourceTree = "<group>"; };
+				2A0000000000000000000076 /* performance.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = performance.cpp; path = "../../cpp/src/performance.cpp"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -281,13 +281,13 @@
 				1A0000000000000000000020 /* CppEngine */ = {
 				isa = PBXGroup;
 				children = (
-					2A0000000000000000002A0070 /* engine.cpp */,
-					2A0000000000000000002A0071 /* c_api.cpp */,
-					2A0000000000000000002A0072 /* hash_table.cpp */,
-					2A0000000000000000002A0073 /* levenshtein.cpp */,
-					2A0000000000000000002A0074 /* dawg.cpp */,
-					2A0000000000000000002A0075 /* unicode.cpp */,
-					2A0000000000000000002A0076 /* performance.cpp */,
+					2A0000000000000000000070 /* engine.cpp */,
+					2A0000000000000000000071 /* c_api.cpp */,
+					2A0000000000000000000072 /* hash_table.cpp */,
+					2A0000000000000000000073 /* levenshtein.cpp */,
+					2A0000000000000000000074 /* dawg.cpp */,
+					2A0000000000000000000075 /* unicode.cpp */,
+					2A0000000000000000000076 /* performance.cpp */,
 				);
 				name = CppEngine;
 				sourceTree = "<group>";
@@ -409,13 +409,13 @@
                                 3A0000000000000000000062 /* LexiconBackgroundTaskHandler.swift in Sources */,
                                 3A0000000000000000000063 /* LexiconColdStartOptimizer.swift in Sources */,
                                 3A0000000000000000000064 /* LexiconAccessibility.swift in Sources */,,
-					3A0000000000000000003A0070 /* engine.cpp in Sources */,
-					3A0000000000000000003A0071 /* c_api.cpp in Sources */,
-					3A0000000000000000003A0072 /* hash_table.cpp in Sources */,
-					3A0000000000000000003A0073 /* levenshtein.cpp in Sources */,
-					3A0000000000000000003A0074 /* dawg.cpp in Sources */,
-					3A0000000000000000003A0075 /* unicode.cpp in Sources */,
-					3A0000000000000000003A0076 /* performance.cpp in Sources */
+					3A0000000000000000000070 /* engine.cpp in Sources */,
+					3A0000000000000000000071 /* c_api.cpp in Sources */,
+					3A0000000000000000000072 /* hash_table.cpp in Sources */,
+					3A0000000000000000000073 /* levenshtein.cpp in Sources */,
+					3A0000000000000000000074 /* dawg.cpp in Sources */,
+					3A0000000000000000000075 /* unicode.cpp in Sources */,
+					3A0000000000000000000076 /* performance.cpp in Sources */
                         );
                         runOnlyForDeploymentPostprocessing = 0;
                 };
