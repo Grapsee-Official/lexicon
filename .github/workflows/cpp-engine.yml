@@ -1,0 +1,47 @@
+name: C++ Engine Build & Test
+
+on:
+  push:
+    paths:
+      - 'native/cpp/**'
+  pull_request:
+    paths:
+      - 'native/cpp/**'
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake g++ libsqlite3-dev
+
+      - name: Install Google Test
+        run: |
+          sudo apt-get install -y libgtest-dev
+          cd /usr/src/gtest
+          sudo cmake CMakeLists.txt
+          sudo make
+          sudo cp lib/*.a /usr/lib
+          sudo ln -s /usr/lib/libgtest.a /usr/local/lib/libgtest.a
+          sudo ln -s /usr/lib/libgtest_main.a /usr/local/lib/libgtest_main.a
+
+      - name: Configure CMake
+        run: |
+          cd native/cpp
+          mkdir build && cd build
+          cmake .. -DBUILD_TESTS=ON -DTARGET_ANDROID=OFF -DTARGET_IOS=OFF
+
+      - name: Build
+        run: |
+          cd native/cpp/build
+          make -j$(nproc)
+
+      - name: Run tests
+        run: |
+          cd native/cpp/build
+          ctest --output-on-failure

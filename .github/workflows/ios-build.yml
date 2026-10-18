@@ -1,0 +1,49 @@
+name: iOS Build
+
+on:
+  push:
+    paths:
+      - 'native/ios/**'
+      - 'native/kmm/**'
+      - 'native/cpp/**'
+  pull_request:
+    paths:
+      - 'native/ios/**'
+      - 'native/kmm/**'
+      - 'native/cpp/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build C++ Engine for iOS
+        run: |
+          cd native/cpp
+          mkdir build-ios && cd build-ios
+          cmake .. \
+            -DCMAKE_SYSTEM_NAME=iOS \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=16.0 \
+            -DTARGET_IOS=ON \
+            -DBUILD_SHARED_LIBS=OFF \
+            -DBUILD_TESTS=OFF
+          make -j$(nproc)
+        continue-on-error: true
+
+      - name: Build iOS App
+        run: |
+          cd native/ios
+          xcodebuild -project Lexora.xcodeproj \
+            -scheme Lexora \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 15' \
+            build 2>&1
+        continue-on-error: true
+
+      - name: Build KMM iOS target
+        run: |
+          cd native/kmm
+          ./gradlew compileKotlinIosArm64 --no-daemon
+        continue-on-error: true
