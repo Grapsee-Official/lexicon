@@ -63,7 +63,7 @@ public struct AccessibleButton<Label: View>: View {
 
     /// Visual content. Rendered at its natural size — the wrapper expands
     /// the hit area around it to ≥ 44×44pt without resizing the icon.
-    @ViewBuilder let content: () -> Label
+    private let content: () -> Label
 
     // MARK: - Optional parameters
 
@@ -164,7 +164,7 @@ extension AccessibleButton {
         haptic: Bool = true,
         hapticStyle: UIImpactFeedbackGenerator.FeedbackStyle = .light,
         action: @escaping () -> Void,
-        @ViewBuilder content: () -> Label
+        @ViewBuilder content: @escaping () -> Label
     ) {
         self.label = label
         self.hint = hint
