@@ -75,7 +75,7 @@ struct SearchModal: View {
         // Reduce Motion in Settings, the modal appears instantly with no
         // slide/fade transition.
         .lexiconMotion(.easeInOut(duration: 0.2), value: vm.searchOpen)
-        .onAppear(perform: handleOpenChange)
+        .onAppear { handleOpenChange() }
         .onChange(of: vm.searchOpen) { isOpen in
             handleOpenChange(isOpen: isOpen)
         }
