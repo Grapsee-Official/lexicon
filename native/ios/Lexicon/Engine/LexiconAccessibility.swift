@@ -44,10 +44,10 @@ import UIKit
 
 // MARK: - Minimum touch target (Apple HIG: 44pt × 44pt)
 
-enum LexiconAccessibility {
+public enum LexiconAccessibility {
     /// Apple Human Interface Guidelines minimum touch target size.
     /// Used as the floor for every interactive element in the app.
-    static let minTouchTargetSize: CGSize = CGSize(width: 44, height: 44)
+    static public static let minTouchTargetSize: CGSize = CGSize(width: 44, height: 44)
 
     /// Convenience CGFloat for `frame(minWidth:minHeight:)`.
     static let minTouchTarget: CGFloat = 44
@@ -80,7 +80,7 @@ enum LexiconAccessibility {
 //  which toggles between `bookmarkSave` and `bookmarkRemove`).
 //
 
-enum LexiconAccessibilityLabels {
+public enum LexiconAccessibilityLabels {
     // Hamburger (LexiconHeader left)
     static let menu              = "Open navigation menu"
     // Magnifying glass icon (FloatingSearchBar, BottomNav center, SearchModal field)
@@ -123,7 +123,7 @@ enum LexiconAccessibilityLabels {
 //  bundles the trait + label application together so they can't drift.
 //
 
-enum LexiconAccessibilityTraits {
+public enum LexiconAccessibilityTraits {
     /// Apply to any tappable element so VoiceOver announces it as a button.
     static let button: AccessibilityTraits = .isButton
     /// Apply to section titles so VoiceOver announces "heading" and the
@@ -137,7 +137,7 @@ enum LexiconAccessibilityTraits {
 /// (iOS 17+) so the same call site works on iOS 16 by falling back to
 /// `.accessibilityAddTraits(.isHeader)` (loses the level metadata but
 /// preserves the "heading" announcement + rotor navigation).
-enum LexiconHeadingLevel {
+public enum LexiconHeadingLevel {
     case h1, h2, h3, h4, h5, h6
 
     @available(iOS 17.0, *)
@@ -165,7 +165,7 @@ enum LexiconHeadingLevel {
 //  other screen that needs to programmatically focus an element).
 //
 
-enum LexiconVoiceOverFocus: Hashable {
+public enum LexiconVoiceOverFocus: Hashable {
     case searchField       // SearchModal's TextField
     case searchResults     // SearchModal's results list header
     case wordDetailHeader  // WordDetailSheet's word title (future use)
@@ -187,13 +187,13 @@ extension View {
     /// - Parameter label: The string VoiceOver reads when the element
     ///   receives focus. For icon-only buttons, use a verb phrase
     ///   ("Open navigation menu", not "Menu icon").
-    @inlinable
+    
     func lexiconAccessibilityLabel<S: StringProtocol>(_ label: S) -> some View {
         accessibilityLabel(Text(String(label)))
     }
 
     /// Localized-string overload (for `LocalizedStringKey` constants).
-    @inlinable
+    
     func lexiconAccessibilityLabel(_ label: LocalizedStringKey) -> some View {
         accessibilityLabel(Text(label))
     }
@@ -205,12 +205,12 @@ extension View {
     /// Hints are read AFTER the label + value, and only if the user has
     /// "Hints" enabled in VoiceOver settings. Use sparingly — only for
     /// non-obvious actions (e.g. "Searches the offline dictionary").
-    @inlinable
+    
     func lexiconAccessibilityHint<S: StringProtocol>(_ hint: S) -> some View {
         accessibilityHint(Text(String(hint)))
     }
 
-    @inlinable
+    
     func lexiconAccessibilityHint(_ hint: LocalizedStringKey) -> some View {
         accessibilityHint(Text(hint))
     }
@@ -256,7 +256,7 @@ extension View {
     /// Apply to EVERY `Button` and tappable area in the app. The
     /// `AccessibleButton` wrapper applies it automatically; ad-hoc
     /// `Button { } label: { ... }` calls must apply it manually.
-    @inlinable
+    
     func lexiconMinTouchTarget(min: CGFloat = LexiconAccessibility.minTouchTarget) -> some View {
         self
             .frame(minWidth: min, minHeight: min)
@@ -274,7 +274,7 @@ extension View {
     /// the trait application here is idempotent — it's a defensive
     /// measure for cases where the Button is wrapped in modifiers that
     /// strip the trait (e.g. `.overlay`).
-    @inlinable
+    
     func lexiconAsButton(
         labeled label: String,
         hint: String? = nil,
@@ -304,7 +304,7 @@ extension View {
     /// call: VoiceOver label + `.isHeader` trait + h2 heading level.
     /// Apply to section titles so VoiceOver users can navigate via the
     /// Headings rotor.
-    @inlinable
+    
     func lexiconAsHeader(
         labeled label: String? = nil,
         level: LexiconHeadingLevel = .h2
@@ -332,7 +332,7 @@ extension View {
     //       rather than clipping or truncating mid-word. Pair with
     //       `.lineLimit(1)` for single-line labels.
     //
-    @inlinable
+    
     func lexiconDynamicType(minimumScaleFactor: CGFloat = 0.7) -> some View {
         self.minimumScaleFactor(minimumScaleFactor)
     }
@@ -348,7 +348,7 @@ extension View {
     //  value:)` — replacing those calls with `.lexiconMotion(.easeInOut,
     //  value:)` makes the entire app Reduce-Motion-compliant in one pass.
     //
-    @inlinable
+    
     func lexiconMotion<V: Equatable>(
         _ animation: Animation? = .default,
         value: V
@@ -364,7 +364,7 @@ extension View {
     //  screen-reader user doesn't hear "image, image, image" while
     //  navigating.
     //
-    @inlinable
+    
     func lexiconDecorative() -> some View {
         accessibilityHidden(true)
     }
@@ -380,7 +380,7 @@ extension View {
     //  `.accessibilityElement(children: .combine)` is the SwiftUI
     //  equivalent of `UIAccessibility.accessibilityElements = [combined]`.
     //
-    @inlinable
+    
     func lexiconCombinedElement() -> some View {
         accessibilityElement(children: .combine)
     }
@@ -407,7 +407,7 @@ extension View {
 /// applies the animation. When Reduce Motion is enabled, the view is
 /// returned without animation — SwiftUI's default instantaneous state
 /// change is used instead.
-private struct LexiconReduceMotionModifier<V: Equatable>: ViewModifier {
+private public struct LexiconReduceMotionModifier<V: Equatable>: ViewModifier {
     let animation: Animation?
     let value: V
 

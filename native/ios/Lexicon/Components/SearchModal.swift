@@ -427,34 +427,6 @@ struct SearchModal: View {
     }
 }
 
-// MARK: - VoiceOver focus target (P4-FIX-IOS-04)
-//
-//  `LexiconAccessibility.swift` already declares a top-level
-//  `enum LexiconVoiceOverFocus: Hashable` for the same purpose, and the
-//  name/reference below matches it exactly. However, that engine file is
-//  not yet referenced from `Lexicon.xcodeproj/project.pbxproj`, so the
-//  type is not in scope at compile time and the build fails with
-//  "cannot find type 'LexiconVoiceOverFocus' in scope" (SearchModal.swift:50).
-//
-//  To keep `SearchModal.swift` self-contained and the build green until
-//  the engine file is added to the Xcode project, we mirror the enum
-//  here as a `private` file-scope type. `private` ensures there is no
-//  ambiguity / redeclaration conflict once `LexiconAccessibility.swift`
-//  is properly added to the target — Swift will resolve the unqualified
-//  `LexiconVoiceOverFocus` reference inside this file to the local
-//  private declaration, while the rest of the module sees the
-//  internal one from the engine file.
-//
-//  TODO: Once `LexiconAccessibility.swift` is added to
-//  `Lexicon.xcodeproj/project.pbxproj` (PBXBuildFile + PBXFileReference
-//  + Sources phase + Engine group), DELETE this private mirror and let
-//  the canonical top-level enum take over.
-private enum LexiconVoiceOverFocus: Hashable {
-    case searchField       // SearchModal's TextField
-    case searchResults     // SearchModal's results list header
-    case wordDetailHeader  // WordDetailSheet's word title (future use)
-    case toast             // ContentView's toast overlay (future use)
-}
 
 // MARK: - FlowLayout (wrapping pill container — iOS 16+ Layout protocol)
 
