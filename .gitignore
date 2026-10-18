@@ -1,54 +1,64 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Dependencies
+node_modules/
 
-# dependencies
-node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+# Next.js build
+.next/
+out/
 
-# testing
-/coverage
+# Build artifacts
+native/cpp/build/
+native/**/build/
+*.o
+*.so
+*.a
+*.dylib
 
-# next.js
-/.next/
-/out/
+# Python
+__pycache__/
+*.pyc
+*.pyo
 
-# production
-/build
-
-# misc
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 .DS_Store
-*.pem
 
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
+# Environment
+.env
+.env.local
+.env.*.local
 
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
-.vercel
-
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-local-*
-.claude
-.z-ai-config
+# Logs
 *.log
 dev.log
-dev.out.log
-test
-prompt
-
 server.log
-# Skills directory
-/skills/
+
+# Upload screenshots (keep only source assets)
+upload/MY-*.png
+upload/test-*.png
+upload/compare*.png
+upload/*-compare*.png
+upload/env-ready.png
+upload/pass3*.png
+
+# Gradle
+.gradle/
+native/**/.gradle/
+
+# Xcode
+native/ios/**/*.xcuserstate
+native/ios/**/xcuserdata/
+
+# Tool results
+tool-results/
+agent-ctx/
+
+# Database
+*.db
+*.sqlite
+*.db-journal
+*.db-wal
+*.db-shm
