@@ -63,7 +63,7 @@ public struct AccessibleButton<Label: View>: View {
 
     /// Visual content. Rendered at its natural size — the wrapper expands
     /// the hit area around it to ≥ 44×44pt without resizing the icon.
-    @ViewBuilder let content: @escaping () -> Label
+    @ViewBuilder let content: () -> Label
 
     // MARK: - Optional parameters
 
