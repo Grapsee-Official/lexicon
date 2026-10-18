@@ -93,7 +93,7 @@ struct DictionaryScreen: View {
                         Text(section.letter)
                             .font(.lexiconDisplay(11, weight: active ? .semibold : .regular))
                             .foregroundStyle(active
-                                             ? lexiconPalette(scheme).primaryForeground
+                                             ? lexiconPalette(scheme).foreground
                                              : lexiconPalette(scheme).mutedForeground)
                             .frame(width: 26, height: 26)
                             .background(

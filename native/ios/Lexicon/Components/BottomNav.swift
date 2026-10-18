@@ -43,7 +43,7 @@ struct BottomNav: View {
             } label: {
                 Image(systemName: "magnifyingglass")
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(lexiconPalette(scheme).primaryForeground)
+                    .foregroundStyle(lexiconPalette(scheme).foreground)
                     .frame(width: 40, height: 40)
                     .background(lexiconPalette(scheme).primary)
                     .clipShape(Circle())

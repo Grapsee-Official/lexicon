@@ -50,7 +50,7 @@ struct WordDetailSheet: View {
         .background(palette.background.ignoresSafeArea())
         .presentationDetents([.fraction(0.88)])
         .presentationDragIndicator(.visible)
-        .presentationBackground(palette.background)
+        
     }
 
     // MARK: - Header
@@ -242,7 +242,7 @@ struct WordDetailSheet: View {
             sectionHeader(icon: "arrow.2.squarepath", title: "Synonyms")
             FlowLayout(spacing: 8) {
                 ForEach(word.synonyms, id: \.self) { syn in
-                    pill(text: syn, tint: palette.secondary, foregroundOpacity: 0.8)
+                    pill(text: syn, tint: palette.accent, foregroundOpacity: 0.8)
                 }
             }
         }
