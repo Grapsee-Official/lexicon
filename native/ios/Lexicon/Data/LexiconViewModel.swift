@@ -39,6 +39,12 @@ final class LexiconViewModel: ObservableObject {
             default: activeTab = .home
             }
         }
+        if let idx = args.firstIndex(of: "-lexoraWord"), idx + 1 < args.count {
+            let wordArg = args[idx + 1]
+            if let match = searchWords(wordArg, limit: 1).first {
+                selectedWord = match
+            }
+        }
     }
 
     func setActiveTab(_ tab: LexiconTab) {

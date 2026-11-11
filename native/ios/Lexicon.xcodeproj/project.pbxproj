@@ -568,7 +568,7 @@
                         isa = XCBuildConfiguration;
                         buildSettings = {
                                 ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-                                LIMITED_API_ONLY = YES;
+                                LIMITED_API_ONLY = NO;
                                 ASSETCATALOG_COMPILER_SKIP_VALIDATION = YES;
                                 ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
                                 CODE_SIGN_STYLE = Automatic;
@@ -607,7 +607,7 @@
                         isa = XCBuildConfiguration;
                         buildSettings = {
                                 ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-                                LIMITED_API_ONLY = YES;
+                                LIMITED_API_ONLY = NO;
                                 ASSETCATALOG_COMPILER_SKIP_VALIDATION = YES;
                                 ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
                                 CODE_SIGN_STYLE = Automatic;

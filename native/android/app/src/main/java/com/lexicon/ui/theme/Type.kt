@@ -144,8 +144,8 @@ object LexiconTextStyles {
     val WotdWord = TextStyle(
         fontFamily = DisplayFontFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 25.sp,
+        fontSize = 18.sp,
+        lineHeight = 22.sp,
         letterSpacing = (-0.2).sp,
     )
     val WotdPhonetic = TextStyle(

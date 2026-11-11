@@ -95,10 +95,10 @@ fun WordOfTheDayCard(
     ) {
         Column(
             modifier = Modifier
-                .weight(0.41f)
+                .weight(0.43f)
                 .fillMaxHeight()
                 .background(leftBg)
-                .padding(horizontal = 13.dp, vertical = 12.dp),
+                .padding(horizontal = 12.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Row(
@@ -173,7 +173,7 @@ fun WordOfTheDayCard(
 
         Box(
             modifier = Modifier
-                .weight(0.59f)
+                .weight(0.57f)
                 .fillMaxHeight()
                 .background(rightBg),
         ) {

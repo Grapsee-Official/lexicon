@@ -47,7 +47,7 @@ struct WordOfTheDayCard: View {
         } label: {
             GeometryReader { geo in
                 let totalW = geo.size.width
-                let leftW = totalW * 0.41
+                let leftW = totalW * 0.43
                 let rightW = totalW - leftW - 1
 
                 HStack(spacing: 0) {
@@ -69,10 +69,10 @@ struct WordOfTheDayCard: View {
 
                         HStack(spacing: 4) {
                             Text(word.word)
-                                .font(.lexiconDisplay(22, weight: .regular))
+                                .font(.lexiconDisplay(18.5, weight: .regular))
                                 .foregroundStyle(wordColor)
                                 .lineLimit(1)
-                                .minimumScaleFactor(0.78)
+                                .minimumScaleFactor(0.75)
 
                             Image(systemName: "speaker.wave.2")
                                 .font(.system(size: 11, weight: .regular))

@@ -51,32 +51,35 @@ class MainActivity : ComponentActivity() {
     private fun handleIncomingIntent(incoming: Intent?) {
         if (incoming == null) return
 
-        incoming.getStringExtra("lexora_theme")?.lowercase()?.let { mode ->
-            when (mode) {
-                "dark" -> viewModel.setDarkMode(true)
-                "light" -> viewModel.setDarkMode(false)
+        val args = incoming.extras
+        if (args != null) {
+            args.getString("lexora_theme")?.lowercase()?.let { mode ->
+                when (mode) {
+                    "dark" -> viewModel.setDarkMode(true)
+                    "light" -> viewModel.setDarkMode(false)
+                }
             }
-        }
-
-        incoming.getStringExtra("lexora_tab")?.lowercase()?.let { tab ->
-            when (tab) {
-                "home" -> viewModel.setActiveTab(com.lexicon.data.TabKey.HOME)
-                "dictionary" -> viewModel.setActiveTab(com.lexicon.data.TabKey.DICTIONARY)
-                "collections" -> viewModel.setActiveTab(com.lexicon.data.TabKey.COLLECTIONS)
-                "more" -> viewModel.setActiveTab(com.lexicon.data.TabKey.MORE)
+            args.getString("lexora_tab")?.lowercase()?.let { tab ->
+                when (tab) {
+                    "home" -> viewModel.setActiveTab(com.lexicon.data.TabKey.HOME)
+                    "dictionary" -> viewModel.setActiveTab(com.lexicon.data.TabKey.DICTIONARY)
+                    "collections" -> viewModel.setActiveTab(com.lexicon.data.TabKey.COLLECTIONS)
+                    "more" -> viewModel.setActiveTab(com.lexicon.data.TabKey.MORE)
+                }
             }
-        }
-
-        val rawWord = (
-            incoming.getStringExtra(LexiconWordActionReceiver.EXTRA_WORD)
-                ?: incoming.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT)?.toString()
-            )?.trim()
-        if (rawWord.isNullOrEmpty()) return
-        val match = viewModel.searchWords(rawWord, limit = 1).firstOrNull()
-        if (match != null) {
-            viewModel.openWord(match)
-        } else {
-            viewModel.openSearch()
+            val rawWord = (
+                args.getString(LexiconWordActionReceiver.EXTRA_WORD)
+                    ?: args.getString("lexora_word")
+                    ?: incoming.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT)?.toString()
+                )?.trim()
+            if (!rawWord.isNullOrEmpty()) {
+                val match = viewModel.searchWords(rawWord, limit = 1).firstOrNull()
+                if (match != null) {
+                    viewModel.openWord(match)
+                } else {
+                    viewModel.openSearch()
+                }
+            }
         }
     }
 }

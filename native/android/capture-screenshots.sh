@@ -32,8 +32,8 @@ adb shell pidof com.lexicon.debug
 adb exec-out screencap -p > "${RUNNER_TEMP}/android-screenshots/android-home-dark.png"
 
 # 3) Capture Word Detail Sheet via live C++ engine lookup intent ("Wanderlust") in Dark Mode
-adb shell am start -W -n com.lexicon.debug/com.lexicon.MainActivity --es lexora_theme dark --es word Wanderlust
-sleep 4
+adb shell am start -W -S -n com.lexicon.debug/com.lexicon.MainActivity --es lexora_theme dark --es lexora_word Wanderlust
+sleep 5
 adb shell pidof com.lexicon.debug
 adb exec-out screencap -p > "${RUNNER_TEMP}/android-screenshots/android-word-detail-dark.png"
 
