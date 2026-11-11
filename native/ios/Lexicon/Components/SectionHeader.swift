@@ -2,33 +2,34 @@
 //  SectionHeader.swift
 //  Lexicon
 //
-//  Translation of `src/components/lexicon/section-header.tsx`.
-//
-//  Title left + "View all →" right (highlight color). NO divider line.
-//
 
 import SwiftUI
 
 struct SectionHeader: View {
     let title: String
     var actionLabel: String = "View all"
+    var divider: Bool = false
     var onAction: (() -> Void)? = nil
     @Environment(\.colorScheme) private var scheme
 
     var body: some View {
         HStack(spacing: 8) {
             Text(title)
-                .font(.lexiconDisplay(15, weight: .semibold))
+                .font(.lexiconDisplay(16.5, weight: .regular))
                 .tracking(-0.2)
                 .foregroundStyle(lexiconPalette(scheme).foreground)
                 .lineLimit(1)
                 .layoutPriority(1)
-                // Mark as h2 heading so VoiceOver users can navigate
-                // between sections (Explore by Category, Trending Now,
-                // Recent Articles, etc.) via the Headings rotor.
                 .lexiconAccessibilityHeading(.h2)
 
-            Spacer(minLength: 4)
+            if divider {
+                Rectangle()
+                    .fill(lexiconPalette(scheme).border)
+                    .frame(height: 1)
+                    .frame(maxWidth: .infinity)
+            } else {
+                Spacer(minLength: 4)
+            }
 
             Button {
                 UIImpactFeedbackGenerator(style: .light).impactOccurred()
@@ -37,14 +38,10 @@ struct SectionHeader: View {
                 HStack(spacing: 4) {
                     Text(actionLabel)
                     Image(systemName: "arrow.right")
-                        .font(.system(size: 11, weight: .semibold))
+                        .font(.system(size: 10, weight: .medium))
                 }
-                .font(.lexiconBody(11, weight: .medium))
+                .font(.lexiconBody(11, weight: .regular))
                 .foregroundStyle(lexiconPalette(scheme).highlight)
-                // The text-only "View all →" button is ~16pt tall — well
-                // below the 44pt minimum. Expand the hit area without
-                // resizing the visual label.
-                .lexiconMinTouchTarget()
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -52,11 +49,6 @@ struct SectionHeader: View {
             .accessibilityHint(Text("View all items in this section"))
             .accessibilityAddTraits(.isButton)
         }
+        .padding(.horizontal, 16)
     }
-}
-
-#Preview {
-    SectionHeader(title: "Explore by Category", actionLabel: "View all")
-        .padding()
-        .background(LexiconColors.background)
 }

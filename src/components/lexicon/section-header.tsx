@@ -14,30 +14,29 @@ export function SectionHeader({
   title: string;
   actionLabel?: string;
   onAction?: () => void;
-  /** When true, renders a thin divider line between title and action. */
   divider?: boolean;
   className?: string;
 }) {
   const haptic = useHaptics();
 
   return (
-    <div className={cn("flex items-center gap-2", className)}>
-      <h2 className="font-display text-[15px] font-semibold text-foreground tracking-tight whitespace-nowrap">
+    <div className={cn("flex items-center gap-2.5", className)}>
+      <h2 className="font-display text-[18px] font-normal text-foreground tracking-[-0.01em] whitespace-nowrap">
         {title}
       </h2>
-      {divider && <div className="flex-1 h-px bg-border" />}
+      {divider && <div className="flex-1 h-px bg-[#31462F]/12 dark:bg-[#9EA6B2]/16" />}
       <button
         onClick={() => {
           haptic("light");
           onAction?.();
         }}
         className={cn(
-          "shrink-0 inline-flex items-center gap-1 text-[11px] font-body font-medium text-highlight dark:text-accent active:scale-95 transition-transform",
+          "shrink-0 inline-flex items-center gap-1.5 text-[12px] font-body font-normal text-[#A58A61] dark:text-[#D4A45A] active:scale-95 transition-transform",
           divider ? "" : "ml-auto"
         )}
       >
         {actionLabel}
-        <ArrowRight className="w-3 h-3" strokeWidth={2} />
+        <ArrowRight className="w-3.5 h-3.5" strokeWidth={1.7} />
       </button>
     </div>
   );

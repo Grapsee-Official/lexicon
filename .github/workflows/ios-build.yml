@@ -4,13 +4,13 @@ on:
   push:
     paths:
       - 'native/ios/**'
-      - 'native/kmm/**'
       - 'native/cpp/**'
+      - '.github/workflows/ios-build.yml'
   pull_request:
     paths:
       - 'native/ios/**'
-      - 'native/kmm/**'
       - 'native/cpp/**'
+      - '.github/workflows/ios-build.yml'
   workflow_dispatch:
 
 jobs:
@@ -19,44 +19,116 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build C++ Engine as static library for iOS
+      - name: Build C++ Engine Static Library (iOS Simulator)
         run: |
-          cd native/cpp
-          mkdir build-ios && cd build-ios
-          cmake .. \
+          JOBS="$(sysctl -n hw.ncpu)"
+          SIM_SDK="$(xcrun --sdk iphonesimulator --show-sdk-path)"
+          HOST_ARCH="$(uname -m)"
+          cmake -S native/cpp -B native/cpp/build-ios-sim \
             -DCMAKE_SYSTEM_NAME=iOS \
+            -DCMAKE_OSX_SYSROOT="${SIM_SDK}" \
+            -DCMAKE_OSX_ARCHITECTURES="${HOST_ARCH}" \
             -DCMAKE_OSX_DEPLOYMENT_TARGET=16.0 \
             -DTARGET_IOS=ON \
+            -DLEXICON_BUILD_FRAMEWORK=OFF \
             -DBUILD_SHARED_LIBS=OFF \
             -DBUILD_TESTS=OFF
-          make -j$(nproc)
-          # Create a fat library location that Xcode can find
-          mkdir -p ../../ios/Lexicon/Engine/lib
-          cp liblexicon-engine.a ../../ios/Lexicon/Engine/lib/liblexicon-engine.a
-          # Copy headers
-          cp -r ../include/lexicon ../../ios/Lexicon/Engine/lib/
-          echo "Static library built and copied"
+          cmake --build native/cpp/build-ios-sim --parallel "${JOBS}"
+          mkdir -p native/ios/Lexicon/Engine/lib
+          cp native/cpp/build-ios-sim/liblexicon-engine.a native/ios/Lexicon/Engine/lib/liblexicon-engine.a
+          cp -r native/cpp/include/lexicon native/ios/Lexicon/Engine/lib/
+          ls -lh native/ios/Lexicon/Engine/lib/liblexicon-engine.a
 
-      - name: List Xcode schemes
+      - name: Build iOS App (Simulator, Unsigned)
+        working-directory: native/ios
         run: |
-          cd native/ios
-          xcodebuild -project Lexicon.xcodeproj -list
-
-      - name: Build iOS App (with C++ linked)
-        run: |
-          cd native/ios
           xcodebuild \
             -project Lexicon.xcodeproj \
             -scheme Lexicon \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 15' \
+            -destination 'generic/platform=iOS Simulator' \
             -configuration Debug \
-            OTHER_LDFLAGS='$(inherited) -llexicon-engine -L$(SRCROOT)/Lexicon/Engine/lib' \
-            HEADER_SEARCH_PATHS='$(inherited) $(SRCROOT)/Lexicon/Engine/lib $(SRCROOT)/../cpp/include' \
-            build 2>&1
+            -derivedDataPath "${RUNNER_TEMP}/DerivedData" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            OTHER_LDFLAGS='$(inherited) -llexicon-engine -lsqlite3 -lc++ -L$(SRCROOT)/Lexicon/Engine/lib' \
+            HEADER_SEARCH_PATHS='$(inherited) $(SRCROOT)/Lexicon $(SRCROOT)/Lexicon/Engine $(SRCROOT)/Lexicon/Engine/lib $(SRCROOT)/../cpp/include' \
+            build
 
-      - name: Build KMM iOS target
+      - name: Boot iOS Simulator & Capture Native Light + Dark Screenshots
         run: |
-          cd native/kmm
-          ./gradlew compileKotlinIosArm64 --no-daemon
-        continue-on-error: true
+          mkdir -p "${RUNNER_TEMP}/ios-screenshots"
+          APP_PATH="$(find "${RUNNER_TEMP}/DerivedData" -name 'Lexicon.app' -type d | head -n 1)"
+          echo "Resolved Lexicon.app: ${APP_PATH}"
+          test -n "${APP_PATH}"
+
+          # Pick an available modern iPhone Simulator (prefer iPhone 15 Pro / iPhone 15 / any iPhone)
+          SIM_UDID="$(xcrun simctl list devices available -j | python3 -c '
+          import json, sys
+          data = json.load(sys.stdin)["devices"]
+          candidates = []
+          for rt, devs in data.items():
+              if "iOS" not in rt: continue
+              for d in devs:
+                  if d.get("isAvailable") and "iPhone" in d.get("name", ""):
+                      score = (2 if "iPhone 15 Pro" in d["name"] else (1 if "iPhone 15" in d["name"] else 0))
+                      candidates.append((rt, score, d["udid"], d["name"]))
+          candidates.sort(reverse=True)
+          print(candidates[0][2] if candidates else "")
+          ')"
+          echo "Selected Simulator UDID: ${SIM_UDID}"
+          test -n "${SIM_UDID}"
+
+          xcrun simctl boot "${SIM_UDID}" || true
+          xcrun simctl bootstatus "${SIM_UDID}" -b
+
+          # Clean status bar (9:41, full signal & battery)
+          xcrun simctl status_bar "${SIM_UDID}" override \
+            --time "9:41" \
+            --dataNetwork wifi \
+            --wifiMode active \
+            --wifiBars 3 \
+            --cellularMode active \
+            --cellularBars 4 \
+            --batteryState charged \
+            --batteryLevel 100 || true
+
+          xcrun simctl install "${SIM_UDID}" "${APP_PATH}"
+
+          # 1) Capture Light Mode Home
+          xcrun simctl ui "${SIM_UDID}" appearance light
+          xcrun simctl launch "${SIM_UDID}" com.lexicon.app -lexoraTheme light -lexoraTab home
+          sleep 5
+          xcrun simctl io "${SIM_UDID}" screenshot "${RUNNER_TEMP}/ios-screenshots/ios-home-light.png"
+          xcrun simctl terminate "${SIM_UDID}" com.lexicon.app || true
+
+          # 2) Capture Dreamy Dark Mode Home
+          xcrun simctl ui "${SIM_UDID}" appearance dark
+          xcrun simctl launch "${SIM_UDID}" com.lexicon.app -lexoraTheme dark -lexoraTab home
+          sleep 5
+          xcrun simctl io "${SIM_UDID}" screenshot "${RUNNER_TEMP}/ios-screenshots/ios-home-dark.png"
+          xcrun simctl terminate "${SIM_UDID}" com.lexicon.app || true
+
+          # 3) Capture Dictionary Dark Mode (verifies secondary tab + C++/Swift data wiring)
+          xcrun simctl launch "${SIM_UDID}" com.lexicon.app -lexoraTheme dark -lexoraTab dictionary
+          sleep 4
+          xcrun simctl io "${SIM_UDID}" screenshot "${RUNNER_TEMP}/ios-screenshots/ios-dictionary-dark.png"
+          xcrun simctl terminate "${SIM_UDID}" com.lexicon.app || true
+
+          ditto -c -k --sequesterRsrc --keepParent "${APP_PATH}" "${RUNNER_TEMP}/Lexora-iOS-Simulator.app.zip"
+          ls -lh "${RUNNER_TEMP}/ios-screenshots/"
+
+      - name: Upload iOS Native Screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-native-screenshots
+          path: ${{ runner.temp }}/ios-screenshots/*.png
+          if-no-files-found: error
+
+      - name: Upload iOS Simulator App Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: lexora-ios-simulator-app
+          path: ${{ runner.temp }}/Lexora-iOS-Simulator.app.zip
+          if-no-files-found: error

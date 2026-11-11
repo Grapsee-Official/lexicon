@@ -1,9 +1,9 @@
 package com.lexicon.engine
 
-import android.os.Choreographer
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.Choreographer
 import org.json.JSONObject
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap

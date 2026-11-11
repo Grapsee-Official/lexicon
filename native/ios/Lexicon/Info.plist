@@ -44,14 +44,11 @@
     -->
     <key>UIAppFonts</key>
     <array>
-        <!-- <string>Fraunces-Regular.ttf</string> -->
-        <!-- <string>Fraunces-Medium.ttf</string> -->
-        <!-- <string>Fraunces-SemiBold.ttf</string> -->
-        <!-- <string>Inter-Regular.ttf</string> -->
-        <!-- <string>Inter-Medium.ttf</string> -->
-        <!-- <string>Inter-SemiBold.ttf</string> -->
-        <!-- <string>Lora-Regular.ttf</string> -->
-        <!-- <string>Lora-Italic.ttf</string> -->
+        <string>PlayfairDisplay.ttf</string>
+        <string>PlayfairDisplay-Italic.ttf</string>
+        <string>Inter.ttf</string>
+        <string>Lora.ttf</string>
+        <string>Lora-Italic.ttf</string>
     </array>
 
     <!--

@@ -8,8 +8,6 @@ import android.os.Looper
 import android.os.Process
 import android.util.Log
 import org.json.JSONObject
-import sun.misc.Signal
-import sun.misc.SignalHandler
 import java.io.File
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -248,17 +246,26 @@ class CrashReporter private constructor(appContext: Context) {
     private fun installSignalHandlers() {
         for (name in SIGNAL_NAMES) {
             try {
-                val handler = SignalHandler { sig ->
-                    onNativeSignal(sig.getName())
+                val signalClass = Class.forName("sun.misc.Signal")
+                val handlerClass = Class.forName("sun.misc.SignalHandler")
+                val signalInstance = signalClass.getConstructor(String::class.java).newInstance(name)
+                val proxy = java.lang.reflect.Proxy.newProxyInstance(
+                    handlerClass.classLoader,
+                    arrayOf(handlerClass),
+                ) { _, method, args ->
+                    if (method.name == "handle" && !args.isNullOrEmpty()) {
+                        val sig = args[0]
+                        val sigName = runCatching {
+                            signalClass.getMethod("getName").invoke(sig) as? String
+                        }.getOrNull() ?: name
+                        onNativeSignal(sigName)
+                    }
+                    null
                 }
-                Signal.handle(Signal(name), handler)
+                signalClass.getMethod("handle", signalClass, handlerClass)
+                    .invoke(null, signalInstance, proxy)
                 Log.d(TAG, "Signal handler installed for SIG$name")
             } catch (t: Throwable) {
-                // Signal.handle throws IllegalArgumentException for signals
-                // the JVM refuses to chain (e.g. SIGKILL, SIGSTOP). Our
-                // three targets (SEGV/ABRT/BUS) are all chainable on
-                // Android, but we still guard against ART/JVM differences
-                // across vendors.
                 Log.w(TAG, "Could not install handler for SIG$name: ${t.message}")
             }
         }

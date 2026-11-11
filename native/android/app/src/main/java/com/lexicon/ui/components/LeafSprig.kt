@@ -7,115 +7,64 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.rotate
+import com.lexicon.ui.theme.OldWoodGold
 
 /**
- * 3-leaf botanical sprig — direct vector translation of the SVG that sits
- * next to the "Words" headline in the web Hero. Brand green #677554.
- *
- * The web SVG is:
- *   - main vertical stem
- *   - two side leaves (ellipse, rotated ±35°, opacity 0.85)
- *   - one top leaf (smaller ellipse)
- *   - thin veins through each leaf
- *
- * All strokes use a very thin line (0.8 in web units) — we approximate that
- * with a 0.8-density-pixel stroke.
+ * Diagonal 5-leaf botanical olive/laurel sprig matching the reference PNGs
+ * (used next to "Words" in the Hero and next to "WORD OF THE DAY").
  */
 @Composable
 fun LeafSprig(
     modifier: Modifier = Modifier,
-    color: Color = Color(0xFF677554),
+    color: Color = OldWoodGold,
 ) {
     Canvas(modifier = modifier) {
-        val w = size.width
-        val h = size.height
-        // The original SVG viewBox is 40x40 — scale factor:
-        val s = minOf(w, h) / 40f
-        val cx = w / 2f
+        val s = minOf(size.width, size.height) / 32f
 
-        // Stroke widths (thin to match web 0.8 / 0.4)
-        val stemStroke = 0.8f * s
-        val veinStroke = 0.4f * s
-
-        // === Main stem ===
-        drawLine(
+        // Curved diagonal stem from bottom-left (5, 27) to top-right (25, 6)
+        val stem = Path().apply {
+            moveTo(5f * s, 27f * s)
+            quadraticBezierTo(14f * s, 17f * s, 24f * s, 7f * s)
+        }
+        drawPath(
+            path = stem,
             color = color,
-            start = Offset(cx, 36f * s),
-            end   = Offset(cx, 4f * s),
-            strokeWidth = stemStroke,
-            cap = StrokeCap.Round,
+            style = androidx.compose.ui.graphics.drawscope.Stroke(
+                width = 1.35f * s,
+                cap = StrokeCap.Round,
+            ),
         )
 
-        // === Left leaf (rotated -35°) ===
-        rotate(degrees = -35f, pivot = Offset(11f * s, 22f * s)) {
-            drawLeaf(
-                center = Offset(11f * s, 22f * s),
-                rx = 8f * s,
-                ry = 3.2f * s,
-                color = color.copy(alpha = 0.85f),
-            )
-        }
-        // left vein
-        drawLine(
-            color = color.copy(alpha = 0.5f),
-            start = Offset(5.5f * s, 24.5f * s),
-            end   = Offset(16.5f * s, 19.5f * s),
-            strokeWidth = veinStroke,
-            cap = StrokeCap.Round,
-        )
+        // Upper-left pair of pointed botanical leaves
+        drawPointedLeaf(cx = 11.5f * s, cy = 16.5f * s, len = 8.5f * s, wid = 3.6f * s, angle = -72f, color = color)
+        drawPointedLeaf(cx = 17.5f * s, cy = 10.5f * s, len = 8.0f * s, wid = 3.4f * s, angle = -66f, color = color)
 
-        // === Right leaf (rotated +35°) ===
-        rotate(degrees = 35f, pivot = Offset(29f * s, 15f * s)) {
-            drawLeaf(
-                center = Offset(29f * s, 15f * s),
-                rx = 8f * s,
-                ry = 3.2f * s,
-                color = color.copy(alpha = 0.85f),
-            )
-        }
-        // right vein
-        drawLine(
-            color = color.copy(alpha = 0.5f),
-            start = Offset(23.5f * s, 12.5f * s),
-            end   = Offset(34.5f * s, 17.5f * s),
-            strokeWidth = veinStroke,
-            cap = StrokeCap.Round,
-        )
+        // Lower-right pair of pointed botanical leaves
+        drawPointedLeaf(cx = 15.5f * s, cy = 20.5f * s, len = 8.5f * s, wid = 3.6f * s, angle = 12f, color = color)
+        drawPointedLeaf(cx = 21.0f * s, cy = 14.8f * s, len = 7.8f * s, wid = 3.3f * s, angle = 8f, color = color)
 
-        // === Top leaf (smaller ellipse) ===
-        drawLeaf(
-            center = Offset(cx, 7f * s),
-            rx = 4.5f * s,
-            ry = 2.8f * s,
-            color = color.copy(alpha = 0.9f),
-        )
-        // top vein
-        drawLine(
-            color = color.copy(alpha = 0.5f),
-            start = Offset(cx, 5f * s),
-            end   = Offset(cx, 9f * s),
-            strokeWidth = veinStroke,
-            cap = StrokeCap.Round,
-        )
+        // Crown tip leaf
+        drawPointedLeaf(cx = 25.0f * s, cy = 6.2f * s, len = 7.2f * s, wid = 3.1f * s, angle = -38f, color = color)
     }
 }
 
-/** Draw a filled ellipse leaf (around a centre, with rx/ry half-extents). */
-private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawLeaf(
-    center: Offset,
-    rx: Float,
-    ry: Float,
+private fun DrawScope.drawPointedLeaf(
+    cx: Float,
+    cy: Float,
+    len: Float,
+    wid: Float,
+    angle: Float,
     color: Color,
 ) {
-    val left = center.x - rx
-    val top = center.y - ry
-    val right = center.x + rx
-    val bottom = center.y + ry
-    drawOval(
-        color = color,
-        topLeft = Offset(left, top),
-        size = androidx.compose.ui.geometry.Size(right - left, bottom - top),
-    )
+    rotate(degrees = angle, pivot = Offset(cx, cy)) {
+        val p = Path().apply {
+            moveTo(cx - len * 0.5f, cy)
+            quadraticBezierTo(cx, cy - wid, cx + len * 0.5f, cy)
+            quadraticBezierTo(cx, cy + wid, cx - len * 0.5f, cy)
+            close()
+        }
+        drawPath(path = p, color = color.copy(alpha = 0.92f))
+    }
 }

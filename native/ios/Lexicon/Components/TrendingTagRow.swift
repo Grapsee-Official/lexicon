@@ -2,10 +2,6 @@
 //  TrendingTagRow.swift
 //  Lexicon
 //
-//  Translation of `src/components/lexicon/trending-tag-row.tsx`.
-//
-//  Horizontal scroll of pill chips + 5th grid button.
-//
 
 import SwiftUI
 
@@ -14,9 +10,23 @@ struct TrendingTagRow: View {
     @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
 
+    private var isDark: Bool { scheme == .dark }
+
+    private var chipBg: Color {
+        isDark ? LexiconColors.cardDark : LexiconColors.card.opacity(0.78)
+    }
+
+    private var chipBorder: Color {
+        isDark ? LexiconColors.borderDark : LexiconColors.foreground.opacity(0.12)
+    }
+
+    private var chipText: Color {
+        isDark ? LexiconColors.foregroundDark.opacity(0.88) : LexiconColors.foreground.opacity(0.84)
+    }
+
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
+            HStack(spacing: 7) {
                 ForEach(tags) { tag in
                     Button {
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
@@ -25,17 +35,13 @@ struct TrendingTagRow: View {
                         }
                     } label: {
                         Text(tag.label)
-                            .font(.lexiconBody(11))
-                            .foregroundStyle(lexiconPalette(scheme).foreground.opacity(0.7))
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(lexiconPalette(scheme).card)
+                            .font(.lexiconBody(11.5))
+                            .foregroundStyle(chipText)
+                            .padding(.horizontal, 13)
+                            .padding(.vertical, 5.5)
+                            .background(chipBg)
                             .clipShape(Capsule())
-                            .overlay(Capsule().stroke(lexiconPalette(scheme).border, lineWidth: 1))
-                            // Pills are ~26pt tall visually — expand the
-                            // tappable frame to ≥ 44pt. The pill background
-                            // stays small; only the hit area grows.
-                            .lexiconMinTouchTarget()
+                            .overlay(Capsule().stroke(chipBorder, lineWidth: 1))
                             .contentShape(Capsule())
                     }
                     .buttonStyle(.plain)
@@ -44,18 +50,20 @@ struct TrendingTagRow: View {
                     .accessibilityAddTraits(.isButton)
                 }
 
-                // 5th grid button — spec label "More search options".
                 Button {
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    vm.setActiveTab(.dictionary)
                 } label: {
                     Image(systemName: "square.grid.2x2")
                         .font(.system(size: 12, weight: .regular))
-                        .foregroundStyle(lexiconPalette(scheme).foreground.opacity(0.5))
-                        .frame(width: 28, height: 28)
-                        .background(lexiconPalette(scheme).card)
-                        .clipShape(Circle())
-                        .overlay(Circle().stroke(lexiconPalette(scheme).border, lineWidth: 1))
-                        .lexiconMinTouchTarget()
+                        .foregroundStyle(isDark ? LexiconColors.accentDark : LexiconColors.foreground.opacity(0.68))
+                        .frame(width: 32, height: 28)
+                        .background(chipBg)
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                .stroke(chipBorder, lineWidth: 1)
+                        )
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text(LexiconAccessibilityLabels.grid))
@@ -64,11 +72,4 @@ struct TrendingTagRow: View {
             .padding(.horizontal, 1)
         }
     }
-}
-
-#Preview {
-    TrendingTagRow(tags: LexiconData.trendingTags)
-        .environmentObject(LexiconViewModel())
-        .padding()
-        .background(LexiconColors.background)
 }

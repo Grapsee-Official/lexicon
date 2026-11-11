@@ -29,7 +29,7 @@ struct MoreScreen: View {
 
                 SettingsGroup(title: "Appearance", rows: [
                     SettingsRowSpec(
-                        icon: isDark ? "moon" : "sun",
+                        icon: isDark ? "moon" : "sun.max",
                         label: "Theme",
                         value: themeValueText,
                         action: {
@@ -117,7 +117,7 @@ struct MoreScreen: View {
             .padding(.top, 12)
             .padding(.bottom, 120) // clear floating bottom nav
         }
-        .background(LexiconColors.background)
+        .background(lexiconPalette(scheme).background)
     }
 
     // MARK: - Theme resolution
@@ -142,7 +142,7 @@ struct MoreScreen: View {
     private var profileHeader: some View {
         HStack(spacing: 16) {
             // Avatar (circular, 64pt, primary ring)
-            Image("avatar-default")
+            Image(isDark ? "avatar-dark" : "avatar-default")
                 .resizable()
                 .scaledToFill()
                 .frame(width: 64, height: 64)
@@ -156,7 +156,7 @@ struct MoreScreen: View {
                 Text("Curious Soul")
                     .font(.lexiconDisplay(18, weight: .semibold))
                     .foregroundStyle(lexiconPalette(scheme).foreground)
-                Text("Lexicon Companion · since 2026")
+                Text("Lexora Companion · since 2026")
                     .font(.lexiconBody(12))
                     .foregroundStyle(lexiconPalette(scheme).mutedForeground)
                 HStack(spacing: 16) {
@@ -200,7 +200,7 @@ struct MoreScreen: View {
                     .font(.lexiconBody(11))
                     .foregroundStyle(lexiconPalette(scheme).mutedForeground)
             }
-            Text("Lexicon · Words. Wisdom. Worlds.")
+            Text("Lexora · Words. Wisdom. Worlds.")
                 .font(.lexiconBody(10))
                 .foregroundStyle(lexiconPalette(scheme).mutedForeground.opacity(0.6))
         }

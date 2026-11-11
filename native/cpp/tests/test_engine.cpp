@@ -67,3 +67,31 @@ TEST_F(EngineTest, ThreadSafeConcurrentLookups) {
     for (auto& t : threads) t.join();
     EXPECT_EQ(success_count.load(), 10);
 }
+
+TEST_F(EngineTest, EmbeddedStarterLexiconLookupFuzzyAndPrefix) {
+    ASSERT_TRUE(engine.load_database(":embedded:"));
+
+    auto exact = engine.lookup("Wanderlust");
+    ASSERT_TRUE(exact.has_value());
+    EXPECT_EQ(exact->word, "Wanderlust");
+    EXPECT_EQ(exact->part_of_speech, "noun");
+    ASSERT_FALSE(exact->definitions.empty());
+
+    // Fuzzy typo search ("wandrlust" -> distance 1 to "wanderlust") without deadlock!
+    auto fuzzy = engine.fuzzy_search("wandrlust", 2, 5);
+    ASSERT_FALSE(fuzzy.empty());
+    EXPECT_EQ(fuzzy[0].entry.word, "Wanderlust");
+    EXPECT_EQ(fuzzy[0].edit_distance, 1);
+
+    // Prefix search via DAWG
+    auto pref = engine.prefix_search("seren", 5);
+    ASSERT_FALSE(pref.empty());
+    EXPECT_EQ(pref[0], "serendipity");
+
+    // DAWG unload & reload cycle preserves functionality
+    engine.enable_dawg(false);
+    EXPECT_FALSE(engine.is_dawg_enabled());
+    engine.enable_dawg(true);
+    EXPECT_TRUE(engine.is_dawg_enabled());
+    EXPECT_FALSE(engine.prefix_search("ephem", 5).empty());
+}

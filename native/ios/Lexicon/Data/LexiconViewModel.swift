@@ -2,18 +2,6 @@
 //  LexiconViewModel.swift
 //  Lexicon
 //
-//  ObservableObject translation of the Zustand store in `src/lib/app-store.ts`.
-//
-//  State exposed via @Published:
-//    - activeTab           (bottom-nav selection)
-//    - selectedWord        (currently shown in the detail bottom sheet; nil = closed)
-//    - searchOpen          (full-screen search modal)
-//    - savedWordIds        (persisted to UserDefaults)
-//    - recentSearches      (persisted to UserDefaults, max 8)
-//
-//  Persisted keys mirror the web `partialize` config: only savedWordIds
-//  and recentSearches are written to disk; everything else is ephemeral.
-//
 
 import Foundation
 import SwiftUI
@@ -21,26 +9,38 @@ import SwiftUI
 @MainActor
 final class LexiconViewModel: ObservableObject {
 
-    // MARK: - Published state
     @Published var activeTab: LexiconTab = .home
     @Published var selectedWord: WordEntry? = nil
     @Published var searchOpen: Bool = false
     @Published var menuOpen: Bool = false
 
-    // Persisted (loaded from UserDefaults on init).
     @Published var savedWordIds: [String] = []
     @Published var recentSearches: [String] = []
 
-    // MARK: - Persistence keys
+    let engine = LexiconEngine()
+
     private let savedKey = "lexicon.savedWordIds"
     private let recentKey = "lexicon.recentSearches"
 
-    // MARK: - Init
     init() {
+        _ = engine.loadDatabase(dbDir: ":embedded:")
         loadPersisted()
+        applyLaunchArguments()
     }
 
-    // MARK: - Tab + sheet actions
+    private func applyLaunchArguments() {
+        let args = ProcessInfo.processInfo.arguments
+        if let idx = args.firstIndex(of: "-lexoraTab"), idx + 1 < args.count {
+            let tabArg = args[idx + 1].lowercased()
+            switch tabArg {
+            case "dictionary": activeTab = .dictionary
+            case "collections": activeTab = .collections
+            case "more": activeTab = .more
+            default: activeTab = .home
+            }
+        }
+    }
+
     func setActiveTab(_ tab: LexiconTab) {
         activeTab = tab
     }
@@ -69,7 +69,6 @@ final class LexiconViewModel: ObservableObject {
         menuOpen = false
     }
 
-    // MARK: - Save / bookmark (mirrors toggleSave + isSaved)
     func toggleSave(_ id: String) {
         if let idx = savedWordIds.firstIndex(of: id) {
             savedWordIds.remove(at: idx)
@@ -83,7 +82,6 @@ final class LexiconViewModel: ObservableObject {
         savedWordIds.contains(id)
     }
 
-    // MARK: - Recent searches (mirrors addRecentSearch + clearRecentSearches)
     func addRecentSearch(_ q: String) {
         let trimmed = q.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
@@ -98,7 +96,39 @@ final class LexiconViewModel: ObservableObject {
         persistRecent()
     }
 
-    // MARK: - Persistence (UserDefaults)
+    /// Live search routed through the C++17 engine (exact + DAWG prefix + Levenshtein <= 2)
+    /// merged with canonical LexiconData entries.
+    func searchWords(_ query: String, limit: Int = 8) -> [WordEntry] {
+        let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !q.isEmpty else { return [] }
+
+        var seen = Set<String>()
+        var results: [WordEntry] = []
+
+        if let exact = engine.lookup(word: q) {
+            let resolved = LexiconData.getWordById(exact.id) ?? exact
+            seen.insert(resolved.id)
+            results.append(resolved)
+        }
+
+        for sr in engine.fuzzySearch(query: q, maxDistance: 2, limit: limit) {
+            let resolved = LexiconData.getWordById(sr.entry.id) ?? sr.entry
+            if !seen.contains(resolved.id) {
+                seen.insert(resolved.id)
+                results.append(resolved)
+            }
+        }
+
+        for entry in LexiconData.searchWords(q, limit: limit) {
+            if !seen.contains(entry.id) {
+                seen.insert(entry.id)
+                results.append(entry)
+            }
+        }
+
+        return Array(results.prefix(limit))
+    }
+
     private func loadPersisted() {
         if let saved = UserDefaults.standard.array(forKey: savedKey) as? [String] {
             savedWordIds = saved

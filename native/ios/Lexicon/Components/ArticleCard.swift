@@ -2,12 +2,6 @@
 //  ArticleCard.swift
 //  Lexicon
 //
-//  Translation of `src/components/lexicon/article-card.tsx`.
-//
-//  HORIZONTAL layout (HStack). Image left 35% height full. Text right 65%
-//  VStack justify-between. Fixed height 120pt. Width 224pt.
-//  Title line-clamp-3, read time + bookmark at bottom.
-//
 
 import SwiftUI
 
@@ -15,23 +9,32 @@ struct ArticleCard: View {
     let article: Article
     @Environment(\.colorScheme) private var scheme
 
+    private var isDark: Bool { scheme == .dark }
+
+    private var thumbName: String {
+        isDark ? "\(article.thumbnail)-dark" : article.thumbnail
+    }
+
+    private var iconColor: Color {
+        isDark ? LexiconColors.accentDark : LexiconColors.highlight
+    }
+
     var body: some View {
         Button {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
         } label: {
             HStack(spacing: 0) {
-                // LEFT 35% — image fills the full height.
-                Image(article.thumbnail)
+                Image(thumbName)
                     .resizable()
                     .scaledToFill()
-                    .frame(width: 78, height: 120)
-                    .clipped()
+                    .frame(width: 64, height: 84)
+                    .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+                    .padding(5)
                     .lexiconDecorative()
 
-                // RIGHT 65% — title top, read time + bookmark bottom.
-                VStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(article.title)
-                        .font(.lexiconDisplay(12, weight: .semibold))
+                        .font(.lexiconDisplay(12, weight: .regular))
                         .foregroundStyle(lexiconPalette(scheme).foreground)
                         .lineLimit(3)
                         .multilineTextAlignment(.leading)
@@ -40,41 +43,46 @@ struct ArticleCard: View {
                     Spacer(minLength: 0)
 
                     HStack {
-                        Label("\(article.readMinutes) min read", systemImage: "clock")
-                            .font(.lexiconBody(9))
-                            .foregroundStyle(lexiconPalette(scheme).mutedForeground)
-                            .labelStyle(.titleAndIcon)
+                        HStack(spacing: 3) {
+                            Image(systemName: "clock")
+                                .font(.system(size: 9.5, weight: .regular))
+                                .foregroundStyle(iconColor)
+                            Text("\(article.readMinutes) min read")
+                                .font(.lexiconBody(9))
+                                .foregroundStyle(lexiconPalette(scheme).mutedForeground)
+                        }
 
                         Spacer()
 
                         Image(systemName: article.bookmarked ? "bookmark.fill" : "bookmark")
                             .font(.system(size: 11, weight: .regular))
-                            .foregroundStyle(lexiconPalette(scheme).mutedForeground)
+                            .foregroundStyle(iconColor)
                             .lexiconDecorative()
                     }
                 }
-                .padding(12)
-                .frame(width: 146, height: 120, alignment: .top)
+                .padding(.leading, 5)
+                .padding(.trailing, 10)
+                .padding(.vertical, 9)
+                .frame(width: 122, height: 94, alignment: .topLeading)
             }
-            .frame(width: 224, height: 120)
+            .frame(width: 196, height: 94)
             .background(lexiconPalette(scheme).card)
-            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-            .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 2)
+            .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 13, style: .continuous)
+                    .stroke(lexiconPalette(scheme).border, lineWidth: 1)
+            )
+            .shadow(
+                color: isDark ? .clear : LexiconColors.foreground.opacity(0.06),
+                radius: 4,
+                x: 0,
+                y: 2
+            )
         }
         .buttonStyle(.plain)
-        // P4-05 — combine the card into ONE VoiceOver element so the
-        // screen-reader user hears the whole article summary in one
-        // swipe: "Article: {title}, {N} min read, button".
         .accessibilityElement(children: .combine)
         .accessibilityLabel(Text("Article. \(article.title). \(article.readMinutes) minute read\(article.bookmarked ? ". Bookmarked" : "")"))
         .accessibilityHint(Text("Open the article"))
         .accessibilityAddTraits(.isButton)
-        // Card is 120pt tall × 224pt wide — well above the 44pt minimum.
     }
-}
-
-#Preview {
-    ArticleCard(article: LexiconData.articles[0])
-        .padding()
-        .background(LexiconColors.background)
 }

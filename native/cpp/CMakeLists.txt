@@ -11,6 +11,7 @@ option(BUILD_SHARED_LIBS "Build shared library" ON)
 option(BUILD_TESTS "Build Google Test" ON)
 option(TARGET_ANDROID "Cross-compile for Android NDK" OFF)
 option(TARGET_IOS "Cross-compile for iOS" OFF)
+option(LEXICON_BUILD_FRAMEWORK "Build iOS target as .framework instead of static .a" OFF)
 
 # Default build type
 if(NOT CMAKE_BUILD_TYPE)
@@ -32,7 +33,11 @@ add_library(lexicon-engine ${LEXICON_SOURCES})
 target_include_directories(lexicon-engine PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
-target_link_libraries(lexicon-engine PUBLIC SQLite::SQLite3)
+if(TARGET SQLite3::SQLite3)
+    target_link_libraries(lexicon-engine PUBLIC SQLite3::SQLite3)
+else()
+    target_link_libraries(lexicon-engine PUBLIC SQLite::SQLite3)
+endif()
 
 # For Android: also build as shared .so
 if(TARGET_ANDROID)
@@ -42,14 +47,20 @@ if(TARGET_ANDROID)
     )
 endif()
 
-# For iOS: build as framework
+# For iOS: build as static .a by default (or .framework when LEXICON_BUILD_FRAMEWORK=ON)
 if(TARGET_IOS)
-    set_target_properties(lexicon-engine PROPERTIES
-        FRAMEWORK TRUE
-        FRAMEWORK_VERSION 1
-        OUTPUT_NAME LexiconEngine
-        MACOSX_FRAMEWORK_IDENTIFIER com.lexicon.engine
-    )
+    if(LEXICON_BUILD_FRAMEWORK)
+        set_target_properties(lexicon-engine PROPERTIES
+            FRAMEWORK TRUE
+            FRAMEWORK_VERSION 1
+            OUTPUT_NAME LexiconEngine
+            MACOSX_FRAMEWORK_IDENTIFIER com.lexicon.engine
+        )
+    else()
+        set_target_properties(lexicon-engine PROPERTIES
+            OUTPUT_NAME lexicon-engine
+        )
+    endif()
 endif()
 
 # Tests

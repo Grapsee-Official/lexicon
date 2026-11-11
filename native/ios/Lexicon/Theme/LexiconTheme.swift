@@ -2,17 +2,21 @@
 //  LexiconTheme.swift
 //  Lexicon
 //
-//  Environment-driven theme container + ViewModifier for applying the
-//  Lexicon background and preferred color scheme at the root of the app.
-//
 
 import SwiftUI
 
-/// Theme state held in the environment — drives the appearance-aware palette
-/// and persists the user's choice via @AppStorage.
 final class LexiconThemeState: ObservableObject {
-    /// "light" | "dark" | "system"
     @AppStorage("lexicon.theme") var theme: String = "system"
+
+    init() {
+        let args = ProcessInfo.processInfo.arguments
+        if let idx = args.firstIndex(of: "-lexoraTheme"), idx + 1 < args.count {
+            let mode = args[idx + 1].lowercased()
+            if mode == "dark" || mode == "light" || mode == "system" {
+                theme = mode
+            }
+        }
+    }
 
     var preferredScheme: ColorScheme? {
         switch theme {
@@ -23,26 +27,31 @@ final class LexiconThemeState: ObservableObject {
     }
 
     func toggle() {
-        // Mirror the web toggle behaviour: dark → light, otherwise → dark.
-        // (Web checks resolvedTheme; here we resolve system first.)
         switch theme {
         case "dark":  theme = "light"
         case "light": theme = "dark"
         default:
-            // "system" — pick the opposite of whatever is currently resolved.
             let isDark = UITraitCollection.current.userInterfaceStyle == .dark
             theme = isDark ? "light" : "dark"
         }
     }
 }
 
-/// ViewModifier that paints the Lexicon background + applies the preferred scheme.
 struct LexiconThemeModifier: ViewModifier {
     @EnvironmentObject private var themeState: LexiconThemeState
+    @Environment(\.colorScheme) private var scheme
 
     func body(content: Content) -> some View {
+        let isDark: Bool = {
+            switch themeState.theme {
+            case "dark": return true
+            case "light": return false
+            default: return scheme == .dark
+            }
+        }()
+
         ZStack {
-            LexiconColors.background
+            (isDark ? LexiconColors.backgroundDark : LexiconColors.background)
                 .ignoresSafeArea()
             content
         }
@@ -52,12 +61,10 @@ struct LexiconThemeModifier: ViewModifier {
 }
 
 extension View {
-    /// Apply at the App root to paint the warm-cream background and bind the theme.
     func lexiconTheme() -> some View {
         modifier(LexiconThemeModifier())
     }
 
-    /// Resolved palette for the current color scheme (use inside any view).
     func lexiconPalette(_ scheme: ColorScheme) -> LexiconPalette {
         LexiconPalette(isDark: scheme == .dark)
     }

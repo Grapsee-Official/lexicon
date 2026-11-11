@@ -1,14 +1,13 @@
 package com.lexicon.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,14 +18,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Bookmark
+import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.MoreHoriz
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,31 +36,44 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lexicon.data.LexiconViewModel
 import com.lexicon.data.TabKey
 import com.lexicon.ui.AccessibilityAudit
 import com.lexicon.ui.enforceTouchTarget
 import com.lexicon.ui.iconButton
 import com.lexicon.ui.theme.BrandGreen
+import com.lexicon.ui.theme.CardSurface
 import com.lexicon.ui.theme.DarkAccent
-import com.lexicon.ui.theme.DarkBackground
+import com.lexicon.ui.theme.DarkCard
+import com.lexicon.ui.theme.DarkChipBorder
+import com.lexicon.ui.theme.DarkHighlight
+import com.lexicon.ui.theme.DeepForest
 import com.lexicon.ui.theme.LexiconTextStyles
+import com.lexicon.ui.theme.PrimaryForeground
+import com.lexicon.ui.theme.WarmGrey
 
 /**
- * BottomNav — floating pill, 5 items.
- *
- * Items: Home | Dictionary | (center Search FAB) | Collections | More
- *
- * Active state: filled icon + dot indicator below label.
+ * BottomNav — Floating capsule navigation bar matching Light & Dark PNGs 1:1:
+ *   - Light Mode: elevated warm cream capsule, BrandGreen active state + solid
+ *     BrandGreen center Search circle with white magnifier.
+ *   - Dark Mode: sleek nocturnal capsule (#141B25) with 1dp border, antique gold
+ *     (#D4A45A) icons/labels, and a refined dark circular Search button outlined
+ *     in antique gold with a golden magnifying glass (exact match to Dark PNG!).
  */
 @Composable
 fun BottomNav(
     viewModel: LexiconViewModel,
     modifier: Modifier = Modifier,
 ) {
-    val activeTab = viewModel.uiState.value.activeTab
-    val isDark = viewModel.uiState.value.isDark
-    val accent = if (isDark) DarkAccent else BrandGreen
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val activeTab = state.activeTab
+    val isDark = state.isDark
+
+    val barBg = if (isDark) DarkCard.copy(alpha = 0.96f) else CardSurface.copy(alpha = 0.96f)
+    val barBorder = if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.10f)
+    val activeColor = if (isDark) DarkAccent else BrandGreen
+    val inactiveColor = if (isDark) DarkAccent.copy(alpha = 0.78f) else WarmGrey
 
     Box(
         modifier = modifier
@@ -71,45 +83,93 @@ fun BottomNav(
     ) {
         Row(
             modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .fillMaxWidth()
-                .shadow(elevation = 8.dp, shape = RoundedCornerShape(50), clip = false)
-                .clip(RoundedCornerShape(50))
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(horizontal = 4.dp, vertical = 2.dp),
+            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .fillMaxWidth()
+            .then(
+                if (!isDark) {
+                    Modifier.shadow(
+                        elevation = 6.dp,
+                        shape = RoundedCornerShape(50),
+                        ambientColor = DeepForest.copy(alpha = 0.14f),
+                        spotColor = DeepForest.copy(alpha = 0.14f),
+                    )
+                } else Modifier
+            )
+            .clip(RoundedCornerShape(50))
+            .background(barBg)
+            .border(1.dp, barBorder, RoundedCornerShape(50))
+            .padding(horizontal = 10.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            BottomNavItem("Home", Icons.Outlined.Home, Icons.Filled.Home, activeTab == TabKey.HOME) {
+            BottomNavItem(
+                label = "Home",
+                outlinedIcon = Icons.Outlined.Home,
+                filledIcon = Icons.Filled.Home,
+                isActive = activeTab == TabKey.HOME,
+                activeColor = activeColor,
+                inactiveColor = inactiveColor,
+                dotColor = if (isDark) DarkHighlight else BrandGreen,
+            ) {
                 viewModel.setActiveTab(TabKey.HOME)
             }
-            BottomNavItem("Dictionary", Icons.AutoMirrored.Outlined.MenuBook, Icons.AutoMirrored.Outlined.MenuBook, activeTab == TabKey.DICTIONARY) {
+
+            BottomNavItem(
+                label = "Dictionary",
+                outlinedIcon = Icons.AutoMirrored.Outlined.MenuBook,
+                filledIcon = Icons.AutoMirrored.Outlined.MenuBook,
+                isActive = activeTab == TabKey.DICTIONARY,
+                activeColor = activeColor,
+                inactiveColor = inactiveColor,
+                dotColor = if (isDark) DarkHighlight else BrandGreen,
+            ) {
                 viewModel.setActiveTab(TabKey.DICTIONARY)
             }
 
-            // Center Search FAB
+            // Center Search Circle
             Box(
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(42.dp)
                     .clip(CircleShape)
-                    .background(accent)
+                    .background(if (isDark) Color(0xFF101620) else BrandGreen)
+                    .border(
+                        width = if (isDark) 1.dp else 0.dp,
+                        color = if (isDark) DarkAccent.copy(alpha = 0.55f) else Color.Transparent,
+                        shape = CircleShape,
+                    )
                     .iconButton(AccessibilityAudit.Descriptions.SearchFab)
-                    .enforceTouchTarget()
                     .clickable(role = Role.Button) { viewModel.openSearch() },
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Search,
+                    imageVector = Icons.Outlined.Search,
                     contentDescription = null,
-                    tint = if (isDark) Color.Black else MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(16.dp),
+                    tint = if (isDark) DarkHighlight else PrimaryForeground,
+                    modifier = Modifier.size(19.dp),
                 )
             }
 
-            BottomNavItem("Collections", Icons.Outlined.Bookmark, Icons.Filled.Bookmark, activeTab == TabKey.COLLECTIONS) {
+            BottomNavItem(
+                label = "Collections",
+                outlinedIcon = Icons.Outlined.BookmarkBorder,
+                filledIcon = Icons.Filled.Bookmark,
+                isActive = activeTab == TabKey.COLLECTIONS,
+                activeColor = activeColor,
+                inactiveColor = inactiveColor,
+                dotColor = if (isDark) DarkHighlight else BrandGreen,
+            ) {
                 viewModel.setActiveTab(TabKey.COLLECTIONS)
             }
-            BottomNavItem("More", Icons.Outlined.MoreHoriz, Icons.Filled.MoreHoriz, activeTab == TabKey.MORE) {
+
+            BottomNavItem(
+                label = "More",
+                outlinedIcon = Icons.Outlined.MoreHoriz,
+                filledIcon = Icons.Outlined.MoreHoriz,
+                isActive = activeTab == TabKey.MORE,
+                activeColor = activeColor,
+                inactiveColor = inactiveColor,
+                dotColor = if (isDark) DarkHighlight else BrandGreen,
+            ) {
                 viewModel.setActiveTab(TabKey.MORE)
             }
         }
@@ -122,43 +182,35 @@ private fun BottomNavItem(
     outlinedIcon: ImageVector,
     filledIcon: ImageVector,
     isActive: Boolean,
+    activeColor: Color,
+    inactiveColor: Color,
+    dotColor: Color,
     onClick: () -> Unit,
 ) {
-    val isDark = MaterialTheme.colorScheme.background == DarkBackground
-    val accent = if (isDark) DarkAccent else BrandGreen
-
     Column(
         modifier = Modifier
-            .enforceTouchTarget()
-            // Expose the tab's selected state to TalkBack so it announces
-            // "selected" / "not selected" after the label. Apply BEFORE
-            // .clickable so the outer clickable's mergeDescendants=true
-            // absorbs this property into the same semantic node (otherwise
-            // TalkBack creates two focus stops — one for the selected state,
-            // one for the click action).
             .semantics { selected = isActive }
             .clickable(role = Role.Tab) { onClick() }
-            .padding(horizontal = 4.dp, vertical = 6.dp),
+            .padding(horizontal = 6.dp, vertical = 2.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         Icon(
             imageVector = if (isActive) filledIcon else outlinedIcon,
             contentDescription = null,
-            tint = if (isActive) accent else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-            modifier = Modifier.size(16.dp),
+            tint = if (isActive) activeColor else inactiveColor,
+            modifier = Modifier.size(18.dp),
         )
         Text(
             text = label,
-            color = if (isActive) accent else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            color = if (isActive) activeColor else inactiveColor,
             style = LexiconTextStyles.NavLabel,
         )
-        // Active dot indicator
         Box(
             modifier = Modifier
-                .size(2.dp)
+                .size(3.5.dp)
                 .clip(CircleShape)
-                .background(if (isActive) accent else Color.Transparent),
+                .background(if (isActive) dotColor else Color.Transparent),
         )
     }
 }

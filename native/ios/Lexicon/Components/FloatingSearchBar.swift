@@ -2,11 +2,6 @@
 //  FloatingSearchBar.swift
 //  Lexicon
 //
-//  Translation of `src/components/lexicon/floating-search-bar.tsx`.
-//
-//  Capsule shape: search icon + "Search for a word..." placeholder
-//  + camera icon + mic icon. All thin strokes.
-//
 
 import SwiftUI
 
@@ -16,58 +11,62 @@ struct FloatingSearchBar: View {
 
     var placeholder: String = "Search for a word..."
 
+    private var isDark: Bool { scheme == .dark }
+
+    private var iconColor: Color {
+        isDark ? LexiconColors.accentDark : LexiconColors.highlight
+    }
+
+    private var textColor: Color {
+        isDark ? LexiconColors.mutedForegroundDark : LexiconColors.highlight.opacity(0.85)
+    }
+
+    private var pillBorder: Color {
+        isDark ? LexiconColors.goldBorderDark : LexiconColors.foreground.opacity(0.08)
+    }
+
     var body: some View {
         Button {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
             vm.openSearch()
         } label: {
-            HStack(spacing: 10) {
+            HStack(spacing: 9) {
                 Image(systemName: "magnifyingglass")
-                    .font(.system(size: 14, weight: .regular))
-                    .foregroundStyle(lexiconPalette(scheme).foreground.opacity(0.5))
+                    .font(.system(size: 15, weight: .regular))
+                    .foregroundStyle(iconColor)
                     .lexiconDecorative()
 
                 Text(placeholder)
                     .font(.lexiconBody(13))
-                    .foregroundStyle(lexiconPalette(scheme).mutedForeground.opacity(0.7))
+                    .foregroundStyle(textColor)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 Image(systemName: "camera")
-                    .font(.system(size: 14, weight: .regular))
-                    .foregroundStyle(lexiconPalette(scheme).foreground.opacity(0.4))
+                    .font(.system(size: 15, weight: .regular))
+                    .foregroundStyle(iconColor)
                     .lexiconDecorative()
 
                 Image(systemName: "mic")
-                    .font(.system(size: 14, weight: .regular))
-                    .foregroundStyle(lexiconPalette(scheme).foreground.opacity(0.4))
+                    .font(.system(size: 15, weight: .regular))
+                    .foregroundStyle(iconColor)
                     .lexiconDecorative()
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-            .background(lexiconPalette(scheme).card)
+            .padding(.horizontal, 15)
+            .padding(.vertical, 9)
+            .background(lexiconPalette(scheme).searchPill)
             .clipShape(Capsule())
-            .overlay(Capsule().stroke(lexiconPalette(scheme).border, lineWidth: 1))
-            .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 2)
-            // Capsule is ~33pt tall visually (10+13+10). Expand the hit
-            // area to ≥ 44pt without changing the visual capsule size.
-            .lexiconMinTouchTarget()
+            .overlay(Capsule().stroke(pillBorder, lineWidth: 1))
+            .shadow(
+                color: isDark ? .clear : LexiconColors.foreground.opacity(0.10),
+                radius: 7,
+                x: 0,
+                y: 3
+            )
             .contentShape(Capsule())
         }
         .buttonStyle(.plain)
-        // FloatingSearchBar is an icon+text button (not icon-only), so
-        // its label is "Open search" (the visible placeholder text says
-        // "Search for a word..." — VoiceOver reads that as the button's
-        // visible text, but the explicit label "Open search" is clearer
-        // about the action).
         .accessibilityLabel(Text(LexiconAccessibilityLabels.openSearch))
         .accessibilityHint(Text("Opens the full-screen search overlay"))
         .accessibilityAddTraits(.isButton)
     }
-}
-
-#Preview {
-    FloatingSearchBar()
-        .environmentObject(LexiconViewModel())
-        .padding()
-        .background(LexiconColors.background)
 }

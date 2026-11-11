@@ -2,12 +2,6 @@
 //  HomeScreen.swift
 //  Lexicon
 //
-//  Translation of the home tab composition in `src/app/page.tsx`.
-//
-//  ScrollView with all home components stacked: Hero → Search → Trending →
-//  WOTD → Categories (h-scroll) → Articles (h-scroll). Bottom padding to
-//  clear the floating BottomNav.
-//
 
 import SwiftUI
 
@@ -17,12 +11,8 @@ struct HomeScreen: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 16) {
+            VStack(spacing: 10) {
                 Hero()
-
-                // FloatingSearchBar (inset like the web `px-4` wrapper).
-                FloatingSearchBar()
-                    .padding(.horizontal, 16)
 
                 TrendingTagRow(tags: LexiconData.trendingTags)
                     .padding(.horizontal, 16)
@@ -30,24 +20,31 @@ struct HomeScreen: View {
                 WordOfTheDayCard(word: LexiconData.wordOfTheDay)
                     .padding(.horizontal, 16)
 
-                // ── Explore by Category ──
+                // All 4 Category cards in an equal-width 4-column HStack — zero clipping on "Science"!
                 VStack(spacing: 8) {
-                    SectionHeader(title: "Explore by Category", actionLabel: "View all")
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(LexiconData.categories) { c in
-                                CategoryCard(category: c)
-                            }
+                    SectionHeader(
+                        title: "Explore by Category",
+                        actionLabel: "View all",
+                        divider: false,
+                        onAction: { vm.setActiveTab(.dictionary) }
+                    )
+                    HStack(spacing: 8) {
+                        ForEach(LexiconData.categories) { c in
+                            CategoryCard(category: c)
                         }
-                        .padding(.horizontal, 16)
                     }
+                    .padding(.horizontal, 16)
                 }
 
-                // ── From the Library ──
+                // From the Library (with horizontal hairline divider)
                 VStack(spacing: 8) {
-                    SectionHeader(title: "From the Library", actionLabel: "View all articles")
+                    SectionHeader(
+                        title: "From the Library",
+                        actionLabel: "View all articles",
+                        divider: true
+                    )
                     ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
+                        HStack(spacing: 9) {
                             ForEach(LexiconData.articles) { a in
                                 ArticleCard(article: a)
                             }
@@ -56,15 +53,9 @@ struct HomeScreen: View {
                     }
                 }
             }
-            .padding(.top, 4)
-            .padding(.bottom, 120) // clear floating bottom nav
+            .padding(.top, 2)
+            .padding(.bottom, 86)
         }
-        .background(LexiconColors.background)
+        .background(lexiconPalette(scheme).background)
     }
-}
-
-#Preview {
-    HomeScreen()
-        .environmentObject(LexiconViewModel())
-        .background(LexiconColors.background)
 }

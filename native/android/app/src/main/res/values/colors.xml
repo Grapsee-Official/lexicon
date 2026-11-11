@@ -1,36 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- ===== Lexicon brand palette (exact web hex) ===== -->
+    <!-- ===== Exact Brand Palette ===== -->
 
-    <!-- Light theme -->
-    <color name="lexicon_primary">#677554</color>          <!-- brand green -->
-    <color name="lexicon_deep">#31462F</color>             <!-- forest -->
-    <color name="lexicon_background">#FAF3E9</color>       <!-- warm cream -->
-    <color name="lexicon_foreground">#31462F</color>       <!-- deep forest text -->
-    <color name="lexicon_secondary">#7C9297</color>        <!-- dusty blue -->
-    <color name="lexicon_accent">#C98267</color>           <!-- terracotta -->
-    <color name="lexicon_highlight">#A58A61</color>        <!-- old wood / gold -->
-    <color name="lexicon_card">#FBF7EE</color>             <!-- lifted paper -->
-    <color name="lexicon_card_surface">#FBF4EA</color>     <!-- WOTD right panel surface -->
-    <color name="lexicon_muted">#E8DFCC</color>            <!-- muted parchment -->
-    <color name="lexicon_muted_foreground">#6B6557</color> <!-- warm grey -->
-    <color name="lexicon_primary_foreground">#F3EBDD</color>
-    <color name="lexicon_border">#1A31462F</color>         <!-- 10% deep -->
+    <!-- Light theme ("Cotswolds Scholarly") -->
+    <color name="lexicon_primary">#657D5A</color>
+    <color name="lexicon_deep">#31462F</color>
+    <color name="lexicon_background">#F3EBDD</color>
+    <color name="lexicon_foreground">#31462F</color>
+    <color name="lexicon_secondary">#7C9297</color>
+    <color name="lexicon_accent">#C98267</color>
+    <color name="lexicon_highlight">#A58A61</color>
+    <color name="lexicon_card">#FAF4E8</color>
+    <color name="lexicon_card_surface">#FAF3E6</color>
+    <color name="lexicon_muted">#E7DEC9</color>
+    <color name="lexicon_muted_foreground">#666052</color>
+    <color name="lexicon_primary_foreground">#F9F4EA</color>
+    <color name="lexicon_border">#2231462F</color>
 
-    <!-- Dark theme (nocturnal academia) -->
+    <!-- Dark theme ("Nocturnal Academia") -->
     <color name="lexicon_dark_primary">#1D2A3A</color>
     <color name="lexicon_dark_deep">#0F1622</color>
-    <color name="lexicon_dark_background">#1A1F28</color>
-    <color name="lexicon_dark_foreground">#F0D89A</color>
+    <color name="lexicon_dark_background">#0E131B</color>
+    <color name="lexicon_dark_foreground">#EDE4D2</color>
     <color name="lexicon_dark_secondary">#334A5E</color>
     <color name="lexicon_dark_accent">#D4A45A</color>
     <color name="lexicon_dark_highlight">#F0D89A</color>
-    <color name="lexicon_dark_card">#232A38</color>
-    <color name="lexicon_dark_muted">#2B3344</color>
-    <color name="lexicon_dark_muted_foreground">#A89F8A</color>
-    <color name="lexicon_dark_border">#26F0D89A</color>    <!-- 15% gold -->
+    <color name="lexicon_dark_card">#141B25</color>
+    <color name="lexicon_dark_muted">#1E2736</color>
+    <color name="lexicon_dark_muted_foreground">#9EA6B2</color>
+    <color name="lexicon_dark_border">#2ED4A45A</color>
 
-    <!-- White / surface helpers -->
     <color name="white">#FFFFFFFF</color>
     <color name="black">#FF000000</color>
 </resources>

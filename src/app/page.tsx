@@ -3,7 +3,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { LexiconHeader } from "@/components/lexicon/header";
 import { Hero } from "@/components/lexicon/hero";
-import { FloatingSearchBar } from "@/components/lexicon/floating-search-bar";
 import { TrendingTagRow } from "@/components/lexicon/trending-tag-row";
 import { WordOfTheDayCard } from "@/components/lexicon/word-of-the-day-card";
 import { CategoryCard } from "@/components/lexicon/category-card";
@@ -18,25 +17,21 @@ import { MoreScreen } from "@/components/lexicon/screens/more-screen";
 import { useAppStore } from "@/lib/app-store";
 import { trendingTags, wordOfTheDay, categories, articles } from "@/lib/lexicon-data";
 
-const tabMeta: Record<
-  string,
-  { title?: string; subtitle?: string }
-> = {
+const tabMeta: Record<string, { title?: string; subtitle?: string }> = {
   dictionary: { title: "Dictionary", subtitle: "Browse the full lexicon" },
   collections: { title: "Collections", subtitle: "Your saved words" },
-  more: { title: "Settings", subtitle: "Make Lexicon yours" },
+  more: { title: "Settings", subtitle: "Make Lexora yours" },
 };
 
 export default function Home() {
   const activeTab = useAppStore((s) => s.activeTab);
+  const setActiveTab = useAppStore((s) => s.setActiveTab);
 
   return (
     <div className="flex min-h-screen-safe flex-col bg-background">
-      {/* Navigation — always rendered, manages its own state */}
       <LexiconHeader />
 
-      <main className="flex flex-1 flex-col gap-4 pb-24">
-        {/* Sub-header for non-home tabs */}
+      <main className="flex flex-1 flex-col gap-3.5 pb-28">
         {tabMeta[activeTab] ? (
           <div className="px-4 pb-1 pt-2">
             <motion.h1
@@ -44,7 +39,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25 }}
-              className="font-display text-xl font-semibold text-foreground"
+              className="font-display text-xl font-medium text-foreground"
             >
               {tabMeta[activeTab].title}
             </motion.h1>
@@ -62,17 +57,12 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.2 }}
-              className="flex flex-col gap-4"
+              className="flex flex-col gap-3.5"
             >
-              {/* Hero — headline + artwork (2-column grid, natural flow) */}
+              {/* Hero + overlapping FloatingSearchBar */}
               <Hero />
 
-              {/* Search bar — independent component below hero */}
-              <div className="px-4">
-                <FloatingSearchBar />
-              </div>
-
-              {/* Tag chips — independent component below search */}
+              {/* Tag chips row */}
               <div className="px-4">
                 <TrendingTagRow tags={trendingTags} />
               </div>
@@ -82,13 +72,15 @@ export default function Home() {
                 <WordOfTheDayCard word={wordOfTheDay} />
               </div>
 
-              {/* Categories — no divider */}
-              <section className="flex flex-col gap-2 px-4">
+              {/* Explore by Category — no divider */}
+              <section className="flex flex-col gap-2.5 px-4">
                 <SectionHeader
                   title="Explore by Category"
                   actionLabel="View all"
+                  divider={false}
+                  onAction={() => setActiveTab("dictionary")}
                 />
-                <div className="-mx-4 flex gap-2 overflow-x-auto px-4 no-scrollbar">
+                <div className="-mx-4 flex gap-2.5 overflow-x-auto px-4 no-scrollbar">
                   {categories.map((c, i) => (
                     <motion.div
                       key={c.id}
@@ -102,13 +94,14 @@ export default function Home() {
                 </div>
               </section>
 
-              {/* Library — no divider. Grid with equal-width columns. */}
-              <section className="flex flex-col gap-2 px-4">
+              {/* From the Library — WITH divider line per reference PNG */}
+              <section className="flex flex-col gap-2.5 px-4">
                 <SectionHeader
                   title="From the Library"
                   actionLabel="View all articles"
+                  divider={true}
                 />
-                <div className="-mx-4 flex gap-2 overflow-x-auto px-4 no-scrollbar">
+                <div className="-mx-4 flex gap-2.5 overflow-x-auto px-4 no-scrollbar">
                   {articles.map((a, i) => (
                     <motion.div
                       key={a.id}
@@ -172,7 +165,7 @@ export default function Home() {
 
       <footer className="sr-only">
         <p>
-          Lexicon — Words. Wisdom. Worlds. A timeless dictionary for curious
+          Lexora — Words. Wisdom. Worlds. A timeless dictionary for curious
           minds.
         </p>
       </footer>

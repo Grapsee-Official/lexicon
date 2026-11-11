@@ -4,78 +4,82 @@ import Link from "next/link";
 import { Menu, Bell } from "lucide-react";
 import { useHaptics } from "@/hooks/use-haptics";
 import { ThemeToggle } from "@/components/lexicon/theme-toggle";
+import { useAppStore } from "@/lib/app-store";
 import { cn } from "@/lib/utils";
 
-/**
- * LexiconHeader — Independent navigation component.
- * Pure Tailwind. No CSS file. No !important.
- * Transparent background so nav flows seamlessly into the hero below.
- *
- * Vertical alignment: all items use items-center on the flex row.
- * Logo mark + wordmark + tagline are vertically centered as a group.
- */
 export function LexiconHeader({ className }: { className?: string }) {
   const haptic = useHaptics();
+  const setActiveTab = useAppStore((s) => s.setActiveTab);
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-30 w-full pt-safe",
-        className
-      )}
-    >
-      <div className="flex items-center gap-2 px-4 py-3">
-        {/* LEFT: hamburger */}
+    <header className={cn("sticky top-0 z-30 w-full bg-background/90 backdrop-blur-xs pt-safe", className)}>
+      <div className="flex items-center gap-2 px-4 py-2.5">
         <button
           aria-label="Open menu"
           onClick={() => haptic("light")}
-          className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-foreground/80 transition-transform active:scale-95"
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-[#31462F]/75 dark:text-[#D4A45A]/90 transition-transform active:scale-95"
         >
-          <Menu className="h-[18px] w-[18px]" strokeWidth={0.8} />
+          <Menu className="h-[21px] w-[21px]" strokeWidth={1.5} />
         </button>
 
-        {/* Brand lockup: SVG mark + wordmark + tagline.
-            Vertically centered as a group via items-center on parent. */}
         <Link
           href="/"
-          onClick={() => haptic("light")}
-          className="mr-auto flex min-w-0 items-center gap-2"
+          onClick={() => {
+            haptic("light");
+            setActiveTab("home");
+          }}
+          className="mr-auto flex min-w-0 items-center gap-2.5"
         >
           <img
-            src="/assets/lexicon-mark.svg"
-            alt="Lexicon"
-            className="h-10 w-10 shrink-0"
+            src="/illustrations/lexicon-mark.png"
+            alt=""
+            aria-hidden
+            className="h-11 w-11 shrink-0 object-contain dark:hidden"
           />
-          <div className="flex min-w-0 flex-col justify-center leading-none">
-            <span className="font-display text-[18px] leading-none tracking-tight text-foreground">
-              Lexicon
+          <img
+            src="/illustrations/lexicon-mark-dark.png"
+            alt=""
+            aria-hidden
+            className="hidden h-11 w-11 shrink-0 object-contain dark:block"
+          />
+          <div className="flex min-w-0 flex-col justify-center">
+            <span className="font-display text-[22px] font-normal leading-none tracking-[-0.01em] text-[#657D5A] dark:text-[#EDE4D2]">
+              Lexora
             </span>
-            <span className="mt-1 font-body text-[8px] font-normal leading-none tracking-[0.08em] text-muted-foreground">
+            <span className="mt-1 font-body text-[9.5px] font-normal leading-none tracking-[0.02em] text-[#31462F]/75 dark:text-[#EDE4D2]/80">
               Words. Wisdom. Worlds.
             </span>
           </div>
         </Link>
 
-        {/* RIGHT: theme toggle + bell + avatar.
-            All same height (h-9) for perfect alignment. */}
         <ThemeToggle />
+
         <button
           aria-label="Notifications"
           onClick={() => haptic("light")}
-          className="relative grid h-9 w-9 shrink-0 place-items-center rounded-full text-foreground/80 transition-transform active:scale-95"
+          className="relative grid h-9 w-9 shrink-0 place-items-center rounded-full text-[#31462F]/75 dark:text-[#D4A45A]/90 transition-transform active:scale-95"
         >
-          <Bell className="h-[18px] w-[18px]" strokeWidth={0.8} />
-          <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-accent" />
+          <Bell className="h-[20px] w-[20px]" strokeWidth={1.5} />
+          <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-[#A58A61] dark:bg-[#F0D89A]" />
         </button>
+
         <button
           aria-label="Profile"
-          onClick={() => haptic("light")}
-          className="h-9 w-9 shrink-0 overflow-hidden rounded-full ring-1 ring-border transition-transform active:scale-95"
+          onClick={() => {
+            haptic("light");
+            setActiveTab("more");
+          }}
+          className="h-[38px] w-[38px] shrink-0 overflow-hidden rounded-full ring-1 ring-[#31462F]/16 dark:ring-[#D4A45A]/35 transition-transform active:scale-95"
         >
           <img
             src="/illustrations/avatar-default.png"
             alt="Profile"
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover dark:hidden"
+          />
+          <img
+            src="/illustrations/avatar-dark.png"
+            alt="Profile"
+            className="hidden h-full w-full object-cover dark:block"
           />
         </button>
       </div>

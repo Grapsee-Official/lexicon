@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -27,15 +26,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.Bell
 import androidx.compose.material.icons.outlined.Code
+import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Languages
-import androidx.compose.material.icons.outlined.Moon
+import androidx.compose.material.icons.outlined.Language
+import androidx.compose.material.icons.outlined.LightMode
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Storage
-import androidx.compose.material.icons.outlined.Sun
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -129,7 +128,7 @@ fun MoreScreen(viewModel: LexiconViewModel) {
         item(key = "appearance") {
             SettingsGroup(title = "Appearance") {
                 SettingsRow(
-                    icon = if (isDark) Icons.Outlined.Moon else Icons.Outlined.Sun,
+                    icon = if (isDark) Icons.Outlined.DarkMode else Icons.Outlined.LightMode,
                     iconLabel = "Theme toggle",
                     label = "Theme",
                     value = if (isDark) "Dark" else "Light",
@@ -143,7 +142,7 @@ fun MoreScreen(viewModel: LexiconViewModel) {
                     onClick = {},
                 )
                 SettingsRow(
-                    icon = Icons.Outlined.Bell,
+                    icon = Icons.Outlined.Notifications,
                     iconLabel = "Notifications",
                     label = "Notifications",
                     value = "On",
@@ -157,10 +156,10 @@ fun MoreScreen(viewModel: LexiconViewModel) {
         item(key = "dictionary") {
             SettingsGroup(title = "Dictionary") {
                 SettingsRow(
-                    icon = Icons.Outlined.Languages,
+                    icon = Icons.Outlined.Language,
                     iconLabel = "Language pairs",
                     label = "Language pairs",
-                    value = "36 installed",
+                    value = "37 installed",
                     onClick = {},
                 )
                 SettingsRow(

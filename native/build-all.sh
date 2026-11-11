@@ -448,7 +448,9 @@ else
             # Disable set -e for the ctest invocation so a test failure is
             # captured (not fatal to the script). Re-enable afterwards.
             set +e
-            ctest --test-dir "$BUILD_DIR" --output-on-failure --parallel "$JOBS"
+            # Run ctest sequentially (--jobs 1) so timing-sensitive micro-benchmarks
+            # never contend for CPU cores against each other.
+            ctest --test-dir "$BUILD_DIR" --output-on-failure --parallel 1
             ctest_rc=$?
             set -e
 

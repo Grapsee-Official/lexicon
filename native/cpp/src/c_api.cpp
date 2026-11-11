@@ -12,8 +12,7 @@ struct LexiconEngineHandle {
 extern "C" {
 
 LexiconEngineHandle* lexicon_engine_create(void) {
-    auto* h = new (std::nothrow) LexiconEngineHandle();
-    return h;
+    return new (std::nothrow) LexiconEngineHandle();
 }
 
 int lexicon_engine_load(LexiconEngineHandle* handle, const char* db_dir) {
@@ -28,7 +27,6 @@ void lexicon_engine_close(LexiconEngineHandle* handle) {
     }
 }
 
-// Helper: convert C++ string to malloc'd C string
 static char* dup_string(const std::string& s) {
     char* p = static_cast<char*>(std::malloc(s.size() + 1));
     if (p) {
@@ -37,25 +35,27 @@ static char* dup_string(const std::string& s) {
     return p;
 }
 
-// Helper: convert vector<string> to C array
-static void dup_string_vec(const std::vector<std::string>& vec, const char*** out_arr, uint32_t* out_count) {
+static void dup_string_vec(
+    const std::vector<std::string>& vec,
+    const char*** out_arr,
+    uint32_t* out_count
+) {
     *out_count = static_cast<uint32_t>(vec.size());
     if (vec.empty()) {
         *out_arr = nullptr;
         return;
     }
     *out_arr = static_cast<const char**>(std::malloc(vec.size() * sizeof(char*)));
-    if (!*out_arr) { *out_count = 0; return; }
+    if (!*out_arr) {
+        *out_count = 0;
+        return;
+    }
     for (size_t i = 0; i < vec.size(); ++i) {
         (*out_arr)[i] = dup_string(vec[i]);
     }
 }
 
-// Helper: convert C++ WordEntry to C LexiconWordEntry (heap-allocated)
-static LexiconWordEntry* convert_entry(const lexicon::WordEntry& cpp_entry) {
-    LexiconWordEntry* entry = static_cast<LexiconWordEntry*>(std::malloc(sizeof(LexiconWordEntry)));
-    if (!entry) return nullptr;
-
+static void populate_entry(LexiconWordEntry* entry, const lexicon::WordEntry& cpp_entry) {
     entry->id = dup_string(cpp_entry.id);
     entry->word = dup_string(cpp_entry.word);
     entry->phonetic = dup_string(cpp_entry.phonetic);
@@ -67,35 +67,6 @@ static LexiconWordEntry* convert_entry(const lexicon::WordEntry& cpp_entry) {
     dup_string_vec(cpp_entry.synonyms, &entry->synonyms, &entry->synonym_count);
     dup_string_vec(cpp_entry.antonyms, &entry->antonyms, &entry->antonym_count);
     dup_string_vec(cpp_entry.examples, &entry->examples, &entry->example_count);
-
-    return entry;
-}
-
-LexiconWordEntry* lexicon_engine_lookup(LexiconEngineHandle* handle, const char* word) {
-    if (!handle || !word) return nullptr;
-    auto result = handle->engine.lookup(word);
-    if (!result) return nullptr;
-    return convert_entry(*result);
-}
-
-LexiconSearchResults* lexicon_engine_fuzzy_search(LexiconEngineHandle* handle, const char* query, int max_distance, uint32_t limit) {
-    if (!handle || !query) return nullptr;
-    auto results = handle->engine.fuzzy_search(query, max_distance, limit ? limit : 20);
-    if (results.empty()) return nullptr;
-
-    LexiconSearchResults* out = static_cast<LexiconSearchResults*>(std::malloc(sizeof(LexiconSearchResults)));
-    if (!out) return nullptr;
-
-    out->count = static_cast<uint32_t>(results.size());
-    out->results = static_cast<LexiconSearchResult*>(std::malloc(results.size() * sizeof(LexiconSearchResult)));
-    if (!out->results) { std::free(out); return nullptr; }
-
-    for (size_t i = 0; i < results.size(); ++i) {
-        out->results[i].entry = *convert_entry(results[i].entry);
-        out->results[i].edit_distance = results[i].edit_distance;
-    }
-
-    return out;
 }
 
 static void free_string_vec(const char** arr, uint32_t count) {
@@ -106,7 +77,7 @@ static void free_string_vec(const char** arr, uint32_t count) {
     std::free(arr);
 }
 
-void lexicon_engine_free_entry(LexiconWordEntry* entry) {
+static void destroy_entry_fields(LexiconWordEntry* entry) {
     if (!entry) return;
     std::free(const_cast<char*>(entry->id));
     std::free(const_cast<char*>(entry->word));
@@ -118,13 +89,56 @@ void lexicon_engine_free_entry(LexiconWordEntry* entry) {
     free_string_vec(entry->synonyms, entry->synonym_count);
     free_string_vec(entry->antonyms, entry->antonym_count);
     free_string_vec(entry->examples, entry->example_count);
+}
+
+LexiconWordEntry* lexicon_engine_lookup(LexiconEngineHandle* handle, const char* word) {
+    if (!handle || !word) return nullptr;
+    auto result = handle->engine.lookup(word);
+    if (!result) return nullptr;
+    LexiconWordEntry* entry = static_cast<LexiconWordEntry*>(std::malloc(sizeof(LexiconWordEntry)));
+    if (!entry) return nullptr;
+    populate_entry(entry, *result);
+    return entry;
+}
+
+LexiconSearchResults* lexicon_engine_fuzzy_search(
+    LexiconEngineHandle* handle,
+    const char* query,
+    int max_distance,
+    uint32_t limit
+) {
+    if (!handle || !query) return nullptr;
+    auto results = handle->engine.fuzzy_search(query, max_distance, limit ? limit : 20);
+    if (results.empty()) return nullptr;
+
+    LexiconSearchResults* out = static_cast<LexiconSearchResults*>(std::malloc(sizeof(LexiconSearchResults)));
+    if (!out) return nullptr;
+
+    out->count = static_cast<uint32_t>(results.size());
+    out->results = static_cast<LexiconSearchResult*>(std::malloc(results.size() * sizeof(LexiconSearchResult)));
+    if (!out->results) {
+        std::free(out);
+        return nullptr;
+    }
+
+    for (size_t i = 0; i < results.size(); ++i) {
+        populate_entry(&out->results[i].entry, results[i].entry);
+        out->results[i].edit_distance = results[i].edit_distance;
+    }
+
+    return out;
+}
+
+void lexicon_engine_free_entry(LexiconWordEntry* entry) {
+    if (!entry) return;
+    destroy_entry_fields(entry);
     std::free(entry);
 }
 
 void lexicon_engine_free_results(LexiconSearchResults* results) {
     if (!results) return;
     for (uint32_t i = 0; i < results->count; ++i) {
-        lexicon_engine_free_entry(&results->results[i].entry);
+        destroy_entry_fields(&results->results[i].entry);
     }
     std::free(results->results);
     std::free(results);

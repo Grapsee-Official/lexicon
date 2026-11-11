@@ -182,11 +182,12 @@ def compress_zstd(input_path: str, output_path: str):
 
 # ─── Manifest Generation ─────────────────────────────────────────────────────
 
-def generate_manifest(output_dir: str, lang_files: Dict[str, str]):
+def generate_manifest(output_dir: str, lang_files: Dict[str, str], word_counts: Optional[Dict[str, int]] = None):
     """Generate manifest.json with SHA-256 checksums, word counts, etc."""
+    from datetime import datetime, timezone
     manifest = {
         "version": SCHEMA_VERSION,
-        "generated_at": None,  # would be datetime.utcnow().isoformat()
+        "generated_at": datetime.now(timezone.utc).isoformat(),
         "languages": []
     }
 
@@ -198,9 +199,7 @@ def generate_manifest(output_dir: str, lang_files: Dict[str, str]):
                 sha256.update(chunk)
                 file_size += len(chunk)
 
-        # Read word count from the SQLite manifest
-        # (would need to decompress or track separately)
-        word_count = 0  # placeholder
+        word_count = (word_counts or {}).get(lang_code, 0)
 
         manifest["languages"].append({
             "language_code": lang_code,
@@ -268,6 +267,7 @@ def run_pipeline(input_path: str, output_dir: str):
     print(f"      Extracted {total} words across {len(words_by_lang)} languages")
 
     lang_files = {}
+    word_counts = {}
 
     for lang_code, words in words_by_lang.items():
         print(f"[2/5] Validating {lang_code} ({len(words)} words)")
@@ -286,11 +286,12 @@ def run_pipeline(input_path: str, output_dir: str):
         compress_zstd(db_path, zst_path)
         os.unlink(db_path)  # remove uncompressed
         lang_files[lang_code] = zst_path
+        word_counts[lang_code] = len(words)
 
         print(f"      {zst_path} ({os.path.getsize(zst_path)} bytes)")
 
     print("\nGenerating manifest.json")
-    manifest_path = generate_manifest(output_dir, lang_files)
+    manifest_path = generate_manifest(output_dir, lang_files, word_counts)
     print(f"  {manifest_path}")
 
     print("\n✅ ETL pipeline complete!")

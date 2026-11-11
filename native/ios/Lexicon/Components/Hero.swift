@@ -2,17 +2,6 @@
 //  Hero.swift
 //  Lexicon
 //
-//  Translation of `src/components/lexicon/hero.tsx`.
-//
-//  SIMPLE 2-COLUMN HStack:
-//    LEFT:  headline + paragraph (text)
-//    RIGHT: countryside image (contained, no bleed, no scale, no mask)
-//
-//  Exact brand colors:
-//    - Background:    #FAF3E9 (warm cream)
-//    - Headline text: #677554 (brand green)
-//    - Leaf sprig:    #677554
-//
 
 import SwiftUI
 
@@ -20,71 +9,89 @@ struct Hero: View {
     @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
 
-    var body: some View {
-        HStack(alignment: .center, spacing: 8) {
-            // ── LEFT column ──
-            VStack(alignment: .leading, spacing: 8) {
-                headline
-                Text("A timeless dictionary crafted for curious minds.")
-                    .font(.lexiconBody(11))
-                    .foregroundStyle(lexiconPalette(scheme).foreground.opacity(0.6))
-                    .lineSpacing(2)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
+    private var isDark: Bool { scheme == .dark }
 
-            // ── RIGHT column ──
-            // Image contained in its column; no mask, no scale.
-            // P4-05 — the tap target opens search, so it needs a VoiceOver
-            // label + `.isButton` trait + 44pt minimum hit area. The image
-            // itself is decorative (the label conveys the action).
-            HStack {
-                Spacer()
-                Image("lexicon-countryside")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxHeight: 200)
-                    .lexiconDecorative()
-            }
-            .frame(maxWidth: .infinity)
-            .contentShape(Rectangle())
-            .onTapGesture {
-                UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                vm.openSearch()
-            }
-            .accessibilityLabel(Text(LexiconAccessibilityLabels.search))
-            .accessibilityHint(Text("Opens the search overlay"))
-            .accessibilityAddTraits(.isButton)
-            .lexiconMinTouchTarget()
-        }
-        .padding(.horizontal, 16)
-        .padding(.top, 8)
-        .background(LexiconColors.background)
+    private var headlineMain: Color {
+        isDark ? LexiconColors.foregroundDark : LexiconColors.foreground
     }
 
-    /// Headline "Discover the / World of Words [sprig]" — brand green serif.
-    /// Marked as the h1 heading so VoiceOver users land on the hero
-    /// headline first when the home screen appears.
+    private var headlineWords: Color {
+        isDark ? LexiconColors.sageDark : LexiconColors.primary
+    }
+
+    private var sprigColor: Color {
+        isDark ? LexiconColors.accentDark : LexiconColors.highlight
+    }
+
+    private var subtextColor: Color {
+        isDark ? LexiconColors.mutedForegroundDark : LexiconColors.foreground.opacity(0.78)
+    }
+
+    var body: some View {
+        GeometryReader { geo in
+            let totalWidth = geo.size.width
+
+            ZStack(alignment: .topLeading) {
+                HStack(spacing: 0) {
+                    Spacer(minLength: 0)
+                    Image(isDark ? "hero-dark" : "hero-light")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: totalWidth * 0.71, height: 238, alignment: .bottomTrailing)
+                        .offset(x: 8, y: 6)
+                        .lexiconDecorative()
+                        .onTapGesture {
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                            vm.openSearch()
+                        }
+                }
+                .frame(width: totalWidth, height: 238)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    headline
+                    Text("A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.")
+                        .font(.lexiconBody(11))
+                        .foregroundStyle(subtextColor)
+                        .lineSpacing(2.5)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(width: totalWidth * 0.50, alignment: .leading)
+                .padding(.leading, 18)
+                .padding(.top, 4)
+
+                VStack {
+                    Spacer()
+                    HStack(spacing: 0) {
+                        FloatingSearchBar()
+                            .frame(width: totalWidth * 0.78)
+                        Spacer(minLength: 0)
+                    }
+                    .padding(.leading, 16)
+                    .padding(.bottom, 2)
+                }
+                .frame(width: totalWidth, height: 238)
+            }
+        }
+        .frame(height: 238)
+    }
+
     @ViewBuilder
     private var headline: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("Discover the")
-            HStack(spacing: 4) {
-                Text("World of")
-                HStack(spacing: 4) {
-                    Text("Words")
-                    BotanicalSprig()
-                        .frame(width: 20, height: 20)
-                        // Decorative sprig — the headline text already
-                        // conveys the meaning; the sprig is ornamental.
-                        .lexiconDecorative()
-                }
+                .foregroundStyle(headlineMain)
+            Text("World of")
+                .foregroundStyle(headlineMain)
+            HStack(spacing: 8) {
+                Text("Words")
+                    .foregroundStyle(headlineWords)
+                BotanicalSprig(color: sprigColor)
+                    .frame(width: 23, height: 23)
+                    .lexiconDecorative()
             }
         }
-        .font(.lexiconDisplay(28, weight: .medium))
-        .foregroundStyle(LexiconColors.primary)
-        .tracking(-0.4)
-        .lineSpacing(0)
-        // Tight leading (1.05) — match web `leading-[1.05]`.
+        .font(.lexiconDisplay(29, weight: .regular))
+        .tracking(-0.3)
         .frame(maxWidth: .infinity, alignment: .leading)
         .lexiconCombinedElement()
         .accessibilityLabel(Text("Discover the World of Words"))
@@ -92,48 +99,49 @@ struct Hero: View {
     }
 }
 
-/// 3-leaf botanical sprig SVG — brand green #677554.
-/// Faithful translation of the inline SVG from `hero.tsx`.
 struct BotanicalSprig: View {
+    var color: Color = LexiconColors.highlight
+
     var body: some View {
-        // 40×40 logical viewBox; SwiftUI GeometryReader-free for clarity.
-        ZStack {
-            // Central stem
-            stem
-            // Lower-left leaf (rotated -35°)
-            leaf
-                .frame(width: 16, height: 6.4)
-                .rotationEffect(.degrees(-35))
-                .offset(x: -9, y: 14)
-            // Upper-right leaf (rotated +35°)
-            leaf
-                .frame(width: 16, height: 6.4)
-                .rotationEffect(.degrees(35))
-                .offset(x: 9, y: -3)
-            // Top crown leaf
-            Capsule()
-                .fill(LexiconColors.primary.opacity(0.9))
-                .frame(width: 9, height: 5.6)
-                .offset(x: 0, y: -13)
+        Canvas { context, size in
+            let s = min(size.width, size.height) / 32.0
+
+            var stem = Path()
+            stem.move(to: CGPoint(x: 5 * s, y: 27 * s))
+            stem.addQuadCurve(
+                to: CGPoint(x: 24 * s, y: 7 * s),
+                control: CGPoint(x: 14 * s, y: 17 * s)
+            )
+            context.stroke(
+                stem,
+                with: .color(color),
+                style: StrokeStyle(lineWidth: 1.35 * s, lineCap: .round)
+            )
+
+            drawLeaf(in: &context, cx: 11.5 * s, cy: 16.5 * s, len: 8.5 * s, wid: 3.6 * s, degrees: -72)
+            drawLeaf(in: &context, cx: 17.5 * s, cy: 10.5 * s, len: 8.0 * s, wid: 3.4 * s, degrees: -66)
+            drawLeaf(in: &context, cx: 15.5 * s, cy: 20.5 * s, len: 8.5 * s, wid: 3.6 * s, degrees: 12)
+            drawLeaf(in: &context, cx: 21.0 * s, cy: 14.8 * s, len: 7.8 * s, wid: 3.3 * s, degrees: 8)
+            drawLeaf(in: &context, cx: 25.0 * s, cy: 6.2 * s, len: 7.2 * s, wid: 3.1 * s, degrees: -38)
         }
-        .frame(width: 40, height: 40)
     }
 
-    private var stem: some View {
-        Rectangle()
-            .fill(LexiconColors.primary)
-            .frame(width: 0.8, height: 32)
-            .offset(y: 0)
+    private func drawLeaf(
+        in context: inout GraphicsContext,
+        cx: CGFloat,
+        cy: CGFloat,
+        len: CGFloat,
+        wid: CGFloat,
+        degrees: Double
+    ) {
+        var copy = context
+        copy.translateBy(x: cx, y: cy)
+        copy.rotate(by: .degrees(degrees))
+        var p = Path()
+        p.move(to: CGPoint(x: -len * 0.5, y: 0))
+        p.addQuadCurve(to: CGPoint(x: len * 0.5, y: 0), control: CGPoint(x: 0, y: -wid))
+        p.addQuadCurve(to: CGPoint(x: -len * 0.5, y: 0), control: CGPoint(x: 0, y: wid))
+        p.closeSubpath()
+        copy.fill(p, with: .color(color.opacity(0.92)))
     }
-
-    private var leaf: some View {
-        Capsule()
-            .fill(LexiconColors.primary.opacity(0.85))
-    }
-}
-
-#Preview {
-    Hero()
-        .environmentObject(LexiconViewModel())
-        .background(LexiconColors.background)
 }

@@ -30,6 +30,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -172,6 +173,7 @@ fun SearchModal(viewModel: LexiconViewModel) {
         SearchModalContent(
             query = query,
             onQueryChange = { query = it },
+            searchFn = { q -> viewModel.searchWords(q, 8) },
             recentSearches = recent,
             focusRequester = focusRequester,
             onClose = {
@@ -200,6 +202,7 @@ fun SearchModal(viewModel: LexiconViewModel) {
 private fun SearchModalContent(
     query: String,
     onQueryChange: (String) -> Unit,
+    searchFn: (String) -> List<WordEntry>,
     recentSearches: List<String>,
     focusRequester: FocusRequester,
     onClose: () -> Unit,
@@ -233,7 +236,7 @@ private fun SearchModalContent(
             val trimmed = query.trim()
             val results = remember(query) {
                 if (trimmed.isEmpty()) emptyList()
-                else LexiconData.searchWords(trimmed, 8)
+                else searchFn(trimmed)
             }
 
             when {
@@ -391,6 +394,7 @@ private fun SearchTopBar(
 // Empty state — recent + suggested
 // =============================================================================
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun EmptyStateContent(
     recentSearches: List<String>,
@@ -571,7 +575,7 @@ private fun ResultsList(
                     fontFamily = BodyFontFamily,
                     fontSize = 12.sp,
                 ),
-                modifier = Modifier.liveAnnouncement(LiveRegionMode.Polite),
+                modifier = Modifier.liveAnnouncement(true),
             )
             Spacer(Modifier.height(4.dp))
         }
@@ -583,7 +587,7 @@ private fun ResultsList(
                     .enforceTouchTarget()
                     .clickable(role = Role.Button) { onSelectWord(w) }
                     .padding(horizontal = 8.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.Baseline,
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Text(
@@ -663,7 +667,7 @@ private fun NoResultsState(query: String) {
             // when the result set transitions from non-empty to empty.
             modifier = Modifier
                 .sectionHeading(2)
-                .liveAnnouncement(LiveRegionMode.Polite),
+                .liveAnnouncement(true),
         )
         Spacer(Modifier.height(4.dp))
         Text(

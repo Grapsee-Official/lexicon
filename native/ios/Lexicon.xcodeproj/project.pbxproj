@@ -58,6 +58,22 @@
                 5A0000000000000000000011 /* paper-texture.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A0000000000000000000011 /* paper-texture.png */; };
                 5A0000000000000000000012 /* wotd-bg-dark.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A0000000000000000000012 /* wotd-bg-dark.png */; };
                 5A0000000000000000000013 /* wotd-bg-light.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A0000000000000000000013 /* wotd-bg-light.png */; };
+                5A0000000000000000000014 /* cat-vocabulary-dark.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A0000000000000000000014 /* cat-vocabulary-dark.png */; };
+                5A0000000000000000000015 /* cat-geography-dark.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A0000000000000000000015 /* cat-geography-dark.png */; };
+                5A0000000000000000000016 /* cat-literature-dark.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A0000000000000000000016 /* cat-literature-dark.png */; };
+                5A0000000000000000000017 /* cat-science-dark.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A0000000000000000000017 /* cat-science-dark.png */; };
+                5A0000000000000000000018 /* article-1-dark.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A0000000000000000000018 /* article-1-dark.png */; };
+                5A0000000000000000000019 /* article-2-dark.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A0000000000000000000019 /* article-2-dark.png */; };
+                5A000000000000000000001A /* article-3-dark.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A000000000000000000001A /* article-3-dark.png */; };
+                5A000000000000000000001B /* avatar-dark.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A000000000000000000001B /* avatar-dark.png */; };
+                5A000000000000000000001C /* lexicon-mark-dark.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A000000000000000000001C /* lexicon-mark-dark.png */; };
+                5A000000000000000000001D /* lexicon-mark-dark@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A000000000000000000001D /* lexicon-mark-dark@2x.png */; };
+                5A000000000000000000001E /* lexicon-mark-dark@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4A000000000000000000001E /* lexicon-mark-dark@3x.png */; };
+                5A000000000000000000001F /* PlayfairDisplay.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A000000000000000000001F /* PlayfairDisplay.ttf */; };
+                5A0000000000000000000020 /* PlayfairDisplay-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A0000000000000000000020 /* PlayfairDisplay-Italic.ttf */; };
+                5A0000000000000000000021 /* Inter.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A0000000000000000000021 /* Inter.ttf */; };
+                5A0000000000000000000022 /* Lora.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A0000000000000000000022 /* Lora.ttf */; };
+                5A0000000000000000000023 /* Lora-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A0000000000000000000023 /* Lora-Italic.ttf */; };
                 1A0000000000000000000018 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000017 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
@@ -121,6 +137,22 @@
                 4A0000000000000000000011 /* paper-texture.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "paper-texture.png"; sourceTree = "<group>"; };
                 4A0000000000000000000012 /* wotd-bg-dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "wotd-bg-dark.png"; sourceTree = "<group>"; };
                 4A0000000000000000000013 /* wotd-bg-light.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "wotd-bg-light.png"; sourceTree = "<group>"; };
+                4A0000000000000000000014 /* cat-vocabulary-dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cat-vocabulary-dark.png"; sourceTree = "<group>"; };
+                4A0000000000000000000015 /* cat-geography-dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cat-geography-dark.png"; sourceTree = "<group>"; };
+                4A0000000000000000000016 /* cat-literature-dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cat-literature-dark.png"; sourceTree = "<group>"; };
+                4A0000000000000000000017 /* cat-science-dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "cat-science-dark.png"; sourceTree = "<group>"; };
+                4A0000000000000000000018 /* article-1-dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "article-1-dark.png"; sourceTree = "<group>"; };
+                4A0000000000000000000019 /* article-2-dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "article-2-dark.png"; sourceTree = "<group>"; };
+                4A000000000000000000001A /* article-3-dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "article-3-dark.png"; sourceTree = "<group>"; };
+                4A000000000000000000001B /* avatar-dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "avatar-dark.png"; sourceTree = "<group>"; };
+                4A000000000000000000001C /* lexicon-mark-dark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "lexicon-mark-dark.png"; sourceTree = "<group>"; };
+                4A000000000000000000001D /* lexicon-mark-dark@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "lexicon-mark-dark@2x.png"; sourceTree = "<group>"; };
+                4A000000000000000000001E /* lexicon-mark-dark@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "lexicon-mark-dark@3x.png"; sourceTree = "<group>"; };
+                4A000000000000000000001F /* PlayfairDisplay.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay.ttf"; sourceTree = "<group>"; };
+                4A0000000000000000000020 /* PlayfairDisplay-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-Italic.ttf"; sourceTree = "<group>"; };
+                4A0000000000000000000021 /* Inter.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter.ttf"; sourceTree = "<group>"; };
+                4A0000000000000000000022 /* Lora.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lora.ttf"; sourceTree = "<group>"; };
+                4A0000000000000000000023 /* Lora-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lora-Italic.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -247,6 +279,22 @@
                                 4A000000000000000000000A /* hero-light.png */,
                                 4A0000000000000000000009 /* hero-dark.png */,
                                 4A0000000000000000000011 /* paper-texture.png */,
+                                4A0000000000000000000014 /* cat-vocabulary-dark.png */,
+                                4A0000000000000000000015 /* cat-geography-dark.png */,
+                                4A0000000000000000000016 /* cat-literature-dark.png */,
+                                4A0000000000000000000017 /* cat-science-dark.png */,
+                                4A0000000000000000000018 /* article-1-dark.png */,
+                                4A0000000000000000000019 /* article-2-dark.png */,
+                                4A000000000000000000001A /* article-3-dark.png */,
+                                4A000000000000000000001B /* avatar-dark.png */,
+                                4A000000000000000000001C /* lexicon-mark-dark.png */,
+                                4A000000000000000000001D /* lexicon-mark-dark@2x.png */,
+                                4A000000000000000000001E /* lexicon-mark-dark@3x.png */,
+                                4A000000000000000000001F /* PlayfairDisplay.ttf */,
+                                4A0000000000000000000020 /* PlayfairDisplay-Italic.ttf */,
+                                4A0000000000000000000021 /* Inter.ttf */,
+                                4A0000000000000000000022 /* Lora.ttf */,
+                                4A0000000000000000000023 /* Lora-Italic.ttf */,
                         );
                         path = Resources;
                         sourceTree = "<group>";
@@ -341,6 +389,22 @@
                                 5A0000000000000000000011 /* paper-texture.png in Resources */,
                                 5A0000000000000000000012 /* wotd-bg-dark.png in Resources */,
                                 5A0000000000000000000013 /* wotd-bg-light.png in Resources */,
+                                5A0000000000000000000014 /* cat-vocabulary-dark.png in Resources */,
+                                5A0000000000000000000015 /* cat-geography-dark.png in Resources */,
+                                5A0000000000000000000016 /* cat-literature-dark.png in Resources */,
+                                5A0000000000000000000017 /* cat-science-dark.png in Resources */,
+                                5A0000000000000000000018 /* article-1-dark.png in Resources */,
+                                5A0000000000000000000019 /* article-2-dark.png in Resources */,
+                                5A000000000000000000001A /* article-3-dark.png in Resources */,
+                                5A000000000000000000001B /* avatar-dark.png in Resources */,
+                                5A000000000000000000001C /* lexicon-mark-dark.png in Resources */,
+                                5A000000000000000000001D /* lexicon-mark-dark@2x.png in Resources */,
+                                5A000000000000000000001E /* lexicon-mark-dark@3x.png in Resources */,
+                                5A000000000000000000001F /* PlayfairDisplay.ttf in Resources */,
+                                5A0000000000000000000020 /* PlayfairDisplay-Italic.ttf in Resources */,
+                                5A0000000000000000000021 /* Inter.ttf in Resources */,
+                                5A0000000000000000000022 /* Lora.ttf in Resources */,
+                                5A0000000000000000000023 /* Lora-Italic.ttf in Resources */,
                         );
                         runOnlyForDeploymentPostprocessing = 0;
                 };

@@ -33,21 +33,6 @@ import com.lexicon.ui.theme.DarkBackground
 import com.lexicon.ui.theme.LexiconTextStyles
 import com.lexicon.ui.theme.WarmCream
 
-/**
- * RootScreen — top-level orchestrator for the Lexicon app.
- *
- * Direct translation of /home/z/my-project/src/app/page.tsx:
- *  - LexiconHeader always visible (on HOME tab HomeScreen renders its own header).
- *  - AnimatedContent transitions between the four primary tabs.
- *  - Sub-header (title + subtitle) renders above non-home screens.
- *  - BottomNav floats above the content, always reachable.
- *  - WordDetailSheet + SearchModal overlays observe ViewModel state.
- *  - Bottom padding clears the floating nav (pb-24 ≈ 96dp).
- *
- * @param viewModel the shared [LexiconViewModel]; same instance is bound to the
- *                  Activity's [androidx.lifecycle.ViewModelStore] so every
- *                  composable in the tree observes the same state.
- */
 @Composable
 fun RootScreen(viewModel: LexiconViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -59,14 +44,13 @@ fun RootScreen(viewModel: LexiconViewModel) {
             .fillMaxSize()
             .background(bg),
     ) {
-        // --- Main content area with animated tab transitions -----------------
         AnimatedContent(
             targetState = activeTab,
             transitionSpec = {
                 val enter = fadeIn(tween(220)) +
-                    slideInVertically(tween(220)) { full -> full / 12 }
+                    slideInVertically(tween(220)) { full -> full / 14 }
                 val exit = fadeOut(tween(180)) +
-                    slideOutVertically(tween(180)) { full -> -full / 12 }
+                    slideOutVertically(tween(180)) { full -> -full / 14 }
                 enter togetherWith exit
             },
             contentKey = { it },
@@ -81,7 +65,7 @@ fun RootScreen(viewModel: LexiconViewModel) {
                     subtitle = "Browse the full lexicon",
                     viewModel = viewModel,
                 ) {
-                    DictionaryScreen(vm = viewModel)
+                    DictionaryScreen(viewModel = viewModel)
                 }
 
                 TabKey.COLLECTIONS -> NonHomeTab(
@@ -89,28 +73,21 @@ fun RootScreen(viewModel: LexiconViewModel) {
                     subtitle = "Your saved words",
                     viewModel = viewModel,
                 ) {
-                    CollectionsScreen(vm = viewModel)
+                    CollectionsScreen(viewModel = viewModel)
                 }
 
                 TabKey.MORE -> NonHomeTab(
                     title = "Settings",
-                    subtitle = "Make Lexicon yours",
+                    subtitle = "Make Lexora yours",
                     viewModel = viewModel,
                 ) {
-                    MoreScreen(vm = viewModel)
+                    MoreScreen(viewModel = viewModel)
                 }
 
-                // SEARCH tab is never entered — the centre FAB opens the
-                // SearchModal overlay instead. Fall back to Home so the
-                // screen is never blank.
                 TabKey.SEARCH -> HomeScreen(viewModel = viewModel)
             }
         }
 
-        // --- Floating BottomNav overlay --------------------------------------
-        // HomeScreen renders its own BottomNav when activeTab == HOME; to
-        // avoid duplicate navigation bars we only render the overlay for
-        // the other tabs.
         if (activeTab != TabKey.HOME) {
             Box(
                 modifier = Modifier
@@ -121,22 +98,11 @@ fun RootScreen(viewModel: LexiconViewModel) {
             }
         }
 
-        // --- Global overlays -------------------------------------------------
-        // WordDetailSheet — observes vm.uiState.selectedWord internally and
-        // animates in/out based on whether a word is selected.
-        WordDetailSheet(vm = viewModel)
-
-        // SearchModal — observes vm.uiState.searchOpen internally.
-        SearchModal(vm = viewModel)
+        WordDetailSheet(viewModel = viewModel)
+        SearchModal(viewModel = viewModel)
     }
 }
 
-/**
- * Layout for non-home tabs: a top [LexiconHeader] followed by a sub-header
- * (title + subtitle) and the screen content. The content area gets a
- * bottom padding of 96dp so the last item is never hidden behind the
- * floating [BottomNav].
- */
 @Composable
 private fun NonHomeTab(
     title: String,
@@ -145,14 +111,12 @@ private fun NonHomeTab(
     content: @Composable () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
-        // Header (matches web — always visible above the sub-header).
         LexiconHeader(viewModel = viewModel)
 
-        // Sub-header: title + subtitle (mirrors the web's tabMeta block).
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .padding(horizontal = 16.dp, vertical = 6.dp),
         ) {
             Text(
                 text = title,
@@ -163,12 +127,10 @@ private fun NonHomeTab(
             Text(
                 text = subtitle,
                 style = LexiconTextStyles.HeroParagraph,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.65f),
             )
         }
 
-        // Content — weight(1f) so it fills the remaining space above the nav.
-        // Bottom padding clears the floating BottomNav (96dp ≈ Tailwind pb-24).
         Box(
             modifier = Modifier
                 .fillMaxWidth()

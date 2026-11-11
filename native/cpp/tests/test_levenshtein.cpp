@@ -32,8 +32,11 @@ TEST(LevenshteinTest, OneEditDeletion) {
 TEST(LevenshteinTest, TwoEdits) {
     LevenshteinAutomaton lev;
     EXPECT_EQ(lev.distance("kitten", "sitting"), 3); // classic example
-    EXPECT_TRUE(lev.matches("cat", "dog", 2));  // 3 substitutions = distance 3, but ≤2 check
-    EXPECT_FALSE(lev.matches("cat", "dog", 1));
+    EXPECT_TRUE(lev.matches("cat", "cot", 2));       // distance 1 <= 2
+    EXPECT_TRUE(lev.matches("cat", "coat", 2));      // distance 1 <= 2
+    EXPECT_TRUE(lev.matches("cat", "dot", 2));       // 2 substitutions (c->d, a->o) = distance 2 <= 2
+    EXPECT_FALSE(lev.matches("cat", "dog", 2));      // 3 substitutions = distance 3 > 2
+    EXPECT_FALSE(lev.matches("cat", "dot", 1));      // distance 2 > 1
 }
 
 TEST(LevenshteinTest, LengthDifferenceExceedsMaxDistance) {

@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,17 +21,18 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.FormatQuote
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
-import androidx.compose.material.icons.automirrored.outlined.Repeat
 import androidx.compose.material.icons.automirrored.outlined.VolumeUp
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.Bookmark
+import androidx.compose.material.icons.outlined.FormatQuote
 import androidx.compose.material.icons.outlined.Language
+import androidx.compose.material.icons.outlined.Repeat
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -87,6 +90,7 @@ import com.lexicon.ui.theme.Terracotta
  *
  * Max height = 88% of the screen (matches web `max-h-[88dvh]`).
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WordDetailSheet(viewModel: LexiconViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -456,7 +460,7 @@ private fun LanguageRow(word: WordEntry, isDark: Boolean) {
 @Composable
 private fun SynonymsSection(word: WordEntry) {
     Column {
-        SectionLabel(text = "Synonyms", leadingIcon = Icons.AutoMirrored.Outlined.Repeat)
+        SectionLabel(text = "Synonyms", leadingIcon = Icons.Outlined.Repeat)
         Spacer(Modifier.height(8.dp))
         PillRow(
             words = word.synonyms,
@@ -481,6 +485,7 @@ private fun AntonymsSection(word: WordEntry) {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun PillRow(
     words: List<String>,
@@ -488,8 +493,7 @@ private fun PillRow(
     border: Color,
     text: Color,
 ) {
-    // Flow layout — wraps to next line when out of horizontal space.
-    androidx.compose.foundation.layout.FlowRow(
+    FlowRow(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -519,7 +523,7 @@ private fun PillRow(
 private fun ExamplesSection(word: WordEntry, isDark: Boolean) {
     val accent = if (isDark) DarkAccent else OldWoodGold
     Column {
-        SectionLabel(text = "In Context", leadingIcon = Icons.AutoMirrored.Outlined.FormatQuote)
+        SectionLabel(text = "In Context", leadingIcon = Icons.Outlined.FormatQuote)
         Spacer(Modifier.height(8.dp))
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             word.examples.forEach { ex ->

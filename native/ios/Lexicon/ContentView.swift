@@ -56,15 +56,6 @@ struct ContentView: View {
     @EnvironmentObject private var theme: LexiconThemeState
     @Environment(\.colorScheme) private var scheme
 
-    // MARK: - Lexicon EditMenu engine
-    //
-    // Stable `LexiconEngine` instance used by the UIEditMenuInteraction
-    // delegate to resolve selected words. Held in `@State` so the same
-    // engine (and its underlying C++ handle) survives SwiftUI re-renders.
-    //
-    // See file header for why this lives here rather than on `vm`.
-    @State private var engine = LexiconEngine()
-
     // MARK: - Toast state (for .lexiconWordNotFound)
     //
     // Briefly shown above the floating BottomNav when the user selects a
@@ -123,7 +114,7 @@ struct ContentView: View {
 
                 activeScreen
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .lexiconEditMenu(engine: engine)
+                    .lexiconEditMenu(engine: vm.engine)
             }
 
             // MARK: - Floating bottom nav overlay.
@@ -174,7 +165,7 @@ struct ContentView: View {
                 .allowsHitTesting(false)
             }
         }
-        .background(LexiconColors.background)
+        .background(lexiconPalette(scheme).background)
         // MARK: - Word detail sheet (presented when vm.selectedWord != nil)
         //
         // Driven by `vm.selectedWord` — set both by direct UI taps (trending

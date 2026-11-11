@@ -73,7 +73,7 @@ struct DictionaryScreen: View {
                 }
             }
         }
-        .background(LexiconColors.background)
+        .background(lexiconPalette(scheme).background)
     }
 
     // MARK: - A–Z quick index
@@ -93,7 +93,7 @@ struct DictionaryScreen: View {
                         Text(section.letter)
                             .font(.lexiconDisplay(11, weight: active ? .semibold : .regular))
                             .foregroundStyle(active
-                                             ? lexiconPalette(scheme).foreground
+                                             ? (scheme == .dark ? LexiconColors.backgroundDark : LexiconColors.primaryForeground)
                                              : lexiconPalette(scheme).mutedForeground)
                             .frame(width: 26, height: 26)
                             .background(

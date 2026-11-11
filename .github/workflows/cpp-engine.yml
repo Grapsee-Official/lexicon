@@ -4,9 +4,11 @@ on:
   push:
     paths:
       - 'native/cpp/**'
+      - '.github/workflows/cpp-engine.yml'
   pull_request:
     paths:
       - 'native/cpp/**'
+      - '.github/workflows/cpp-engine.yml'
   workflow_dispatch:
 
 jobs:
@@ -18,31 +20,28 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake g++ libsqlite3-dev
+          sudo apt-get install -y cmake g++ libsqlite3-dev libgtest-dev
 
-      - name: Install Google Test
+      - name: Build Google Test static libs if needed
         run: |
-          sudo apt-get install -y libgtest-dev
-          cd /usr/src/gtest
-          sudo cmake CMakeLists.txt
-          sudo make
-          sudo cp lib/*.a /usr/lib
-          sudo ln -s /usr/lib/libgtest.a /usr/local/lib/libgtest.a 2>/dev/null || true
-          sudo ln -s /usr/lib/libgtest_main.a /usr/local/lib/libgtest_main.a 2>/dev/null || true
+          if [ -d /usr/src/gtest ] && [ ! -f /usr/lib/x86_64-linux-gnu/libgtest.a ] && [ ! -f /usr/lib/libgtest.a ]; then
+            sudo cmake -S /usr/src/gtest -B /tmp/gtest-build
+            sudo cmake --build /tmp/gtest-build -j"$(nproc)"
+            sudo cp /tmp/gtest-build/lib/*.a /usr/local/lib/ || sudo cp /tmp/gtest-build/*.a /usr/local/lib/ || true
+          fi
 
       - name: Configure CMake
         run: |
-          mkdir -p native/cpp/build
-          cd native/cpp/build
-          cmake /home/runner/work/lexicon/lexicon/native/cpp -DBUILD_TESTS=ON -DTARGET_ANDROID=OFF -DTARGET_IOS=OFF
+          cmake -S "${GITHUB_WORKSPACE}/native/cpp" -B "${GITHUB_WORKSPACE}/native/cpp/build" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTS=ON \
+            -DTARGET_ANDROID=OFF \
+            -DTARGET_IOS=OFF
 
       - name: Build
         run: |
-          cd native/cpp/build
-          make -j$(nproc)
+          cmake --build "${GITHUB_WORKSPACE}/native/cpp/build" --parallel "$(nproc)"
 
       - name: Run tests
         run: |
-          cd native/cpp/build
-          ctest --output-on-failure
-        continue-on-error: true
+          ctest --test-dir "${GITHUB_WORKSPACE}/native/cpp/build" --output-on-failure --parallel 1

@@ -1,15 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Inter, Lora, Geist_Mono } from "next/font/google";
+import { Playfair_Display, Inter, Lora, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
   subsets: ["latin"],
   display: "swap",
-  axes: ["SOFT", "WONK", "opsz"],
 });
 
 const inter = Inter({
@@ -31,10 +30,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Lexicon — Words. Wisdom. Worlds.",
+  title: "Lexora — Words. Wisdom. Worlds.",
   description:
     "A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word. Offline-first, system-wide on iOS & Android.",
-  applicationName: "Lexicon",
+  applicationName: "Lexora",
   manifest: "/manifest.json",
   icons: {
     icon: [
@@ -47,24 +46,15 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Lexicon",
+    title: "Lexora",
   },
   formatDetection: { telephone: false },
-  keywords: [
-    "Lexicon",
-    "dictionary",
-    "multilingual",
-    "offline",
-    "language",
-    "etymology",
-    "translation",
-  ],
 };
 
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#F3EBDD" },
-    { media: "(prefers-color-scheme: dark)", color: "#1A1F28" },
+    { media: "(prefers-color-scheme: dark)", color: "#0E131B" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -79,7 +69,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${fraunces.variable} ${inter.variable} ${lora.variable} ${geistMono.variable} antialiased bg-background text-foreground font-body`}
+        className={`${playfair.variable} ${inter.variable} ${lora.variable} ${geistMono.variable} antialiased bg-background text-foreground font-body`}
       >
         <ThemeProvider>
           {children}

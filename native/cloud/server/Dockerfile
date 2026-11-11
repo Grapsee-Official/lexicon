@@ -17,8 +17,8 @@ COPY settings.gradle.kts build.gradle.kts ./
 # will recompile with sources present.
 RUN gradle --no-daemon dependencies --quiet || true
 
-# Copy the Kotlin source (flat layout — file lives at project root).
-COPY LexiconSyncServer.kt ./
+# Copy the Kotlin sources (flat layout — files live at project root).
+COPY LexiconSyncServer.kt CrashReportEndpoint.kt ./
 
 # Assemble a runnable distribution into build/install/lexicon-sync-server/
 # (bin/lexicon-sync-server + lib/*.jar) using the `application` plugin.

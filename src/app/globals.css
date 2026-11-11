@@ -7,22 +7,9 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-inter);
-  --font-serif: var(--font-fraunces);
+  --font-serif: var(--font-playfair);
   --font-long: var(--font-lora);
   --font-mono: var(--font-geist-mono);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -47,93 +34,60 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-/*
-  Lexicon — Cotswolds English countryside palette
-  Light: aged paper + sage + forest + dusty blue + terracotta + old-wood gold
-  Dark:  midnight blue nocturnal-academia with antique gold
-*/
 :root {
-  --radius: 0.75rem; /* 12dp base card radius per spec */
+  --radius: 0.75rem;
 
-  /* Light palette — exact brand hex codes */
-  --primary: #677554;            /* brand green */
-  --deep: #31462F;               /* forest */
-  --background: #FAF3E9;         /* warm cream */
-  --foreground: #31462F;         /* deep forest text */
-  --secondary: #7C9297;          /* watercolour sky */
-  --accent: #C98267;             /* terracotta */
-  --highlight: #A58A61;          /* old wood / gold */
+  /* Exact Brand Light Palette ("Cotswolds Scholarly") */
+  --primary: #657D5A;
+  --deep: #31462F;
+  --background: #F3EBDD;
+  --foreground: #31462F;
+  --secondary: #7C9297;
+  --accent: #C98267;
+  --highlight: #A58A61;
 
-  --card: #FBF7EE;               /* slightly lifted paper */
+  --card: #FAF4E8;
   --card-foreground: #31462F;
-  --popover: #FBF7EE;
+  --popover: #FAF4E8;
   --popover-foreground: #31462F;
-  --primary-foreground: #F3EBDD;
-  --secondary-foreground: #F3EBDD;
-  --muted: #E8DFCC;              /* muted parchment */
-  --muted-foreground: #6B6557;   /* warm grey */
-  --accent-foreground: #FBF7EE;
-  --destructive: #B5524A;        /* softened terracotta-red */
-  --border: rgba(49, 70, 47, 0.10); /* 1dp deep @ 10% */
-  --input: rgba(49, 70, 47, 0.10);
+  --primary-foreground: #F9F4EA;
+  --secondary-foreground: #F9F4EA;
+  --muted: #E7DEC9;
+  --muted-foreground: #666052;
+  --accent-foreground: #FAF4E8;
+  --destructive: #B5524A;
+  --border: rgba(49, 70, 47, 0.12);
+  --input: rgba(49, 70, 47, 0.12);
   --ring: #657D5A;
-  --chart-1: #657D5A;
-  --chart-2: #7C9297;
-  --chart-3: #C98267;
-  --chart-4: #A58A61;
-  --chart-5: #31462F;
-  --sidebar: #F3EBDD;
-  --sidebar-foreground: #31462F;
-  --sidebar-primary: #657D5A;
-  --sidebar-primary-foreground: #F3EBDD;
-  --sidebar-accent: #E8DFCC;
-  --sidebar-accent-foreground: #31462F;
-  --sidebar-border: rgba(49, 70, 47, 0.10);
-  --sidebar-ring: #657D5A;
 
-  /* Soft elevation (light only) */
-  --shadow-card: 0 2px 8px rgba(49, 70, 47, 0.15);
+  --shadow-card: 0 2px 8px rgba(49, 70, 47, 0.10);
   --shadow-float: 0 8px 24px rgba(49, 70, 47, 0.12);
 }
 
 .dark {
-  /* Dark palette — midnight blue nocturnal academia + antique gold */
-  --primary: #1D2A3A;            /* midnight blue */
-  --deep: #0F1622;               /* near-black navy */
-  --background: #1A1F28;         /* deep ink */
-  --foreground: #F0D89A;         /* warm cream-gold text */
-  --secondary: #334A5E;          /* slate blue */
-  --accent: #D4A45A;             /* antique gold */
-  --highlight: #F0D89A;          /* cream highlight */
+  /* Exact Brand Dark Palette ("Dreamy Nocturnal Academia") */
+  --primary: #1D2A3A;
+  --deep: #0F1622;
+  --background: #0E131B;
+  --foreground: #EDE4D2;
+  --secondary: #334A5E;
+  --accent: #D4A45A;
+  --highlight: #F0D89A;
 
-  --card: #232A38;               /* slightly lifted ink */
-  --card-foreground: #F0D89A;
-  --popover: #232A38;
-  --popover-foreground: #F0D89A;
-  --primary-foreground: #F0D89A;
-  --secondary-foreground: #F0D89A;
-  --muted: #2B3344;
-  --muted-foreground: #A89F8A;
-  --accent-foreground: #1A1F28;
+  --card: #141B25;
+  --card-foreground: #EDE4D2;
+  --popover: #141B25;
+  --popover-foreground: #EDE4D2;
+  --primary-foreground: #EDE4D2;
+  --secondary-foreground: #EDE4D2;
+  --muted: #1E2736;
+  --muted-foreground: #9EA6B2;
+  --accent-foreground: #0F1622;
   --destructive: #C26B5E;
-  --border: rgba(240, 216, 154, 0.15); /* 1dp gold @ 15% */
-  --input: rgba(240, 216, 154, 0.15);
+  --border: rgba(158, 166, 178, 0.16);
+  --input: rgba(212, 164, 90, 0.22);
   --ring: #D4A45A;
-  --chart-1: #D4A45A;
-  --chart-2: #334A5E;
-  --chart-3: #C26B5E;
-  --chart-4: #F0D89A;
-  --chart-5: #1D2A3A;
-  --sidebar: #1A1F28;
-  --sidebar-foreground: #F0D89A;
-  --sidebar-primary: #D4A45A;
-  --sidebar-primary-foreground: #1A1F28;
-  --sidebar-accent: #2B3344;
-  --sidebar-accent-foreground: #F0D89A;
-  --sidebar-border: rgba(240, 216, 154, 0.15);
-  --sidebar-ring: #D4A45A;
 
-  /* Dark mode: no drop shadows — use borders + tonal separation per spec */
   --shadow-card: none;
   --shadow-float: none;
 }
@@ -164,20 +118,6 @@
   [role="button"] {
     touch-action: manipulation;
   }
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: rgba(49, 70, 47, 0.2);
-    border-radius: 9999px;
-  }
-  .dark ::-webkit-scrollbar-thumb {
-    background: rgba(240, 216, 154, 0.18);
-  }
 }
 
 @layer utilities {
@@ -188,54 +128,13 @@
   .min-h-screen-safe { min-height: 100vh; min-height: 100dvh; }
   .h-screen-safe { height: 100vh; height: 100dvh; }
 
-  /* Serif / long-form typography helpers */
-  .font-display { font-family: var(--font-fraunces), Georgia, serif; }
+  .font-display { font-family: var(--font-playfair), Georgia, serif; }
   .font-body    { font-family: var(--font-inter), system-ui, sans-serif; }
   .font-long    { font-family: var(--font-lora), Georgia, serif; }
 
-  /* Lexicon card elevation (light only — dark uses borders) */
   .shadow-card { box-shadow: var(--shadow-card); }
   .shadow-float { box-shadow: var(--shadow-float); }
 
-  /* 85%-opacity translucent paper surface for floating search/nav bars.
-     Combines a translucent bg with the pre-baked paper noise texture. */
-  .paper-surface {
-    position: relative;
-    background-color: color-mix(in srgb, var(--background) 85%, transparent);
-  }
-  .paper-surface::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background-image: url("/illustrations/paper-texture.png");
-    background-size: 400px 400px;
-    background-repeat: repeat;
-    opacity: 0.35;
-    mix-blend-mode: multiply;
-    border-radius: inherit;
-  }
-  .dark .paper-surface::after {
-    opacity: 0.18;
-    mix-blend-mode: screen;
-  }
-
-  /* Hide scrollbar but keep scroll (for horizontal chip rows) */
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-  /* Soft watercolour edge-fade for hero/illustration images
-     (since CLI returns opaque JPEGs, we fade edges via mask) */
-  .fade-edges {
-    -webkit-mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, #000 55%, transparent 100%);
-            mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, #000 55%, transparent 100%);
-  }
-  .fade-edges-b {
-    -webkit-mask-image: linear-gradient(to bottom, #000 60%, transparent 100%);
-            mask-image: linear-gradient(to bottom, #000 60%, transparent 100%);
-  }
-  .fade-edges-l {
-    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 35%, #000 100%);
-            mask-image: linear-gradient(to right, transparent 0%, #000 35%, #000 100%);
-  }
 }

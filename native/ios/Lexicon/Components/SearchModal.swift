@@ -61,7 +61,7 @@ struct SearchModal: View {
     }
 
     private var results: [WordEntry] {
-        LexiconData.searchWords(query, limit: 8)
+        vm.searchWords(query, limit: 8)
     }
 
     var body: some View {

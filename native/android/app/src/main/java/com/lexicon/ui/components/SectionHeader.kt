@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.weight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material3.Icon
@@ -19,25 +18,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lexicon.ui.enforceTouchTarget
 import com.lexicon.ui.sectionHeading
-import com.lexicon.ui.theme.LexiconTextStyles
-import com.lexicon.ui.theme.OldWoodGold
 import com.lexicon.ui.theme.DarkAccent
 import com.lexicon.ui.theme.DarkBackground
+import com.lexicon.ui.theme.DarkChipBorder
+import com.lexicon.ui.theme.DeepForest
+import com.lexicon.ui.theme.LexiconTextStyles
+import com.lexicon.ui.theme.OldWoodGold
 
-/**
- * SectionHeader — title left + "View all →" right.
- *
- * Optional divider line between title and action — matches web `divider` prop.
- *
- * Action uses the highlight colour (OldWoodGold light / DarkAccent dark).
- */
 @Composable
 fun SectionHeader(
     title: String,
@@ -46,10 +38,14 @@ fun SectionHeader(
     divider: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
+    val isDark = MaterialTheme.colorScheme.background == DarkBackground
+    val accent = if (isDark) DarkAccent else OldWoodGold
+    val lineColor = if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.12f)
+
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Text(
             text = title,
@@ -57,8 +53,6 @@ fun SectionHeader(
             style = LexiconTextStyles.SectionTitle,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            // Section titles are h2 headings — TalkBack announces "Heading"
-            // before each, letting screen-reader users jump between sections.
             modifier = Modifier.sectionHeading(2),
         )
 
@@ -67,7 +61,7 @@ fun SectionHeader(
                 modifier = Modifier
                     .weight(1f)
                     .height(1.dp)
-                    .background(MaterialTheme.colorScheme.outline),
+                    .background(lineColor),
             )
         } else {
             Spacer(Modifier.weight(1f))
@@ -75,13 +69,11 @@ fun SectionHeader(
 
         Row(
             modifier = Modifier
-                .enforceTouchTarget()
                 .clickable(role = Role.Button) { onAction() }
                 .padding(vertical = 2.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            val accent = if (MaterialTheme.colorScheme.isDark()) DarkAccent else OldWoodGold
             Text(
                 text = actionLabel,
                 color = accent,
@@ -91,12 +83,8 @@ fun SectionHeader(
                 imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
                 contentDescription = null,
                 tint = accent,
-                modifier = Modifier.size(12.dp),
+                modifier = Modifier.size(13.dp),
             )
         }
     }
 }
-
-/** Quick dark-mode check — works against our Lexicon colour scheme. */
-private fun androidx.compose.material3.ColorScheme.isDark(): Boolean =
-    background == DarkBackground

@@ -202,13 +202,17 @@ protected:
 //  Benchmark 1: 1M hash table lookups (spec gate: <50ms on Moto G)
 // =============================================================================
 TEST_F(PerformanceBenchmarkFixture, Benchmark_1M_HashTableLookups) {
-    // Build a lookup pattern: cycle through known words, with every 5th
-    // lookup being a deliberate miss (a word we didn't insert). This
-    // exercises both hit and miss paths through Robin Hood probing.
-    auto lookup_fn = [this](uint64_t i) -> bool {
+    // Pre-build miss keys so heap allocation inside the lambda doesn't skew lookup latency
+    std::vector<std::string> miss_words;
+    miss_words.reserve(HT_ENTRIES);
+    for (uint64_t k = 0; k < HT_ENTRIES; ++k) {
+        miss_words.push_back("MISS_" + known_words[k]);
+    }
+
+    auto lookup_fn = [this, &miss_words](uint64_t i) -> bool {
         uint64_t idx = i % HT_ENTRIES;
         const std::string& key = (i % 5 == 0)
-            ? std::string{"MISS_"} + known_words[idx]
+            ? miss_words[idx]
             : known_words[idx];
         uint32_t len = 0;
         const char* v = ht.lookup(key, &len);

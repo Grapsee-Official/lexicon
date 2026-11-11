@@ -30,9 +30,9 @@ export function BottomNav({ className }: { className?: string }) {
         className
       )}
     >
-      <div className="px-4 pb-2 pt-1 pointer-events-auto">
-        <div className="paper-surface border border-border rounded-full shadow-float px-1 py-0.5">
-          <ul className="flex items-stretch justify-between">
+      <div className="px-4 pb-2.5 pt-1 pointer-events-auto">
+        <div className="border border-[#31462F]/10 dark:border-[#9EA6B2]/16 bg-[#FAF4E8]/96 dark:bg-[#141B25]/96 rounded-full shadow-float px-2 py-1.5 backdrop-blur-xs">
+          <ul className="flex items-center justify-between">
             {items.map((item) => {
               const isActive = item.key === active;
               const isCenter = item.key === "search";
@@ -46,9 +46,9 @@ export function BottomNav({ className }: { className?: string }) {
                         haptic("medium");
                         openSearch();
                       }}
-                      className="-mt-4 w-10 h-10 grid place-items-center rounded-full bg-primary dark:bg-accent text-primary-foreground dark:text-accent-foreground border-2 border-background shadow-float active:scale-95 transition-transform"
+                      className="w-[46px] h-[46px] grid place-items-center rounded-full bg-[#657D5A] dark:bg-[#101620] text-[#F9F4EA] dark:text-[#F0D89A] border border-transparent dark:border-[#D4A45A]/55 shadow-card active:scale-95 transition-transform"
                     >
-                      <Search className="w-4 h-4" strokeWidth={2} />
+                      <Search className="w-5 h-5" strokeWidth={1.8} />
                     </button>
                   </li>
                 );
@@ -62,31 +62,36 @@ export function BottomNav({ className }: { className?: string }) {
                       haptic("light");
                       setActiveTab(item.key);
                     }}
-                    className="w-full py-1.5 flex flex-col items-center gap-0.5 active:scale-95 transition-transform"
+                    className="w-full py-1 flex flex-col items-center gap-1 active:scale-95 transition-transform"
                   >
                     <Icon
                       className={cn(
-                        "w-[16px] h-[16px]",
+                        "w-[19px] h-[19px]",
                         isActive
-                          ? "text-primary dark:text-accent"
-                          : "text-muted-foreground"
+                          ? "text-[#657D5A] dark:text-[#D4A45A]"
+                          : "text-[#666052] dark:text-[#D4A45A]/78"
                       )}
-                      strokeWidth={isActive ? 2.25 : 1.75}
-                      fill={isActive ? "currentColor" : "none"}
+                      strokeWidth={isActive ? 2 : 1.6}
+                      fill={isActive && item.key !== "more" && item.key !== "dictionary" ? "currentColor" : "none"}
                     />
                     <span
                       className={cn(
-                        "text-[8px] font-body leading-none",
+                        "text-[10px] font-body leading-none",
                         isActive
-                          ? "text-primary dark:text-accent font-medium"
-                          : "text-muted-foreground"
+                          ? "text-[#657D5A] dark:text-[#D4A45A] font-medium"
+                          : "text-[#666052] dark:text-[#D4A45A]/78"
                       )}
                     >
                       {item.label}
                     </span>
-                    {isActive && (
-                      <span className="w-0.5 h-0.5 rounded-full bg-primary dark:bg-accent" />
-                    )}
+                    <span
+                      className={cn(
+                        "w-1 h-1 rounded-full",
+                        isActive
+                          ? "bg-[#657D5A] dark:bg-[#F0D89A]"
+                          : "bg-transparent"
+                      )}
+                    />
                   </button>
                 </li>
               );

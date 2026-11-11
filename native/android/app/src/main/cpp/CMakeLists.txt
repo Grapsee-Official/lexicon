@@ -46,6 +46,7 @@ set(LEXICON_ENGINE_SOURCES
     "${LEXICON_SRC_DIR}/unicode.cpp"
     "${LEXICON_SRC_DIR}/dawg.cpp"
     "${LEXICON_SRC_DIR}/levenshtein.cpp"
+    "${LEXICON_SRC_DIR}/performance.cpp"
 )
 
 # -----------------------------------------------------------------------------

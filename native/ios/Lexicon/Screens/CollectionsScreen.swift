@@ -47,7 +47,7 @@ struct CollectionsScreen: View {
         }
         .animation(.easeInOut(duration: 0.25), value: savedWords.count)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(LexiconColors.background)
+        .background(lexiconPalette(scheme).background)
     }
 
     // MARK: - Saved words list
@@ -120,7 +120,7 @@ private struct EmptyCollectionState: View {
                     .blur(radius: 28)
 
                 // Illustration (cat-literature) with rounded corners + fade edges
-                Image("cat-literature")
+                Image(scheme == .dark ? "cat-literature-dark" : "cat-literature")
                     .resizable()
                     .scaledToFill()
                     .frame(width: 160, height: 160)
