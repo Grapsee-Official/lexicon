@@ -145,7 +145,7 @@ private fun EmptyCollectionState() {
 
                     // Illustration with radial fade-edges mask + 0.8 alpha
                     Image(
-                        painter = painterResource(R.drawable.cat_literature),
+                        painter = painterResource(if (isDark) R.drawable.cat_literature_dark else R.drawable.cat_literature),
                         contentDescription = null,
                         modifier = Modifier
                             .size(160.dp)

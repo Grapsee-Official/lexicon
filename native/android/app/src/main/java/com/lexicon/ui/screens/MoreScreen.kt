@@ -208,8 +208,8 @@ fun MoreScreen(viewModel: LexiconViewModel) {
             SettingsGroup(title = "About") {
                 SettingsRow(
                     icon = Icons.Outlined.Info,
-                    iconLabel = "About Lexicon",
-                    label = "About Lexicon",
+                    iconLabel = "About Lexora",
+                    label = "About Lexora",
                     value = "v1.0.0",
                     onClick = {},
                 )
@@ -261,7 +261,6 @@ private fun ProfileHeader(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        // Avatar — 64dp circular with 2dp primary/30 border
         Box(
             modifier = Modifier
                 .size(64.dp)
@@ -269,7 +268,7 @@ private fun ProfileHeader(
                 .border(2.dp, accent.copy(alpha = 0.3f), CircleShape),
         ) {
             Image(
-                painter = painterResource(R.drawable.avatar_default),
+                painter = painterResource(if (isDark) R.drawable.avatar_dark else R.drawable.avatar_default),
                 contentDescription = "Profile",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
@@ -289,7 +288,7 @@ private fun ProfileHeader(
             )
             Spacer(Modifier.height(2.dp))
             Text(
-                text = "Lexicon Companion · since 2026",
+                text = "Lexora Companion · since 2026",
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 12.sp,
             )
@@ -478,7 +477,7 @@ private fun MoreFooter() {
 
         // Tagline
         Text(
-            text = "Lexicon · Words. Wisdom. Worlds.",
+            text = "Lexora · Words. Wisdom. Worlds.",
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
             fontSize = 10.sp,
         )

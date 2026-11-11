@@ -26,6 +26,14 @@ final class LexiconThemeState: ObservableObject {
         }
     }
 
+    func resolvedScheme(system: ColorScheme) -> ColorScheme {
+        switch theme {
+        case "dark":  return .dark
+        case "light": return .light
+        default:      return system
+        }
+    }
+
     func toggle() {
         switch theme {
         case "dark":  theme = "light"
@@ -39,24 +47,19 @@ final class LexiconThemeState: ObservableObject {
 
 struct LexiconThemeModifier: ViewModifier {
     @EnvironmentObject private var themeState: LexiconThemeState
-    @Environment(\.colorScheme) private var scheme
+    @Environment(\.colorScheme) private var systemScheme
 
     func body(content: Content) -> some View {
-        let isDark: Bool = {
-            switch themeState.theme {
-            case "dark": return true
-            case "light": return false
-            default: return scheme == .dark
-            }
-        }()
+        let resolved = themeState.resolvedScheme(system: systemScheme)
+        let isDark = (resolved == .dark)
 
         ZStack {
             (isDark ? LexiconColors.backgroundDark : LexiconColors.background)
                 .ignoresSafeArea()
             content
+                .environment(\.colorScheme, resolved)
         }
         .preferredColorScheme(themeState.preferredScheme)
-        .environmentObject(themeState)
     }
 }
 

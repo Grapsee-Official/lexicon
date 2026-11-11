@@ -173,6 +173,7 @@ struct ContentView: View {
         // handler below (EditMenu lookup hit).
         .sheet(item: selectedWordBinding) { (word: WordEntry) in
             WordDetailSheet(word: word)
+                .lexiconTheme()
                 .environmentObject(vm)
                 .environmentObject(theme)
         }
@@ -208,7 +209,7 @@ struct ContentView: View {
         }
         .task {
             guard let outPath = vm.snapshotOutPath else { return }
-            try? await Task.sleep(nanoseconds: 1_200_000_000)
+            try? await Task.sleep(nanoseconds: 1_500_000_000)
             await MainActor.run {
                 captureSelfWindow(to: outPath)
             }
@@ -272,7 +273,7 @@ struct ContentView: View {
 
         case .more:
             subHeaderScreen(title: "Settings",
-                            subtitle: "Make Lexicon yours") {
+                            subtitle: "Make Lexora yours") {
                 MoreScreen()
             }
             .transition(activeTabTransition)

@@ -583,7 +583,7 @@
                                         "$(SRCROOT)/../cpp/include",
                                 );
                                 INFOPLIST_FILE = Lexicon/Info.plist;
-                                INFOPLIST_KEY_CFBundleDisplayName = Lexicon;
+                                INFOPLIST_KEY_CFBundleDisplayName = Lexora;
                                 INFOPLIST_KEY_UILaunchScreen_Generation = YES;
                                 INFOPLIST_KEY_UIRequiresFullScreen = NO;
                                 INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -622,7 +622,7 @@
                                         "$(SRCROOT)/../cpp/include",
                                 );
                                 INFOPLIST_FILE = Lexicon/Info.plist;
-                                INFOPLIST_KEY_CFBundleDisplayName = Lexicon;
+                                INFOPLIST_KEY_CFBundleDisplayName = Lexora;
                                 INFOPLIST_KEY_UILaunchScreen_Generation = YES;
                                 INFOPLIST_KEY_UIRequiresFullScreen = NO;
                                 INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";

@@ -60,12 +60,12 @@ struct WordDetailSheet: View {
             HStack(alignment: .top, spacing: 12) {
                 // Left: label + title + phonetic/pos
                 VStack(alignment: .leading, spacing: 6) {
-                    // "LEXICON ENTRY" label with sparkles icon (highlight color)
+                    // "LEXORA ENTRY" label with sparkles icon (highlight color)
                     HStack(spacing: 6) {
                         Image(systemName: "sparkles")
                             .font(.system(size: 11, weight: .regular))
                             .foregroundStyle(palette.highlight)
-                        Text("LEXICON ENTRY")
+                        Text("LEXORA ENTRY")
                             .font(.lexiconBody(10, weight: .semibold))
                             .tracking(1.6)
                             .foregroundStyle(palette.highlight)

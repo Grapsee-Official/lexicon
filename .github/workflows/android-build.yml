@@ -13,9 +13,14 @@ on:
       - '.github/workflows/android-build.yml'
   workflow_dispatch:
 
+concurrency:
+  group: android-build-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 

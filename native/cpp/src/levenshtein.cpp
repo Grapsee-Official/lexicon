@@ -34,34 +34,34 @@ int LevenshteinAutomaton::distance(std::string_view a, std::string_view b) const
 }
 
 bool LevenshteinAutomaton::matches(std::string_view query, std::string_view word, int max_distance) const {
-    // Early termination: length difference > max_distance → can't match
     int len_diff = std::abs(static_cast<int>(query.size()) - static_cast<int>(word.size()));
     if (len_diff > max_distance) return false;
 
-    // For distance 0, just compare
     if (max_distance == 0) return query == word;
-
-    // For distance 1, use Myers' bit-parallel
     if (max_distance == 1) return within_one_edit(query, word);
 
-    // For distance 2, use banded DP (only compute within 2*max_distance+1 diagonal)
+    // Distance >= 2: two-row DP with per-row early exit (sentinel > max_distance for out-of-band cells!)
     int n = static_cast<int>(query.size());
     int m = static_cast<int>(word.size());
+    const int INF = max_distance + 1;
     int bandwidth = max_distance;
 
-    // Banded DP
-    std::vector<int> prev(m + 1), curr(m + 1);
-    for (int j = 0; j <= m; ++j) prev[j] = j;
+    std::vector<int> prev(m + 1, INF), curr(m + 1, INF);
+    for (int j = 0; j <= std::min(m, bandwidth); ++j) prev[j] = j;
 
     for (int i = 1; i <= n; ++i) {
-        curr[0] = i;
+        std::fill(curr.begin(), curr.end(), INF);
+        if (i <= bandwidth) curr[0] = i;
         int j_start = std::max(1, i - bandwidth);
         int j_end = std::min(m, i + bandwidth);
+        int row_min = INF;
 
         for (int j = j_start; j <= j_end; ++j) {
-            int cost = (query[i-1] == word[j-1]) ? 0 : 1;
-            curr[j] = std::min({prev[j] + 1, curr[j-1] + 1, prev[j-1] + cost});
+            int cost = (query[i - 1] == word[j - 1]) ? 0 : 1;
+            curr[j] = std::min({prev[j] + 1, curr[j - 1] + 1, prev[j - 1] + cost});
+            if (curr[j] < row_min) row_min = curr[j];
         }
+        if (row_min > max_distance) return false;
         std::swap(prev, curr);
     }
 

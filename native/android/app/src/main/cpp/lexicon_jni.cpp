@@ -22,7 +22,9 @@ Java_com_lexicon_engine_LexiconEngine_nativeCreate(JNIEnv* env, jobject thiz) {
 
 JNIEXPORT jboolean JNICALL
 Java_com_lexicon_engine_LexiconEngine_nativeLoad(JNIEnv* env, jobject thiz, jlong handle, jstring db_dir) {
+    if (!handle || !db_dir) return JNI_FALSE;
     const char* dir = env->GetStringUTFChars(db_dir, nullptr);
+    if (!dir) return JNI_FALSE;
     bool result = lexicon_engine_load(CAST_HANDLE(handle), dir) == 0;
     env->ReleaseStringUTFChars(db_dir, dir);
     return result ? JNI_TRUE : JNI_FALSE;
@@ -30,7 +32,9 @@ Java_com_lexicon_engine_LexiconEngine_nativeLoad(JNIEnv* env, jobject thiz, jlon
 
 JNIEXPORT jlong JNICALL
 Java_com_lexicon_engine_LexiconEngine_nativeLookup(JNIEnv* env, jobject thiz, jlong handle, jstring word) {
+    if (!handle || !word) return 0;
     const char* word_str = env->GetStringUTFChars(word, nullptr);
+    if (!word_str) return 0;
     auto* entry = lexicon_engine_lookup(CAST_HANDLE(handle), word_str);
     env->ReleaseStringUTFChars(word, word_str);
     return reinterpret_cast<jlong>(entry);
@@ -38,8 +42,10 @@ Java_com_lexicon_engine_LexiconEngine_nativeLookup(JNIEnv* env, jobject thiz, jl
 
 JNIEXPORT jlong JNICALL
 Java_com_lexicon_engine_LexiconEngine_nativeFuzzySearch(JNIEnv* env, jobject thiz, jlong handle, jstring query, jint max_dist, jint limit) {
+    if (!handle || !query) return 0;
     const char* query_str = env->GetStringUTFChars(query, nullptr);
-    auto* results = lexicon_engine_fuzzy_search(CAST_HANDLE(handle), query_str, max_dist, limit);
+    if (!query_str) return 0;
+    auto* results = lexicon_engine_fuzzy_search(CAST_HANDLE(handle), query_str, max_dist, static_cast<uint32_t>(limit > 0 ? limit : 20));
     env->ReleaseStringUTFChars(query, query_str);
     return reinterpret_cast<jlong>(results);
 }
@@ -91,13 +97,14 @@ Java_com_lexicon_engine_LexiconEngine_nativeGetEntryFields(JNIEnv* env, jobject 
     auto* entry = reinterpret_cast<LexiconWordEntry*>(entry_ptr);
     jclass strClass = env->FindClass("java/lang/String");
     jobjectArray result = env->NewObjectArray(6, strClass, nullptr);
+    if (!entry) return result;
 
-    env->SetObjectArrayElement(result, 0, env->NewStringUTF(entry->id ?: ""));
-    env->SetObjectArrayElement(result, 1, env->NewStringUTF(entry->word ?: ""));
-    env->SetObjectArrayElement(result, 2, env->NewStringUTF(entry->phonetic ?: ""));
-    env->SetObjectArrayElement(result, 3, env->NewStringUTF(entry->part_of_speech ?: ""));
-    env->SetObjectArrayElement(result, 4, env->NewStringUTF(entry->etymology ?: ""));
-    env->SetObjectArrayElement(result, 5, env->NewStringUTF(entry->language ?: ""));
+    env->SetObjectArrayElement(result, 0, env->NewStringUTF(entry->id ? entry->id : ""));
+    env->SetObjectArrayElement(result, 1, env->NewStringUTF(entry->word ? entry->word : ""));
+    env->SetObjectArrayElement(result, 2, env->NewStringUTF(entry->phonetic ? entry->phonetic : ""));
+    env->SetObjectArrayElement(result, 3, env->NewStringUTF(entry->part_of_speech ? entry->part_of_speech : ""));
+    env->SetObjectArrayElement(result, 4, env->NewStringUTF(entry->etymology ? entry->etymology : ""));
+    env->SetObjectArrayElement(result, 5, env->NewStringUTF(entry->language ? entry->language : ""));
 
     return result;
 }
@@ -106,10 +113,11 @@ JNIEXPORT jobjectArray JNICALL
 Java_com_lexicon_engine_LexiconEngine_nativeGetEntryDefinitions(JNIEnv* env, jobject thiz, jlong entry_ptr) {
     auto* entry = reinterpret_cast<LexiconWordEntry*>(entry_ptr);
     jclass strClass = env->FindClass("java/lang/String");
-    jobjectArray result = env->NewObjectArray(entry->definition_count, strClass, nullptr);
+    uint32_t n = entry ? entry->definition_count : 0;
+    jobjectArray result = env->NewObjectArray(n, strClass, nullptr);
 
-    for (uint32_t i = 0; i < entry->definition_count; ++i) {
-        env->SetObjectArrayElement(result, i, env->NewStringUTF(entry->definitions[i] ?: ""));
+    for (uint32_t i = 0; i < n; ++i) {
+        env->SetObjectArrayElement(result, i, env->NewStringUTF(entry->definitions[i] ? entry->definitions[i] : ""));
     }
     return result;
 }
@@ -118,10 +126,11 @@ JNIEXPORT jobjectArray JNICALL
 Java_com_lexicon_engine_LexiconEngine_nativeGetEntrySynonyms(JNIEnv* env, jobject thiz, jlong entry_ptr) {
     auto* entry = reinterpret_cast<LexiconWordEntry*>(entry_ptr);
     jclass strClass = env->FindClass("java/lang/String");
-    jobjectArray result = env->NewObjectArray(entry->synonym_count, strClass, nullptr);
+    uint32_t n = entry ? entry->synonym_count : 0;
+    jobjectArray result = env->NewObjectArray(n, strClass, nullptr);
 
-    for (uint32_t i = 0; i < entry->synonym_count; ++i) {
-        env->SetObjectArrayElement(result, i, env->NewStringUTF(entry->synonyms[i] ?: ""));
+    for (uint32_t i = 0; i < n; ++i) {
+        env->SetObjectArrayElement(result, i, env->NewStringUTF(entry->synonyms[i] ? entry->synonyms[i] : ""));
     }
     return result;
 }
@@ -130,10 +139,11 @@ JNIEXPORT jobjectArray JNICALL
 Java_com_lexicon_engine_LexiconEngine_nativeGetEntryAntonyms(JNIEnv* env, jobject thiz, jlong entry_ptr) {
     auto* entry = reinterpret_cast<LexiconWordEntry*>(entry_ptr);
     jclass strClass = env->FindClass("java/lang/String");
-    jobjectArray result = env->NewObjectArray(entry->antonym_count, strClass, nullptr);
+    uint32_t n = entry ? entry->antonym_count : 0;
+    jobjectArray result = env->NewObjectArray(n, strClass, nullptr);
 
-    for (uint32_t i = 0; i < entry->antonym_count; ++i) {
-        env->SetObjectArrayElement(result, i, env->NewStringUTF(entry->antonyms[i] ?: ""));
+    for (uint32_t i = 0; i < n; ++i) {
+        env->SetObjectArrayElement(result, i, env->NewStringUTF(entry->antonyms[i] ? entry->antonyms[i] : ""));
     }
     return result;
 }
@@ -142,10 +152,11 @@ JNIEXPORT jobjectArray JNICALL
 Java_com_lexicon_engine_LexiconEngine_nativeGetEntryExamples(JNIEnv* env, jobject thiz, jlong entry_ptr) {
     auto* entry = reinterpret_cast<LexiconWordEntry*>(entry_ptr);
     jclass strClass = env->FindClass("java/lang/String");
-    jobjectArray result = env->NewObjectArray(entry->example_count, strClass, nullptr);
+    uint32_t n = entry ? entry->example_count : 0;
+    jobjectArray result = env->NewObjectArray(n, strClass, nullptr);
 
-    for (uint32_t i = 0; i < entry->example_count; ++i) {
-        env->SetObjectArrayElement(result, i, env->NewStringUTF(entry->examples[i] ?: ""));
+    for (uint32_t i = 0; i < n; ++i) {
+        env->SetObjectArrayElement(result, i, env->NewStringUTF(entry->examples[i] ? entry->examples[i] : ""));
     }
     return result;
 }

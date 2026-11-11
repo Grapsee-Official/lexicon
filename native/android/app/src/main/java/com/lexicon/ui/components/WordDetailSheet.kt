@@ -199,7 +199,7 @@ private fun WordDetailHeader(
                     modifier = Modifier.size(13.dp),
                 )
                 Text(
-                    text = "LEXICON ENTRY",
+                    text = "LEXORA ENTRY",
                     color = accent,
                     style = androidx.compose.ui.text.TextStyle(
                         fontFamily = BodyFontFamily,

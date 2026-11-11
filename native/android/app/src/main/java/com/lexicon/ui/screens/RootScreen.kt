@@ -134,8 +134,7 @@ private fun NonHomeTab(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
-                .padding(bottom = 96.dp),
+                .weight(1f),
         ) {
             content()
         }

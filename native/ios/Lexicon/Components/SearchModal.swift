@@ -196,9 +196,7 @@ struct SearchModal: View {
             .background(palette.card)
             .clipShape(Capsule())
             .overlay(Capsule().stroke(palette.border, lineWidth: 1))
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel(Text(LexiconAccessibilityLabels.search))
-            .accessibilityAddTraits(.isSearchField)
+            .accessibilityElement(children: .contain)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)

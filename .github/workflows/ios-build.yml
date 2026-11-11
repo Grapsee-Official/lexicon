@@ -13,9 +13,13 @@ on:
       - '.github/workflows/ios-build.yml'
   workflow_dispatch:
 
+concurrency:
+  group: ios-build-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-15-intel
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -26,11 +30,15 @@ jobs:
           HOST_ARCH="$(uname -m)"
           mkdir -p native/cpp/build-ios-sim native/ios/Lexicon/Engine/lib
           for src in native/cpp/src/*.cpp; do
+            extra_def=""
+            if [ "$(basename "${src}")" = "hash_table.cpp" ]; then
+              extra_def="-DLEXICON_UNICODE_EXTERNAL"
+            fi
             obj="native/cpp/build-ios-sim/$(basename "${src%.cpp}").o"
             xcrun --sdk iphonesimulator clang++ \
               -target "${HOST_ARCH}-apple-ios16.0-simulator" \
               -isysroot "${SIM_SDK}" \
-              -std=c++17 -O2 -fPIC \
+              -std=c++17 -O2 -fPIC ${extra_def} \
               -I native/cpp/include \
               -c "${src}" -o "${obj}"
           done

@@ -93,7 +93,7 @@ struct MoreScreen: View {
                 SettingsGroup(title: "About", rows: [
                     SettingsRowSpec(
                         icon: "info.circle",
-                        label: "About Lexicon",
+                        label: "About Lexora",
                         value: "v1.0.0",
                         action: { UIImpactFeedbackGenerator(style: .light).impactOccurred() }
                     ),
