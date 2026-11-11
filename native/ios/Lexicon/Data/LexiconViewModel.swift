@@ -17,13 +17,16 @@ final class LexiconViewModel: ObservableObject {
     @Published var savedWordIds: [String] = []
     @Published var recentSearches: [String] = []
 
-    let engine = LexiconEngine()
+    lazy var engine: LexiconEngine = {
+        let eng = LexiconEngine()
+        _ = eng.loadDatabase(dbDir: ":embedded:")
+        return eng
+    }()
 
     private let savedKey = "lexicon.savedWordIds"
     private let recentKey = "lexicon.recentSearches"
 
     init() {
-        _ = engine.loadDatabase(dbDir: ":embedded:")
         loadPersisted()
         applyLaunchArguments()
     }

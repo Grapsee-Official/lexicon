@@ -59,10 +59,7 @@
       and add LaunchScreen.storyboard to the project.
     -->
     <key>UILaunchScreen</key>
-    <dict>
-        <key>UIColorName</key>
-        <string>AccentColor</string>
-    </dict>
+    <dict/>
 
     <!-- Required for full-bleed edge-to-edge UI (matches web viewportFit=cover). -->
     <key>UIRequiresFullScreen</key>

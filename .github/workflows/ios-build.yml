@@ -25,10 +25,11 @@ jobs:
           SIM_SDK="$(xcrun --sdk iphonesimulator --show-sdk-path)"
           HOST_ARCH="$(uname -m)"
           cmake -S native/cpp -B native/cpp/build-ios-sim \
-            -DCMAKE_SYSTEM_NAME=iOS \
+            -DCMAKE_SYSTEM_NAME=Darwin \
             -DCMAKE_OSX_SYSROOT="${SIM_SDK}" \
             -DCMAKE_OSX_ARCHITECTURES="${HOST_ARCH}" \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=16.0 \
+            -DCMAKE_C_FLAGS="-target ${HOST_ARCH}-apple-ios16.0-simulator" \
+            -DCMAKE_CXX_FLAGS="-target ${HOST_ARCH}-apple-ios16.0-simulator" \
             -DTARGET_IOS=ON \
             -DLEXICON_BUILD_FRAMEWORK=OFF \
             -DBUILD_SHARED_LIBS=OFF \

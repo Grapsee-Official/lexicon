@@ -6,32 +6,38 @@ APP_PATH="$(find "${RUNNER_TEMP}/DerivedData" -name 'Lexicon.app' -type d | head
 echo "Resolved Lexicon.app: ${APP_PATH}"
 test -n "${APP_PATH}"
 
-echo "=== Info.plist inside built Lexicon.app ==="
-plutil -p "${APP_PATH}/Info.plist" || true
 BUNDLE_ID="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "${APP_PATH}/Info.plist")"
 echo "Resolved CFBundleIdentifier: ${BUNDLE_ID}"
 
-# Ad-hoc sign so Simulator AMFI never rejects unsigned Mach-O on Xcode 26+
-codesign --force --deep --sign - "${APP_PATH}"
+# Ad-hoc sign with entitlements preserved
+codesign --force --deep --sign - --timestamp=none "${APP_PATH}"
 
+# Prefer iOS 18.x / 17.x Simulator runtime first (boots in ~8s instead of iOS 26 beta's 5m Data Migration!)
 SIM_UDID="$(xcrun simctl list devices available -j | python3 -c '
 import json, sys
 data = json.load(sys.stdin)["devices"]
 candidates = []
 for rt, devs in data.items():
-    if "iOS" not in rt: continue
+    if "iOS" not in rt:
+        continue
+    # Prefer stable iOS 18 / 17 over slow beta 26 if present
+    rt_bonus = 20 if ("18" in rt or "17" in rt) else 10
     for d in devs:
         if d.get("isAvailable") and "iPhone" in d.get("name", ""):
-            score = (2 if "Pro" in d["name"] and "Max" not in d["name"] else (1 if "iPhone 16" in d["name"] or "iPhone 15" in d["name"] else 0))
-            candidates.append((rt, score, d["udid"], d["name"]))
+            dev_score = 3 if ("Pro" in d["name"] and "Max" not in d["name"]) else (2 if "iPhone 16" in d["name"] or "iPhone 15" in d["name"] else 1)
+            candidates.append((rt_bonus, dev_score, rt, d["udid"], d["name"]))
 candidates.sort(reverse=True)
-print(candidates[0][2] if candidates else "")
+if candidates:
+    print(candidates[0][3])
 ')"
 echo "Selected Simulator UDID: ${SIM_UDID}"
 test -n "${SIM_UDID}"
 
 xcrun simctl boot "${SIM_UDID}" || true
 xcrun simctl bootstatus "${SIM_UDID}" -b
+
+# Give SpringBoard & LaunchServices 5s to settle after boot
+sleep 5
 
 xcrun simctl status_bar "${SIM_UDID}" override \
   --time "9:41" \
@@ -47,38 +53,54 @@ xcrun simctl install "${SIM_UDID}" "${APP_PATH}"
 
 capture_mode() {
   local mode="$1"
-  local tab="$2"
-  local out_file="$3"
+  local extra_flag="$2"
+  local extra_val="$3"
+  local out_file="$4"
 
   xcrun simctl ui "${SIM_UDID}" appearance "${mode}"
-  echo "Launching ${BUNDLE_ID} (${mode}, ${tab})..."
-  LAUNCH_OUT="$(xcrun simctl launch "${SIM_UDID}" "${BUNDLE_ID}" -lexoraTheme "${mode}" -lexoraTab "${tab}" 2>&1)" || {
-    echo "simctl launch failed: ${LAUNCH_OUT}"
-    exit 1
-  }
-  echo "${LAUNCH_OUT}"
-  APP_PID="$(echo "${LAUNCH_OUT}" | awk -F': ' '{print $2}' | tr -d '[:space:]')"
-  sleep 6
 
-  if ! kill -0 "${APP_PID}" 2>/dev/null; then
-    echo "ERROR: ${BUNDLE_ID} (PID ${APP_PID}) crashed or exited! Recent CrashReporter logs:"
-    ls -lt ~/Library/Logs/DiagnosticReports/ 2>/dev/null | head -n 10 || true
-    LATEST_IPS="$(ls -t ~/Library/Logs/DiagnosticReports/*Lexicon* 2>/dev/null | head -n 1 || true)"
-    if [ -n "${LATEST_IPS}" ]; then
-      head -n 120 "${LATEST_IPS}" || true
+  # Start temporary log stream for Lexicon + SpringBoard crash reason
+  LOG_FILE="${RUNNER_TEMP}/sim-log-${mode}-${extra_val}.txt"
+  xcrun simctl spawn "${SIM_UDID}" log stream --level info --style compact \
+    --predicate 'process == "Lexicon" OR (process == "SpringBoard" AND eventMessage CONTAINS "Lexicon") OR (process == "ReportCrash")' \
+    > "${LOG_FILE}" 2>&1 &
+  STREAM_PID=$!
+
+  local attempt=1
+  local launched_ok=0
+  while [ "${attempt}" -le 3 ]; do
+    echo "Attempt ${attempt}: Launching ${BUNDLE_ID} (-lexoraTheme ${mode} ${extra_flag} ${extra_val})..."
+    LAUNCH_OUT="$(xcrun simctl launch --terminate-running-process "${SIM_UDID}" "${BUNDLE_ID}" -lexoraTheme "${mode}" "${extra_flag}" "${extra_val}" 2>&1)" || true
+    echo "Launch output: ${LAUNCH_OUT}"
+    APP_PID="$(echo "${LAUNCH_OUT}" | awk -F': ' '{print $2}' | tr -d '[:space:]')"
+    sleep 5
+
+    if [ -n "${APP_PID}" ] && kill -0 "${APP_PID}" 2>/dev/null; then
+      echo "SUCCESS: ${BUNDLE_ID} is alive at PID ${APP_PID}!"
+      launched_ok=1
+      break
     fi
+    echo "Process ${APP_PID:-unknown} not running yet; retrying in 3s..."
+    sleep 3
+    attempt=$((attempt + 1))
+  done
+
+  kill "${STREAM_PID}" 2>/dev/null || true
+
+  if [ "${launched_ok}" -ne 1 ]; then
+    echo "=== Simulator Log Stream Diagnostics ==="
+    cat "${LOG_FILE}" | tail -n 120 || true
     exit 1
   fi
 
-  echo "Verified ${BUNDLE_ID} is running cleanly at PID ${APP_PID}!"
   xcrun simctl io "${SIM_UDID}" screenshot "${out_file}"
   xcrun simctl terminate "${SIM_UDID}" "${BUNDLE_ID}" || true
   sleep 1
 }
 
-capture_mode light home "${RUNNER_TEMP}/ios-screenshots/ios-home-light.png"
-capture_mode dark home "${RUNNER_TEMP}/ios-screenshots/ios-home-dark.png"
-capture_mode dark dictionary "${RUNNER_TEMP}/ios-screenshots/ios-dictionary-dark.png"
+capture_mode light -lexoraTab home "${RUNNER_TEMP}/ios-screenshots/ios-home-light.png"
+capture_mode dark -lexoraTab home "${RUNNER_TEMP}/ios-screenshots/ios-home-dark.png"
+capture_mode dark -lexoraWord Wanderlust "${RUNNER_TEMP}/ios-screenshots/ios-word-detail-dark.png"
 
 ditto -c -k --sequesterRsrc --keepParent "${APP_PATH}" "${RUNNER_TEMP}/Lexora-iOS-Simulator.app.zip"
 ls -lh "${RUNNER_TEMP}/ios-screenshots/"
