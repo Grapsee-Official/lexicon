@@ -382,16 +382,13 @@ void Dawg::build(const std::vector<std::string>& sorted_words) {
 
         uint32_t offset = static_cast<uint32_t>(mem_nodes_.size());
         chain_offset[key] = offset;
-        // Reserve the slots for this chain up-front so the recursive
-        // calls below (which append their own chains) leave our reserved
-        // range untouched. We fill the slots in afterwards.
         mem_nodes_.resize(mem_nodes_.size() + children.size());
 
         for (size_t i = 0; i < children.size(); ++i) {
             BuildNode* child = children[i];
             uint32_t child_chain_offset = lay_out_chain(child->children);
             DawgNode slot;
-            slot.data = static_cast<uint8_t>(child->letter);
+            slot.data = static_cast<uint32_t>(static_cast<uint8_t>(child->letter));
             if (child->eow) slot.data |= (1u << 8);
             if (i + 1 == children.size()) slot.data |= (1u << 9); // last child
             slot.data |= (child_chain_offset << 10);
