@@ -67,7 +67,10 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        val rawWord = incoming.getStringExtra(LexiconWordActionReceiver.EXTRA_WORD)?.trim()
+        val rawWord = (
+            incoming.getStringExtra(LexiconWordActionReceiver.EXTRA_WORD)
+                ?: incoming.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT)?.toString()
+            )?.trim()
         if (rawWord.isNullOrEmpty()) return
         val match = viewModel.searchWords(rawWord, limit = 1).firstOrNull()
         if (match != null) {

@@ -44,11 +44,14 @@ object AccessibilityAudit {
         const val Volume = Labels.VOLUME
         const val BookmarkSave = Labels.BOOKMARK_SAVE
         const val BookmarkRemove = Labels.BOOKMARK_REMOVE
+        const val BookmarkOn = Labels.BOOKMARK_REMOVE
+        const val BookmarkOff = Labels.BOOKMARK_SAVE
         const val Share = Labels.SHARE
         const val Grid = Labels.GRID
         const val Camera = Labels.CAMERA
         const val Mic = Labels.MIC
         const val Close = Labels.CLOSE
+        const val Clear = Labels.CLEAR_RECENT
         const val ClearRecent = Labels.CLEAR_RECENT
     }
 
@@ -91,5 +94,6 @@ fun Modifier.accessibleIconButton(description: String, minTouch: Boolean = true)
     return mod
 }
 
+@OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
 fun Modifier.decorative(): Modifier =
     this.semantics { invisibleToUser() }
