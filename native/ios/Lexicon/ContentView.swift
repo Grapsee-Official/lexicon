@@ -206,6 +206,36 @@ struct ContentView: View {
         ) { note in
             handleWordNotFound(note)
         }
+        .task {
+            guard let outPath = vm.snapshotOutPath else { return }
+            try? await Task.sleep(nanoseconds: 1_200_000_000)
+            await MainActor.run {
+                captureSelfWindow(to: outPath)
+            }
+        }
+    }
+
+    @MainActor
+    private func captureSelfWindow(to outPath: String) {
+        guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = scene.windows.first
+        else { return }
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = window.screen.scale
+        format.opaque = true
+        let renderer = UIGraphicsImageRenderer(size: window.bounds.size, format: format)
+        let img = renderer.image { _ in
+            window.drawHierarchy(in: window.bounds, afterScreenUpdates: true)
+        }
+        if let data = img.pngData() {
+            let url = URL(fileURLWithPath: outPath)
+            try? FileManager.default.createDirectory(
+                at: url.deletingLastPathComponent(),
+                withIntermediateDirectories: true
+            )
+            try? data.write(to: url)
+            print("[LexoraSnapshot] Saved native iOS window PNG to \(outPath) (\(data.count) bytes)")
+        }
     }
 
     // MARK: - Active screen switch

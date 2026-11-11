@@ -16,27 +16,25 @@ on:
 jobs:
   build:
     runs-on: macos-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
       - name: Build C++ Engine Static Library (iOS Simulator)
         run: |
-          JOBS="$(sysctl -n hw.ncpu)"
           SIM_SDK="$(xcrun --sdk iphonesimulator --show-sdk-path)"
           HOST_ARCH="$(uname -m)"
-          cmake -S native/cpp -B native/cpp/build-ios-sim \
-            -DCMAKE_SYSTEM_NAME=Darwin \
-            -DCMAKE_OSX_SYSROOT="${SIM_SDK}" \
-            -DCMAKE_OSX_ARCHITECTURES="${HOST_ARCH}" \
-            -DCMAKE_C_FLAGS="-target ${HOST_ARCH}-apple-ios16.0-simulator" \
-            -DCMAKE_CXX_FLAGS="-target ${HOST_ARCH}-apple-ios16.0-simulator" \
-            -DTARGET_IOS=ON \
-            -DLEXICON_BUILD_FRAMEWORK=OFF \
-            -DBUILD_SHARED_LIBS=OFF \
-            -DBUILD_TESTS=OFF
-          cmake --build native/cpp/build-ios-sim --parallel "${JOBS}"
-          mkdir -p native/ios/Lexicon/Engine/lib
-          cp native/cpp/build-ios-sim/liblexicon-engine.a native/ios/Lexicon/Engine/lib/liblexicon-engine.a
+          mkdir -p native/cpp/build-ios-sim native/ios/Lexicon/Engine/lib
+          for src in native/cpp/src/*.cpp; do
+            obj="native/cpp/build-ios-sim/$(basename "${src%.cpp}").o"
+            xcrun --sdk iphonesimulator clang++ \
+              -target "${HOST_ARCH}-apple-ios16.0-simulator" \
+              -isysroot "${SIM_SDK}" \
+              -std=c++17 -O2 -fPIC \
+              -I native/cpp/include \
+              -c "${src}" -o "${obj}"
+          done
+          xcrun --sdk iphonesimulator libtool -static -o native/ios/Lexicon/Engine/lib/liblexicon-engine.a native/cpp/build-ios-sim/*.o
           cp -r native/cpp/include/lexicon native/ios/Lexicon/Engine/lib/
           ls -lh native/ios/Lexicon/Engine/lib/liblexicon-engine.a
 

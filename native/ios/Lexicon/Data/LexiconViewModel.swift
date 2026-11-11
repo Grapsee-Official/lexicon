@@ -16,6 +16,7 @@ final class LexiconViewModel: ObservableObject {
 
     @Published var savedWordIds: [String] = []
     @Published var recentSearches: [String] = []
+    @Published var snapshotOutPath: String? = nil
 
     lazy var engine: LexiconEngine = {
         let eng = LexiconEngine()
@@ -47,6 +48,9 @@ final class LexiconViewModel: ObservableObject {
             if let match = searchWords(wordArg, limit: 1).first {
                 selectedWord = match
             }
+        }
+        if let idx = args.firstIndex(of: "-lexoraSnapshotOut"), idx + 1 < args.count {
+            snapshotOutPath = args[idx + 1]
         }
     }
 

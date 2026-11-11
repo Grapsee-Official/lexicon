@@ -6,13 +6,14 @@ APP_PATH="$(find "${RUNNER_TEMP}/DerivedData" -name 'Lexicon.app' -type d | head
 echo "Resolved Lexicon.app: ${APP_PATH}"
 test -n "${APP_PATH}"
 
+echo "=== Mach-O Load Commands Check ==="
+otool -l "${APP_PATH}/Lexicon" | grep -A 5 "LC_BUILD_VERSION" || true
+
 BUNDLE_ID="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "${APP_PATH}/Info.plist")"
 echo "Resolved CFBundleIdentifier: ${BUNDLE_ID}"
 
-# Ad-hoc sign with entitlements preserved
 codesign --force --deep --sign - --timestamp=none "${APP_PATH}"
 
-# Prefer iOS 18.x / 17.x Simulator runtime first (boots in ~8s instead of iOS 26 beta's 5m Data Migration!)
 SIM_UDID="$(xcrun simctl list devices available -j | python3 -c '
 import json, sys
 data = json.load(sys.stdin)["devices"]
@@ -20,7 +21,6 @@ candidates = []
 for rt, devs in data.items():
     if "iOS" not in rt:
         continue
-    # Prefer stable iOS 18 / 17 over slow beta 26 if present
     rt_bonus = 20 if ("18" in rt or "17" in rt) else 10
     for d in devs:
         if d.get("isAvailable") and "iPhone" in d.get("name", ""):
@@ -35,9 +35,7 @@ test -n "${SIM_UDID}"
 
 xcrun simctl boot "${SIM_UDID}" || true
 xcrun simctl bootstatus "${SIM_UDID}" -b
-
-# Give SpringBoard & LaunchServices 5s to settle after boot
-sleep 5
+sleep 4
 
 xcrun simctl status_bar "${SIM_UDID}" override \
   --time "9:41" \
@@ -56,44 +54,42 @@ capture_mode() {
   local extra_flag="$2"
   local extra_val="$3"
   local out_file="$4"
+  local self_out="${RUNNER_TEMP}/self-$(basename "${out_file}")"
 
+  rm -f "${self_out}" "${out_file}"
   xcrun simctl ui "${SIM_UDID}" appearance "${mode}"
 
-  # Start temporary log stream for Lexicon + SpringBoard crash reason
-  LOG_FILE="${RUNNER_TEMP}/sim-log-${mode}-${extra_val}.txt"
-  xcrun simctl spawn "${SIM_UDID}" log stream --level info --style compact \
-    --predicate 'process == "Lexicon" OR (process == "SpringBoard" AND eventMessage CONTAINS "Lexicon") OR (process == "ReportCrash")' \
-    > "${LOG_FILE}" 2>&1 &
-  STREAM_PID=$!
+  echo "Launching ${BUNDLE_ID} (-lexoraTheme ${mode} ${extra_flag} ${extra_val})..."
+  LAUNCH_OUT="$(xcrun simctl launch --terminate-running-process "${SIM_UDID}" "${BUNDLE_ID}" \
+    -lexoraTheme "${mode}" "${extra_flag}" "${extra_val}" -lexoraSnapshotOut "${self_out}" 2>&1)" || {
+    echo "simctl launch failed: ${LAUNCH_OUT}"
+    exit 1
+  }
+  echo "Launch output: ${LAUNCH_OUT}"
 
-  local attempt=1
-  local launched_ok=0
-  while [ "${attempt}" -le 3 ]; do
-    echo "Attempt ${attempt}: Launching ${BUNDLE_ID} (-lexoraTheme ${mode} ${extra_flag} ${extra_val})..."
-    LAUNCH_OUT="$(xcrun simctl launch --terminate-running-process "${SIM_UDID}" "${BUNDLE_ID}" -lexoraTheme "${mode}" "${extra_flag}" "${extra_val}" 2>&1)" || true
-    echo "Launch output: ${LAUNCH_OUT}"
-    APP_PID="$(echo "${LAUNCH_OUT}" | awk -F': ' '{print $2}' | tr -d '[:space:]')"
-    sleep 5
-
-    if [ -n "${APP_PID}" ] && kill -0 "${APP_PID}" 2>/dev/null; then
-      echo "SUCCESS: ${BUNDLE_ID} is alive at PID ${APP_PID}!"
-      launched_ok=1
-      break
-    fi
-    echo "Process ${APP_PID:-unknown} not running yet; retrying in 3s..."
-    sleep 3
-    attempt=$((attempt + 1))
+  # Wait up to 12 seconds for the app's native UIWindow snapshot file to be written
+  local waited=0
+  while [ "${waited}" -lt 12 ] && [ ! -s "${self_out}" ]; do
+    sleep 1
+    waited=$((waited + 1))
   done
 
-  kill "${STREAM_PID}" 2>/dev/null || true
-
-  if [ "${launched_ok}" -ne 1 ]; then
-    echo "=== Simulator Log Stream Diagnostics ==="
-    cat "${LOG_FILE}" | tail -n 120 || true
+  if [ ! -s "${self_out}" ]; then
+    echo "ERROR: Native SwiftUI window did not write ${self_out}! Checking Simulator logs & CrashReports..."
+    ls -lt ~/Library/Logs/DiagnosticReports/ 2>/dev/null | head -n 10 || true
+    LATEST_IPS="$(ls -t ~/Library/Logs/DiagnosticReports/*Lexicon* 2>/dev/null | head -n 1 || true)"
+    if [ -n "${LATEST_IPS}" ]; then
+      cat "${LATEST_IPS}" | head -n 140 || true
+    fi
+    xcrun simctl spawn "${SIM_UDID}" log show --last 45s --style compact \
+      --predicate 'process == "Lexicon" OR eventMessage CONTAINS "Lexicon" OR eventMessage CONTAINS "com.lexicon.app"' \
+      2>/dev/null | tail -n 80 || true
     exit 1
   fi
 
+  # Capture full simulator screen (includes iOS 9:41 status bar + home indicator) now that we KNOW the app window rendered!
   xcrun simctl io "${SIM_UDID}" screenshot "${out_file}"
+  echo "Captured ${out_file} ($(wc -c < "${out_file}") bytes) + verified window render (${self_out})"
   xcrun simctl terminate "${SIM_UDID}" "${BUNDLE_ID}" || true
   sleep 1
 }
