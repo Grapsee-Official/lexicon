@@ -364,42 +364,12 @@
                 };
 /* End PBXProject section */
 
-/* Begin PBXResourcesBuildPhase section */
+                /* Begin PBXResourcesBuildPhase section */
                 1A000000000000000000000E /* Resources */ = {
                         isa = PBXResourcesBuildPhase;
                         buildActionMask = 2147483647;
                         files = (
                                 1A0000000000000000000018 /* Assets.xcassets in Resources */,
-                                5A0000000000000000000001 /* article-1.png in Resources */,
-                                5A0000000000000000000002 /* article-2.png in Resources */,
-                                5A0000000000000000000003 /* article-3.png in Resources */,
-                                5A0000000000000000000004 /* avatar-default.png in Resources */,
-                                5A0000000000000000000005 /* cat-geography.png in Resources */,
-                                5A0000000000000000000006 /* cat-literature.png in Resources */,
-                                5A0000000000000000000007 /* cat-science.png in Resources */,
-                                5A0000000000000000000008 /* cat-vocabulary.png in Resources */,
-                                5A0000000000000000000009 /* hero-dark.png in Resources */,
-                                5A000000000000000000000A /* hero-light.png in Resources */,
-                                5A000000000000000000000B /* lexicon-countryside.png in Resources */,
-                                5A000000000000000000000C /* lexicon-countryside@2x.png in Resources */,
-                                5A000000000000000000000D /* lexicon-countryside@3x.png in Resources */,
-                                5A000000000000000000000E /* lexicon-mark.png in Resources */,
-                                5A000000000000000000000F /* lexicon-mark@2x.png in Resources */,
-                                5A0000000000000000000010 /* lexicon-mark@3x.png in Resources */,
-                                5A0000000000000000000011 /* paper-texture.png in Resources */,
-                                5A0000000000000000000012 /* wotd-bg-dark.png in Resources */,
-                                5A0000000000000000000013 /* wotd-bg-light.png in Resources */,
-                                5A0000000000000000000014 /* cat-vocabulary-dark.png in Resources */,
-                                5A0000000000000000000015 /* cat-geography-dark.png in Resources */,
-                                5A0000000000000000000016 /* cat-literature-dark.png in Resources */,
-                                5A0000000000000000000017 /* cat-science-dark.png in Resources */,
-                                5A0000000000000000000018 /* article-1-dark.png in Resources */,
-                                5A0000000000000000000019 /* article-2-dark.png in Resources */,
-                                5A000000000000000000001A /* article-3-dark.png in Resources */,
-                                5A000000000000000000001B /* avatar-dark.png in Resources */,
-                                5A000000000000000000001C /* lexicon-mark-dark.png in Resources */,
-                                5A000000000000000000001D /* lexicon-mark-dark@2x.png in Resources */,
-                                5A000000000000000000001E /* lexicon-mark-dark@3x.png in Resources */,
                                 5A000000000000000000001F /* PlayfairDisplay.ttf in Resources */,
                                 5A0000000000000000000020 /* PlayfairDisplay-Italic.ttf in Resources */,
                                 5A0000000000000000000021 /* Inter.ttf in Resources */,

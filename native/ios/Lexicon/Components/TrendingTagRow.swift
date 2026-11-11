@@ -26,7 +26,7 @@ struct TrendingTagRow: View {
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 7) {
+            HStack(spacing: 6) {
                 ForEach(tags) { tag in
                     Button {
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
@@ -35,9 +35,9 @@ struct TrendingTagRow: View {
                         }
                     } label: {
                         Text(tag.label)
-                            .font(.lexiconBody(11.5))
+                            .font(.lexiconBody(11))
                             .foregroundStyle(chipText)
-                            .padding(.horizontal, 13)
+                            .padding(.horizontal, 11.5)
                             .padding(.vertical, 5.5)
                             .background(chipBg)
                             .clipShape(Capsule())
@@ -57,7 +57,7 @@ struct TrendingTagRow: View {
                     Image(systemName: "square.grid.2x2")
                         .font(.system(size: 12, weight: .regular))
                         .foregroundStyle(isDark ? LexiconColors.accentDark : LexiconColors.foreground.opacity(0.68))
-                        .frame(width: 32, height: 28)
+                        .frame(width: 30, height: 28)
                         .background(chipBg)
                         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                         .overlay(

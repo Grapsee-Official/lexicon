@@ -28,7 +28,7 @@ struct BottomNav: View {
             Spacer()
             navCapsule
                 .padding(.horizontal, 16)
-                .padding(.bottom, 6)
+                .padding(.bottom, 2)
         }
     }
 

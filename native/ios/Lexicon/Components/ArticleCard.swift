@@ -27,14 +27,14 @@ struct ArticleCard: View {
                 Image(thumbName)
                     .resizable()
                     .scaledToFill()
-                    .frame(width: 64, height: 84)
+                    .frame(width: 62, height: 78)
                     .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
                     .padding(5)
                     .lexiconDecorative()
 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 3) {
                     Text(article.title)
-                        .font(.lexiconDisplay(12, weight: .regular))
+                        .font(.lexiconDisplay(11.5, weight: .regular))
                         .foregroundStyle(lexiconPalette(scheme).foreground)
                         .lineLimit(3)
                         .multilineTextAlignment(.leading)
@@ -62,10 +62,10 @@ struct ArticleCard: View {
                 }
                 .padding(.leading, 5)
                 .padding(.trailing, 10)
-                .padding(.vertical, 9)
-                .frame(width: 122, height: 94, alignment: .topLeading)
+                .padding(.vertical, 8)
+                .frame(width: 124, height: 88, alignment: .topLeading)
             }
-            .frame(width: 196, height: 94)
+            .frame(width: 196, height: 88)
             .background(lexiconPalette(scheme).card)
             .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
             .overlay(

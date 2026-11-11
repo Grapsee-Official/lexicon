@@ -37,7 +37,7 @@ struct Hero: View {
                     Image(isDark ? "hero-dark" : "hero-light")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: totalWidth * 0.71, height: 238, alignment: .bottomTrailing)
+                        .frame(width: totalWidth * 0.71, height: 224, alignment: .bottomTrailing)
                         .offset(x: 8, y: 6)
                         .lexiconDecorative()
                         .onTapGesture {
@@ -45,19 +45,19 @@ struct Hero: View {
                             vm.openSearch()
                         }
                 }
-                .frame(width: totalWidth, height: 238)
+                .frame(width: totalWidth, height: 224)
 
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 6) {
                     headline
                     Text("A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.")
-                        .font(.lexiconBody(11))
+                        .font(.lexiconBody(10.5))
                         .foregroundStyle(subtextColor)
-                        .lineSpacing(2.5)
+                        .lineSpacing(2)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .frame(width: totalWidth * 0.50, alignment: .leading)
                 .padding(.leading, 18)
-                .padding(.top, 4)
+                .padding(.top, 2)
 
                 VStack {
                     Spacer()
@@ -69,10 +69,10 @@ struct Hero: View {
                     .padding(.leading, 16)
                     .padding(.bottom, 2)
                 }
-                .frame(width: totalWidth, height: 238)
+                .frame(width: totalWidth, height: 224)
             }
         }
-        .frame(height: 238)
+        .frame(height: 224)
     }
 
     @ViewBuilder
@@ -90,7 +90,7 @@ struct Hero: View {
                     .lexiconDecorative()
             }
         }
-        .font(.lexiconDisplay(29, weight: .regular))
+        .font(.lexiconDisplay(27.5, weight: .regular))
         .tracking(-0.3)
         .frame(maxWidth: .infinity, alignment: .leading)
         .lexiconCombinedElement()

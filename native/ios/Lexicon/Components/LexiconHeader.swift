@@ -98,7 +98,7 @@ struct LexiconHeader: View {
                     )
             }
         }
-        .frame(height: 48)
+        .frame(height: 44)
         .padding(.horizontal, 16)
     }
 

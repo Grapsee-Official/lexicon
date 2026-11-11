@@ -1,0 +1,12 @@
+{
+  "images": [
+    {
+      "filename": "wotd-bg-dark.png",
+      "idiom": "universal"
+    }
+  ],
+  "info": {
+    "author": "xcode",
+    "version": 1
+  }
+}

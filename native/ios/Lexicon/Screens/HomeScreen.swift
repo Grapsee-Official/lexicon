@@ -11,7 +11,7 @@ struct HomeScreen: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 10) {
+            VStack(spacing: 8) {
                 Hero()
 
                 TrendingTagRow(tags: LexiconData.trendingTags)
@@ -21,7 +21,7 @@ struct HomeScreen: View {
                     .padding(.horizontal, 16)
 
                 // All 4 Category cards in an equal-width 4-column HStack — zero clipping on "Science"!
-                VStack(spacing: 8) {
+                VStack(spacing: 6) {
                     SectionHeader(
                         title: "Explore by Category",
                         actionLabel: "View all",
@@ -37,7 +37,7 @@ struct HomeScreen: View {
                 }
 
                 // From the Library (with horizontal hairline divider)
-                VStack(spacing: 8) {
+                VStack(spacing: 6) {
                     SectionHeader(
                         title: "From the Library",
                         actionLabel: "View all articles",
@@ -53,8 +53,8 @@ struct HomeScreen: View {
                     }
                 }
             }
-            .padding(.top, 2)
-            .padding(.bottom, 86)
+            .padding(.top, 1)
+            .padding(.bottom, 76)
         }
         .background(lexiconPalette(scheme).background)
     }
