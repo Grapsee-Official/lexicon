@@ -99,10 +99,16 @@ jobs:
 
           xcrun simctl install "${SIM_UDID}" "${APP_PATH}"
 
-          # 1) Capture Light Mode Home
+          # 1) Capture Light Mode Home (print console on crash if any!)
           xcrun simctl ui "${SIM_UDID}" appearance light
           xcrun simctl launch "${SIM_UDID}" com.lexicon.app -lexoraTheme light -lexoraTab home
           sleep 5
+          xcrun simctl spawn "${SIM_UDID}" launchctl list | grep -i lexicon || {
+            echo "ERROR: Lexicon.app exited prematurely! Collecting crash diagnostic logs..."
+            ls -la ~/Library/Logs/DiagnosticReports/ || true
+            cat ~/Library/Logs/DiagnosticReports/*Lexicon* 2>/dev/null | head -n 120 || true
+            exit 1
+          }
           xcrun simctl io "${SIM_UDID}" screenshot "${RUNNER_TEMP}/ios-screenshots/ios-home-light.png"
           xcrun simctl terminate "${SIM_UDID}" com.lexicon.app || true
 
@@ -110,12 +116,14 @@ jobs:
           xcrun simctl ui "${SIM_UDID}" appearance dark
           xcrun simctl launch "${SIM_UDID}" com.lexicon.app -lexoraTheme dark -lexoraTab home
           sleep 5
+          xcrun simctl spawn "${SIM_UDID}" launchctl list | grep -i lexicon
           xcrun simctl io "${SIM_UDID}" screenshot "${RUNNER_TEMP}/ios-screenshots/ios-home-dark.png"
           xcrun simctl terminate "${SIM_UDID}" com.lexicon.app || true
 
-          # 3) Capture Dictionary Dark Mode (verifies secondary tab + C++/Swift data wiring)
+          # 3) Capture Dictionary Dark Mode
           xcrun simctl launch "${SIM_UDID}" com.lexicon.app -lexoraTheme dark -lexoraTab dictionary
           sleep 4
+          xcrun simctl spawn "${SIM_UDID}" launchctl list | grep -i lexicon
           xcrun simctl io "${SIM_UDID}" screenshot "${RUNNER_TEMP}/ios-screenshots/ios-dictionary-dark.png"
           xcrun simctl terminate "${SIM_UDID}" com.lexicon.app || true
 
