@@ -93,8 +93,8 @@ struct ContentView: View {
             handleWordNotFound(note)
         }
         .task {
-            if let allDir = vm.snapshotAllDir {
-                await captureAllScreensSequence(toDir: allDir)
+            if let syncDir = vm.snapshotSyncDir {
+                await runSnapshotSyncLoop(dir: syncDir)
                 return
             }
             guard let outPath = vm.snapshotOutPath else { return }
@@ -106,32 +106,23 @@ struct ContentView: View {
     }
 
     @MainActor
-    private func captureAllScreensSequence(toDir dir: String) async {
-        try? FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
-        let sequence: [(String, String, String)] = [
-            ("light", "1",  "ios-01-dictionary-home-light.png"),
-            ("light", "2",  "ios-02-word-of-the-day-light.png"),
-            ("light", "3",  "ios-03-word-detail-light.png"),
-            ("light", "4",  "ios-04-collections-light.png"),
-            ("light", "5",  "ios-05-my-notes-light.png"),
-            ("light", "6",  "ios-06-study-lists-light.png"),
-            ("light", "7",  "ios-07-quick-templates-light.png"),
-            ("light", "8",  "ios-08-search-discovery-light.png"),
-            ("light", "9",  "ios-09-search-results-light.png"),
-            ("light", "10", "ios-10-expanded-exploration-light.png"),
-            ("dark",  "1",  "ios-01-dictionary-home-dark.png"),
-            ("dark",  "3",  "ios-03-word-detail-dark.png"),
-        ]
-        try? await Task.sleep(nanoseconds: 1_200_000_000)
-        for (mode, scr, fileName) in sequence {
-            theme.theme = mode
-            vm.applyScreenName(scr)
-            try? await Task.sleep(nanoseconds: 550_000_000)
-            let outPath = (dir as NSString).appendingPathComponent(fileName)
-            captureSelfWindow(to: outPath)
+    private func runSnapshotSyncLoop(dir: String) async {
+        let reqFile = (dir as NSString).appendingPathComponent("req.txt")
+        let ackFile = (dir as NSString).appendingPathComponent("ack.txt")
+        var lastSeq = ""
+        while !Task.isCancelled {
+            if let raw = try? String(contentsOfFile: reqFile, encoding: .utf8) {
+                let parts = raw.trimmingCharacters(in: .whitespacesAndNewlines).components(separatedBy: "|")
+                if parts.count == 3 && parts[0] != lastSeq {
+                    lastSeq = parts[0]
+                    theme.theme = parts[1]
+                    vm.applyScreenName(parts[2])
+                    try? await Task.sleep(nanoseconds: 450_000_000)
+                    try? lastSeq.write(toFile: ackFile, atomically: true, encoding: .utf8)
+                }
+            }
+            try? await Task.sleep(nanoseconds: 120_000_000)
         }
-        let donePath = (dir as NSString).appendingPathComponent("_DONE")
-        try? "ok".write(toFile: donePath, atomically: true, encoding: .utf8)
     }
 
     @MainActor

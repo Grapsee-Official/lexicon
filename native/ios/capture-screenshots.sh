@@ -43,20 +43,58 @@ xcrun simctl status_bar "${SIM_UDID}" override \
   --batteryLevel 100 || true
 
 xcrun simctl install "${SIM_UDID}" "${APP_PATH}"
+
+# Resolve the app's sandboxed Documents directory on the Simulator so host & sandbox share req.txt / ack.txt!
+DATA_CONTAINER="$(xcrun simctl get_app_container "${SIM_UDID}" "${BUNDLE_ID}" data)"
+SYNC_DIR="${DATA_CONTAINER}/Documents/ci-sync"
+mkdir -p "${SYNC_DIR}"
+rm -f "${SYNC_DIR}/req.txt" "${SYNC_DIR}/ack.txt"
+
 xcrun simctl ui "${SIM_UDID}" appearance light
-
-# Launch Lexicon ONCE to render & capture all 10 Light + 2 Dark screens directly from the live iOS Simulator UIWindow (~10s total)!
 xcrun simctl launch --terminate-running-process "${SIM_UDID}" "${BUNDLE_ID}" \
-  -lexiconSnapshotAllDir "${RUNNER_TEMP}/ios-screenshots"
+  -lexiconSnapshotSyncDir "${SYNC_DIR}"
+sleep 2
 
-waited=0
-while [ "${waited}" -lt 45 ] && [ ! -f "${RUNNER_TEMP}/ios-screenshots/_DONE" ]; do
-  sleep 1
-  waited=$((waited + 1))
-done
+SEQ=0
+capture_ios() {
+  local mode="$1"
+  local screen="$2"
+  local out_name="$3"
 
-test -f "${RUNNER_TEMP}/ios-screenshots/_DONE"
-rm -f "${RUNNER_TEMP}/ios-screenshots/_DONE"
+  SEQ=$((SEQ + 1))
+  xcrun simctl ui "${SIM_UDID}" appearance "${mode}"
+  echo "${SEQ}|${mode}|${screen}" > "${SYNC_DIR}/req.txt"
+
+  local waited=0
+  while [ "${waited}" -lt 40 ]; do
+    if [ -f "${SYNC_DIR}/ack.txt" ] && [ "$(cat "${SYNC_DIR}/ack.txt" 2>/dev/null)" = "${SEQ}" ]; then
+      break
+    fi
+    sleep 0.25
+    waited=$((waited + 1))
+  done
+
+  if [ "$(cat "${SYNC_DIR}/ack.txt" 2>/dev/null || true)" != "${SEQ}" ]; then
+    echo "ERROR: iOS app did not ack sequence ${SEQ} (screen=${screen})"
+    exit 1
+  fi
+
+  xcrun simctl io "${SIM_UDID}" screenshot "${RUNNER_TEMP}/ios-screenshots/${out_name}"
+  echo "Captured ${out_name}"
+}
+
+capture_ios light 1  "ios-01-dictionary-home-light.png"
+capture_ios light 2  "ios-02-word-of-the-day-light.png"
+capture_ios light 3  "ios-03-word-detail-light.png"
+capture_ios light 4  "ios-04-collections-light.png"
+capture_ios light 5  "ios-05-my-notes-light.png"
+capture_ios light 6  "ios-06-study-lists-light.png"
+capture_ios light 7  "ios-07-quick-templates-light.png"
+capture_ios light 8  "ios-08-search-discovery-light.png"
+capture_ios light 9  "ios-09-search-results-light.png"
+capture_ios light 10 "ios-10-expanded-exploration-light.png"
+capture_ios dark  1  "ios-01-dictionary-home-dark.png"
+capture_ios dark  3  "ios-03-word-detail-dark.png"
 
 xcrun simctl terminate "${SIM_UDID}" "${BUNDLE_ID}" || true
 ditto -c -k --sequesterRsrc --keepParent "${APP_PATH}" "${RUNNER_TEMP}/Lexicon-iOS-Simulator.app.zip"

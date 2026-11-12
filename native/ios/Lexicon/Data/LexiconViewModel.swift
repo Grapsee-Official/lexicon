@@ -45,7 +45,7 @@ final class LexiconViewModel: ObservableObject {
     @Published var errorBanner: String? = nil
 
     @Published var snapshotOutPath: String? = nil
-    @Published var snapshotAllDir: String? = nil
+    @Published var snapshotSyncDir: String? = nil
 
     lazy var engine: LexiconEngine = {
         let eng = LexiconEngine()
@@ -88,8 +88,8 @@ final class LexiconViewModel: ObservableObject {
         if let idx = args.firstIndex(of: "-lexoraSnapshotOut"), idx + 1 < args.count {
             snapshotOutPath = args[idx + 1]
         }
-        if let idx = args.firstIndex(of: "-lexiconSnapshotAllDir"), idx + 1 < args.count {
-            snapshotAllDir = args[idx + 1]
+        if let idx = args.firstIndex(of: "-lexiconSnapshotSyncDir"), idx + 1 < args.count {
+            snapshotSyncDir = args[idx + 1]
         }
     }
 
