@@ -13,28 +13,47 @@ adb shell am broadcast -a com.android.systemui.demo -e command battery -e level 
 adb shell am broadcast -a com.android.systemui.demo -e command network -e wifi show -e level 4 -e mobile show -e datatype none -e level 4 || true
 adb shell am broadcast -a com.android.systemui.demo -e command notifications -e visible false || true
 
-# 1) Capture Light Mode Home
-adb shell cmd uimode night no || true
-adb shell am start -W -S -n com.lexicon.debug/com.lexicon.MainActivity --es lexora_theme light --es lexora_tab home
-sleep 6
-adb shell pidof com.lexicon.debug || {
-  echo "ERROR: com.lexicon.debug crashed! Dumping AndroidRuntime logcat:"
-  adb logcat -d -s AndroidRuntime:E Lexicon:D DEBUG:* | tail -n 120 || true
-  exit 1
+capture_android() {
+  local theme="$1"
+  local screen="$2"
+  local out_name="$3"
+
+  if [ "${theme}" = "dark" ]; then
+    adb shell cmd uimode night yes || true
+  else
+    adb shell cmd uimode night no || true
+  fi
+
+  adb shell am start -W -n com.lexicon.debug/com.lexicon.MainActivity \
+    --es lexora_theme "${theme}" --es lexicon_screen "${screen}" >/dev/null
+  sleep 2.2
+  adb shell pidof com.lexicon.debug >/dev/null || {
+    echo "ERROR: com.lexicon.debug crashed on screen=${screen}! Dumping AndroidRuntime logcat:"
+    adb logcat -d -s AndroidRuntime:E Lexicon:D DEBUG:* | tail -n 120 || true
+    exit 1
+  }
+  adb exec-out screencap -p > "${RUNNER_TEMP}/android-screenshots/${out_name}"
+  echo "Captured ${out_name}"
 }
-adb exec-out screencap -p > "${RUNNER_TEMP}/android-screenshots/android-home-light.png"
 
-# 2) Capture Dreamy Dark Mode Home
-adb shell cmd uimode night yes || true
-adb shell am start -W -S -n com.lexicon.debug/com.lexicon.MainActivity --es lexora_theme dark --es lexora_tab home
-sleep 6
-adb shell pidof com.lexicon.debug
-adb exec-out screencap -p > "${RUNNER_TEMP}/android-screenshots/android-home-dark.png"
+# Cold-start first launch cleanly
+adb shell cmd uimode night no || true
+adb shell am start -W -S -n com.lexicon.debug/com.lexicon.MainActivity \
+  --es lexora_theme light --es lexicon_screen 1 >/dev/null
+sleep 4
 
-# 3) Capture Word Detail Sheet via live C++ engine lookup intent ("Wanderlust") in Dark Mode
-adb shell am start -W -S -n com.lexicon.debug/com.lexicon.MainActivity --es lexora_theme dark --es lexora_word Wanderlust
-sleep 5
-adb shell pidof com.lexicon.debug
-adb exec-out screencap -p > "${RUNNER_TEMP}/android-screenshots/android-word-detail-dark.png"
+# Capture all 10 Countryside Light Mode screens + Nocturnal Dark Mode verification!
+capture_android light 1  "android-01-dictionary-home-light.png"
+capture_android light 2  "android-02-word-of-the-day-light.png"
+capture_android light 3  "android-03-word-detail-light.png"
+capture_android light 4  "android-04-collections-light.png"
+capture_android light 5  "android-05-my-notes-light.png"
+capture_android light 6  "android-06-study-lists-light.png"
+capture_android light 7  "android-07-quick-templates-light.png"
+capture_android light 8  "android-08-search-discovery-light.png"
+capture_android light 9  "android-09-search-results-light.png"
+capture_android light 10 "android-10-expanded-exploration-light.png"
+capture_android dark  1  "android-01-dictionary-home-dark.png"
+capture_android dark  3  "android-03-word-detail-dark.png"
 
 ls -lh "${RUNNER_TEMP}/android-screenshots/"

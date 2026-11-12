@@ -1,11 +1,10 @@
 package com.lexicon.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -24,7 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lexicon.data.LexiconViewModel
-import com.lexicon.data.TabKey
+import com.lexicon.data.ScreenRoute
 import com.lexicon.ui.components.BottomNav
 import com.lexicon.ui.components.LexiconHeader
 import com.lexicon.ui.components.SearchModal
@@ -36,8 +35,12 @@ import com.lexicon.ui.theme.WarmCream
 @Composable
 fun RootScreen(viewModel: LexiconViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val activeTab = state.activeTab
+    val route = state.route
     val bg = if (state.isDark) DarkBackground else WarmCream
+
+    BackHandler(enabled = state.routeHistory.isNotEmpty()) {
+        viewModel.navigateBack()
+    }
 
     Box(
         modifier = Modifier
@@ -45,50 +48,35 @@ fun RootScreen(viewModel: LexiconViewModel) {
             .background(bg),
     ) {
         AnimatedContent(
-            targetState = activeTab,
-            transitionSpec = {
-                val enter = fadeIn(tween(220)) +
-                    slideInVertically(tween(220)) { full -> full / 14 }
-                val exit = fadeOut(tween(180)) +
-                    slideOutVertically(tween(180)) { full -> -full / 14 }
-                enter togetherWith exit
-            },
+            targetState = route,
+            transitionSpec = { fadeIn(tween(180)) togetherWith fadeOut(tween(150)) },
             contentKey = { it },
             modifier = Modifier.fillMaxSize(),
-            label = "tabTransition",
-        ) { tab ->
-            when (tab) {
-                TabKey.HOME -> HomeScreen(viewModel = viewModel)
-
-                TabKey.DICTIONARY -> NonHomeTab(
-                    title = "Dictionary",
-                    subtitle = "Browse the full lexicon",
-                    viewModel = viewModel,
-                ) {
-                    DictionaryScreen(viewModel = viewModel)
-                }
-
-                TabKey.COLLECTIONS -> NonHomeTab(
-                    title = "Collections",
-                    subtitle = "Your saved words",
-                    viewModel = viewModel,
-                ) {
-                    CollectionsScreen(viewModel = viewModel)
-                }
-
-                TabKey.MORE -> NonHomeTab(
+            label = "routeTransition",
+        ) { currentRoute ->
+            when (currentRoute) {
+                ScreenRoute.HOME -> HomeScreen(viewModel = viewModel)
+                ScreenRoute.DICTIONARY_HOME -> DictionaryHomeScreen(viewModel = viewModel)
+                ScreenRoute.WORD_OF_THE_DAY -> WordOfTheDayScreen(viewModel = viewModel)
+                ScreenRoute.WORD_DETAIL -> WordDetailProfileScreen(viewModel = viewModel)
+                ScreenRoute.COLLECTIONS -> CollectionsHubScreen(viewModel = viewModel)
+                ScreenRoute.MY_NOTES -> MyNotesScreen(viewModel = viewModel)
+                ScreenRoute.STUDY_LISTS -> StudyListsScreen(viewModel = viewModel)
+                ScreenRoute.QUICK_TEMPLATES -> QuickTemplatesScreen(viewModel = viewModel)
+                ScreenRoute.SEARCH_DISCOVERY -> SearchDiscoveryScreen(viewModel = viewModel)
+                ScreenRoute.SEARCH_RESULTS -> SearchResultsScreen(viewModel = viewModel)
+                ScreenRoute.EXPANDED_EXPLORATION -> ExpandedExplorationScreen(viewModel = viewModel)
+                ScreenRoute.MORE -> NonHomeTab(
                     title = "Settings",
-                    subtitle = "Make Lexora yours",
+                    subtitle = "Make Lexicon yours",
                     viewModel = viewModel,
                 ) {
                     MoreScreen(viewModel = viewModel)
                 }
-
-                TabKey.SEARCH -> HomeScreen(viewModel = viewModel)
             }
         }
 
-        if (activeTab != TabKey.HOME) {
+        if (route != ScreenRoute.HOME) {
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)

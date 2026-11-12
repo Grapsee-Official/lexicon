@@ -96,8 +96,8 @@ class LexiconTextClassifierService : Service() {
         val icon = Icon.createWithResource(this, android.R.drawable.ic_menu_search)
         return RemoteAction(
             icon,
-            "Lexora: $displayName",
-            "Look up \"$displayName\" in Lexora",
+            "Lexicon: $displayName",
+            "Look up \"$displayName\" in Lexicon",
             pendingIntent,
         )
     }

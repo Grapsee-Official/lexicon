@@ -13,6 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lexicon.data.LexiconData
 import com.lexicon.data.LexiconViewModel
+import com.lexicon.data.ScreenRoute
+import com.lexicon.data.TabKey
 import com.lexicon.textclassifier.LexiconWordActionReceiver
 import com.lexicon.ui.screens.RootScreen
 import com.lexicon.ui.theme.DarkBackground
@@ -61,10 +63,30 @@ class MainActivity : ComponentActivity() {
             }
             args.getString("lexora_tab")?.lowercase()?.let { tab ->
                 when (tab) {
-                    "home" -> viewModel.setActiveTab(com.lexicon.data.TabKey.HOME)
-                    "dictionary" -> viewModel.setActiveTab(com.lexicon.data.TabKey.DICTIONARY)
-                    "collections" -> viewModel.setActiveTab(com.lexicon.data.TabKey.COLLECTIONS)
-                    "more" -> viewModel.setActiveTab(com.lexicon.data.TabKey.MORE)
+                    "home" -> viewModel.setActiveTab(TabKey.HOME)
+                    "dictionary" -> viewModel.setActiveTab(TabKey.DICTIONARY)
+                    "search" -> viewModel.setActiveTab(TabKey.SEARCH)
+                    "collections" -> viewModel.setActiveTab(TabKey.COLLECTIONS)
+                    "more" -> viewModel.setActiveTab(TabKey.MORE)
+                }
+            }
+            args.getString("lexicon_screen")?.lowercase()?.let { scr ->
+                when (scr) {
+                    "1", "dictionary_home", "dict_home" -> viewModel.navigate(ScreenRoute.DICTIONARY_HOME)
+                    "2", "wotd", "word_of_the_day" -> viewModel.navigate(ScreenRoute.WORD_OF_THE_DAY, word = LexiconData.serendipityEntry)
+                    "3", "word_detail", "detail" -> viewModel.navigate(ScreenRoute.WORD_DETAIL, word = LexiconData.serendipityEntry)
+                    "4", "collections" -> viewModel.navigate(ScreenRoute.COLLECTIONS)
+                    "5", "notes", "my_notes" -> viewModel.navigate(ScreenRoute.MY_NOTES)
+                    "6", "study_lists", "study" -> viewModel.navigate(ScreenRoute.STUDY_LISTS)
+                    "7", "templates", "quick_templates" -> viewModel.navigate(ScreenRoute.QUICK_TEMPLATES)
+                    "8", "search", "search_discovery" -> viewModel.navigate(ScreenRoute.SEARCH_DISCOVERY)
+                    "9", "results", "search_results" -> {
+                        viewModel.setSearchQuery("serendipity")
+                        viewModel.navigate(ScreenRoute.SEARCH_RESULTS, word = LexiconData.serendipityEntry)
+                    }
+                    "10", "expanded", "expanded_exploration" -> viewModel.navigate(ScreenRoute.EXPANDED_EXPLORATION, word = LexiconData.serendipityEntry, expand36 = false)
+                    "10_expanded", "translations" -> viewModel.navigate(ScreenRoute.EXPANDED_EXPLORATION, word = LexiconData.serendipityEntry, expand36 = true)
+                    "home" -> viewModel.setActiveTab(TabKey.HOME)
                 }
             }
             val rawWord = (

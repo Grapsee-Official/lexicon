@@ -65,7 +65,7 @@ struct WordDetailSheet: View {
                         Image(systemName: "sparkles")
                             .font(.system(size: 11, weight: .regular))
                             .foregroundStyle(palette.highlight)
-                        Text("LEXORA ENTRY")
+                        Text("LEXICON ENTRY")
                             .font(.lexiconBody(10, weight: .semibold))
                             .tracking(1.6)
                             .foregroundStyle(palette.highlight)

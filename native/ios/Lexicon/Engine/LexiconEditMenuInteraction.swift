@@ -32,7 +32,7 @@ public class LexiconEditMenuInteraction: NSObject, UIEditMenuInteractionDelegate
         }
 
         let lexiconAction = UIAction(
-            title: "Lexora: \(word)",
+            title: "Lexicon: \(word)",
             image: UIImage(systemName: "book"),
             identifier: UIAction.Identifier("com.lexicon.lookup"),
             state: .off,
@@ -42,7 +42,7 @@ public class LexiconEditMenuInteraction: NSObject, UIEditMenuInteractionDelegate
         )
 
         let lexiconMenu = UIMenu(
-            title: "Lexora",
+            title: "Lexicon",
             image: UIImage(systemName: "book.closed"),
             identifier: UIMenu.Identifier("com.lexicon.menu"),
             options: [.displayInline],

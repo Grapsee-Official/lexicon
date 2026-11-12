@@ -93,7 +93,7 @@ struct MoreScreen: View {
                 SettingsGroup(title: "About", rows: [
                     SettingsRowSpec(
                         icon: "info.circle",
-                        label: "About Lexora",
+                        label: "About Lexicon",
                         value: "v1.0.0",
                         action: { UIImpactFeedbackGenerator(style: .light).impactOccurred() }
                     ),
@@ -156,7 +156,7 @@ struct MoreScreen: View {
                 Text("Curious Soul")
                     .font(.lexiconDisplay(18, weight: .semibold))
                     .foregroundStyle(lexiconPalette(scheme).foreground)
-                Text("Lexora Companion · since 2026")
+                Text("Lexicon Companion · since 2026")
                     .font(.lexiconBody(12))
                     .foregroundStyle(lexiconPalette(scheme).mutedForeground)
                 HStack(spacing: 16) {
@@ -200,7 +200,7 @@ struct MoreScreen: View {
                     .font(.lexiconBody(11))
                     .foregroundStyle(lexiconPalette(scheme).mutedForeground)
             }
-            Text("Lexora · Words. Wisdom. Worlds.")
+            Text("Lexicon · Words. Wisdom. Worlds.")
                 .font(.lexiconBody(10))
                 .foregroundStyle(lexiconPalette(scheme).mutedForeground.opacity(0.6))
         }

@@ -55,7 +55,7 @@ struct LexiconHeader: View {
                     vm.setActiveTab(.home)
                 } label: {
                     VStack(alignment: .leading, spacing: 1) {
-                        Text("Lexora")
+                        Text("Lexicon")
                             .font(.lexiconDisplay(21, weight: .regular))
                             .tracking(-0.2)
                             .foregroundStyle(wordmarkColor)

@@ -208,8 +208,8 @@ fun MoreScreen(viewModel: LexiconViewModel) {
             SettingsGroup(title = "About") {
                 SettingsRow(
                     icon = Icons.Outlined.Info,
-                    iconLabel = "About Lexora",
-                    label = "About Lexora",
+                    iconLabel = "About Lexicon",
+                    label = "About Lexicon",
                     value = "v1.0.0",
                     onClick = {},
                 )
@@ -288,7 +288,7 @@ private fun ProfileHeader(
             )
             Spacer(Modifier.height(2.dp))
             Text(
-                text = "Lexora Companion · since 2026",
+                text = "Lexicon Companion · since 2026",
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 12.sp,
             )
@@ -477,7 +477,7 @@ private fun MoreFooter() {
 
         // Tagline
         Text(
-            text = "Lexora · Words. Wisdom. Worlds.",
+            text = "Lexicon · Words. Wisdom. Worlds.",
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
             fontSize = 10.sp,
         )

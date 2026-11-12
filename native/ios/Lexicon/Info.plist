@@ -7,7 +7,7 @@
 
     <!-- Display name shown under the app icon on the home screen. -->
     <key>CFBundleDisplayName</key>
-    <string>Lexora</string>
+    <string>Lexicon</string>
 
     <key>CFBundleExecutable</key>
     <string>$(EXECUTABLE_NAME)</string>

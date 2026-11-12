@@ -20,10 +20,14 @@
                 3A000000000000000000000A /* WordOfTheDayCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A000000000000000000000A /* WordOfTheDayCard.swift */; };
                 3A000000000000000000000B /* SearchModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A000000000000000000000B /* SearchModal.swift */; };
                 3A000000000000000000000C /* AccessibleButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A000000000000000000000C /* AccessibleButton.swift */; };
+                3A000000000000000000000D /* CountrysideComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A000000000000000000000D /* CountrysideComponents.swift */; };
                 3A0000000000000000000010 /* HomeScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000010 /* HomeScreen.swift */; };
                 3A0000000000000000000011 /* DictionaryScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000011 /* DictionaryScreen.swift */; };
                 3A0000000000000000000012 /* CollectionsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000012 /* CollectionsScreen.swift */; };
                 3A0000000000000000000013 /* MoreScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000013 /* MoreScreen.swift */; };
+                3A0000000000000000000014 /* DictionaryHomeScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000014 /* DictionaryHomeScreen.swift */; };
+                3A0000000000000000000015 /* WordEntryScreens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000015 /* WordEntryScreens.swift */; };
+                3A0000000000000000000016 /* CountrysideScreens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000016 /* CountrysideScreens.swift */; };
                 3A0000000000000000000020 /* LexiconData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000020 /* LexiconData.swift */; };
                 3A0000000000000000000021 /* LexiconViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000021 /* LexiconViewModel.swift */; };
                 3A0000000000000000000030 /* LexiconModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0000000000000000000030 /* LexiconModels.swift */; };
@@ -94,11 +98,15 @@
                 2A000000000000000000000A /* WordOfTheDayCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordOfTheDayCard.swift; sourceTree = "<group>"; };
                 2A000000000000000000000B /* SearchModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchModal.swift; sourceTree = "<group>"; };
                 2A000000000000000000000C /* AccessibleButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibleButton.swift; sourceTree = "<group>"; };
+                2A000000000000000000000D /* CountrysideComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountrysideComponents.swift; sourceTree = "<group>"; };
 /* Swift sources — Screens */
                 2A0000000000000000000010 /* HomeScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreen.swift; sourceTree = "<group>"; };
                 2A0000000000000000000011 /* DictionaryScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryScreen.swift; sourceTree = "<group>"; };
                 2A0000000000000000000012 /* CollectionsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionsScreen.swift; sourceTree = "<group>"; };
                 2A0000000000000000000013 /* MoreScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoreScreen.swift; sourceTree = "<group>"; };
+                2A0000000000000000000014 /* DictionaryHomeScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryHomeScreen.swift; sourceTree = "<group>"; };
+                2A0000000000000000000015 /* WordEntryScreens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordEntryScreens.swift; sourceTree = "<group>"; };
+                2A0000000000000000000016 /* CountrysideScreens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountrysideScreens.swift; sourceTree = "<group>"; };
 /* Swift sources — Data */
                 2A0000000000000000000020 /* LexiconData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexiconData.swift; sourceTree = "<group>"; };
                 2A0000000000000000000021 /* LexiconViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexiconViewModel.swift; sourceTree = "<group>"; };
@@ -215,6 +223,7 @@
                                 2A0000000000000000000009 /* WordDetailSheet.swift */,
                                 2A000000000000000000000B /* SearchModal.swift */,
                                 2A000000000000000000000C /* AccessibleButton.swift */,
+                                2A000000000000000000000D /* CountrysideComponents.swift */,
                         );
                         path = Components;
                         sourceTree = "<group>";
@@ -226,6 +235,9 @@
                                 2A0000000000000000000011 /* DictionaryScreen.swift */,
                                 2A0000000000000000000012 /* CollectionsScreen.swift */,
                                 2A0000000000000000000013 /* MoreScreen.swift */,
+                                2A0000000000000000000014 /* DictionaryHomeScreen.swift */,
+                                2A0000000000000000000015 /* WordEntryScreens.swift */,
+                                2A0000000000000000000016 /* CountrysideScreens.swift */,
                         );
                         path = Screens;
                         sourceTree = "<group>";
@@ -399,10 +411,14 @@
                                 3A0000000000000000000009 /* WordDetailSheet.swift in Sources */,
                                 3A000000000000000000000B /* SearchModal.swift in Sources */,
                                 3A000000000000000000000C /* AccessibleButton.swift in Sources */,
+                                3A000000000000000000000D /* CountrysideComponents.swift in Sources */,
                                 3A0000000000000000000010 /* HomeScreen.swift in Sources */,
                                 3A0000000000000000000011 /* DictionaryScreen.swift in Sources */,
                                 3A0000000000000000000012 /* CollectionsScreen.swift in Sources */,
                                 3A0000000000000000000013 /* MoreScreen.swift in Sources */,
+                                3A0000000000000000000014 /* DictionaryHomeScreen.swift in Sources */,
+                                3A0000000000000000000015 /* WordEntryScreens.swift in Sources */,
+                                3A0000000000000000000016 /* CountrysideScreens.swift in Sources */,
                                 3A0000000000000000000020 /* LexiconData.swift in Sources */,
                                 3A0000000000000000000021 /* LexiconViewModel.swift in Sources */,
                                 3A0000000000000000000030 /* LexiconModels.swift in Sources */,
@@ -553,7 +569,7 @@
                                         "$(SRCROOT)/../cpp/include",
                                 );
                                 INFOPLIST_FILE = Lexicon/Info.plist;
-                                INFOPLIST_KEY_CFBundleDisplayName = Lexora;
+                                INFOPLIST_KEY_CFBundleDisplayName = Lexicon;
                                 INFOPLIST_KEY_UILaunchScreen_Generation = YES;
                                 INFOPLIST_KEY_UIRequiresFullScreen = NO;
                                 INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -592,7 +608,7 @@
                                         "$(SRCROOT)/../cpp/include",
                                 );
                                 INFOPLIST_FILE = Lexicon/Info.plist;
-                                INFOPLIST_KEY_CFBundleDisplayName = Lexora;
+                                INFOPLIST_KEY_CFBundleDisplayName = Lexicon;
                                 INFOPLIST_KEY_UILaunchScreen_Generation = YES;
                                 INFOPLIST_KEY_UIRequiresFullScreen = NO;
                                 INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";

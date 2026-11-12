@@ -113,7 +113,7 @@ fun LexiconHeader(
                 .clickable(role = Role.Button) { viewModel.setActiveTab(TabKey.HOME) },
         ) {
             Text(
-                text = "Lexora",
+                text = "Lexicon",
                 color = wordmarkColor,
                 style = LexiconTextStyles.BrandWordmark,
                 maxLines = 1,
