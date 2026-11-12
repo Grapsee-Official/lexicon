@@ -286,22 +286,20 @@ fun DictionaryHomeScreen(viewModel: LexiconViewModel) {
                         onAction = { viewModel.navigate(ScreenRoute.EXPANDED_EXPLORATION) },
                         modifier = Modifier.padding(horizontal = 16.dp),
                     )
-                    val rowScroll = rememberScrollState()
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .horizontalScroll(rowScroll)
                             .padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(7.dp),
+                        horizontalArrangement = Arrangement.spacedBy(5.dp),
                     ) {
                         LexiconData.exploreTopics.forEach { topic ->
                             val iconRes = resolveCountrysideDrawable(topic.illustration, isDark)
                             Column(
                                 modifier = Modifier
-                                    .width(74.dp)
-                                    .clip(RoundedCornerShape(12.dp))
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(11.dp))
                                     .background(cardBg)
-                                    .border(1.dp, border, RoundedCornerShape(12.dp))
+                                    .border(1.dp, border, RoundedCornerShape(11.dp))
                                     .clickable(role = Role.Button) {
                                         when (topic.id) {
                                             "languages" -> viewModel.openWordExpanded(LexiconData.serendipityEntry)
@@ -313,26 +311,27 @@ fun DictionaryHomeScreen(viewModel: LexiconViewModel) {
                                             else -> viewModel.navigate(ScreenRoute.EXPANDED_EXPLORATION)
                                         }
                                     }
-                                    .padding(horizontal = 5.dp, vertical = 7.dp),
+                                    .padding(horizontal = 3.dp, vertical = 6.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(3.dp),
+                                verticalArrangement = Arrangement.spacedBy(2.dp),
                             ) {
                                 Image(
                                     painter = painterResource(iconRes),
                                     contentDescription = null,
                                     contentScale = ContentScale.Fit,
-                                    modifier = Modifier.size(40.dp),
+                                    modifier = Modifier.size(32.dp),
                                 )
                                 Text(
                                     text = topic.title,
                                     color = fg,
-                                    style = TextStyle(fontFamily = DisplayFontFamily, fontWeight = FontWeight.Medium, fontSize = 10.sp),
+                                    style = TextStyle(fontFamily = DisplayFontFamily, fontWeight = FontWeight.Medium, fontSize = 8.8.sp),
                                     maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
                                 )
                                 Text(
                                     text = topic.subtitle,
                                     color = muted,
-                                    style = TextStyle(fontFamily = BodyFontFamily, fontSize = 7.sp, lineHeight = 9.sp),
+                                    style = TextStyle(fontFamily = BodyFontFamily, fontSize = 6.2.sp, lineHeight = 8.sp),
                                     textAlign = TextAlign.Center,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,

@@ -24,9 +24,9 @@ capture_android() {
     adb shell cmd uimode night no || true
   fi
 
-  adb shell am start -W -n com.lexicon.debug/com.lexicon.MainActivity \
+  adb shell am start -W -S -n com.lexicon.debug/com.lexicon.MainActivity \
     --es lexora_theme "${theme}" --es lexicon_screen "${screen}" >/dev/null
-  sleep 2.2
+  sleep 2.8
   adb shell pidof com.lexicon.debug >/dev/null || {
     echo "ERROR: com.lexicon.debug crashed on screen=${screen}! Dumping AndroidRuntime logcat:"
     adb logcat -d -s AndroidRuntime:E Lexicon:D DEBUG:* | tail -n 120 || true

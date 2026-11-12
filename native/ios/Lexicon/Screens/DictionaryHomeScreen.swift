@@ -55,52 +55,51 @@ struct DictionaryHomeScreen: View {
                             actionLabel: "View all",
                             onAction: { vm.navigate(to: .expandedExploration) }
                         )
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 7) {
-                                ForEach(LexiconData.exploreTopics) { topic in
-                                    Button {
-                                        switch topic.id {
-                                        case "languages":
-                                            vm.openWordExpanded(LexiconData.serendipityEntry)
-                                        case "phrases", "idioms":
-                                            vm.searchScopeTab = "Idioms"
-                                            vm.navigate(to: .searchDiscovery)
-                                        case "examples":
-                                            vm.navigate(to: .wordOfTheDay)
-                                        default:
-                                            vm.navigate(to: .expandedExploration)
-                                        }
-                                    } label: {
-                                        VStack(spacing: 3) {
-                                            Image(countrysideImageName(topic.illustration, isDark: isDark))
-                                                .resizable()
-                                                .scaledToFit()
-                                                .frame(width: 38, height: 38)
-                                            Text(topic.title)
-                                                .font(.lexiconDisplay(10, weight: .medium))
-                                                .foregroundStyle(p.foreground)
-                                                .lineLimit(1)
-                                            Text(topic.subtitle)
-                                                .font(.lexiconBody(7))
-                                                .foregroundStyle(p.mutedForeground)
-                                                .lineLimit(1)
-                                                .minimumScaleFactor(0.8)
-                                        }
-                                        .padding(.horizontal, 5)
-                                        .padding(.vertical, 7)
-                                        .frame(width: 72)
-                                        .background(p.card)
-                                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                                .stroke(p.border, lineWidth: 1)
-                                        )
+                        HStack(spacing: 5) {
+                            ForEach(LexiconData.exploreTopics) { topic in
+                                Button {
+                                    switch topic.id {
+                                    case "languages":
+                                        vm.openWordExpanded(LexiconData.serendipityEntry)
+                                    case "phrases", "idioms":
+                                        vm.searchScopeTab = "Idioms"
+                                        vm.navigate(to: .searchDiscovery)
+                                    case "examples":
+                                        vm.navigate(to: .wordOfTheDay)
+                                    default:
+                                        vm.navigate(to: .expandedExploration)
                                     }
-                                    .buttonStyle(.plain)
+                                } label: {
+                                    VStack(spacing: 2) {
+                                        Image(countrysideImageName(topic.illustration, isDark: isDark))
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 31, height: 31)
+                                        Text(topic.title)
+                                            .font(.lexiconDisplay(8.8, weight: .medium))
+                                            .foregroundStyle(p.foreground)
+                                            .lineLimit(1)
+                                            .minimumScaleFactor(0.75)
+                                        Text(topic.subtitle)
+                                            .font(.lexiconBody(6.2))
+                                            .foregroundStyle(p.mutedForeground)
+                                            .lineLimit(1)
+                                            .minimumScaleFactor(0.75)
+                                    }
+                                    .padding(.horizontal, 3)
+                                    .padding(.vertical, 6)
+                                    .frame(maxWidth: .infinity)
+                                    .background(p.card)
+                                    .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 11, style: .continuous)
+                                            .stroke(p.border, lineWidth: 1)
+                                    )
                                 }
+                                .buttonStyle(.plain)
                             }
-                            .padding(.horizontal, 16)
                         }
+                        .padding(.horizontal, 16)
                     }
 
                     // World of Words — Rudyard Kipling teacup card
