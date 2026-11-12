@@ -93,12 +93,45 @@ struct ContentView: View {
             handleWordNotFound(note)
         }
         .task {
+            if let allDir = vm.snapshotAllDir {
+                await captureAllScreensSequence(toDir: allDir)
+                return
+            }
             guard let outPath = vm.snapshotOutPath else { return }
             try? await Task.sleep(nanoseconds: 1_500_000_000)
             await MainActor.run {
                 captureSelfWindow(to: outPath)
             }
         }
+    }
+
+    @MainActor
+    private func captureAllScreensSequence(toDir dir: String) async {
+        try? FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
+        let sequence: [(String, String, String)] = [
+            ("light", "1",  "ios-01-dictionary-home-light.png"),
+            ("light", "2",  "ios-02-word-of-the-day-light.png"),
+            ("light", "3",  "ios-03-word-detail-light.png"),
+            ("light", "4",  "ios-04-collections-light.png"),
+            ("light", "5",  "ios-05-my-notes-light.png"),
+            ("light", "6",  "ios-06-study-lists-light.png"),
+            ("light", "7",  "ios-07-quick-templates-light.png"),
+            ("light", "8",  "ios-08-search-discovery-light.png"),
+            ("light", "9",  "ios-09-search-results-light.png"),
+            ("light", "10", "ios-10-expanded-exploration-light.png"),
+            ("dark",  "1",  "ios-01-dictionary-home-dark.png"),
+            ("dark",  "3",  "ios-03-word-detail-dark.png"),
+        ]
+        try? await Task.sleep(nanoseconds: 1_200_000_000)
+        for (mode, scr, fileName) in sequence {
+            theme.theme = mode
+            vm.applyScreenName(scr)
+            try? await Task.sleep(nanoseconds: 550_000_000)
+            let outPath = (dir as NSString).appendingPathComponent(fileName)
+            captureSelfWindow(to: outPath)
+        }
+        let donePath = (dir as NSString).appendingPathComponent("_DONE")
+        try? "ok".write(toFile: donePath, atomically: true, encoding: .utf8)
     }
 
     @MainActor

@@ -7,26 +7,38 @@ echo "Installing APK: ${APK_PATH}"
 test -f "${APK_PATH}"
 adb install -r "${APK_PATH}"
 
+# Suppress background system ANR / crash dialogs from Pixel Launcher during boot
+adb shell settings put global hide_error_dialogs 1 || true
+adb shell settings put secure anr_show_background 0 || true
+adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS || true
+sleep 3
+
 adb shell settings put global sysui_demo_allowed 1 || true
 adb shell am broadcast -a com.android.systemui.demo -e command clock -e hhmm 0941 || true
 adb shell am broadcast -a com.android.systemui.demo -e command battery -e level 100 -e plugged false || true
 adb shell am broadcast -a com.android.systemui.demo -e command network -e wifi show -e level 4 -e mobile show -e datatype none -e level 4 || true
 adb shell am broadcast -a com.android.systemui.demo -e command notifications -e visible false || true
 
+# Cold-start Lexicon ONCE; singleTop MainActivity receives subsequent intents via onNewIntent in ~0.3s!
+adb shell cmd uimode night no || true
+adb shell am start -W -S -n com.lexicon.debug/com.lexicon.MainActivity \
+  --es lexora_theme light --es lexicon_screen 1 >/dev/null
+sleep 4
+
+# Dismiss any residual boot ANR dialog if one appeared
+if adb shell dumpsys window | grep -q "Application Not Responding"; then
+  adb shell input keyevent 4 || true
+  sleep 1
+fi
+
 capture_android() {
   local theme="$1"
   local screen="$2"
   local out_name="$3"
 
-  if [ "${theme}" = "dark" ]; then
-    adb shell cmd uimode night yes || true
-  else
-    adb shell cmd uimode night no || true
-  fi
-
-  adb shell am start -W -S -n com.lexicon.debug/com.lexicon.MainActivity \
+  adb shell am start -W -n com.lexicon.debug/com.lexicon.MainActivity \
     --es lexora_theme "${theme}" --es lexicon_screen "${screen}" >/dev/null
-  sleep 2.8
+  sleep 1.4
   adb shell pidof com.lexicon.debug >/dev/null || {
     echo "ERROR: com.lexicon.debug crashed on screen=${screen}! Dumping AndroidRuntime logcat:"
     adb logcat -d -s AndroidRuntime:E Lexicon:D DEBUG:* | tail -n 120 || true
@@ -36,13 +48,6 @@ capture_android() {
   echo "Captured ${out_name}"
 }
 
-# Cold-start first launch cleanly
-adb shell cmd uimode night no || true
-adb shell am start -W -S -n com.lexicon.debug/com.lexicon.MainActivity \
-  --es lexora_theme light --es lexicon_screen 1 >/dev/null
-sleep 4
-
-# Capture all 10 Countryside Light Mode screens + Nocturnal Dark Mode verification!
 capture_android light 1  "android-01-dictionary-home-light.png"
 capture_android light 2  "android-02-word-of-the-day-light.png"
 capture_android light 3  "android-03-word-detail-light.png"
