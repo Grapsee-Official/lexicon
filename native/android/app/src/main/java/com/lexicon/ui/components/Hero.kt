@@ -1,8 +1,11 @@
 package com.lexicon.ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,6 +34,8 @@ import com.lexicon.data.LexiconViewModel
 import com.lexicon.ui.sectionHeading
 import com.lexicon.ui.theme.BrandGreen
 import com.lexicon.ui.theme.DarkAccent
+import com.lexicon.ui.theme.DarkBackground
+import com.lexicon.ui.theme.WarmCream
 import com.lexicon.ui.theme.DarkForeground
 import com.lexicon.ui.theme.DarkMutedForeground
 import com.lexicon.ui.theme.DarkSage
@@ -85,6 +90,22 @@ fun Hero(
             NocturneAtmosphere(Modifier.fillMaxSize())
         }
 
+        // A soft parchment/night-paper wash preserves readable typography while
+        // the original full-detail painting remains visible on the right.
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .fillMaxWidth(0.70f)
+                .height(heroHeight)
+                .background(
+                    Brush.horizontalGradient(
+                        0.00f to (if (isDark) DarkBackground else WarmCream).copy(alpha = 0.99f),
+                        0.55f to (if (isDark) DarkBackground else WarmCream).copy(alpha = 0.94f),
+                        1.00f to Color.Transparent,
+                    ),
+                ),
+        )
+
         Column(
             modifier = Modifier
                 .align(Alignment.TopStart)
@@ -127,7 +148,8 @@ fun Hero(
                 text = "A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.",
                 color = subtextColor,
                 style = LexiconTextStyles.HeroParagraph,
-                maxLines = if (largeText) 7 else 6,
+                modifier = Modifier.fillMaxWidth(0.82f),
+                maxLines = if (largeText) 8 else 7,
             )
         }
 
