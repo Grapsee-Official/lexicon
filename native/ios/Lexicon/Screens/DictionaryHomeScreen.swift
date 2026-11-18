@@ -144,7 +144,11 @@ struct DictionaryHomeScreen: View {
 
     private func quickAccess(_ title: String, icon: String, route: ScreenRoute,
                              p: LexiconPalette) -> some View {
-        Button { vm.navigate(to: route) } label: {
+        Button {
+            if title == "Favourite Words" { vm.openCollectionFilter("Favorites") }
+            else if title == "Bookmarks" { vm.openCollectionFilter("Bookmarks") }
+            else { vm.navigate(to: route) }
+        } label: {
             VStack(spacing: 6) {
                 Image(systemName: icon).font(.system(size: 21))
                     .foregroundStyle(isDark ? LexiconColors.accentDark : LexiconColors.primary)

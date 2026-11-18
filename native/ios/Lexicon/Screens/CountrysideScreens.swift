@@ -160,6 +160,7 @@ struct CollectionsHubScreen: View {
             .padding(.bottom, 88)
         }
         .background(p.background)
+        .onAppear { filter = vm.collectionFilter }
     }
 
     private func collectionQuadCard(title: String, count: String, icon: String, art: String, p: LexiconPalette, action: @escaping () -> Void) -> some View {

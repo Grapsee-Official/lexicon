@@ -25,6 +25,7 @@ data class LexiconUiState(
     val searchOpen: Boolean = false,
     val menuOpen: Boolean = false,
     val searchQuery: String = "serendipity",
+    val collectionFilter: String = "All",
     val searchScopeTab: String = "All",
     val filterLanguage: String = "All Languages",
     val filterPos: String = "All Types",
@@ -157,6 +158,11 @@ class LexiconViewModel : ViewModel() {
                 searchOpen = false,
             )
         }
+    }
+
+    fun openCollectionFilter(filter: String) {
+        _uiState.update { it.copy(collectionFilter = if (filter in setOf("All", "Favorites", "Bookmarks")) filter else "All") }
+        navigate(ScreenRoute.COLLECTIONS)
     }
 
     fun openWord(word: WordEntry) {

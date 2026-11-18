@@ -120,7 +120,7 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
     val accent = if (isDark) DarkAccent else OldWoodGold
 
     var query by remember { mutableStateOf("") }
-    var filter by remember { mutableStateOf("All") }
+    var filter by remember(state.collectionFilter) { mutableStateOf(state.collectionFilter) }
     var showAllRecent by remember { mutableStateOf(false) }
 
     val filterItems = listOf(

@@ -21,6 +21,7 @@ final class LexiconViewModel: ObservableObject {
     @Published var menuOpen: Bool = false
 
     @Published var searchQuery: String = "serendipity"
+    @Published var collectionFilter: String = "All"
     @Published var searchScopeTab: String = "All"
     @Published var filterLanguage: String = "All Languages"
     @Published var filterPos: String = "All Types"
@@ -184,6 +185,11 @@ final class LexiconViewModel: ObservableObject {
         case .collections: route = .collections
         case .more: route = .more
         }
+    }
+
+    func openCollectionFilter(_ filter: String) {
+        collectionFilter = ["All", "Favorites", "Bookmarks"].contains(filter) ? filter : "All"
+        navigate(to: .collections)
     }
 
     func openWord(_ word: WordEntry) {

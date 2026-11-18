@@ -179,7 +179,13 @@ fun DictionaryHomeScreen(viewModel: LexiconViewModel) {
                             Modifier.width(96.dp).height(88.dp)
                                 .clip(RoundedCornerShape(14.dp)).background(bg.copy(alpha = 0.55f))
                                 .border(1.dp, border, RoundedCornerShape(14.dp))
-                                .clickable(role = Role.Button) { viewModel.navigate(route) }
+                                .clickable(role = Role.Button) {
+                                    when (title) {
+                                        "Favourite Words" -> viewModel.openCollectionFilter("Favorites")
+                                        "Bookmarks" -> viewModel.openCollectionFilter("Bookmarks")
+                                        else -> viewModel.navigate(route)
+                                    }
+                                }
                                 .padding(8.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
