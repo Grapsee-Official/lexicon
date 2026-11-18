@@ -9,7 +9,7 @@ adb shell wm density 420
 adb shell settings put system accelerometer_rotation 0
 
 for theme in light dark; do
-  for screen in home dictionary_home word_of_the_day word_detail collections my_notes study_lists quick_templates search_discovery search_results expanded_exploration; do
+  for screen in home dictionary_home word_of_the_day word_detail collections my_notes study_lists quick_templates search_discovery search_results expanded_exploration more translations; do
     adb shell am force-stop com.lexicon.debug || true
     adb shell am start -W -n com.lexicon.debug/com.lexicon.MainActivity --es lexora_theme "$theme" --es lexicon_screen "$screen"
     sleep 4
@@ -25,5 +25,5 @@ for theme in light dark; do
   done
 done
 count=$(find qa-captures/android -type f -name '*.png' | wc -l)
-test "$count" -eq 22
+test "$count" -eq 26
 echo "Captured $count native Android screens without publication."
