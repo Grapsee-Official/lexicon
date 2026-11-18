@@ -13,7 +13,7 @@ struct HomeScreen: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 8) {
+            VStack(spacing: 11) {
                 Hero()
 
                 TrendingTagRow(tags: LexiconData.trendingTags)
@@ -23,7 +23,7 @@ struct HomeScreen: View {
                     .padding(.horizontal, 16)
 
                 // All 4 Category cards in an equal-width 4-column HStack — zero clipping on "Science"!
-                VStack(spacing: 6) {
+                VStack(spacing: 10) {
                     SectionHeader(
                         title: "Explore by Category",
                         actionLabel: "View all",
@@ -31,10 +31,10 @@ struct HomeScreen: View {
                         onAction: { vm.setActiveTab(.dictionary) }
                     )
                     ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
+                        HStack(spacing: 10) {
                             ForEach(LexiconData.categories) { c in
                                 CategoryCard(category: c)
-                                    .frame(width: 94)
+                                    .frame(width: 86)
                             }
                         }
                         .padding(.horizontal, 16)
@@ -42,7 +42,7 @@ struct HomeScreen: View {
                 }
 
                 // From the Library (with horizontal hairline divider)
-                VStack(spacing: 6) {
+                VStack(spacing: 10) {
                     SectionHeader(
                         title: "From the Library",
                         actionLabel: "View all articles",
@@ -50,7 +50,7 @@ struct HomeScreen: View {
                         onAction: { articleToRead = nil; libraryOpen = true }
                     )
                     ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 9) {
+                        HStack(spacing: 10) {
                             ForEach(LexiconData.articles) { a in
                                 ArticleCard(
                                     article: a,
