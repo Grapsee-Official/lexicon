@@ -91,7 +91,7 @@ private fun HomeFeed(viewModel: LexiconViewModel) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = 86.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(11.dp),
     ) {
         item(key = "hero") {
             Hero(viewModel = viewModel)
@@ -114,7 +114,7 @@ private fun HomeFeed(viewModel: LexiconViewModel) {
 
         // All 4 Category cards in an equal-width 4-column Row — ZERO clipping on "Science"!
         item(key = "categories") {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 SectionHeader(
                     title = "Explore by Category",
                     actionLabel = "View all",
@@ -127,13 +127,13 @@ private fun HomeFeed(viewModel: LexiconViewModel) {
                         .fillMaxWidth()
                         .horizontalScroll(rememberScrollState())
                         .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
                     LexiconData.categories.forEach { category ->
                         CategoryCard(
                             category = category,
                             viewModel = viewModel,
-                            modifier = Modifier.width(94.dp),
+                            modifier = Modifier.width(if (androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp >= 420) 88.dp else 84.dp),
                         )
                     }
                 }
@@ -141,7 +141,7 @@ private fun HomeFeed(viewModel: LexiconViewModel) {
         }
 
         item(key = "library") {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 SectionHeader(
                     title = "From the Library",
                     actionLabel = "View all articles",
@@ -155,7 +155,7 @@ private fun HomeFeed(viewModel: LexiconViewModel) {
                         .fillMaxWidth()
                         .horizontalScroll(scrollState)
                         .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(9.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
                     LexiconData.articles.forEach { article ->
                         ArticleCard(
