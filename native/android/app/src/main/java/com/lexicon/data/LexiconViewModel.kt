@@ -198,13 +198,6 @@ class LexiconViewModel : ViewModel() {
         }
     }
 
-    override fun onCleared() {
-        nativeSpeech?.stop()
-        nativeSpeech?.shutdown()
-        nativeSpeech = null
-        super.onCleared()
-    }
-
     fun openWord(word: WordEntry) {
         navigate(ScreenRoute.WORD_DETAIL, word = word, expand36 = false)
     }
@@ -532,6 +525,9 @@ class LexiconViewModel : ViewModel() {
     }
 
     override fun onCleared() {
+        nativeSpeech?.stop()
+        nativeSpeech?.shutdown()
+        nativeSpeech = null
         runCatching { engine.close() }
         super.onCleared()
     }
