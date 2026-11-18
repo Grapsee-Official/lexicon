@@ -212,6 +212,7 @@ final class LexiconViewModel: ObservableObject {
         addRecentSearch(trimmed)
         searchQuery = trimmed
         let top = searchWords(trimmed, limit: 1).first
+        selectedWord = top
         navigate(to: .searchResults, word: top)
     }
 
@@ -312,6 +313,46 @@ final class LexiconViewModel: ObservableObject {
     }
 
     /// Mark one reviewed word, only after its definition is revealed.
+    /// A blank word field draws from saved words; unknown words are not counted.
+    @discardableResult
+    func createStudyList(title: String, words: String) -> Bool {
+        let name = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty else { return false }
+        let terms: [String] = words.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            ? savedWordIds
+            : words.components(separatedBy: CharacterSet(charactersIn: ",;\n"))
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        var ids: [String] = []
+        for term in terms {
+            if let word = LexiconData.dictionary.first(where: {
+                $0.id.caseInsensitiveCompare(term) == .orderedSame ||
+                $0.word.caseInsensitiveCompare(term) == .orderedSame
+            }), !ids.contains(word.id) {
+                ids.append(word.id)
+            }
+        }
+        guard !ids.isEmpty else { return false }
+        studyLists.append(StudyListItem(
+            id: "sl_custom_\(UUID().uuidString)", title: name,
+            totalWords: ids.count, completedWords: 0,
+            thumbnail: "ill-thumb-books", wordIds: ids
+        ))
+        persistLibrary()
+        return true
+    }
+
+    func resetStudyList(_ id: String) {
+        guard let index = studyLists.firstIndex(where: { $0.id == id }) else { return }
+        studyLists[index].completedWords = 0
+        persistLibrary()
+    }
+
+    func deleteStudyList(_ id: String) {
+        guard id.hasPrefix("sl_custom_") else { return }
+        studyLists.removeAll { $0.id == id }
+        persistLibrary()
+    }
+
     func advanceStudyList(_ listId: String) {
         guard let i = studyLists.firstIndex(where: { $0.id == listId }),
               studyLists[i].completedWords < studyLists[i].wordIds.count else { return }

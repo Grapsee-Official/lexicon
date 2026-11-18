@@ -73,7 +73,7 @@ class LexiconViewModel : ViewModel() {
                     recentlyViewedIds = store.loadViewedIds() ?: s.recentlyViewedIds,
                     favoriteWordIds = store.loadFavoriteIds() ?: s.favoriteWordIds,
                     notes = store.loadNotes() ?: s.notes,
-                    studyLists = if (progress == null) s.studyLists else s.studyLists.map { list ->
+                    studyLists = store.loadStudyLists() ?: if (progress == null) s.studyLists else s.studyLists.map { list ->
                         list.copy(completedWords = (progress[list.id] ?: list.completedWords).let { old ->
                             if (old > list.wordIds.size) 0 else old.coerceIn(0, list.wordIds.size)
                         })
@@ -192,6 +192,7 @@ class LexiconViewModel : ViewModel() {
             current.copy(
                 searchQuery = trimmed,
                 detailWord = topMatch ?: current.detailWord,
+                selectedWord = topMatch,
                 route = ScreenRoute.SEARCH_RESULTS,
                 routeHistory = (current.routeHistory + current.route).takeLast(12),
                 activeTab = TabKey.DICTIONARY,
@@ -302,6 +303,43 @@ class LexiconViewModel : ViewModel() {
         prefs?.saveNotes(_uiState.value.notes)
     }
 
+    /** Only actual offline dictionary entries can form a practice list. */
+    fun createStudyList(title: String, words: String): Boolean {
+        val name = title.trim()
+        if (name.isBlank()) return false
+        val tokens = if (words.isBlank()) _uiState.value.savedWordIds
+            else words.split(',', ';', '\n').map { it.trim() }
+        val ids = tokens.mapNotNull { token ->
+            LexiconData.dictionary.firstOrNull {
+                it.id.equals(token, ignoreCase = true) || it.word.equals(token, ignoreCase = true)
+            }?.id
+        }.distinct()
+        if (ids.isEmpty()) return false
+        val list = StudyListItem(
+            id = "sl_custom_" + java.util.UUID.randomUUID().toString(),
+            title = name, totalWords = ids.size, completedWords = 0,
+            thumbnail = "ill_thumb_books", wordIds = ids,
+        )
+        _uiState.update { it.copy(studyLists = it.studyLists + list) }
+        prefs?.saveStudyLists(_uiState.value.studyLists)
+        return true
+    }
+
+    fun resetStudyList(id: String) {
+        _uiState.update { s ->
+            s.copy(studyLists = s.studyLists.map {
+                if (it.id == id) it.copy(completedWords = 0) else it
+            })
+        }
+        prefs?.saveStudyLists(_uiState.value.studyLists)
+    }
+
+    fun deleteStudyList(id: String) {
+        if (!id.startsWith("sl_custom_")) return
+        _uiState.update { s -> s.copy(studyLists = s.studyLists.filterNot { it.id == id }) }
+        prefs?.saveStudyLists(_uiState.value.studyLists)
+    }
+
     /** Only records a successfully revealed vocabulary card, never a navigation tap. */
     fun advanceStudyList(listId: String) {
         val current = _uiState.value.studyLists.firstOrNull { it.id == listId } ?: return
@@ -317,6 +355,7 @@ class LexiconViewModel : ViewModel() {
             )
         }
         prefs?.saveStudyProgress(_uiState.value.studyLists)
+        prefs?.saveStudyLists(_uiState.value.studyLists)
         prefs?.saveTodayStudied(_uiState.value.todayStudiedWords)
     }
 

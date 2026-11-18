@@ -100,6 +100,39 @@ class LexiconPrefs(context: Context) {
         sp.edit().putString(KEY_NOTES, array.toString()).apply()
     }
 
+    fun loadStudyLists(): List<StudyListItem>? {
+        if (!sp.contains(KEY_STUDY_LISTS)) return null
+        return runCatching {
+            val arr = JSONArray(sp.getString(KEY_STUDY_LISTS, "[]") ?: "[]")
+            (0 until arr.length()).map { i ->
+                val item = arr.getJSONObject(i)
+                val arrIds = item.optJSONArray("wordIds") ?: JSONArray()
+                val ids = (0 until arrIds.length()).map { arrIds.getString(it) }
+                StudyListItem(
+                    id = item.getString("id"), title = item.getString("title"),
+                    totalWords = ids.size,
+                    completedWords = item.optInt("completedWords").coerceIn(0, ids.size),
+                    thumbnail = item.optString("thumbnail", "ill_thumb_books"),
+                    wordIds = ids,
+                )
+            }
+        }.getOrNull()
+    }
+
+    fun saveStudyLists(lists: List<StudyListItem>) {
+        val items = JSONArray()
+        lists.forEach { list ->
+            items.put(JSONObject().apply {
+                put("id", list.id)
+                put("title", list.title)
+                put("completedWords", list.completedWords)
+                put("thumbnail", list.thumbnail)
+                put("wordIds", JSONArray(list.wordIds))
+            })
+        }
+        sp.edit().putString(KEY_STUDY_LISTS, items.toString()).apply()
+    }
+
     fun loadStudyProgress(): Map<String, Int>? {
         if (!sp.contains(KEY_STUDY)) return null
         return runCatching {
@@ -193,6 +226,7 @@ class LexiconPrefs(context: Context) {
         private const val KEY_VIEWED = "recently_viewed_word_ids"
         private const val KEY_NOTES = "notes_json"
         private const val KEY_STUDY = "study_progress_json"
+        private const val KEY_STUDY_LISTS = "study_lists_json"
         private const val KEY_TEMPLATES = "templates_json"
         private const val KEY_DAY = "study_day"
         private const val KEY_TODAY_STUDIED = "today_studied"
