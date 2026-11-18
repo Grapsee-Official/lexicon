@@ -51,7 +51,7 @@ struct Hero: View {
 
                 if isDark {
                     NocturneAtmosphere()
-                        .frame(width: totalWidth, height: 238)
+                        .frame(width: totalWidth, height: heroHeight)
                 }
 
                 VStack(alignment: .leading, spacing: 6) {
@@ -76,7 +76,7 @@ struct Hero: View {
                     .padding(.leading, 16)
                     .padding(.bottom, 2)
                 }
-                .frame(width: totalWidth, height: 238)
+                .frame(width: totalWidth, height: heroHeight)
             }
         }
         .frame(height: dynamicTypeSize.isAccessibilitySize ? 310 : (UIScreen.main.bounds.width < 360 ? 270 : 258))
