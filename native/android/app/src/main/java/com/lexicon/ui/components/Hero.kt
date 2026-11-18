@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lexicon.R
 import com.lexicon.data.LexiconViewModel
@@ -52,8 +53,15 @@ fun Hero(
     val heroArt = if (isDark) R.drawable.hero_dark else R.drawable.hero_light
     val configuration = LocalConfiguration.current
     val compact = configuration.screenWidthDp < 360
+    val expanded = configuration.screenWidthDp >= 600
     val largeText = configuration.fontScale > 1.2f
-    val heroHeight = if (largeText) 310.dp else if (compact) 270.dp else 258.dp
+    val heroHeight = when {
+        expanded && largeText -> 410.dp
+        expanded -> 350.dp
+        largeText -> 310.dp
+        compact -> 270.dp
+        else -> 258.dp
+    }
     val textWidth = if (compact || largeText) 0.60f else 0.53f
 
     Box(
@@ -88,18 +96,24 @@ fun Hero(
                 Text(
                     text = "Discover the",
                     color = headlineMain,
-                    style = LexiconTextStyles.HeroHeadline,
+                    style = if (expanded) LexiconTextStyles.HeroHeadline.copy(
+                        fontSize = 36.sp, lineHeight = 42.sp,
+                    ) else LexiconTextStyles.HeroHeadline,
                 )
                 Text(
                     text = "World of",
                     color = headlineMain,
-                    style = LexiconTextStyles.HeroHeadline,
+                    style = if (expanded) LexiconTextStyles.HeroHeadline.copy(
+                        fontSize = 36.sp, lineHeight = 42.sp,
+                    ) else LexiconTextStyles.HeroHeadline,
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = "Words",
                         color = headlineWords,
-                        style = LexiconTextStyles.HeroHeadline,
+                        style = if (expanded) LexiconTextStyles.HeroHeadline.copy(
+                        fontSize = 36.sp, lineHeight = 42.sp,
+                    ) else LexiconTextStyles.HeroHeadline,
                     )
                     Spacer(Modifier.width(8.dp))
                     LeafSprig(

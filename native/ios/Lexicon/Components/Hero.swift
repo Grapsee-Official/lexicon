@@ -9,6 +9,16 @@ struct Hero: View {
     @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @State private var measuredWidth: CGFloat = 390
+
+    private var adaptiveHeight: CGFloat {
+        let compact = measuredWidth < 360
+        let expanded = measuredWidth >= 600
+        if expanded && dynamicTypeSize.isAccessibilitySize { return 410 }
+        if expanded { return 350 }
+        if dynamicTypeSize.isAccessibilitySize { return 310 }
+        return compact ? 270 : 258
+    }
 
     private var isDark: Bool { scheme == .dark }
 
@@ -33,7 +43,9 @@ struct Hero: View {
             let totalWidth = geo.size.width
             let compact = totalWidth < 360
             let enlargedText = dynamicTypeSize.isAccessibilitySize
-            let heroHeight: CGFloat = enlargedText ? 310 : (compact ? 270 : 258)
+            let expanded = totalWidth >= 600
+            let heroHeight: CGFloat = expanded ? (enlargedText ? 410 : 350)
+                : (enlargedText ? 310 : (compact ? 270 : 258))
             let textWidth = totalWidth * ((compact || enlargedText) ? 0.60 : 0.53)
 
             ZStack(alignment: .topLeading) {
@@ -79,7 +91,14 @@ struct Hero: View {
                 .frame(width: totalWidth, height: heroHeight)
             }
         }
-        .frame(height: dynamicTypeSize.isAccessibilitySize ? 310 : (UIScreen.main.bounds.width < 360 ? 270 : 258))
+        .frame(height: adaptiveHeight)
+        .background {
+            GeometryReader { measurement in
+                Color.clear
+                    .onAppear { measuredWidth = measurement.size.width }
+                    .onChange(of: measurement.size.width) { measuredWidth = $0 }
+            }
+        }
     }
 
     @ViewBuilder
@@ -97,7 +116,7 @@ struct Hero: View {
                     .lexiconDecorative()
             }
         }
-        .font(.lexiconDisplay(29, weight: .regular))
+        .font(.lexiconDisplay(measuredWidth >= 600 ? 36 : 29, weight: .regular))
         .tracking(-0.3)
         .frame(maxWidth: .infinity, alignment: .leading)
         .lexiconCombinedElement()
