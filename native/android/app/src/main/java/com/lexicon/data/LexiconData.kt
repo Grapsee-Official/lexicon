@@ -426,10 +426,10 @@ object LexiconData {
     )
 
     val defaultStudyLists: List<StudyListItem> = listOf(
-        StudyListItem("sl1", "Daily Vocabulary", 50, 40, "ill_thumb_lavender", listOf("serendipity", "solitude", "ephemeral", "eloquence")),
-        StudyListItem("sl2", "Exam Preparation", 120, 78, "ill_thumb_cottage", listOf("mellifluous", "quixotic", "ineffable", "halcyon")),
-        StudyListItem("sl3", "Advanced Words", 80, 34, "ill_thumb_books", listOf("limerence", "vellichor", "numinous", "petrichor")),
-        StudyListItem("sl4", "Travel & Nature", 60, 12, "ill_thumb_meadow", listOf("wanderlust", "komorebi", "tranquility", "ethereal")),
+        StudyListItem("sl1", "Daily Vocabulary", 4, 0, "ill_thumb_lavender", listOf("serendipity", "solitude", "ephemeral", "eloquence")),
+        StudyListItem("sl2", "Exam Preparation", 4, 0, "ill_thumb_cottage", listOf("mellifluous", "quixotic", "ineffable", "halcyon")),
+        StudyListItem("sl3", "Advanced Words", 4, 0, "ill_thumb_books", listOf("limerence", "vellichor", "numinous", "petrichor")),
+        StudyListItem("sl4", "Travel & Nature", 4, 0, "ill_thumb_meadow", listOf("wanderlust", "komorebi", "tranquility", "ethereal")),
     )
 
     val defaultTemplates: List<VocabTemplate> = listOf(

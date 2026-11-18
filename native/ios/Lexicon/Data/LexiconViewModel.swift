@@ -61,6 +61,8 @@ final class LexiconViewModel: ObservableObject {
     private let templatesKey = "lexicon.templates"
     private let todayKey = "lexicon.todayStudy"
     private let studyDateKey = "lexicon.studyDate"
+    private let lastPracticeDateKey = "lexicon.lastPracticeDate"
+    private let streakKey = "lexicon.dayStreak"
 
     private var todayDate: String {
         let formatter = DateFormatter()
@@ -305,11 +307,22 @@ final class LexiconViewModel: ObservableObject {
         persistLibrary()
     }
 
+    /// Mark one reviewed word, only after its definition is revealed.
     func advanceStudyList(_ listId: String) {
-        if let i = studyLists.firstIndex(where: { $0.id == listId }) {
-            studyLists[i].completedWords = min(studyLists[i].totalWords, studyLists[i].completedWords + 2)
-        }
+        guard let i = studyLists.firstIndex(where: { $0.id == listId }),
+              studyLists[i].completedWords < studyLists[i].wordIds.count else { return }
+        studyLists[i].completedWords = min(studyLists[i].wordIds.count, studyLists[i].completedWords + 1)
         todayStudiedWords = min(todayGoalWords, todayStudiedWords + 1)
+        let defaults = UserDefaults.standard
+        let last = defaults.string(forKey: lastPracticeDateKey)
+        let fmt = DateFormatter()
+        fmt.locale = Locale(identifier: "en_US_POSIX")
+        fmt.dateFormat = "yyyy-MM-dd"
+        let yesterday = fmt.string(from: Calendar.current.date(byAdding: .day, value: -1, to: Date()) ?? Date())
+        if last != todayDate {
+            dayStreak = last == yesterday ? dayStreak + 1 : 1
+            defaults.set(todayDate, forKey: lastPracticeDateKey)
+        }
         persistLibrary()
     }
 
@@ -416,7 +429,13 @@ final class LexiconViewModel: ObservableObject {
         }
         if let data = defaults.data(forKey: studyKey),
            let stored = try? JSONDecoder().decode([StudyListItem].self, from: data) {
-            studyLists = stored
+            studyLists = stored.map { list in
+                var fixed = list
+                fixed.totalWords = list.wordIds.count
+                fixed.completedWords = list.totalWords == fixed.totalWords
+                    ? min(list.completedWords, fixed.totalWords) : 0
+                return fixed
+            }
         }
         if let data = defaults.data(forKey: templatesKey),
            let stored = try? JSONDecoder().decode([VocabTemplate].self, from: data) {
@@ -424,6 +443,12 @@ final class LexiconViewModel: ObservableObject {
         }
         todayStudiedWords = defaults.string(forKey: studyDateKey) == todayDate
             ? defaults.integer(forKey: todayKey) : 0
+        let fmt = DateFormatter()
+        fmt.locale = Locale(identifier: "en_US_POSIX")
+        fmt.dateFormat = "yyyy-MM-dd"
+        let yesterday = fmt.string(from: Calendar.current.date(byAdding: .day, value: -1, to: Date()) ?? Date())
+        let last = defaults.string(forKey: lastPracticeDateKey)
+        dayStreak = last == todayDate || last == yesterday ? defaults.integer(forKey: streakKey) : 0
     }
 
     private func persistLibrary() {
@@ -434,6 +459,7 @@ final class LexiconViewModel: ObservableObject {
         if let data = try? JSONEncoder().encode(templates) { defaults.set(data, forKey: templatesKey) }
         defaults.set(todayStudiedWords, forKey: todayKey)
         defaults.set(todayDate, forKey: studyDateKey)
+        defaults.set(dayStreak, forKey: streakKey)
     }
 
     private func persistSaved() {

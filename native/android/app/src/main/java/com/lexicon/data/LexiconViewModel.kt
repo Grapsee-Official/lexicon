@@ -73,10 +73,13 @@ class LexiconViewModel : ViewModel() {
                     favoriteWordIds = store.loadFavoriteIds() ?: s.favoriteWordIds,
                     notes = store.loadNotes() ?: s.notes,
                     studyLists = if (progress == null) s.studyLists else s.studyLists.map { list ->
-                        list.copy(completedWords = (progress[list.id] ?: list.completedWords).coerceIn(0, list.totalWords))
+                        list.copy(completedWords = (progress[list.id] ?: list.completedWords).let { old ->
+                            if (old > list.wordIds.size) 0 else old.coerceIn(0, list.wordIds.size)
+                        })
                     },
                     templates = store.loadTemplates() ?: s.templates,
                     todayStudiedWords = store.loadTodayStudied(),
+                    dayStreak = store.loadDayStreak(),
                     isDark = isDark,
                 )
             }
@@ -294,16 +297,18 @@ class LexiconViewModel : ViewModel() {
         prefs?.saveNotes(_uiState.value.notes)
     }
 
+    /** Only records a successfully revealed vocabulary card, never a navigation tap. */
     fun advanceStudyList(listId: String) {
+        val current = _uiState.value.studyLists.firstOrNull { it.id == listId } ?: return
+        if (current.completedWords >= current.wordIds.size || current.wordIds.isEmpty()) return
+        val streak = prefs?.recordStudyAndGetStreak() ?: _uiState.value.dayStreak.coerceAtLeast(1)
         _uiState.update { s ->
-            val updated = s.studyLists.map { sl ->
-                if (sl.id == listId) {
-                    sl.copy(completedWords = (sl.completedWords + 2).coerceAtMost(sl.totalWords))
-                } else sl
-            }
             s.copy(
-                studyLists = updated,
+                studyLists = s.studyLists.map { sl ->
+                    if (sl.id == listId) sl.copy(completedWords = (sl.completedWords + 1).coerceAtMost(sl.wordIds.size)) else sl
+                },
                 todayStudiedWords = (s.todayStudiedWords + 1).coerceAtMost(s.todayGoalWords),
+                dayStreak = streak,
             )
         }
         prefs?.saveStudyProgress(_uiState.value.studyLists)

@@ -146,6 +146,30 @@ class LexiconPrefs(context: Context) {
 
     private fun today(): String = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
 
+    private fun yesterday(): String = java.util.Calendar.getInstance().apply {
+        add(java.util.Calendar.DAY_OF_YEAR, -1)
+    }.let { SimpleDateFormat("yyyy-MM-dd", Locale.US).format(it.time) }
+
+    fun loadDayStreak(): Int {
+        val last = sp.getString(KEY_LAST_STUDY_DAY, null)
+        return if (last == today() || last == yesterday()) sp.getInt(KEY_DAY_STREAK, 0) else 0
+    }
+
+    fun recordStudyAndGetStreak(): Int {
+        val previous = sp.getString(KEY_LAST_STUDY_DAY, null)
+        val current = today()
+        val streak = when (previous) {
+            current -> sp.getInt(KEY_DAY_STREAK, 1).coerceAtLeast(1)
+            yesterday() -> sp.getInt(KEY_DAY_STREAK, 0) + 1
+            else -> 1
+        }
+        sp.edit()
+            .putString(KEY_LAST_STUDY_DAY, current)
+            .putInt(KEY_DAY_STREAK, streak)
+            .apply()
+        return streak
+    }
+
     fun loadTodayStudied(): Int = if (sp.getString(KEY_DAY, null) == today())
         sp.getInt(KEY_TODAY_STUDIED, 0) else 0
 
@@ -164,5 +188,7 @@ class LexiconPrefs(context: Context) {
         private const val KEY_TEMPLATES = "templates_json"
         private const val KEY_DAY = "study_day"
         private const val KEY_TODAY_STUDIED = "today_studied"
+        private const val KEY_LAST_STUDY_DAY = "last_study_day"
+        private const val KEY_DAY_STREAK = "day_streak"
     }
 }

@@ -391,10 +391,10 @@ enum LexiconData {
     ]
 
     static let defaultStudyLists: [StudyListItem] = [
-        StudyListItem(id: "sl1", title: "Daily Vocabulary", totalWords: 50, completedWords: 40, thumbnail: "ill-thumb-lavender", wordIds: ["serendipity", "solitude", "ephemeral", "eloquence"]),
-        StudyListItem(id: "sl2", title: "Exam Preparation", totalWords: 120, completedWords: 78, thumbnail: "ill-thumb-cottage", wordIds: ["mellifluous", "quixotic", "ineffable", "halcyon"]),
-        StudyListItem(id: "sl3", title: "Advanced Words", totalWords: 80, completedWords: 34, thumbnail: "ill-thumb-books", wordIds: ["limerence", "vellichor", "numinous", "petrichor"]),
-        StudyListItem(id: "sl4", title: "Travel & Nature", totalWords: 60, completedWords: 12, thumbnail: "ill-thumb-meadow", wordIds: ["wanderlust", "komorebi", "tranquility", "ethereal"]),
+        StudyListItem(id: "sl1", title: "Daily Vocabulary", totalWords: 4, completedWords: 0, thumbnail: "ill-thumb-lavender", wordIds: ["serendipity", "solitude", "ephemeral", "eloquence"]),
+        StudyListItem(id: "sl2", title: "Exam Preparation", totalWords: 4, completedWords: 0, thumbnail: "ill-thumb-cottage", wordIds: ["mellifluous", "quixotic", "ineffable", "halcyon"]),
+        StudyListItem(id: "sl3", title: "Advanced Words", totalWords: 4, completedWords: 0, thumbnail: "ill-thumb-books", wordIds: ["limerence", "vellichor", "numinous", "petrichor"]),
+        StudyListItem(id: "sl4", title: "Travel & Nature", totalWords: 4, completedWords: 0, thumbnail: "ill-thumb-meadow", wordIds: ["wanderlust", "komorebi", "tranquility", "ethereal"]),
     ]
 
     static let defaultTemplates: [VocabTemplate] = [
