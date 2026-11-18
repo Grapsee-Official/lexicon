@@ -1310,7 +1310,7 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
         // Live Results OR Recent Searches / Idioms list
         item(key = "recent_or_live") {
             val trimmed = draft.trim()
-            if (trimmed.isNotEmpty()) {
+            if (trimmed.isNotEmpty() && state.searchScopeTab != "Idioms") {
                 val matches = viewModel.searchWords(trimmed, limit = 6)
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     BotanicalSectionTitle(
@@ -1373,7 +1373,18 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
                             .background(cardBg)
                             .border(1.dp, border, RoundedCornerShape(16.dp)),
                     ) {
-                        LexiconData.idiomsAndPhrases.forEachIndexed { idx, ip ->
+                        val idiomMatches = LexiconData.idiomsAndPhrases.filter { ip ->
+                            trimmed.isEmpty() ||
+                                ip.phrase.contains(trimmed, ignoreCase = true) ||
+                                ip.meaning.contains(trimmed, ignoreCase = true) ||
+                                ip.example.contains(trimmed, ignoreCase = true)
+                        }
+                        if (idiomMatches.isEmpty()) {
+                            Text("No matching idioms. Try another expression.", color = muted,
+                                style = TextStyle(fontFamily = BodyFontFamily, fontSize = 13.sp),
+                                modifier = Modifier.padding(14.dp))
+                        }
+                        idiomMatches.forEachIndexed { idx, ip ->
                             if (idx > 0) Box(Modifier.fillMaxWidth().height(1.dp).background(border))
                             Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                                 Text("${ip.phrase} (${ip.kind})", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 14.sp))

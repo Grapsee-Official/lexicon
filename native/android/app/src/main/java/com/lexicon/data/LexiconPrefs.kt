@@ -57,6 +57,13 @@ class LexiconPrefs(context: Context) {
         sp.edit().putString(KEY_FAVORITES, ids.joinToString("\n")).apply()
     }
 
+    fun loadViewedIds(): List<String>? = if (!sp.contains(KEY_VIEWED)) null else
+        sp.getString(KEY_VIEWED, "").orEmpty().split("\n").filter { it.isNotBlank() }
+
+    fun saveViewedIds(ids: List<String>) {
+        sp.edit().putString(KEY_VIEWED, ids.joinToString("\n")).apply()
+    }
+
     fun loadNotes(): List<NoteItem>? {
         if (!sp.contains(KEY_NOTES)) return null
         return runCatching {
@@ -183,6 +190,7 @@ class LexiconPrefs(context: Context) {
         private const val KEY_RECENT = "recent_searches"
         private const val KEY_DARK   = "is_dark"
         private const val KEY_FAVORITES = "favorite_word_ids"
+        private const val KEY_VIEWED = "recently_viewed_word_ids"
         private const val KEY_NOTES = "notes_json"
         private const val KEY_STUDY = "study_progress_json"
         private const val KEY_TEMPLATES = "templates_json"

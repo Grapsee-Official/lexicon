@@ -896,7 +896,7 @@ fun SearchResultsScreen(viewModel: LexiconViewModel) {
 
     val matches = remember(
         state.searchQuery, state.filterLanguage, state.filterPos,
-        state.filterDifficulty, state.filterSort,
+        state.filterDifficulty, state.filterSort, state.searchScopeTab,
     ) {
         viewModel.searchWords(state.searchQuery, limit = 8)
     }
@@ -933,7 +933,36 @@ fun SearchResultsScreen(viewModel: LexiconViewModel) {
             )
         }
 
-        if (primaryWord == null) {
+        if (state.searchScopeTab == "Idioms") {
+            item(key = "idiom_search_results") {
+                val matchingIdioms = LexiconData.idiomsAndPhrases.filter { phrase ->
+                    state.searchQuery.isBlank() ||
+                        phrase.phrase.contains(state.searchQuery, ignoreCase = true) ||
+                        phrase.meaning.contains(state.searchQuery, ignoreCase = true) ||
+                        phrase.example.contains(state.searchQuery, ignoreCase = true)
+                }
+                Column(
+                    modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth()
+                        .clip(RoundedCornerShape(18.dp)).background(cardBg)
+                        .border(1.dp, border, RoundedCornerShape(18.dp)).padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Text("Idioms & Phrases", color = fg,
+                        style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 20.sp))
+                    if (matchingIdioms.isEmpty()) {
+                        Text("No matching idioms. Try another phrase.", color = muted,
+                            style = TextStyle(fontFamily = BodyFontFamily, fontSize = 13.sp))
+                    }
+                    matchingIdioms.forEach { phrase ->
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(phrase.phrase, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 16.sp))
+                            Text(phrase.meaning, color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 13.sp))
+                            Text(phrase.example, color = muted, style = TextStyle(fontFamily = LongFontFamily, fontSize = 13.sp, fontStyle = FontStyle.Italic))
+                        }
+                    }
+                }
+            }
+        } else if (primaryWord == null) {
             // Empty state when no entry matches
             item(key = "empty_results") {
                 Column(

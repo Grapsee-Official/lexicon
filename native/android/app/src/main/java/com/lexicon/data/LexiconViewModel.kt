@@ -70,6 +70,7 @@ class LexiconViewModel : ViewModel() {
                 s.copy(
                     savedWordIds = if (store.hasSavedIds) saved else s.savedWordIds,
                     recentSearches = if (store.hasRecentSearches) recent else s.recentSearches,
+                    recentlyViewedIds = store.loadViewedIds() ?: s.recentlyViewedIds,
                     favoriteWordIds = store.loadFavoriteIds() ?: s.favoriteWordIds,
                     notes = store.loadNotes() ?: s.notes,
                     studyLists = if (progress == null) s.studyLists else s.studyLists.map { list ->
@@ -120,6 +121,7 @@ class LexiconViewModel : ViewModel() {
                 searchOpen = false,
             )
         }
+        if (word != null) prefs?.saveViewedIds(_uiState.value.recentlyViewedIds)
     }
 
     fun navigateBack() {
@@ -205,15 +207,18 @@ class LexiconViewModel : ViewModel() {
         _uiState.update { s ->
             when (which) {
                 "language" -> {
-                    val opts = listOf("All Languages", "English", "Japanese", "Portuguese")
+                    val opts = listOf("All Languages") + LexiconData.dictionary
+                        .map { it.language.substringBefore(" (") }.distinct().sorted()
                     s.copy(filterLanguage = opts[(opts.indexOf(s.filterLanguage) + 1) % opts.size])
                 }
                 "pos" -> {
-                    val opts = listOf("All Types", "noun", "adjective")
+                    val opts = listOf("All Types") + LexiconData.dictionary
+                        .map { it.partOfSpeech.label() }.distinct().sorted()
                     s.copy(filterPos = opts[(opts.indexOf(s.filterPos) + 1) % opts.size])
                 }
                 "difficulty" -> {
-                    val opts = listOf("Any Level", "Intermediate", "Advanced")
+                    val opts = listOf("Any Level") + LexiconData.dictionary
+                        .map { it.level }.distinct().sorted()
                     s.copy(filterDifficulty = opts[(opts.indexOf(s.filterDifficulty) + 1) % opts.size])
                 }
                 else -> {
@@ -393,8 +398,20 @@ class LexiconViewModel : ViewModel() {
         LexiconData.searchWords(q, limit = limit).forEach { w ->
             out.putIfAbsent(w.id, w)
         }
+        if (s.searchScopeTab == "Examples") {
+            LexiconData.dictionary.filter { w ->
+                w.examples.any { it.contains(q, ignoreCase = true) }
+            }.forEach { out.putIfAbsent(it.id, it) }
+        }
 
         var list = out.values.toList()
+        list = when (s.searchScopeTab) {
+            "Words" -> list.filter { it.word.contains(q, ignoreCase = true) }
+            "Meanings" -> list.filter { it.definitions.any { d -> d.contains(q, ignoreCase = true) } }
+            "Examples" -> list.filter { it.examples.any { e -> e.contains(q, ignoreCase = true) } }
+            "Idioms" -> emptyList()
+            else -> list
+        }
         if (s.filterLanguage != "All Languages") {
             list = list.filter { it.language.contains(s.filterLanguage, ignoreCase = true) }
         }

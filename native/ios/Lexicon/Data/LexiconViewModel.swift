@@ -56,6 +56,7 @@ final class LexiconViewModel: ObservableObject {
     private let savedKey = "lexicon.savedWordIds"
     private let recentKey = "lexicon.recentSearches"
     private let favoriteKey = "lexicon.favoriteWordIds"
+    private let viewedKey = "lexicon.recentlyViewedIds"
     private let notesKey = "lexicon.notes"
     private let studyKey = "lexicon.studyLists"
     private let templatesKey = "lexicon.templates"
@@ -158,6 +159,7 @@ final class LexiconViewModel: ObservableObject {
         if let w = word {
             detailWord = w
             recentlyViewedIds = Array(([w.id] + recentlyViewedIds.filter { $0 != w.id }).prefix(8))
+            UserDefaults.standard.set(recentlyViewedIds, forKey: viewedKey)
         }
         detailExpanded36 = expand36
         activeTab = nextTab
@@ -216,15 +218,17 @@ final class LexiconViewModel: ObservableObject {
     func cycleSearchFilter(_ which: String) {
         switch which {
         case "language":
-            let opts = ["All Languages", "English", "Japanese", "Portuguese"]
+            let opts = ["All Languages"] + Array(Set(LexiconData.dictionary.map {
+                String($0.language.split(separator: "(").first ?? "").trimmingCharacters(in: .whitespaces)
+            })).sorted()
             let idx = (opts.firstIndex(of: filterLanguage) ?? 0) + 1
             filterLanguage = opts[idx % opts.count]
         case "pos":
-            let opts = ["All Types", "noun", "adjective"]
+            let opts = ["All Types"] + Array(Set(LexiconData.dictionary.map { $0.partOfSpeech.displayValue })).sorted()
             let idx = (opts.firstIndex(of: filterPos) ?? 0) + 1
             filterPos = opts[idx % opts.count]
         case "difficulty":
-            let opts = ["Any Level", "Intermediate", "Advanced"]
+            let opts = ["Any Level"] + Array(Set(LexiconData.dictionary.map { $0.level })).sorted()
             let idx = (opts.firstIndex(of: filterDifficulty) ?? 0) + 1
             filterDifficulty = opts[idx % opts.count]
         default:
@@ -395,6 +399,27 @@ final class LexiconViewModel: ObservableObject {
                 results.append(entry)
             }
         }
+        if searchScopeTab == "Examples" {
+            for entry in LexiconData.dictionary
+                where entry.examples.contains(where: { $0.localizedCaseInsensitiveContains(q) }) {
+                if !seen.contains(entry.id) {
+                    seen.insert(entry.id)
+                    results.append(entry)
+                }
+            }
+        }
+        switch searchScopeTab {
+        case "Words":
+            results = results.filter { $0.word.localizedCaseInsensitiveContains(q) }
+        case "Meanings":
+            results = results.filter { $0.definitions.contains(where: { $0.localizedCaseInsensitiveContains(q) }) }
+        case "Examples":
+            results = results.filter { $0.examples.contains(where: { $0.localizedCaseInsensitiveContains(q) }) }
+        case "Idioms":
+            results = []
+        default:
+            break
+        }
 
         if filterLanguage != "All Languages" {
             results = results.filter { $0.language.localizedCaseInsensitiveContains(filterLanguage) }
@@ -422,6 +447,9 @@ final class LexiconViewModel: ObservableObject {
         }
         if let favorites = defaults.array(forKey: favoriteKey) as? [String] {
             favoriteWordIds = favorites
+        }
+        if let viewed = defaults.array(forKey: viewedKey) as? [String] {
+            recentlyViewedIds = viewed
         }
         if let data = defaults.data(forKey: notesKey),
            let stored = try? JSONDecoder().decode([NoteItem].self, from: data) {

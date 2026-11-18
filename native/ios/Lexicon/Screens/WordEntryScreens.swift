@@ -592,7 +592,37 @@ struct SearchResultsScreen: View {
                 )
                 .padding(.horizontal, 16)
 
-                if let w = primaryWord {
+                if vm.searchScopeTab == "Idioms" {
+                    let idioms = LexiconData.idiomsAndPhrases.filter { phrase in
+                        vm.searchQuery.isEmpty
+                            || phrase.phrase.localizedCaseInsensitiveContains(vm.searchQuery)
+                            || phrase.meaning.localizedCaseInsensitiveContains(vm.searchQuery)
+                            || phrase.example.localizedCaseInsensitiveContains(vm.searchQuery)
+                    }
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Idioms & Phrases")
+                            .font(.lexiconDisplay(20))
+                            .foregroundStyle(p.foreground)
+                        if idioms.isEmpty {
+                            Text("No matching idioms. Try another phrase.")
+                                .font(.lexiconBody(13))
+                                .foregroundStyle(p.mutedForeground)
+                        }
+                        ForEach(idioms, id: \.id) { phrase in
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(phrase.phrase).font(.lexiconDisplay(16)).foregroundStyle(p.foreground)
+                                Text(phrase.meaning).font(.lexiconBody(13)).foregroundStyle(p.mutedForeground)
+                                Text(phrase.example).font(.lexiconLong(13).italic()).foregroundStyle(p.mutedForeground)
+                            }
+                        }
+                    }
+                    .padding(16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(p.card)
+                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 18).stroke(p.border, lineWidth: 1))
+                    .padding(.horizontal, 16)
+                } else if let w = primaryWord {
                     let fav = vm.isFavorite(w.id)
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {

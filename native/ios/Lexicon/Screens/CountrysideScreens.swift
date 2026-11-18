@@ -944,7 +944,7 @@ struct SearchDiscoveryScreen: View {
                     onSelect: { vm.searchScopeTab = $0 }
                 )
 
-                if !trimmed.isEmpty {
+                if !trimmed.isEmpty && vm.searchScopeTab != "Idioms" {
                     let matches = vm.searchWords(trimmed, limit: 6)
                     VStack(spacing: 8) {
                         BotanicalSectionTitle(
@@ -983,7 +983,19 @@ struct SearchDiscoveryScreen: View {
                             onAction: { vm.searchScopeTab = "All" }
                         )
                         VStack(spacing: 0) {
-                            ForEach(Array(LexiconData.idiomsAndPhrases.enumerated()), id: \.element.id) { idx, ip in
+                            let idioms = LexiconData.idiomsAndPhrases.filter { ip in
+                                trimmed.isEmpty
+                                    || ip.phrase.localizedCaseInsensitiveContains(trimmed)
+                                    || ip.meaning.localizedCaseInsensitiveContains(trimmed)
+                                    || ip.example.localizedCaseInsensitiveContains(trimmed)
+                            }
+                            if idioms.isEmpty {
+                                Text("No matching idioms. Try another expression.")
+                                    .font(.lexiconBody(13))
+                                    .foregroundStyle(p.mutedForeground)
+                                    .padding(14)
+                            }
+                            ForEach(Array(idioms.enumerated()), id: \.element.id) { idx, ip in
                                 if idx > 0 { Rectangle().fill(p.border).frame(height: 1) }
                                 VStack(alignment: .leading, spacing: 3) {
                                     Text("\(ip.phrase) (\(ip.kind))").font(.lexiconDisplay(14)).foregroundStyle(p.foreground)
