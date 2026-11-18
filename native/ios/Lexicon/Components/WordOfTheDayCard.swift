@@ -13,7 +13,7 @@ struct WordOfTheDayCard: View {
     @State private var measuredWidth: CGFloat = 390
 
     private var cardHeight: CGFloat {
-        dynamicTypeSize.isAccessibilitySize ? 182 : (measuredWidth < 360 ? 150 : 132)
+        dynamicTypeSize.isAccessibilitySize ? 186 : (measuredWidth < 360 ? 144 : 126)
     }
 
     private var isDark: Bool { scheme == .dark }
@@ -52,7 +52,7 @@ struct WordOfTheDayCard: View {
                 let totalW = geo.size.width
                 let height = cardHeight
                 let compact = totalW < 360
-                let leftW = totalW * 0.43
+                let leftW = totalW * 0.39
                 let rightW = totalW - leftW - 1
 
                 HStack(spacing: 0) {
@@ -76,10 +76,10 @@ struct WordOfTheDayCard: View {
 
                         HStack(spacing: 4) {
                             Text(word.word)
-                                .font(.lexiconDisplay(18.5, weight: .regular))
+                                .font(.lexiconDisplay(totalW < 395 ? 16.5 : 19.5, weight: .regular))
                                 .foregroundStyle(wordColor)
                                 .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
-                                .minimumScaleFactor(0.75)
+                                .minimumScaleFactor(0.70)
 
                             Button { vm.pronounce(word.word) } label: {
                                 Image(systemName: "speaker.wave.2")
@@ -107,7 +107,7 @@ struct WordOfTheDayCard: View {
                         }
                     }
                     .padding(.horizontal, 13)
-                    .padding(.vertical, 12)
+                    .padding(.vertical, 14)
                     .frame(width: leftW, height: height, alignment: .leading)
                     .background(leftBg)
 
@@ -123,14 +123,14 @@ struct WordOfTheDayCard: View {
                             Image(isDark ? "wotd-bg-dark" : "wotd-bg-light")
                                 .resizable()
                                 .scaledToFill()
-                                .frame(width: rightW * 0.54, height: height)
+                                .frame(width: rightW * 0.50, height: height)
                                 .clipped()
                                 .accessibilityHidden(true)
                         }
 
                         if isDark {
                             NocturneAtmosphere()
-                                .frame(width: rightW * 0.54, height: height)
+                                .frame(width: rightW * 0.50, height: height)
                                 .frame(maxWidth: .infinity, alignment: .trailing)
                         }
 
@@ -139,8 +139,8 @@ struct WordOfTheDayCard: View {
                                 .font(.lexiconBody(11.5))
                                 .foregroundStyle(defColor)
                                 .lineSpacing(2.5)
-                                .lineLimit(3)
-                                .frame(width: rightW * 0.68, alignment: .leading)
+                                .lineLimit(4)
+                                .frame(width: rightW * 0.69, alignment: .leading)
 
                             Spacer(minLength: 4)
 
