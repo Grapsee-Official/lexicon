@@ -305,9 +305,14 @@ struct WordDetailProfileScreen: View {
                             Text(word.word)
                                 .font(.lexiconDisplay(30))
                                 .foregroundStyle(p.foreground)
-                            Image(systemName: "speaker.wave.2")
-                                .font(.system(size: 15))
-                                .foregroundStyle(p.mutedForeground)
+                            Button { vm.pronounce(word.word) } label: {
+                                Image(systemName: "speaker.wave.2")
+                                    .font(.system(size: 17))
+                                    .foregroundStyle(p.mutedForeground)
+                                    .frame(width: 34, height: 34)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Pronounce word")
                         }
 
                         Text(word.phonetic)
@@ -645,9 +650,14 @@ struct SearchResultsScreen: View {
                             Text(w.phonetic)
                                 .font(.lexiconBody(12.5))
                                 .foregroundStyle(p.mutedForeground)
-                            Image(systemName: "speaker.wave.2")
-                                .font(.system(size: 13))
-                                .foregroundStyle(p.mutedForeground)
+                            Button { vm.pronounce(w.word) } label: {
+                                Image(systemName: "speaker.wave.2")
+                                    .font(.system(size: 16))
+                                    .foregroundStyle(p.mutedForeground)
+                                    .frame(width: 34, height: 34)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Pronounce word")
                         }
 
                         HStack(spacing: 8) {

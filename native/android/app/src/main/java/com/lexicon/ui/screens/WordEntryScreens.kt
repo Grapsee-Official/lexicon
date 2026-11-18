@@ -554,7 +554,13 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                             color = fg,
                             style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 31.sp),
                         )
-                        Icon(Icons.AutoMirrored.Outlined.VolumeUp, contentDescription = null, tint = muted, modifier = Modifier.size(18.dp))
+                        Icon(
+                            Icons.AutoMirrored.Outlined.VolumeUp,
+                            contentDescription = "Pronounce word",
+                            tint = muted,
+                            modifier = Modifier.size(24.dp)
+                                .clickable { viewModel.pronounce(word.word) },
+                        )
                     }
 
                     Text(
@@ -1020,7 +1026,13 @@ fun SearchResultsScreen(viewModel: LexiconViewModel) {
 
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(primaryWord.phonetic, color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 12.5.sp))
-                        Icon(Icons.AutoMirrored.Outlined.VolumeUp, contentDescription = null, tint = muted, modifier = Modifier.size(16.dp))
+                        Icon(
+                            Icons.AutoMirrored.Outlined.VolumeUp,
+                            contentDescription = "Pronounce word",
+                            tint = muted,
+                            modifier = Modifier.size(24.dp)
+                                .clickable { viewModel.pronounce(primaryWord.word) },
+                        )
                     }
 
                     Row(

@@ -1,6 +1,7 @@
 package com.lexicon.data
 
 import android.content.Context
+import android.speech.tts.TextToSpeech
 import androidx.lifecycle.ViewModel
 import com.lexicon.engine.EngineWordEntry
 import com.lexicon.engine.LexiconEngine
@@ -55,6 +56,10 @@ class LexiconViewModel : ViewModel() {
     val uiState: StateFlow<LexiconUiState> = _uiState.asStateFlow()
 
     private var prefs: LexiconPrefs? = null
+    private var speechContext: Context? = null
+    private var nativeSpeech: TextToSpeech? = null
+    private var speechReady = false
+    private var pendingWord: String? = null
     val engine: LexiconEngine = LexiconEngine()
 
     init {
@@ -62,6 +67,7 @@ class LexiconViewModel : ViewModel() {
     }
 
     fun attachPrefs(context: Context) {
+        speechContext = context.applicationContext
         if (prefs == null) {
             prefs = LexiconPrefs(context.applicationContext)
             val store = prefs!!
@@ -163,6 +169,40 @@ class LexiconViewModel : ViewModel() {
     fun openCollectionFilter(filter: String) {
         _uiState.update { it.copy(collectionFilter = if (filter in setOf("All", "Favorites", "Bookmarks")) filter else "All") }
         navigate(ScreenRoute.COLLECTIONS)
+    }
+
+    /** Speak an English dictionary word using the device's native voice. */
+    fun pronounce(word: String) {
+        val clean = word.trim()
+        if (clean.isEmpty()) return
+        val existing = nativeSpeech
+        if (existing != null && speechReady) {
+            existing.speak(clean, TextToSpeech.QUEUE_FLUSH, null, "lexicon-dictionary-word")
+            return
+        }
+        pendingWord = clean
+        if (existing == null) {
+            val ctx = speechContext ?: return
+            nativeSpeech = TextToSpeech(ctx) { status ->
+                speechReady = status == TextToSpeech.SUCCESS
+                if (speechReady) {
+                    nativeSpeech?.language = Locale.UK
+                    pendingWord?.let { term ->
+                        nativeSpeech?.speak(
+                            term, TextToSpeech.QUEUE_FLUSH, null, "lexicon-dictionary-word"
+                        )
+                    }
+                }
+                pendingWord = null
+            }
+        }
+    }
+
+    override fun onCleared() {
+        nativeSpeech?.stop()
+        nativeSpeech?.shutdown()
+        nativeSpeech = null
+        super.onCleared()
     }
 
     fun openWord(word: WordEntry) {

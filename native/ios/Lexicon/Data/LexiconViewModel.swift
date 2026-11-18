@@ -5,9 +5,12 @@
 
 import Foundation
 import SwiftUI
+import AVFoundation
 
 @MainActor
 final class LexiconViewModel: ObservableObject {
+
+    private let nativeSpeech = AVSpeechSynthesizer()
 
     @Published var activeTab: LexiconTab = .home
     @Published var route: ScreenRoute = .home
@@ -190,6 +193,19 @@ final class LexiconViewModel: ObservableObject {
     func openCollectionFilter(_ filter: String) {
         collectionFilter = ["All", "Favorites", "Bookmarks"].contains(filter) ? filter : "All"
         navigate(to: .collections)
+    }
+
+    /// Speak the word with Apple's native pronunciation engine.
+    func pronounce(_ word: String) {
+        let clean = word.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !clean.isEmpty else { return }
+        if nativeSpeech.isSpeaking {
+            nativeSpeech.stopSpeaking(at: .immediate)
+        }
+        let utterance = AVSpeechUtterance(string: clean)
+        utterance.voice = AVSpeechSynthesisVoice(language: "en-GB")
+        utterance.rate = AVSpeechUtteranceDefaultSpeechRate
+        nativeSpeech.speak(utterance)
     }
 
     func openWord(_ word: WordEntry) {
