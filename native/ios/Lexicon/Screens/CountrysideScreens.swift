@@ -175,7 +175,7 @@ struct CollectionsHubScreen: View {
                             Image(countrysideImageName(art, isDark: isDark))
                                 .resizable()
                                 .scaledToFill()
-                                .frame(width: geo.size.width * 0.72, height: 104)
+                                .frame(width: geo.size.width * 0.72, height: dynamicTypeSize.isAccessibilitySize ? 146 : 96)
                                 .clipped()
                         }
                         VStack(alignment: .leading, spacing: 0) {
@@ -202,7 +202,7 @@ struct CollectionsHubScreen: View {
                     .overlay(Circle().stroke(p.border, lineWidth: 1))
                     .padding(9)
             }
-            .frame(height: 104)
+            .frame(height: dynamicTypeSize.isAccessibilitySize ? 146 : 96)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(p.border, lineWidth: 1))
         }

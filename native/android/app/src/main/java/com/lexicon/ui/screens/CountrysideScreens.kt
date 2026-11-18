@@ -219,7 +219,7 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
-                                        .height(if (androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f) 146.dp else 106.dp)
+                                        .height(if (androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f) 146.dp else 96.dp)
                                         .clip(RoundedCornerShape(16.dp))
                                         .background(cardBg)
                                         .border(1.dp, border, RoundedCornerShape(16.dp))
