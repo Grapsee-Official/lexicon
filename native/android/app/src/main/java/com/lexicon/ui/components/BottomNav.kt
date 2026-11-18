@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -104,6 +106,7 @@ fun BottomNav(
         ) {
             BottomNavItem(
                 label = "Home",
+                modifier = Modifier.weight(1f),
                 outlinedIcon = Icons.Outlined.Home,
                 filledIcon = Icons.Filled.Home,
                 isActive = activeTab == TabKey.HOME,
@@ -116,6 +119,7 @@ fun BottomNav(
 
             BottomNavItem(
                 label = "Dictionary",
+                modifier = Modifier.weight(1f),
                 outlinedIcon = Icons.AutoMirrored.Outlined.MenuBook,
                 filledIcon = Icons.AutoMirrored.Outlined.MenuBook,
                 isActive = activeTab == TabKey.DICTIONARY,
@@ -126,31 +130,13 @@ fun BottomNav(
                 viewModel.setActiveTab(TabKey.DICTIONARY)
             }
 
-            // Center Search Circle
-            Box(
-                modifier = Modifier
-                    .size(42.dp)
-                    .clip(CircleShape)
-                    .background(if (isDark) Color(0xFF101620) else BrandGreen)
-                    .border(
-                        width = if (isDark) 1.dp else 0.dp,
-                        color = if (isDark) DarkAccent.copy(alpha = 0.55f) else Color.Transparent,
-                        shape = CircleShape,
-                    )
-                    .iconButton(AccessibilityAudit.Descriptions.SearchFab)
-                    .clickable(role = Role.Button) { viewModel.openSearch() },
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Search,
-                    contentDescription = null,
-                    tint = if (isDark) DarkHighlight else PrimaryForeground,
-                    modifier = Modifier.size(19.dp),
-                )
-            }
+            // Reserve a symmetric slot: the actual search circle floats above
+            // the capsule and must NOT be clipped by its rounded background.
+            Box(Modifier.weight(1f).height(52.dp))
 
             BottomNavItem(
                 label = "Collections",
+                modifier = Modifier.weight(1f),
                 outlinedIcon = Icons.Outlined.BookmarkBorder,
                 filledIcon = Icons.Filled.Bookmark,
                 isActive = activeTab == TabKey.COLLECTIONS,
@@ -163,6 +149,7 @@ fun BottomNav(
 
             BottomNavItem(
                 label = "More",
+                modifier = Modifier.weight(1f),
                 outlinedIcon = Icons.Outlined.MoreHoriz,
                 filledIcon = Icons.Outlined.MoreHoriz,
                 isActive = activeTab == TabKey.MORE,
@@ -173,12 +160,47 @@ fun BottomNav(
                 viewModel.setActiveTab(TabKey.MORE)
             }
         }
+
+        // Floating search button, overlaid OUTSIDE the clipped capsule.
+        // Matches the raised, bookish search seal in both original UI boards.
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .offset(y = (-4).dp)
+                .size(50.dp)
+                .then(
+                    if (!isDark) Modifier.shadow(
+                        elevation = 6.dp,
+                        shape = CircleShape,
+                        ambientColor = DeepForest.copy(alpha = 0.16f),
+                        spotColor = DeepForest.copy(alpha = 0.16f),
+                    ) else Modifier
+                )
+                .clip(CircleShape)
+                .background(if (isDark) Color(0xFF101620) else BrandGreen)
+                .border(
+                    width = if (isDark) 1.5.dp else 3.dp,
+                    color = if (isDark) DarkAccent.copy(alpha = 0.70f) else CardSurface,
+                    shape = CircleShape,
+                )
+                .iconButton(AccessibilityAudit.Descriptions.SearchFab)
+                .clickable(role = Role.Button) { viewModel.openSearch() },
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Search,
+                contentDescription = null,
+                tint = if (isDark) DarkHighlight else PrimaryForeground,
+                modifier = Modifier.size(23.dp),
+            )
+        }
     }
 }
 
 @Composable
 private fun BottomNavItem(
     label: String,
+    modifier: Modifier = Modifier,
     outlinedIcon: ImageVector,
     filledIcon: ImageVector,
     isActive: Boolean,
@@ -188,7 +210,7 @@ private fun BottomNavItem(
     onClick: () -> Unit,
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .semantics { selected = isActive }
             .clickable(role = Role.Tab) { onClick() }
             .padding(horizontal = 6.dp, vertical = 2.dp),

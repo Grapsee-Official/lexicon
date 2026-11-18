@@ -44,18 +44,20 @@ struct BottomNav: View {
                 Image(systemName: "magnifyingglass")
                     .font(.system(size: 17, weight: .medium))
                     .foregroundStyle(isDark ? LexiconColors.highlightDark : LexiconColors.primaryForeground)
-                    .frame(width: 42, height: 42)
+                    .frame(width: 50, height: 50)
                     .background(isDark ? Color(hex: "101620") : LexiconColors.primary)
                     .clipShape(Circle())
                     .overlay(
                         Circle()
                             .stroke(
-                                isDark ? LexiconColors.accentDark.opacity(0.55) : Color.clear,
-                                lineWidth: 1
+                                isDark ? LexiconColors.accentDark.opacity(0.70) : lexiconPalette(scheme).card,
+                                lineWidth: isDark ? 1.5 : 3
                             )
                     )
             }
             .buttonStyle(.plain)
+            .shadow(color: isDark ? .clear : LexiconColors.foreground.opacity(0.16), radius: 6, y: 2)
+            .offset(y: -8)
             .accessibilityLabel(Text(LexiconAccessibilityLabels.search))
             .accessibilityAddTraits(.isButton)
             .frame(maxWidth: .infinity)
@@ -65,9 +67,11 @@ struct BottomNav: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 5)
-        .background(lexiconPalette(scheme).card.opacity(0.96))
-        .clipShape(Capsule())
-        .overlay(Capsule().stroke(lexiconPalette(scheme).border, lineWidth: 1))
+        .background {
+            Capsule()
+                .fill(lexiconPalette(scheme).card.opacity(0.96))
+                .overlay(Capsule().stroke(lexiconPalette(scheme).border, lineWidth: 1))
+        }
         .shadow(
             color: isDark ? .clear : LexiconColors.foreground.opacity(0.12),
             radius: 8,
