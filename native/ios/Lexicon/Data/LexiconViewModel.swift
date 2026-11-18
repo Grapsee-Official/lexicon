@@ -193,7 +193,7 @@ final class LexiconViewModel: ObservableObject {
         guard !trimmed.isEmpty else { return }
         addRecentSearch(trimmed)
         searchQuery = trimmed
-        let top = searchWords(trimmed, limit: 1).first ?? LexiconData.serendipityEntry
+        let top = searchWords(trimmed, limit: 1).first
         navigate(to: .searchResults, word: top)
     }
 
