@@ -75,7 +75,7 @@ fun BottomNav(
     val barBg = if (isDark) DarkCard.copy(alpha = 0.96f) else CardSurface.copy(alpha = 0.96f)
     val barBorder = if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.10f)
     val activeColor = if (isDark) DarkAccent else BrandGreen
-    val inactiveColor = if (isDark) DarkAccent.copy(alpha = 0.78f) else WarmGrey
+    val inactiveColor = if (isDark) DarkAccent.copy(alpha = 0.78f) else DeepForest.copy(alpha = 0.88f)
 
     Box(
         modifier = modifier
