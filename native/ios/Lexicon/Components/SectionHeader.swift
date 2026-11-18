@@ -41,7 +41,7 @@ struct SectionHeader: View {
                         .font(.system(size: 10, weight: .medium))
                 }
                 .font(.lexiconBody(12, weight: .regular))
-                .foregroundStyle(lexiconPalette(scheme).highlight)
+                .foregroundStyle(lexiconPalette(scheme).primary)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
