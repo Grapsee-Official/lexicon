@@ -109,14 +109,17 @@ fun CountrysideHeroHeader(
     val subColor = if (isDark) DarkMutedForeground else DeepForest.copy(alpha = 0.78f)
     val sprigColor = if (isDark) DarkAccent else BrandGreen
     val resId = resolveCountrysideDrawable(illustrationBase, isDark)
-    val compact = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 390
-    val titleWidth = if (compact) 0.73f else 0.58f
+    val config = androidx.compose.ui.platform.LocalConfiguration.current
+    val compact = config.screenWidthDp < 390
+    val accessibilityText = config.fontScale >= 1.3f
+    val responsiveHeight = if (accessibilityText) heroHeight + 62.dp else heroHeight
+    val titleWidth = if (compact || accessibilityText) 0.76f else 0.58f
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .windowInsetsPadding(WindowInsets.statusBars)
-            .height(heroHeight),
+            .height(responsiveHeight),
     ) {
         Image(
             painter = painterResource(resId),
@@ -126,7 +129,7 @@ fun CountrysideHeroHeader(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .fillMaxWidth(0.66f)
-                .height(heroHeight)
+                .height(responsiveHeight)
                 .offset(x = 6.dp, y = 4.dp),
         )
 
@@ -171,7 +174,7 @@ fun CountrysideHeroHeader(
                         fontFamily = DisplayFontFamily,
                         fontWeight = FontWeight.Normal,
                         fontSize = if (compact || title.length > 14) 24.sp else 28.sp,
-                        lineHeight = 30.sp,
+                        lineHeight = if (accessibilityText) 35.sp else 30.sp,
                         letterSpacing = (-0.3).sp,
                     ),
                 )
@@ -184,7 +187,7 @@ fun CountrysideHeroHeader(
                     fontSize = 11.5.sp,
                     lineHeight = 15.5.sp,
                 ),
-                maxLines = 2,
+                maxLines = if (accessibilityText) 4 else 2,
             )
         }
 

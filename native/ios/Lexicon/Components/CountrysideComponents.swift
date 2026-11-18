@@ -19,7 +19,11 @@ struct CountrysideHeroHeader: View {
     var heroHeight: CGFloat = 146
 
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     private var isDark: Bool { scheme == .dark }
+    private var responsiveHeight: CGFloat {
+        dynamicTypeSize.isAccessibilitySize ? heroHeight + 64 : heroHeight
+    }
 
     var body: some View {
         GeometryReader { geo in
@@ -30,11 +34,11 @@ struct CountrysideHeroHeader: View {
                     Image(countrysideImageName(illustrationBase, isDark: isDark))
                         .resizable()
                         .scaledToFit()
-                        .frame(width: w * 0.66, height: heroHeight, alignment: .bottomTrailing)
+                        .frame(width: w * 0.66, height: responsiveHeight, alignment: .bottomTrailing)
                         .offset(x: 6, y: 4)
                         .accessibilityHidden(true)
                 }
-                .frame(width: w, height: heroHeight)
+                .frame(width: w, height: responsiveHeight)
 
                 LinearGradient(
                     stops: [
@@ -46,12 +50,12 @@ struct CountrysideHeroHeader: View {
                     ],
                     startPoint: .leading, endPoint: .trailing
                 )
-                .frame(width: w, height: heroHeight)
+                .frame(width: w, height: responsiveHeight)
                 .allowsHitTesting(false)
 
                 if isDark {
                     NocturneAtmosphere()
-                        .frame(width: w, height: heroHeight)
+                        .frame(width: w, height: responsiveHeight)
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
@@ -66,16 +70,16 @@ struct CountrysideHeroHeader: View {
                             .font(.lexiconDisplay(w < 390 || title.count > 14 ? 24 : 28, weight: .regular))
                             .tracking(-0.3)
                             .foregroundStyle(lexiconPalette(scheme).foreground)
-                            .lineLimit(2)
+                            .lineLimit(dynamicTypeSize.isAccessibilitySize ? 3 : 2)
                     }
 
                     Text(subtitle)
                         .font(.lexiconLong(11.5))
                         .foregroundStyle(lexiconPalette(scheme).mutedForeground)
                         .lineSpacing(2)
-                        .lineLimit(2)
+                        .lineLimit(dynamicTypeSize.isAccessibilitySize ? 4 : 2)
                 }
-                .frame(width: w * (w < 390 ? 0.73 : 0.58), alignment: .leading)
+                .frame(width: w * ((w < 390 || dynamicTypeSize.isAccessibilitySize) ? 0.76 : 0.58), alignment: .leading)
                 .padding(.leading, 16)
                 .padding(.top, 12)
 
@@ -96,7 +100,7 @@ struct CountrysideHeroHeader: View {
                 .padding(.trailing, 16)
             }
         }
-        .frame(height: heroHeight)
+        .frame(height: responsiveHeight)
     }
 }
 
