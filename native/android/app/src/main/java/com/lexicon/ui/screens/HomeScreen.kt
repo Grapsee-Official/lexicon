@@ -230,7 +230,12 @@ private fun HomeFeed(viewModel: LexiconViewModel) {
             },
             dismissButton = {
                 if (selected != null) {
-                    TextButton(onClick = { articleToRead = null }) { Text("All articles") }
+                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                        TextButton(onClick = { viewModel.toggleArticleBookmark(selected.id) }) {
+                            Text(if (selected.id in state.bookmarkedArticleIds) "Saved" else "Save story")
+                        }
+                        TextButton(onClick = { articleToRead = null }) { Text("All articles") }
+                    }
                 }
             },
             containerColor = if (state.isDark) DarkCard else CardSurface,

@@ -137,6 +137,17 @@ struct HomeScreen: View {
                     ToolbarItem(placement: .confirmationAction) {
                         Button("Done") { libraryOpen = false }
                     }
+                    ToolbarItem(placement: .bottomBar) {
+                        if let article = articleToRead {
+                            Button { vm.toggleArticleBookmark(article.id) } label: {
+                                Label(
+                                    vm.bookmarkedArticleIds.contains(article.id) ? "Saved" : "Save story",
+                                    systemImage: vm.bookmarkedArticleIds.contains(article.id)
+                                        ? "bookmark.fill" : "bookmark"
+                                )
+                            }
+                        }
+                    }
                 }
             }
             .presentationDragIndicator(.visible)
