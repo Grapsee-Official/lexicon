@@ -30,14 +30,14 @@ struct ArticleCard: View {
                 Image(thumbName)
                     .resizable()
                     .scaledToFill()
-                    .frame(width: 62, height: 78)
+                    .frame(width: 54, height: 80)
                     .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
                     .padding(5)
                     .lexiconDecorative()
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text(article.title)
-                        .font(.lexiconDisplay(11.5, weight: .regular))
+                        .font(.lexiconDisplay(13, weight: .regular))
                         .foregroundStyle(lexiconPalette(scheme).foreground)
                         .lineLimit(3)
                         .multilineTextAlignment(.leading)
@@ -51,7 +51,7 @@ struct ArticleCard: View {
                                 .font(.system(size: 9.5, weight: .regular))
                                 .foregroundStyle(iconColor)
                             Text("\(article.readMinutes) min read")
-                                .font(.lexiconBody(9))
+                                .font(.lexiconBody(9.5))
                                 .foregroundStyle(lexiconPalette(scheme).mutedForeground)
                         }
 
@@ -66,9 +66,9 @@ struct ArticleCard: View {
                 .padding(.leading, 5)
                 .padding(.trailing, 10)
                 .padding(.vertical, 8)
-                .frame(width: 124, height: 88, alignment: .topLeading)
+                .frame(width: 110, height: 90, alignment: .topLeading)
             }
-            .frame(width: 196, height: 88)
+            .frame(width: 174, height: 90)
             .background(lexiconPalette(scheme).card)
             .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
             .overlay(
