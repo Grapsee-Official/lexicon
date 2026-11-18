@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BookmarkBorder
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -57,6 +58,7 @@ fun ArticleCard(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
+    val isBookmarked = article.id in state.bookmarkedArticleIds
 
     val ctx = LocalContext.current
     val thumbName = if (isDark) "${article.thumbnail}_dark" else article.thumbnail
@@ -141,7 +143,7 @@ fun ArticleCard(
                 }
 
                 Icon(
-                    imageVector = Icons.Outlined.BookmarkBorder,
+                    imageVector = if (isBookmarked) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
                     contentDescription = null,
                     tint = iconColor,
                     modifier = Modifier.size(12.dp),

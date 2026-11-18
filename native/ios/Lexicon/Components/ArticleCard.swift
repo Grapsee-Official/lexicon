@@ -7,6 +7,7 @@ import SwiftUI
 
 struct ArticleCard: View {
     let article: Article
+    @EnvironmentObject private var vm: LexiconViewModel
     var onOpen: () -> Void = {}
     @Environment(\.colorScheme) private var scheme
 
@@ -56,7 +57,7 @@ struct ArticleCard: View {
 
                         Spacer()
 
-                        Image(systemName: article.bookmarked ? "bookmark.fill" : "bookmark")
+                        Image(systemName: vm.bookmarkedArticleIds.contains(article.id) ? "bookmark.fill" : "bookmark")
                             .font(.system(size: 11, weight: .regular))
                             .foregroundStyle(iconColor)
                             .lexiconDecorative()
@@ -83,7 +84,7 @@ struct ArticleCard: View {
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(Text("Article. \(article.title). \(article.readMinutes) minute read\(article.bookmarked ? ". Bookmarked" : "")"))
+        .accessibilityLabel(Text("Article. \(article.title). \(article.readMinutes) minute read\(vm.bookmarkedArticleIds.contains(article.id) ? ". Bookmarked" : "")"))
         .accessibilityHint(Text("Open the article"))
         .accessibilityAddTraits(.isButton)
     }
