@@ -75,8 +75,8 @@ fun ArticleCard(
 
     Row(
         modifier = modifier
-            .width(196.dp)
-            .height(94.dp)
+            .width(174.dp)
+            .height(90.dp)
             .then(
                 if (!isDark) {
                     Modifier.shadow(
@@ -94,7 +94,7 @@ fun ArticleCard(
     ) {
         Box(
             modifier = Modifier
-                .weight(0.36f)
+                .weight(0.33f)
                 .fillMaxHeight()
                 .padding(5.dp)
                 .clip(RoundedCornerShape(9.dp)),
@@ -109,9 +109,9 @@ fun ArticleCard(
 
         Column(
             modifier = Modifier
-                .weight(0.64f)
+                .weight(0.67f)
                 .fillMaxHeight()
-                .padding(start = 6.dp, end = 10.dp, top = 9.dp, bottom = 8.dp),
+                .padding(start = 5.dp, end = 9.dp, top = 10.dp, bottom = 9.dp),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(
