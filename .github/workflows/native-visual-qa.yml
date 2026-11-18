@@ -65,24 +65,7 @@ jobs:
           emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
           disable-animations: true
           disable-linux-hw-accel: false
-          script: |
-            set -eu
-            mkdir -p qa-captures/android
-            adb install -r native/android/app/build/outputs/apk/debug/app-debug.apk
-            adb shell settings put system font_scale 1.0
-            adb shell wm size 1080x2400
-            adb shell wm density 420
-            adb shell settings put system accelerometer_rotation 0
-            for mode in light dark; do
-              for screen in home dictionary_home word_of_the_day word_detail collections my_notes study_lists quick_templates search_discovery search_results expanded_exploration; do
-                adb shell am force-stop com.lexicon.debug || true
-                adb shell am start -W -n com.lexicon.debug/com.lexicon.MainActivity --es lexora_theme "$mode" --es lexicon_screen "$screen"
-                sleep 2
-                adb exec-out screencap -p > "qa-captures/android/${mode}-${screen}.png"
-                test "$(wc -c < "qa-captures/android/${mode}-${screen}.png")" -gt 20000
-              done
-            done
-            find qa-captures/android -type f -name '*.png' | sort
+          script: bash scripts/capture_android_screens.sh
       - uses: actions/upload-artifact@v4
         if: always()
         with:
