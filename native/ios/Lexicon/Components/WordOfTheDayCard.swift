@@ -47,10 +47,7 @@ struct WordOfTheDayCard: View {
     }
 
     var body: some View {
-        Button {
-            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-            vm.navigate(to: .wordOfTheDay, word: word)
-        } label: {
+        Group {
             GeometryReader { geo in
                 let totalW = geo.size.width
                 let height = cardHeight
@@ -84,14 +81,15 @@ struct WordOfTheDayCard: View {
                                 .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
                                 .minimumScaleFactor(0.75)
 
-                            Image(systemName: "speaker.wave.2")
-                                .font(.system(size: 14, weight: .regular))
-                                .foregroundStyle(labelGold)
-                                .frame(width: 28, height: 28)
-                                .contentShape(Rectangle())
-                                .onTapGesture { vm.pronounce(word.word) }
-                                .accessibilityLabel("Pronounce \(word.word)")
-                                .accessibilityAddTraits(.isButton)
+                            Button { vm.pronounce(word.word) } label: {
+                                Image(systemName: "speaker.wave.2")
+                                    .font(.system(size: 14, weight: .regular))
+                                    .foregroundStyle(labelGold)
+                                    .frame(width: 32, height: 32)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Pronounce \(word.word)")
                         }
 
                         Spacer(minLength: 4)
@@ -181,8 +179,12 @@ struct WordOfTheDayCard: View {
                 y: 2
             )
         }
-        .buttonStyle(.plain)
-        .accessibilityElement(children: .combine)
+        .contentShape(RoundedRectangle(cornerRadius: 16))
+        .onTapGesture {
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            vm.navigate(to: .wordOfTheDay, word: word)
+        }
+        .accessibilityElement(children: .contain)
         .accessibilityLabel(Text("Word of the Day. \(word.word). \(word.phonetic). \(word.partOfSpeech.displayValue). \(word.definitions.first ?? "")"))
         .accessibilityHint(Text("Opens the dictionary entry"))
         .accessibilityAddTraits(.isButton)
