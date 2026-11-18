@@ -16,7 +16,7 @@ struct BottomNav: View {
     }
 
     private var inactiveColor: Color {
-        isDark ? LexiconColors.accentDark.opacity(0.78) : LexiconColors.mutedForeground
+        isDark ? LexiconColors.accentDark.opacity(0.78) : LexiconColors.foreground.opacity(0.88)
     }
 
     private var dotColor: Color {
