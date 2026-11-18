@@ -848,7 +848,7 @@ struct ExpandedExplorationScreen: View {
         let translations = LexiconData.translationsFor(word)
         let expanded = showAll36
 
-        ScrollView {
+        return ScrollView {
             VStack(spacing: 11) {
                 CountrysideHeroHeader(
                     title: "Dictionary",
