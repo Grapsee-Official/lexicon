@@ -36,6 +36,19 @@ struct CountrysideHeroHeader: View {
                 }
                 .frame(width: w, height: heroHeight)
 
+                LinearGradient(
+                    stops: [
+                        .init(color: isDark ? LexiconColors.backgroundDark.opacity(0.84)
+                            : LexiconColors.background.opacity(0.78), location: 0),
+                        .init(color: isDark ? LexiconColors.backgroundDark.opacity(0.46)
+                            : LexiconColors.background.opacity(0.42), location: 0.38),
+                        .init(color: .clear, location: 0.78),
+                    ],
+                    startPoint: .leading, endPoint: .trailing
+                )
+                .frame(width: w, height: heroHeight)
+                .allowsHitTesting(false)
+
                 if isDark {
                     NocturneAtmosphere()
                         .frame(width: w, height: heroHeight)
@@ -50,7 +63,7 @@ struct CountrysideHeroHeader: View {
                         .buttonStyle(.plain)
 
                         Text(title)
-                            .font(.lexiconDisplay(title.count > 14 ? 24 : 28, weight: .regular))
+                            .font(.lexiconDisplay(w < 390 || title.count > 14 ? 24 : 28, weight: .regular))
                             .tracking(-0.3)
                             .foregroundStyle(lexiconPalette(scheme).foreground)
                             .lineLimit(2)
@@ -62,7 +75,7 @@ struct CountrysideHeroHeader: View {
                         .lineSpacing(2)
                         .lineLimit(2)
                 }
-                .frame(width: w * 0.58, alignment: .leading)
+                .frame(width: w * (w < 390 ? 0.73 : 0.58), alignment: .leading)
                 .padding(.leading, 16)
                 .padding(.top, 12)
 

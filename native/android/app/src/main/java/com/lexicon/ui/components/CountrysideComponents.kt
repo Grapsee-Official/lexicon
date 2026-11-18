@@ -109,6 +109,8 @@ fun CountrysideHeroHeader(
     val subColor = if (isDark) DarkMutedForeground else DeepForest.copy(alpha = 0.78f)
     val sprigColor = if (isDark) DarkAccent else BrandGreen
     val resId = resolveCountrysideDrawable(illustrationBase, isDark)
+    val compact = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 390
+    val titleWidth = if (compact) 0.73f else 0.58f
 
     Box(
         modifier = Modifier
@@ -128,6 +130,19 @@ fun CountrysideHeroHeader(
                 .offset(x = 6.dp, y = 4.dp),
         )
 
+        // A responsive painted-paper wash protects legibility
+        // without removing the watercolor landscape.
+        Box(
+            modifier = Modifier.fillMaxSize().background(
+                Brush.horizontalGradient(
+                    0.0f to (if (isDark) Color(0xFF0E131B).copy(alpha = 0.84f)
+                        else Color(0xFFF3EBDD).copy(alpha = 0.78f)),
+                    0.38f to (if (isDark) Color(0xFF0E131B).copy(alpha = 0.46f)
+                        else Color(0xFFF3EBDD).copy(alpha = 0.42f)),
+                    0.78f to Color.Transparent,
+                )
+            ),
+        )
         if (isDark) {
             NocturneAtmosphere(Modifier.fillMaxSize())
         }
@@ -135,7 +150,7 @@ fun CountrysideHeroHeader(
         Column(
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .fillMaxWidth(0.58f)
+                .fillMaxWidth(titleWidth)
                 .padding(start = 16.dp, top = 12.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
@@ -155,7 +170,7 @@ fun CountrysideHeroHeader(
                     style = TextStyle(
                         fontFamily = DisplayFontFamily,
                         fontWeight = FontWeight.Normal,
-                        fontSize = if (title.length > 14) 24.sp else 28.sp,
+                        fontSize = if (compact || title.length > 14) 24.sp else 28.sp,
                         lineHeight = 30.sp,
                         letterSpacing = (-0.3).sp,
                     ),
