@@ -1,0 +1,143 @@
+name: Lexicon Native Visual QA
+# QA builds stay private to Actions artifacts. Never publish a release APK here.
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/native-visual-qa.yml'
+      - 'native/**'
+      - 'scripts/check_countryside_art.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lexicon-visual-qa
+  cancel-in-progress: true
+
+jobs:
+  cpp-engine:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[visual-qa]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run C++17 engine tests
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y cmake g++ libsqlite3-dev libgtest-dev
+          cmake -S native/cpp -B native/cpp/build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON -DTARGET_ANDROID=OFF -DTARGET_IOS=OFF
+          cmake --build native/cpp/build --parallel 3
+          ctest --test-dir native/cpp/build --output-on-failure
+
+  android-screens:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[visual-qa]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify all countryside assets
+        run: python3 scripts/check_countryside_art.py
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platforms;android-34 build-tools;34.0.0 ndk;26.3.11579264 cmake;3.22.1'
+      - name: Compile and test internal debug app (never published)
+        working-directory: native/android
+        run: |
+          chmod +x gradlew
+          ./gradlew testDebugUnitTest assembleDebug --no-daemon --stacktrace
+          test -s app/build/outputs/apk/debug/app-debug.apk
+      - name: Capture actual Android emulator screens
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          profile: pixel_6
+          target: google_apis
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          disable-animations: true
+          script: |
+            set -eu
+            mkdir -p qa-captures/android
+            adb install -r native/android/app/build/outputs/apk/debug/app-debug.apk
+            adb shell settings put system font_scale 1.0
+            adb shell wm size 1080x2400
+            adb shell wm density 420
+            adb shell settings put system accelerometer_rotation 0
+            for mode in light dark; do
+              for screen in home dictionary_home word_of_the_day word_detail collections my_notes study_lists quick_templates search_discovery search_results expanded_exploration; do
+                adb shell am force-stop com.lexicon.debug || true
+                adb shell am start -W -n com.lexicon.debug/com.lexicon.MainActivity --es lexora_theme "$mode" --es lexicon_screen "$screen"
+                sleep 2
+                adb exec-out screencap -p > "qa-captures/android/${mode}-${screen}.png"
+                test "$(wc -c < "qa-captures/android/${mode}-${screen}.png")" -gt 20000
+              done
+            done
+            find qa-captures/android -type f -name '*.png' | sort
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lexicon-android-22-screen-evidence
+          path: qa-captures/android/*.png
+          if-no-files-found: warn
+          retention-days: 7
+
+  ios-screens:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[visual-qa]')
+    runs-on: macos-15-intel
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/check_countryside_art.py
+      - name: Build C++17 for Apple simulator
+        run: |
+          SDK="$(xcrun --sdk iphonesimulator --show-sdk-path)"
+          ARCH="$(uname -m)"
+          mkdir -p native/cpp/build-ios-sim native/ios/Lexicon/Engine/lib
+          for src in native/cpp/src/*.cpp; do
+            def=""
+            if [ "$(basename "$src")" = "hash_table.cpp" ]; then def="-DLEXICON_UNICODE_EXTERNAL"; fi
+            obj="native/cpp/build-ios-sim/$(basename "${src%.cpp}").o"
+            xcrun --sdk iphonesimulator clang++ -target "${ARCH}-apple-ios16.0-simulator" -isysroot "$SDK" -std=c++17 -O2 -fPIC ${def} -I native/cpp/include -c "$src" -o "$obj"
+          done
+          xcrun --sdk iphonesimulator libtool -static -o native/ios/Lexicon/Engine/lib/liblexicon-engine.a native/cpp/build-ios-sim/*.o
+          cp -r native/cpp/include/lexicon native/ios/Lexicon/Engine/lib/
+      - name: Compile actual native iOS simulator app
+        working-directory: native/ios
+        run: |
+          ARCH="$(uname -m)"
+          xcodebuild -project Lexicon.xcodeproj -scheme Lexicon -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -configuration Debug -derivedDataPath "${RUNNER_TEMP}/DerivedData" ARCHS="$ARCH" ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" OTHER_LDFLAGS='$(inherited) -llexicon-engine -lsqlite3 -lc++ -L$(SRCROOT)/Lexicon/Engine/lib' HEADER_SEARCH_PATHS='$(inherited) $(SRCROOT)/Lexicon $(SRCROOT)/Lexicon/Engine $(SRCROOT)/Lexicon/Engine/lib $(SRCROOT)/../cpp/include' build
+      - name: Boot a simulator and capture 22 actual SwiftUI screens
+        run: |
+          set -eu
+          APP="${RUNNER_TEMP}/DerivedData/Build/Products/Debug-iphonesimulator/Lexicon.app"
+          test -d "$APP"
+          mkdir -p qa-captures/ios
+          xcrun simctl list devices available --json > "${RUNNER_TEMP}/lexicon-devices.json"
+          DEVICE=$(python3 -c 'import json,sys; x=json.load(open(sys.argv[1])); ds=[d for arr in x["devices"].values() for d in arr if d.get("isAvailable") and "iPhone" in d["name"]]; print(ds[0]["udid"] if ds else "")' "${RUNNER_TEMP}/lexicon-devices.json")
+          test -n "$DEVICE"
+          xcrun simctl boot "$DEVICE" || true
+          xcrun simctl bootstatus "$DEVICE" -b
+          xcrun simctl status_bar "$DEVICE" override --time '9:41' --dataNetwork wifi --wifiMode active --wifiBars 3 --batteryState charged --batteryLevel 100
+          xcrun simctl install "$DEVICE" "$APP"
+          for mode in light dark; do
+            for screen in home dictionary_home word_of_the_day word_detail collections my_notes study_lists quick_templates search_discovery search_results expanded_exploration; do
+              xcrun simctl terminate "$DEVICE" com.lexicon.app || true
+              xcrun simctl launch "$DEVICE" com.lexicon.app -lexoraTheme "$mode" -lexiconScreen "$screen"
+              sleep 2
+              xcrun simctl io "$DEVICE" screenshot "qa-captures/ios/${mode}-${screen}.png"
+              test "$(wc -c < "qa-captures/ios/${mode}-${screen}.png")" -gt 20000
+            done
+          done
+          find qa-captures/ios -type f -name '*.png' | sort
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lexicon-ios-22-screen-evidence
+          path: qa-captures/ios/*.png
+          if-no-files-found: warn
+          retention-days: 7
