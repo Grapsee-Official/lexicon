@@ -108,7 +108,7 @@ struct LexiconHeader: View {
             Button("Close", role: .cancel) { }
         } message: {
             let featured = LexiconData.featuredWord()
-            Text("Today’s word: \(featured.word). \(featured.definitions.first ?? \"\")")
+            Text("Today’s word: \(featured.word). \(featured.definitions.first ?? "")")
         }
     }
 
