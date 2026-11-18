@@ -188,6 +188,12 @@ fun WordOfTheDayCard(
                 alignment = Alignment.CenterEnd,
             )
 
+            if (isDark) {
+                NocturneAtmosphere(
+                    Modifier.align(Alignment.CenterEnd).fillMaxWidth(0.54f).fillMaxHeight()
+                )
+            }
+
             Column(
                 modifier = Modifier
                     .fillMaxHeight()

@@ -116,6 +116,12 @@ struct WordOfTheDayCard: View {
                                 .accessibilityHidden(true)
                         }
 
+                        if isDark {
+                            NocturneAtmosphere()
+                                .frame(width: rightW * 0.54, height: 132)
+                                .frame(maxWidth: .infinity, alignment: .trailing)
+                        }
+
                         VStack(alignment: .leading, spacing: 0) {
                             Text(word.definitions.first ?? "")
                                 .font(.lexiconBody(11.5))

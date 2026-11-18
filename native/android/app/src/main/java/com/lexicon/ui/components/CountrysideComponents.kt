@@ -577,6 +577,20 @@ fun NocturneAtmosphere(modifier: Modifier = Modifier) {
                     cap = StrokeCap.Round,
                 )
             }
+
+        // Fine distant stars are separate editable vector points, never
+        // a repeated bitmap or animation.
+        repeat(64) { index ->
+            val x = 0.48f + ((index * 37 % 97) / 96f) * 0.50f
+            val y = 0.04f + ((index * 41 % 89) / 88f) * 0.78f
+            val radius = (0.32f + (index % 4) * 0.11f).dp.toPx()
+            drawCircle(
+                color = (if (index % 5 == 0) gold else soft)
+                    .copy(alpha = 0.14f + (index % 3) * 0.055f),
+                radius = radius,
+                center = Offset(size.width * x, size.height * y),
+            )
+        }
         }
     }
 }

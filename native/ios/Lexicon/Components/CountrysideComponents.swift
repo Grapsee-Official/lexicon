@@ -363,6 +363,19 @@ struct NocturneAtmosphere: View {
                     context.stroke(glimmer, with: .color(lantern.opacity(0.36)),
                                    style: StrokeStyle(lineWidth: 0.6, lineCap: .round))
                 }
+
+            // Star positions use the same normalized mathematics as Compose.
+            for index in 0..<64 {
+                let x = 0.48 + CGFloat((index * 37) % 97) / 96 * 0.50
+                let y = 0.04 + CGFloat((index * 41) % 89) / 88 * 0.78
+                let radius = 0.32 + CGFloat(index % 4) * 0.11
+                let dot = Path(ellipseIn: CGRect(
+                    x: size.width * x - radius, y: size.height * y - radius,
+                    width: radius * 2, height: radius * 2
+                ))
+                let tone = index.isMultiple(of: 5) ? lantern : moonlitBlue
+                context.fill(dot, with: .color(tone.opacity(0.14 + Double(index % 3) * 0.055)))
+            }
             }
         }
         .accessibilityHidden(true)
