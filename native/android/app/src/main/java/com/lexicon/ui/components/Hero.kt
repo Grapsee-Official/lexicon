@@ -69,9 +69,8 @@ fun Hero(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .fillMaxWidth(if (compact) 0.65f else 0.71f)
-                .height(238.dp)
-                .offset(x = 8.dp, y = 6.dp)
-                ,
+                .height(heroHeight)
+                .offset(x = 8.dp, y = 6.dp),
         )
 
         if (isDark) {
