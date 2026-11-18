@@ -36,9 +36,9 @@ final class LexiconViewModel: ObservableObject {
     @Published var notes: [NoteItem] = LexiconData.defaultNotes
     @Published var studyLists: [StudyListItem] = LexiconData.defaultStudyLists
     @Published var templates: [VocabTemplate] = LexiconData.defaultTemplates
-    @Published var todayStudiedWords: Int = 6
+    @Published var todayStudiedWords: Int = 0
     @Published var todayGoalWords: Int = 10
-    @Published var dayStreak: Int = 12
+    @Published var dayStreak: Int = 0
     @Published var wordBuilderOpen: Bool = false
     @Published var isOfflinePackReady: Bool = true
     @Published var isLoading: Bool = false
@@ -55,6 +55,19 @@ final class LexiconViewModel: ObservableObject {
 
     private let savedKey = "lexicon.savedWordIds"
     private let recentKey = "lexicon.recentSearches"
+    private let favoriteKey = "lexicon.favoriteWordIds"
+    private let notesKey = "lexicon.notes"
+    private let studyKey = "lexicon.studyLists"
+    private let templatesKey = "lexicon.templates"
+    private let todayKey = "lexicon.todayStudy"
+    private let studyDateKey = "lexicon.studyDate"
+
+    private var todayDate: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: Date())
+    }
 
     init() {
         loadPersisted()
@@ -239,6 +252,7 @@ final class LexiconViewModel: ObservableObject {
         } else {
             favoriteWordIds.insert(id, at: 0)
         }
+        persistLibrary()
     }
 
     func isSaved(_ id: String) -> Bool { savedWordIds.contains(id) }
@@ -267,16 +281,27 @@ final class LexiconViewModel: ObservableObject {
             illustration: art
         )
         notes.insert(item, at: 0)
+        persistLibrary()
     }
 
     func toggleNoteBookmark(_ noteId: String) {
         if let i = notes.firstIndex(where: { $0.id == noteId }) {
             notes[i].bookmarked.toggle()
         }
+        persistLibrary()
+    }
+
+    func updateNote(_ noteId: String, title: String, body: String) {
+        if let i = notes.firstIndex(where: { $0.id == noteId }) {
+            notes[i].title = title.trimmingCharacters(in: .whitespacesAndNewlines)
+            notes[i].body = body.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        persistLibrary()
     }
 
     func deleteNote(_ noteId: String) {
         notes.removeAll { $0.id == noteId }
+        persistLibrary()
     }
 
     func advanceStudyList(_ listId: String) {
@@ -284,6 +309,7 @@ final class LexiconViewModel: ObservableObject {
             studyLists[i].completedWords = min(studyLists[i].totalWords, studyLists[i].completedWords + 2)
         }
         todayStudiedWords = min(todayGoalWords, todayStudiedWords + 1)
+        persistLibrary()
     }
 
     func createCustomTemplate(title: String, subtitle: String, category: TemplateCategory) {
@@ -296,12 +322,14 @@ final class LexiconViewModel: ObservableObject {
             starred: true
         )
         templates.insert(tpl, at: 0)
+        persistLibrary()
     }
 
     func toggleTemplateStar(_ id: String) {
         if let i = templates.firstIndex(where: { $0.id == id }) {
             templates[i].starred.toggle()
         }
+        persistLibrary()
     }
 
     func addRecentSearch(_ q: String) {
@@ -371,12 +399,40 @@ final class LexiconViewModel: ObservableObject {
     }
 
     private func loadPersisted() {
-        if let saved = UserDefaults.standard.array(forKey: savedKey) as? [String], !saved.isEmpty {
+        let defaults = UserDefaults.standard
+        if let saved = defaults.array(forKey: savedKey) as? [String] {
             savedWordIds = saved
         }
-        if let recent = UserDefaults.standard.array(forKey: recentKey) as? [String], !recent.isEmpty {
+        if let recent = defaults.array(forKey: recentKey) as? [String] {
             recentSearches = recent
         }
+        if let favorites = defaults.array(forKey: favoriteKey) as? [String] {
+            favoriteWordIds = favorites
+        }
+        if let data = defaults.data(forKey: notesKey),
+           let stored = try? JSONDecoder().decode([NoteItem].self, from: data) {
+            notes = stored
+        }
+        if let data = defaults.data(forKey: studyKey),
+           let stored = try? JSONDecoder().decode([StudyListItem].self, from: data) {
+            studyLists = stored
+        }
+        if let data = defaults.data(forKey: templatesKey),
+           let stored = try? JSONDecoder().decode([VocabTemplate].self, from: data) {
+            templates = stored
+        }
+        todayStudiedWords = defaults.string(forKey: studyDateKey) == todayDate
+            ? defaults.integer(forKey: todayKey) : 0
+    }
+
+    private func persistLibrary() {
+        let defaults = UserDefaults.standard
+        defaults.set(favoriteWordIds, forKey: favoriteKey)
+        if let data = try? JSONEncoder().encode(notes) { defaults.set(data, forKey: notesKey) }
+        if let data = try? JSONEncoder().encode(studyLists) { defaults.set(data, forKey: studyKey) }
+        if let data = try? JSONEncoder().encode(templates) { defaults.set(data, forKey: templatesKey) }
+        defaults.set(todayStudiedWords, forKey: todayKey)
+        defaults.set(todayDate, forKey: studyDateKey)
     }
 
     private func persistSaved() {

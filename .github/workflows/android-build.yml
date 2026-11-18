@@ -1,74 +1,107 @@
-name: Android Build
-
+name: Lexicon Native Release
 on:
   push:
+    branches: [main]
     paths:
       - 'native/android/**'
+      - 'native/ios/**'
       - 'native/cpp/**'
-      - '.github/workflows/android-build.yml'
-  pull_request:
-    paths:
-      - 'native/android/**'
-      - 'native/cpp/**'
+      - 'scripts/check_countryside_art.py'
       - '.github/workflows/android-build.yml'
   workflow_dispatch:
-
+permissions:
+  contents: write
 concurrency:
-  group: android-build-${{ github.ref }}
-  cancel-in-progress: true
-
+  group: lexicon-native-release
+  cancel-in-progress: false
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+  verify-ios:
+    runs-on: macos-15-intel
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+      - run: python3 scripts/check_countryside_art.py
+      - name: Build C++ engine for iOS simulator
+        run: |
+          SDK="$(xcrun --sdk iphonesimulator --show-sdk-path)"
+          ARCH="$(uname -m)"
+          mkdir -p native/cpp/build-ios-sim native/ios/Lexicon/Engine/lib
+          for src in native/cpp/src/*.cpp; do
+            def=""
+            if [ "$(basename "$src")" = "hash_table.cpp" ]; then def="-DLEXICON_UNICODE_EXTERNAL"; fi
+            obj="native/cpp/build-ios-sim/$(basename "${src%.cpp}").o"
+            xcrun --sdk iphonesimulator clang++ -target "${ARCH}-apple-ios16.0-simulator" -isysroot "$SDK" -std=c++17 -O2 -fPIC ${def} -I native/cpp/include -c "$src" -o "$obj"
+          done
+          xcrun --sdk iphonesimulator libtool -static -o native/ios/Lexicon/Engine/lib/liblexicon-engine.a native/cpp/build-ios-sim/*.o
+          cp -r native/cpp/include/lexicon native/ios/Lexicon/Engine/lib/
+      - name: Compile native SwiftUI Release (unsigned simulator validation)
+        working-directory: native/ios
+        run: |
+          ARCH="$(uname -m)"
+          xcodebuild -project Lexicon.xcodeproj -scheme Lexicon -sdk iphonesimulator -destination "generic/platform=iOS Simulator" -configuration Release -derivedDataPath "${RUNNER_TEMP}/DerivedData" ARCHS="$ARCH" ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" OTHER_LDFLAGS='$(inherited) -llexicon-engine -lsqlite3 -lc++ -L$(SRCROOT)/Lexicon/Engine/lib' HEADER_SEARCH_PATHS='$(inherited) $(SRCROOT)/Lexicon $(SRCROOT)/Lexicon/Engine $(SRCROOT)/Lexicon/Engine/lib $(SRCROOT)/../cpp/include' build
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+  build-android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/check_countryside_art.py
+      - uses: actions/setup-java@v4
         with:
+          distribution: temurin
           java-version: '17'
-          distribution: 'temurin'
-          cache: 'gradle'
-
-      - name: Set up Android SDK & NDK
-        uses: android-actions/setup-android@v3
+          cache: gradle
+      - uses: android-actions/setup-android@v3
         with:
           packages: 'platforms;android-34 build-tools;34.0.0 ndk;26.3.11579264 cmake;3.22.1'
-
-      - name: Build Android Debug APK
+      - name: Test and assemble Android release without debug APK
         working-directory: native/android
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon --stacktrace
-
-      - name: Upload Debug APK Artifact
-        uses: actions/upload-artifact@v4
+          ./gradlew testReleaseUnitTest assembleRelease --no-daemon --stacktrace
+          test -s app/build/outputs/apk/release/app-release-unsigned.apk
+      - uses: actions/upload-artifact@v4
         with:
-          name: lexora-android-debug-apk
-          path: native/android/app/build/outputs/apk/debug/*.apk
+          name: lexicon-unsigned-release-candidate
+          path: native/android/app/build/outputs/apk/release/app-release-unsigned.apk
           if-no-files-found: error
-
-      - name: Enable KVM for Android Emulator
+          retention-days: 1
+  publish:
+    needs: [verify-ios, build-android]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: lexicon-unsigned-release-candidate
+          path: release-candidate
+      - name: Validate stable release signing credentials
+        env:
+          LEXICON_RELEASE_KEYSTORE_BASE64: ${{ secrets.LEXICON_RELEASE_KEYSTORE_BASE64 }}
+          LEXICON_RELEASE_KEYSTORE_PASSWORD: ${{ secrets.LEXICON_RELEASE_KEYSTORE_PASSWORD }}
+          LEXICON_RELEASE_KEY_ALIAS: ${{ secrets.LEXICON_RELEASE_KEY_ALIAS }}
+          LEXICON_RELEASE_KEY_PASSWORD: ${{ secrets.LEXICON_RELEASE_KEY_PASSWORD }}
         run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-
-      - name: Boot Android Emulator & Capture Native Light + Dark Screenshots
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 34
-          target: google_apis
-          arch: x86_64
-          profile: pixel_6
-          disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: bash native/android/capture-screenshots.sh
-
-      - name: Upload Android Native Screenshots
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-native-screenshots
-          path: ${{ runner.temp }}/android-screenshots/*.png
-          if-no-files-found: error
+          for key in LEXICON_RELEASE_KEYSTORE_BASE64 LEXICON_RELEASE_KEYSTORE_PASSWORD LEXICON_RELEASE_KEY_ALIAS LEXICON_RELEASE_KEY_PASSWORD; do
+            if [[ -z "${!key}" ]]; then echo "::error::Missing $key. Stable signing is required before APK publication."; exit 1; fi
+          done
+          printf '%s' "$LEXICON_RELEASE_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/lexicon-release.jks"
+          chmod 600 "$RUNNER_TEMP/lexicon-release.jks"
+      - name: Sign, verify and update the single GitHub Release without release notes
+        env:
+          LEXICON_RELEASE_KEYSTORE_PASSWORD: ${{ secrets.LEXICON_RELEASE_KEYSTORE_PASSWORD }}
+          LEXICON_RELEASE_KEY_ALIAS: ${{ secrets.LEXICON_RELEASE_KEY_ALIAS }}
+          LEXICON_RELEASE_KEY_PASSWORD: ${{ secrets.LEXICON_RELEASE_KEY_PASSWORD }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TOOLS="$ANDROID_HOME/build-tools/34.0.0"
+          mkdir -p dist
+          "$TOOLS/zipalign" -f -p 4 release-candidate/app-release-unsigned.apk dist/lexicon-aligned.apk
+          "$TOOLS/apksigner" sign --ks "$RUNNER_TEMP/lexicon-release.jks" --ks-key-alias "$LEXICON_RELEASE_KEY_ALIAS" --ks-pass env:LEXICON_RELEASE_KEYSTORE_PASSWORD --key-pass env:LEXICON_RELEASE_KEY_PASSWORD --out dist/lexicon-android-release.apk dist/lexicon-aligned.apk
+          "$TOOLS/apksigner" verify --verbose dist/lexicon-android-release.apk
+          TAG=lexicon-latest
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/lexicon-android-release.apk --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$TAG" dist/lexicon-android-release.apk --repo "$GITHUB_REPOSITORY" --title Lexicon --notes "" --latest
+          fi

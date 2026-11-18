@@ -469,12 +469,29 @@ enum LexiconData {
         "la": ("Fortuna felix inopinata", "for-tu-na fe-lix"),
     ]
 
+    private static let curatedSolitude: [String: (String, String)] = [
+        "fr": ("Solitude", "so-lee-tyd"),
+        "de": ("Einsamkeit / Stille", "ain-zam-kait"),
+        "es": ("Soledad", "so-le-dad"),
+        "it": ("Solitudine", "so-li-tu-di-ne"),
+        "pt": ("Solidão", "so-li-daun"),
+        "ja": ("孤独・静寂", "kodoku / seijaku"),
+        "bn": ("নির্জনতা", "nirjonota"),
+        "ar": ("عُزلة هادئة", "ʿuzla hādiʾa"),
+        "la": ("Solitudo", "so-li-tu-do"),
+    ]
+
+    // A translation appears only when its curated data is actually present.
     static func translationsFor(_ word: WordEntry) -> [WordTranslation] {
-        thirtySixLanguages.map { (lang, code) in
-            if word.id == "serendipity", let p = curatedSerendipity[code] {
-                return WordTranslation(language: lang, code: code, translated: p.0, transliteration: p.1)
-            }
-            return WordTranslation(language: lang, code: code, translated: "\(word.word) (\(lang))", transliteration: word.phonetic)
+        let available: [String: (String, String)]
+        switch word.id {
+        case "serendipity": available = curatedSerendipity
+        case "solitude": available = curatedSolitude
+        default: available = [:]
+        }
+        return thirtySixLanguages.compactMap { (lang, code) in
+            guard let p = available[code] else { return nil }
+            return WordTranslation(language: lang, code: code, translated: p.0, transliteration: p.1)
         }
     }
 

@@ -47,8 +47,11 @@ import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.PersonOutline
 import androidx.compose.material.icons.outlined.School
 import androidx.compose.material.icons.outlined.StarOutline
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -114,6 +117,7 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
 
     var query by remember { mutableStateOf("") }
     var filter by remember { mutableStateOf("All") }
+    var showAllRecent by remember { mutableStateOf(false) }
 
     val filterItems = listOf(
         "All" to null,
@@ -181,16 +185,16 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
                     modifier = Modifier.padding(horizontal = 16.dp),
                 )
                 val cards = listOf(
-                    QuadCollectionSpec("Favorites", "${20 + state.favoriteWordIds.size} words", Icons.Outlined.FavoriteBorder, "ill_col_favorites") {
+                    QuadCollectionSpec("Favorites", "${state.favoriteWordIds.size} words", Icons.Outlined.FavoriteBorder, "ill_col_favorites") {
                         filter = "Favorites"
                     },
-                    QuadCollectionSpec("Bookmarks", "${15 + state.savedWordIds.size} words", Icons.Outlined.BookmarkBorder, "ill_col_bookmarks") {
+                    QuadCollectionSpec("Bookmarks", "${state.savedWordIds.size} words", Icons.Outlined.BookmarkBorder, "ill_col_bookmarks") {
                         filter = "Bookmarks"
                     },
-                    QuadCollectionSpec("My Notes", "${8 + state.notes.size} words", Icons.Outlined.Description, "ill_col_notes") {
+                    QuadCollectionSpec("My Notes", "${state.notes.size} notes", Icons.Outlined.Description, "ill_col_notes") {
                         viewModel.navigate(ScreenRoute.MY_NOTES)
                     },
-                    QuadCollectionSpec("Study List", "30 words", Icons.Outlined.School, "ill_col_studylist") {
+                    QuadCollectionSpec("Study List", "${state.studyLists.sumOf { it.totalWords }} words", Icons.Outlined.School, "ill_col_studylist") {
                         viewModel.navigate(ScreenRoute.STUDY_LISTS)
                     },
                 )
@@ -265,22 +269,26 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
             }
         }
 
-        // Recently Added (Serendipity, Ethereal, Tranquility with botanical thumbnails)
+        // Recent saved entries; the Favorites and Bookmarks filters show real user state.
         item(key = "recently_added") {
-            val recentDefs = listOf(
-                "serendipity" to "ill_thumb_lavender",
-                "ethereal" to "ill_thumb_cottage",
-                "tranquility" to "ill_thumb_bridge",
-            ).filter { (id, _) ->
-                query.isBlank() || id.contains(query.trim(), ignoreCase = true)
+            val ids = when (filter) {
+                "Favorites" -> state.favoriteWordIds
+                "Bookmarks" -> state.savedWordIds
+                else -> (state.savedWordIds + state.favoriteWordIds).distinct()
             }
+            val thumbnails = listOf("ill_thumb_lavender", "ill_thumb_cottage", "ill_thumb_bridge")
+            val recentDefs = ids.mapIndexed { index, id ->
+                id to thumbnails[index % thumbnails.size]
+            }.filter { (id, _) ->
+                query.isBlank() || id.contains(query.trim(), ignoreCase = true)
+            }.let { if (showAllRecent) it else it.take(3) }
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 BotanicalSectionTitle(
                     title = "Recently Added",
                     isDark = isDark,
-                    actionLabel = "View all",
-                    onAction = { viewModel.navigate(ScreenRoute.EXPANDED_EXPLORATION) },
+                    actionLabel = if (showAllRecent) "Show less" else "View all",
+                    onAction = { showAllRecent = !showAllRecent },
                     modifier = Modifier.padding(horizontal = 16.dp),
                 )
                 Column(
@@ -366,6 +374,10 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
 
     var query by remember { mutableStateOf("") }
     var selectedCat by remember { mutableStateOf("All") }
+    var showAllNotes by remember { mutableStateOf(false) }
+    var editingNote by remember { mutableStateOf<com.lexicon.data.NoteItem?>(null) }
+    var editorTitle by remember { mutableStateOf("") }
+    var editorBody by remember { mutableStateOf("") }
 
     val filteredNotes = state.notes.filter { n ->
         val catOk = selectedCat == "All" ||
@@ -430,8 +442,8 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                     title = "My Notes",
                     isDark = isDark,
                     sprigAfterTitle = true,
-                    actionLabel = "View all",
-                    onAction = { selectedCat = "All"; query = "" },
+                    actionLabel = if (showAllNotes) "Show less" else "View all",
+                    onAction = { selectedCat = "All"; query = ""; showAllNotes = !showAllNotes },
                     modifier = Modifier.padding(horizontal = 16.dp),
                 )
                 if (filteredNotes.isEmpty()) {
@@ -452,7 +464,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                         modifier = Modifier.padding(horizontal = 16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        filteredNotes.take(4).chunked(2).forEach { rowNotes ->
+                        (if (showAllNotes) filteredNotes else filteredNotes.take(4)).chunked(2).forEach { rowNotes ->
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -467,8 +479,9 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                             .background(cardBg)
                                             .border(1.dp, border, RoundedCornerShape(16.dp))
                                             .clickable {
-                                                LexiconData.getWordById(note.title)?.let { viewModel.openWord(it) }
-                                                    ?: viewModel.toggleNoteBookmark(note.id)
+                                                editorTitle = note.title
+                                                editorBody = note.body
+                                                editingNote = note
                                             },
                                     ) {
                                         Image(
@@ -600,6 +613,44 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
             )
         }
     }
+    editingNote?.let { note ->
+        AlertDialog(
+            onDismissRequest = { editingNote = null },
+            title = { Text("Edit note", color = fg) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    OutlinedTextField(
+                        value = editorTitle,
+                        onValueChange = { editorTitle = it },
+                        label = { Text("Title") },
+                        singleLine = true,
+                    )
+                    OutlinedTextField(
+                        value = editorBody,
+                        onValueChange = { editorBody = it },
+                        label = { Text("Your note") },
+                        minLines = 4,
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.updateNote(note.id, editorTitle, editorBody)
+                    editingNote = null
+                }) { Text("Save") }
+            },
+            dismissButton = {
+                Row {
+                    TextButton(onClick = {
+                        viewModel.deleteNote(note.id)
+                        editingNote = null
+                    }) { Text("Delete") }
+                    TextButton(onClick = { editingNote = null }) { Text("Cancel") }
+                }
+            },
+            containerColor = cardBg,
+        )
+    }
 }
 
 /**
@@ -618,7 +669,7 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
 
     var query by remember { mutableStateOf("") }
     val totalWords = state.studyLists.sumOf { it.totalWords }
-    val overallPct = if (totalWords > 0) (state.studyLists.sumOf { it.completedWords } * 100) / totalWords else 78
+    val overallPct = if (totalWords > 0) (state.studyLists.sumOf { it.completedWords } * 100) / totalWords else 0
     val booksRes = resolveCountrysideDrawable("ill_books_daisies", isDark)
 
     LazyColumn(
@@ -655,8 +706,8 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
         // 4 Stat Cards (Active Lists, Total Words, Overall Progress, Day Streak)
         item(key = "stats") {
             val stats = listOf(
-                Triple(Icons.AutoMirrored.Outlined.MenuBook, "${state.studyLists.size + 1}", "Active Lists"),
-                Triple(Icons.Outlined.CheckCircleOutline, "${totalWords + 32}", "Total Words"),
+                Triple(Icons.AutoMirrored.Outlined.MenuBook, "${state.studyLists.size}", "Active Lists"),
+                Triple(Icons.Outlined.CheckCircleOutline, "$totalWords", "Total Words"),
                 Triple(Icons.Outlined.BarChart, "$overallPct%", "Overall Progress"),
                 Triple(Icons.Outlined.StarOutline, "${state.dayStreak}", "Day Streak"),
             )
@@ -689,7 +740,7 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
         item(key = "todays_study") {
             val ringColor = if (isDark) DarkAccent else BrandGreen
             val trackColor = border
-            val progress = (state.todayStudiedWords.toFloat() / state.todayGoalWords.toFloat()).coerceIn(0f, 1f)
+            val progress = (state.todayStudiedWords.toFloat() / state.todayGoalWords.coerceAtLeast(1).toFloat()).coerceIn(0f, 1f)
 
             Column(
                 modifier = Modifier
@@ -874,6 +925,11 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
 
     var query by remember { mutableStateOf("") }
     var filter by remember { mutableStateOf("All") }
+    var showAllTemplates by remember { mutableStateOf(false) }
+    var showCreateTemplate by remember { mutableStateOf(false) }
+    var newTemplateTitle by remember { mutableStateOf("") }
+    var newTemplateDescription by remember { mutableStateOf("") }
+    var newTemplateCategory by remember { mutableStateOf(TemplateCategory.LEARNING) }
     val filtered = state.templates.filter { t ->
         (filter == "All" || t.category.label == filter) &&
             (query.isBlank() || t.title.contains(query, ignoreCase = true))
@@ -931,15 +987,15 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                 BotanicalSectionTitle(
                     title = "Popular Templates",
                     isDark = isDark,
-                    actionLabel = "View all",
-                    onAction = { filter = "All"; query = "" },
+                    actionLabel = if (showAllTemplates) "Show less" else "View all",
+                    onAction = { filter = "All"; query = ""; showAllTemplates = !showAllTemplates },
                     modifier = Modifier.padding(horizontal = 16.dp),
                 )
                 Column(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    filtered.take(4).chunked(2).forEach { rowItems ->
+                    (if (showAllTemplates) filtered else filtered.take(4)).chunked(2).forEach { rowItems ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -1020,7 +1076,7 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                     title = "Create Your Own",
                     isDark = isDark,
                     actionLabel = "View all",
-                    onAction = { viewModel.createCustomTemplate("Countryside Reading", "Collect poetic nature words.", TemplateCategory.WRITING) },
+                    onAction = { showCreateTemplate = true },
                     modifier = Modifier.padding(horizontal = 16.dp),
                 )
                 Box(
@@ -1032,7 +1088,7 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                         .background(cardBg)
                         .border(1.dp, border, RoundedCornerShape(16.dp))
                         .clickable(role = Role.Button) {
-                            viewModel.createCustomTemplate("Botanical Lexicon", "Custom village field-notes template.", TemplateCategory.LEARNING)
+                            showCreateTemplate = true
                         },
                 ) {
                     Image(
@@ -1078,6 +1134,56 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
         }
+    }
+    if (showCreateTemplate) {
+        AlertDialog(
+            onDismissRequest = { showCreateTemplate = false },
+            title = { Text("New template", color = fg) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
+                    OutlinedTextField(
+                        value = newTemplateTitle,
+                        onValueChange = { newTemplateTitle = it },
+                        label = { Text("Template name") },
+                        singleLine = true,
+                    )
+                    OutlinedTextField(
+                        value = newTemplateDescription,
+                        onValueChange = { newTemplateDescription = it },
+                        label = { Text("Description") },
+                        minLines = 2,
+                    )
+                    TemplateCategory.entries.chunked(2).forEach { categories ->
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            categories.forEach { category ->
+                                TextButton(onClick = { newTemplateCategory = category }) {
+                                    Text(category.label,
+                                        color = if (newTemplateCategory == category) fg else muted,
+                                        style = TextStyle(fontSize = 11.sp))
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = newTemplateTitle.isNotBlank(),
+                    onClick = {
+                        viewModel.createCustomTemplate(newTemplateTitle, newTemplateDescription, newTemplateCategory)
+                        showCreateTemplate = false
+                        newTemplateTitle = ""
+                        newTemplateDescription = ""
+                        filter = "All"
+                        query = ""
+                    },
+                ) { Text("Create") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showCreateTemplate = false }) { Text("Cancel") }
+            },
+            containerColor = cardBg,
+        )
     }
 }
 

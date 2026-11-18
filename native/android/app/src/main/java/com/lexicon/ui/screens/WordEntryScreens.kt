@@ -123,7 +123,8 @@ fun WordOfTheDayScreen(viewModel: LexiconViewModel) {
         LexiconData.dictionary[3],
     )
     var dayIdx by remember { mutableIntStateOf(0) }
-    val word = featuredWords[dayIdx % featuredWords.size]
+    val utcDay = remember { (System.currentTimeMillis() / 86_400_000L).toInt() }
+    val word = featuredWords[(utcDay + dayIdx) % featuredWords.size]
 
     val bridgeRes = resolveCountrysideDrawable("ill_hero_bridge", isDark)
     val openBookRes = resolveCountrysideDrawable("ill_open_book_meadow", isDark)
@@ -204,7 +205,7 @@ fun WordOfTheDayScreen(viewModel: LexiconViewModel) {
                     ) {
                         Icon(Icons.Outlined.CalendarToday, contentDescription = null, tint = accent, modifier = Modifier.size(12.dp))
                         Text(
-                            text = "Tue, Sep 16, 2026",
+                            text = java.text.SimpleDateFormat("EEE, MMM d, yyyy", java.util.Locale.ENGLISH).format(java.util.Date()),
                             color = fg.copy(alpha = 0.85f),
                             style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.sp),
                         )
@@ -882,8 +883,11 @@ fun SearchResultsScreen(viewModel: LexiconViewModel) {
     val muted = if (isDark) DarkMutedForeground else WarmGrey
     val accent = if (isDark) DarkAccent else OldWoodGold
 
-    val matches = remember(state.searchQuery) {
-        viewModel.searchWords(state.searchQuery.ifBlank { "serendipity" }, limit = 8)
+    val matches = remember(
+        state.searchQuery, state.filterLanguage, state.filterPos,
+        state.filterDifficulty, state.filterSort,
+    ) {
+        viewModel.searchWords(state.searchQuery, limit = 8)
     }
     val primaryWord: WordEntry? = matches.firstOrNull()
     val fav = primaryWord?.let { state.favoriteWordIds.contains(it.id) } ?: false
@@ -932,9 +936,10 @@ fun SearchResultsScreen(viewModel: LexiconViewModel) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Text("No matching entries", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 19.sp))
+                    Text(if (state.searchQuery.isBlank()) "Search the dictionary" else "No matching entries", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 19.sp))
                     Text(
-                        text = "Try searching for “serendipity”, “solitude”, “eloquence”, or “wanderlust”.",
+                        text = if (state.searchQuery.isBlank()) "Enter a word above to discover its meaning."
+                        else "Try another spelling, language or filter. Example: “serendipity”.",
                         color = muted,
                         style = TextStyle(fontFamily = BodyFontFamily, fontSize = 12.sp),
                     )
@@ -989,7 +994,7 @@ fun SearchResultsScreen(viewModel: LexiconViewModel) {
                     }
 
                     Text(
-                        text = primaryWord.definitions.first(),
+                        text = primaryWord.definitions.firstOrNull() ?: "No definition available yet.",
                         color = fg,
                         style = TextStyle(fontFamily = LongFontFamily, fontSize = 14.sp, lineHeight = 20.sp),
                     )
@@ -1092,6 +1097,39 @@ fun SearchResultsScreen(viewModel: LexiconViewModel) {
                             color = fg,
                             style = TextStyle(fontFamily = BodyFontFamily, fontWeight = FontWeight.Medium, fontSize = 12.sp),
                         )
+                    }
+                }
+            }
+        }
+
+        if (matches.size > 1) {
+            item(key = "more_matches") {
+                Column(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(7.dp),
+                ) {
+                    BotanicalSectionTitle(title = "More Matches", isDark = isDark, actionLabel = null)
+                    matches.drop(1).forEach { result ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                                .clip(RoundedCornerShape(13.dp))
+                                .background(cardBg)
+                                .border(1.dp, border, RoundedCornerShape(13.dp))
+                                .clickable { viewModel.openWord(result) }
+                                .padding(horizontal = 14.dp, vertical = 11.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(result.word, color = fg,
+                                    style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 15.sp))
+                                Text(result.definitions.firstOrNull() ?: "No definition available.",
+                                    color = muted,
+                                    style = TextStyle(fontFamily = BodyFontFamily, fontSize = 10.5.sp),
+                                    maxLines = 2, overflow = TextOverflow.Ellipsis)
+                            }
+                            Icon(Icons.Outlined.ChevronRight, contentDescription = "Open entry",
+                                tint = muted, modifier = Modifier.size(18.dp))
+                        }
                     }
                 }
             }
@@ -1269,24 +1307,31 @@ fun ExpandedExplorationScreen(viewModel: LexiconViewModel) {
                         Icon(Icons.Outlined.Language, contentDescription = null, tint = if (isDark) DarkAccent else BrandGreen, modifier = Modifier.size(18.dp))
                         Column {
                             Text(
-                                text = "${word.word} · 36 Languages",
+                                text = "${word.word} · ${translations.size} available languages",
                                 color = fg,
                                 style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 15.5.sp),
                             )
                             Text(
-                                text = "${word.phonetic} · Tap to ${if (showAll36) "collapse" else "expand all 36 translations"}",
+                                text = "${word.phonetic} · ${if (showAll36) "Hide translations" else "View available translations"}",
                                 color = muted,
                                 style = TextStyle(fontFamily = BodyFontFamily, fontSize = 10.5.sp),
                             )
                         }
                     }
                     Text(
-                        text = if (showAll36) "Collapse" else "Expand 36 →",
+                        text = if (showAll36) "Collapse" else "Expand →",
                         color = if (isDark) DarkAccent else BrandGreen,
                         style = TextStyle(fontFamily = BodyFontFamily, fontWeight = FontWeight.Medium, fontSize = 11.sp),
                     )
                 }
 
+                if (translations.isEmpty()) {
+                    Text(
+                        "This word has no offline translations yet.",
+                        color = muted,
+                        style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.sp),
+                    )
+                }
                 val visibleTranslations = if (showAll36) translations else translations.take(4)
                 visibleTranslations.chunked(2).forEach { pair ->
                     Row(

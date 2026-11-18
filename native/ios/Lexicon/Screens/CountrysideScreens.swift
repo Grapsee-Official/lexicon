@@ -20,6 +20,7 @@ struct CollectionsHubScreen: View {
 
     @State private var query: String = ""
     @State private var filter: String = "All"
+    @State private var showAllRecent = false
     private var isDark: Bool { scheme == .dark }
 
     var body: some View {
@@ -68,16 +69,16 @@ struct CollectionsHubScreen: View {
                         onAction: { vm.navigate(to: .studyLists) }
                     )
                     LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
-                        collectionQuadCard(title: "Favorites", count: "\(20 + vm.favoriteWordIds.count) words", icon: "heart", art: "ill-col-favorites", p: p) {
+                        collectionQuadCard(title: "Favorites", count: "\(vm.favoriteWordIds.count) words", icon: "heart", art: "ill-col-favorites", p: p) {
                             filter = "Favorites"
                         }
-                        collectionQuadCard(title: "Bookmarks", count: "\(15 + vm.savedWordIds.count) words", icon: "bookmark", art: "ill-col-bookmarks", p: p) {
+                        collectionQuadCard(title: "Bookmarks", count: "\(vm.savedWordIds.count) words", icon: "bookmark", art: "ill-col-bookmarks", p: p) {
                             filter = "Bookmarks"
                         }
-                        collectionQuadCard(title: "My Notes", count: "\(8 + vm.notes.count) words", icon: "doc.text", art: "ill-col-notes", p: p) {
+                        collectionQuadCard(title: "My Notes", count: "\(vm.notes.count) notes", icon: "doc.text", art: "ill-col-notes", p: p) {
                             vm.navigate(to: .myNotes)
                         }
-                        collectionQuadCard(title: "Study List", count: "30 words", icon: "graduationcap", art: "ill-col-studylist", p: p) {
+                        collectionQuadCard(title: "Study List", count: "\(vm.studyLists.reduce(0) { $0 + $1.totalWords }) words", icon: "graduationcap", art: "ill-col-studylist", p: p) {
                             vm.navigate(to: .studyLists)
                         }
                     }
@@ -88,16 +89,20 @@ struct CollectionsHubScreen: View {
                 VStack(spacing: 8) {
                     BotanicalSectionTitle(
                         title: "Recently Added",
-                        actionLabel: "View all",
-                        onAction: { vm.navigate(to: .expandedExploration) }
+                        actionLabel: showAllRecent ? "Show less" : "View all",
+                        onAction: { showAllRecent.toggle() }
                     )
-                    let recents: [(String, String)] = [
-                        ("serendipity", "ill-thumb-lavender"),
-                        ("ethereal", "ill-thumb-cottage"),
-                        ("tranquility", "ill-thumb-bridge"),
-                    ]
+                    let ids = filter == "Favorites" ? vm.favoriteWordIds
+                        : filter == "Bookmarks" ? vm.savedWordIds
+                        : (vm.savedWordIds + vm.favoriteWordIds).reduce(into: [String]()) { acc, id in
+                            if !acc.contains(id) { acc.append(id) }
+                        }
+                    let thumbs = ["ill-thumb-lavender", "ill-thumb-cottage", "ill-thumb-bridge"]
+                    let recents: [(String, String)] = ids.enumerated().map { index, id in
+                        (id, thumbs[index % thumbs.count])
+                    }
                     VStack(spacing: 7) {
-                        ForEach(recents, id: \.0) { (id, thumb) in
+                        ForEach(showAllRecent ? recents : Array(recents.prefix(3)), id: \.0) { (id, thumb) in
                             if let entry = LexiconData.getWordById(id),
                                query.isEmpty || entry.word.localizedCaseInsensitiveContains(query) {
                                 let fav = vm.isFavorite(entry.id)
@@ -208,6 +213,10 @@ struct MyNotesScreen: View {
 
     @State private var query: String = ""
     @State private var selectedCat: String = "All"
+    @State private var showAllNotes = false
+    @State private var editingNote: NoteItem? = nil
+    @State private var editorTitle = ""
+    @State private var editorBody = ""
     private var isDark: Bool { scheme == .dark }
 
     var body: some View {
@@ -252,11 +261,11 @@ struct MyNotesScreen: View {
                     BotanicalSectionTitle(
                         title: "My Notes",
                         sprigAfterTitle: true,
-                        actionLabel: "View all",
-                        onAction: { selectedCat = "All"; query = "" }
+                        actionLabel: showAllNotes ? "Show less" : "View all",
+                        onAction: { selectedCat = "All"; query = ""; showAllNotes.toggle() }
                     )
                     LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
-                        ForEach(filtered.prefix(4)) { note in
+                        ForEach(showAllNotes ? filtered : Array(filtered.prefix(4))) { note in
                             ZStack(alignment: .bottomTrailing) {
                                 Image(countrysideImageName(note.illustration ?? "ill-note-flowers", isDark: isDark))
                                     .resizable()
@@ -312,6 +321,11 @@ struct MyNotesScreen: View {
                             .background(p.card)
                             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                             .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(p.border, lineWidth: 1))
+                            .onTapGesture {
+                                editorTitle = note.title
+                                editorBody = note.body
+                                editingNote = note
+                            }
                         }
                     }
                     .padding(.horizontal, 16)
@@ -371,6 +385,32 @@ struct MyNotesScreen: View {
             .padding(.bottom, 88)
         }
         .background(p.background)
+        .sheet(item: $editingNote) { note in
+            NavigationStack {
+                Form {
+                    TextField("Title", text: $editorTitle)
+                    TextEditor(text: $editorBody)
+                        .frame(minHeight: 180)
+                    Button("Delete Note", role: .destructive) {
+                        vm.deleteNote(note.id)
+                        editingNote = nil
+                    }
+                }
+                .navigationTitle("Edit note")
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") { editingNote = nil }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Save") {
+                            vm.updateNote(note.id, title: editorTitle, body: editorBody)
+                            editingNote = nil
+                        }
+                    }
+                }
+            }
+            .presentationDragIndicator(.visible)
+        }
     }
 }
 
@@ -387,7 +427,7 @@ struct StudyListsScreen: View {
         let p = lexiconPalette(scheme)
         let totalWords = vm.studyLists.reduce(0) { $0 + $1.totalWords }
         let completedWords = vm.studyLists.reduce(0) { $0 + $1.completedWords }
-        let overallPct = totalWords > 0 ? (completedWords * 100) / totalWords : 78
+        let overallPct = totalWords > 0 ? (completedWords * 100) / totalWords : 0
         let ringProgress = Double(vm.todayStudiedWords) / Double(max(1, vm.todayGoalWords))
 
         ScrollView {
@@ -411,8 +451,8 @@ struct StudyListsScreen: View {
 
                 // 4 Stat Cards
                 HStack(spacing: 7) {
-                    statTile("book", "\(vm.studyLists.count + 1)", "Active Lists", p: p)
-                    statTile("checkmark.circle", "\(totalWords + 32)", "Total Words", p: p)
+                    statTile("book", "\(vm.studyLists.count)", "Active Lists", p: p)
+                    statTile("checkmark.circle", "\(totalWords)", "Total Words", p: p)
                     statTile("chart.bar", "\(overallPct)%", "Overall Progress", p: p)
                     statTile("star", "\(vm.dayStreak)", "Day Streak", p: p)
                 }
@@ -595,6 +635,11 @@ struct QuickTemplatesScreen: View {
 
     @State private var query: String = ""
     @State private var filter: String = "All"
+    @State private var showAllTemplates = false
+    @State private var showCreateTemplate = false
+    @State private var newTemplateTitle = ""
+    @State private var newTemplateDescription = ""
+    @State private var newTemplateCategory: TemplateCategory = .learning
     private var isDark: Bool { scheme == .dark }
 
     var body: some View {
@@ -633,11 +678,11 @@ struct QuickTemplatesScreen: View {
                 VStack(spacing: 8) {
                     BotanicalSectionTitle(
                         title: "Popular Templates",
-                        actionLabel: "View all",
-                        onAction: { filter = "All"; query = "" }
+                        actionLabel: showAllTemplates ? "Show less" : "View all",
+                        onAction: { filter = "All"; query = ""; showAllTemplates.toggle() }
                     )
                     LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
-                        ForEach(filtered.prefix(4)) { tpl in
+                        ForEach(showAllTemplates ? filtered : Array(filtered.prefix(4))) { tpl in
                             VStack(spacing: 0) {
                                 ZStack(alignment: .topTrailing) {
                                     Image(countrysideImageName(tpl.illustration, isDark: isDark))
@@ -698,10 +743,10 @@ struct QuickTemplatesScreen: View {
                     BotanicalSectionTitle(
                         title: "Create Your Own",
                         actionLabel: "View all",
-                        onAction: { vm.createCustomTemplate(title: "Countryside Reading", subtitle: "Collect poetic nature words.", category: .writing) }
+                        onAction: { showCreateTemplate = true }
                     )
                     Button {
-                        vm.createCustomTemplate(title: "Botanical Lexicon", subtitle: "Custom village field-notes template.", category: .learning)
+                        showCreateTemplate = true
                     } label: {
                         ZStack(alignment: .trailing) {
                             Image(countrysideImageName("ill-note-flowers", isDark: isDark))
@@ -746,6 +791,37 @@ struct QuickTemplatesScreen: View {
             .padding(.bottom, 88)
         }
         .background(p.background)
+        .sheet(isPresented: $showCreateTemplate) {
+            NavigationStack {
+                Form {
+                    TextField("Template name", text: $newTemplateTitle)
+                    TextField("Description", text: $newTemplateDescription, axis: .vertical)
+                    Picker("Category", selection: $newTemplateCategory) {
+                        ForEach(TemplateCategory.allCases, id: \.self) { cat in
+                            Text(cat.rawValue).tag(cat)
+                        }
+                    }
+                }
+                .navigationTitle("New template")
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") { showCreateTemplate = false }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Create") {
+                            vm.createCustomTemplate(title: newTemplateTitle, subtitle: newTemplateDescription, category: newTemplateCategory)
+                            newTemplateTitle = ""
+                            newTemplateDescription = ""
+                            filter = "All"
+                            query = ""
+                            showCreateTemplate = false
+                        }
+                        .disabled(newTemplateTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    }
+                }
+            }
+            .presentationDragIndicator(.visible)
+        }
     }
 }
 

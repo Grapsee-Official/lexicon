@@ -38,9 +38,9 @@ data class LexiconUiState(
     val notes: List<NoteItem> = LexiconData.defaultNotes,
     val studyLists: List<StudyListItem> = LexiconData.defaultStudyLists,
     val templates: List<VocabTemplate> = LexiconData.defaultTemplates,
-    val todayStudiedWords: Int = 6,
+    val todayStudiedWords: Int = 0,
     val todayGoalWords: Int = 10,
-    val dayStreak: Int = 12,
+    val dayStreak: Int = 0,
     val wordBuilderOpen: Boolean = false,
     val isOfflinePackReady: Boolean = true,
     val isLoading: Boolean = false,
@@ -63,11 +63,20 @@ class LexiconViewModel : ViewModel() {
     fun attachPrefs(context: Context) {
         if (prefs == null) {
             prefs = LexiconPrefs(context.applicationContext)
-            val (saved, recent, isDark) = prefs!!.load()
+            val store = prefs!!
+            val (saved, recent, isDark) = store.load()
+            val progress = store.loadStudyProgress()
             _uiState.update { s ->
                 s.copy(
-                    savedWordIds = if (saved.isNotEmpty()) saved else s.savedWordIds,
-                    recentSearches = if (recent.isNotEmpty()) recent else s.recentSearches,
+                    savedWordIds = if (store.hasSavedIds) saved else s.savedWordIds,
+                    recentSearches = if (store.hasRecentSearches) recent else s.recentSearches,
+                    favoriteWordIds = store.loadFavoriteIds() ?: s.favoriteWordIds,
+                    notes = store.loadNotes() ?: s.notes,
+                    studyLists = if (progress == null) s.studyLists else s.studyLists.map { list ->
+                        list.copy(completedWords = (progress[list.id] ?: list.completedWords).coerceIn(0, list.totalWords))
+                    },
+                    templates = store.loadTemplates() ?: s.templates,
+                    todayStudiedWords = store.loadTodayStudied(),
                     isDark = isDark,
                 )
             }
@@ -172,12 +181,13 @@ class LexiconViewModel : ViewModel() {
         val trimmed = query.trim()
         if (trimmed.isEmpty()) return
         addRecentSearch(trimmed)
-        val topMatch = searchWords(trimmed, limit = 1).firstOrNull() ?: LexiconData.serendipityEntry
-        _uiState.update {
-            it.copy(
+        val topMatch = searchWords(trimmed, limit = 1).firstOrNull()
+        _uiState.update { current ->
+            current.copy(
                 searchQuery = trimmed,
-                detailWord = topMatch,
+                detailWord = topMatch ?: current.detailWord,
                 route = ScreenRoute.SEARCH_RESULTS,
+                routeHistory = (current.routeHistory + current.route).takeLast(12),
                 activeTab = TabKey.DICTIONARY,
             )
         }
@@ -234,6 +244,7 @@ class LexiconViewModel : ViewModel() {
             val next = if (s.favoriteWordIds.contains(id)) s.favoriteWordIds - id else listOf(id) + s.favoriteWordIds
             s.copy(favoriteWordIds = next)
         }
+        prefs?.saveFavoriteIds(_uiState.value.favoriteWordIds)
     }
 
     fun isSaved(id: String): Boolean = _uiState.value.savedWordIds.contains(id)
@@ -258,16 +269,28 @@ class LexiconViewModel : ViewModel() {
             },
         )
         _uiState.update { it.copy(notes = listOf(item) + it.notes) }
+        prefs?.saveNotes(_uiState.value.notes)
     }
 
     fun toggleNoteBookmark(noteId: String) {
         _uiState.update { s ->
             s.copy(notes = s.notes.map { if (it.id == noteId) it.copy(bookmarked = !it.bookmarked) else it })
         }
+        prefs?.saveNotes(_uiState.value.notes)
+    }
+
+    fun updateNote(noteId: String, title: String, body: String) {
+        _uiState.update { state ->
+            state.copy(notes = state.notes.map { note ->
+                if (note.id == noteId) note.copy(title = title.trim(), body = body.trim()) else note
+            })
+        }
+        prefs?.saveNotes(_uiState.value.notes)
     }
 
     fun deleteNote(noteId: String) {
         _uiState.update { s -> s.copy(notes = s.notes.filterNot { it.id == noteId }) }
+        prefs?.saveNotes(_uiState.value.notes)
     }
 
     fun advanceStudyList(listId: String) {
@@ -282,6 +305,8 @@ class LexiconViewModel : ViewModel() {
                 todayStudiedWords = (s.todayStudiedWords + 1).coerceAtMost(s.todayGoalWords),
             )
         }
+        prefs?.saveStudyProgress(_uiState.value.studyLists)
+        prefs?.saveTodayStudied(_uiState.value.todayStudiedWords)
     }
 
     fun createCustomTemplate(title: String, subtitle: String, category: TemplateCategory) {
@@ -294,12 +319,14 @@ class LexiconViewModel : ViewModel() {
             starred = true,
         )
         _uiState.update { it.copy(templates = listOf(tpl) + it.templates) }
+        prefs?.saveTemplates(_uiState.value.templates)
     }
 
     fun toggleTemplateStar(id: String) {
         _uiState.update { s ->
             s.copy(templates = s.templates.map { if (it.id == id) it.copy(starred = !it.starred) else it })
         }
+        prefs?.saveTemplates(_uiState.value.templates)
     }
 
     fun addRecentSearch(query: String) {

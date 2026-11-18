@@ -25,7 +25,8 @@ struct WordOfTheDayScreen: View {
 
     var body: some View {
         let p = lexiconPalette(scheme)
-        let word = featured[dayIdx % featured.count]
+        let utcDay = Int(Date().timeIntervalSince1970 / 86400)
+        let word = featured[(utcDay + dayIdx) % featured.count]
 
         ScrollView {
             VStack(spacing: 12) {
@@ -66,7 +67,7 @@ struct WordOfTheDayScreen: View {
                             Image(systemName: "calendar")
                                 .font(.system(size: 11))
                                 .foregroundStyle(p.highlight)
-                            Text("Tue, Sep 16, 2026")
+                            Text(Date.now, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day().year())
                                 .font(.lexiconBody(11))
                                 .foregroundStyle(p.foreground.opacity(0.85))
                         }
@@ -556,7 +557,7 @@ struct SearchResultsScreen: View {
 
     var body: some View {
         let p = lexiconPalette(scheme)
-        let matches = vm.searchWords(vm.searchQuery.isEmpty ? "serendipity" : vm.searchQuery, limit: 8)
+        let matches = vm.searchWords(vm.searchQuery, limit: 8)
         let primaryWord = matches.first
 
         ScrollView {
@@ -703,6 +704,38 @@ struct SearchResultsScreen: View {
                     .padding(.horizontal, 16)
                 }
 
+                if matches.count > 1 {
+                    VStack(alignment: .leading, spacing: 7) {
+                        Text("More Matches")
+                            .font(.lexiconDisplay(17))
+                            .foregroundStyle(p.foreground)
+                        ForEach(Array(matches.dropFirst())) { match in
+                            Button { vm.openWord(match) } label: {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text(match.word)
+                                            .font(.lexiconDisplay(15))
+                                            .foregroundStyle(p.foreground)
+                                        Text(match.definitions.first ?? "No definition available.")
+                                            .font(.lexiconBody(10.5))
+                                            .foregroundStyle(p.mutedForeground)
+                                            .lineLimit(2)
+                                    }
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .foregroundStyle(p.mutedForeground)
+                                }
+                                .padding(12)
+                                .background(p.card)
+                                .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
+                                .overlay(RoundedRectangle(cornerRadius: 13).stroke(p.border, lineWidth: 1))
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                }
+
                 CountrysideQuoteBanner(
                     quote: "Discover the beauty in every word.",
                     attribution: "Lexicon",
@@ -824,21 +857,26 @@ struct ExpandedExplorationScreen: View {
                                 .font(.system(size: 16))
                                 .foregroundStyle(p.primary)
                             VStack(alignment: .leading, spacing: 1) {
-                                Text("\(word.word) · 36 Languages")
+                                Text("\(word.word) · \(translations.count) available languages")
                                     .font(.lexiconDisplay(15))
                                     .foregroundStyle(p.foreground)
-                                Text("\(word.phonetic) · Tap to \(expanded ? "collapse" : "expand all 36 translations")")
+                                Text("\(word.phonetic) · \(expanded ? "Hide translations" : "View available translations")")
                                     .font(.lexiconBody(10))
                                     .foregroundStyle(p.mutedForeground)
                             }
                             Spacer()
-                            Text(expanded ? "Collapse" : "Expand 36 →")
+                            Text(expanded ? "Collapse" : "Expand →")
                                 .font(.lexiconBody(11, weight: .medium))
                                 .foregroundStyle(p.primary)
                         }
                     }
                     .buttonStyle(.plain)
 
+                    if translations.isEmpty {
+                        Text("This word has no offline translations yet.")
+                            .font(.lexiconBody(11))
+                            .foregroundStyle(p.mutedForeground)
+                    }
                     let slice = expanded ? translations : Array(translations.prefix(4))
                     LazyVGrid(columns: [GridItem(.flexible(), spacing: 7), GridItem(.flexible(), spacing: 7)], spacing: 7) {
                         ForEach(slice) { tr in

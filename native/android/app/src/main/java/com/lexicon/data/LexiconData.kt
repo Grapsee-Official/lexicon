@@ -518,15 +518,11 @@ object LexiconData {
         ),
     )
 
+    /** Show only locally available curated translations: never fabricate a language entry. */
     fun translationsFor(word: WordEntry): List<WordTranslation> {
-        val table = curatedTranslations[word.id] ?: curatedTranslations["serendipity"].orEmpty()
-        return thirtySixLanguages.map { (lang, code) ->
-            val pair = table[code]
-            if (pair != null) {
-                WordTranslation(lang, code, pair.first, pair.second)
-            } else {
-                WordTranslation(lang, code, "${word.word} ($lang)", word.phonetic)
-            }
+        val table = curatedTranslations[word.id].orEmpty()
+        return thirtySixLanguages.mapNotNull { (lang, code) ->
+            table[code]?.let { pair -> WordTranslation(lang, code, pair.first, pair.second) }
         }
     }
 
