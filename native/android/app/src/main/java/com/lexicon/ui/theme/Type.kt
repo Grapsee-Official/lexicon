@@ -203,7 +203,7 @@ object LexiconTextStyles {
     val SectionAction = TextStyle(
         fontFamily = BodyFontFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 11.sp,
+        fontSize = 12.sp,
     )
     val NavLabel = TextStyle(
         fontFamily = BodyFontFamily,
