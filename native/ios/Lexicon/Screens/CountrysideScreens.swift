@@ -1136,11 +1136,16 @@ struct SearchDiscoveryScreen: View {
                             }
                             ForEach(Array(idioms.enumerated()), id: \.element.id) { idx, ip in
                                 if idx > 0 { Rectangle().fill(p.border).frame(height: 1) }
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text("\(ip.phrase) (\(ip.kind))").font(.lexiconDisplay(14)).foregroundStyle(p.foreground)
-                                    Text(ip.meaning).font(.lexiconBody(11)).foregroundStyle(p.mutedForeground)
+                                Button { vm.submitSearch(ip.phrase) } label: {
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text("\(ip.phrase) (\(ip.kind))").font(.lexiconDisplay(14)).foregroundStyle(p.foreground)
+                                        Text(ip.meaning).font(.lexiconBody(11)).foregroundStyle(p.mutedForeground)
+                                        Text(ip.example).font(.lexiconBody(10.5).italic()).foregroundStyle(p.mutedForeground)
+                                    }
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(12)
                                 }
-                                .padding(12)
+                                .buttonStyle(.plain)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             }
                         }

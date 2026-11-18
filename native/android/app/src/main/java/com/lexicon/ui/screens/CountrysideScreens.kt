@@ -1544,7 +1544,12 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
                         }
                         idiomMatches.forEachIndexed { idx, ip ->
                             if (idx > 0) Box(Modifier.fillMaxWidth().height(1.dp).background(border))
-                            Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                            Column(
+                                modifier = Modifier.fillMaxWidth()
+                                    .clickable(role = Role.Button) { viewModel.submitSearch(ip.phrase) }
+                                    .padding(12.dp),
+                                verticalArrangement = Arrangement.spacedBy(3.dp),
+                            ) {
                                 Text("${ip.phrase} (${ip.kind})", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 14.sp))
                                 Text(ip.meaning, color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.sp))
                             }

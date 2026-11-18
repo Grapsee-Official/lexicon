@@ -91,7 +91,7 @@ fun WordOfTheDayCard(
             .clip(shape)
             .background(rightBg)
             .border(1.dp, cardBorder, shape)
-            .clickable(role = Role.Button) { viewModel.openWord(word) },
+            .clickable(role = Role.Button) { viewModel.navigate(com.lexicon.data.ScreenRoute.WORD_OF_THE_DAY, word = word) },
     ) {
         Column(
             modifier = Modifier

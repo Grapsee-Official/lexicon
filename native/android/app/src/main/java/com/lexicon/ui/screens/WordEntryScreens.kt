@@ -125,7 +125,7 @@ fun WordOfTheDayScreen(viewModel: LexiconViewModel) {
     )
     var dayIdx by remember { mutableIntStateOf(0) }
     val utcDay = remember { (System.currentTimeMillis() / 86_400_000L).toInt() }
-    val word = featuredWords[(utcDay + dayIdx) % featuredWords.size]
+    val word = LexiconData.featuredWord(dayIdx)
 
     val bridgeRes = resolveCountrysideDrawable("ill_hero_bridge", isDark)
     val openBookRes = resolveCountrysideDrawable("ill_open_book_meadow", isDark)
@@ -1254,7 +1254,7 @@ fun ExpandedExplorationScreen(viewModel: LexiconViewModel) {
                 subtitle = "Look up any word, anytime.",
                 illustrationBase = "ill_hero_cottage",
                 isDark = isDark,
-                onHistoryClick = { showAll36 = !showAll36 },
+                onHistoryClick = { viewModel.navigate(ScreenRoute.SEARCH_DISCOVERY) },
                 onLogoToggleTheme = { viewModel.toggleTheme() },
                 heroHeight = 142.dp,
             )

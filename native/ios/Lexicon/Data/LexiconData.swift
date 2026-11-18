@@ -482,6 +482,13 @@ enum LexiconData {
     ]
 
     // A translation appears only when its curated data is actually present.
+    /// Daily selection uses the exact same UTC index as Android.
+    static func featuredWord(dayOffset: Int = 0) -> WordEntry {
+        let words = [serendipityEntry, solitudeEntry, wordOfTheDay, dictionary[3]]
+        let utcDay = Int(Date().timeIntervalSince1970 / 86400)
+        return words[(utcDay + dayOffset) % words.count]
+    }
+
     static func translationsFor(_ word: WordEntry) -> [WordTranslation] {
         let available: [String: (String, String)]
         switch word.id {

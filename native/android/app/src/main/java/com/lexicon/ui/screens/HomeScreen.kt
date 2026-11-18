@@ -78,7 +78,7 @@ private fun HomeFeed(viewModel: LexiconViewModel) {
 
         item(key = "wotd") {
             WordOfTheDayCard(
-                word = LexiconData.wordOfTheDay,
+                word = LexiconData.featuredWord(),
                 viewModel = viewModel,
                 modifier = Modifier.padding(horizontal = 16.dp),
             )

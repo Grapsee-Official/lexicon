@@ -17,7 +17,7 @@ struct HomeScreen: View {
                 TrendingTagRow(tags: LexiconData.trendingTags)
                     .padding(.horizontal, 16)
 
-                WordOfTheDayCard(word: LexiconData.wordOfTheDay)
+                WordOfTheDayCard(word: LexiconData.featuredWord())
                     .padding(.horizontal, 16)
 
                 // All 4 Category cards in an equal-width 4-column HStack — zero clipping on "Science"!

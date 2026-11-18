@@ -43,7 +43,7 @@ struct WordOfTheDayCard: View {
     var body: some View {
         Button {
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-            vm.openWord(word)
+            vm.navigate(to: .wordOfTheDay, word: word)
         } label: {
             GeometryReader { geo in
                 let totalW = geo.size.width

@@ -453,6 +453,13 @@ object LexiconData {
         MorphemeRoot("phil-", "love, affinity", "Greek philos", listOf("Bibliophile", "Philology", "Philosophy", "Euphemism")),
     )
 
+    /** The same UTC day and word sequence are used in Android and iOS. */
+    fun featuredWord(dayOffset: Int = 0): WordEntry {
+        val words = listOf(serendipityEntry, solitudeEntry, wordOfTheDay, dictionary[3])
+        val utcDay = (System.currentTimeMillis() / 86_400_000L).toInt()
+        return words[Math.floorMod(utcDay + dayOffset, words.size)]
+    }
+
     // 36 Languages Translation Generator for Page 10 (Expanded Word Exploration)
     private val thirtySixLanguages: List<Pair<String, String>> = listOf(
         "French" to "fr", "German" to "de", "Spanish" to "es", "Italian" to "it",

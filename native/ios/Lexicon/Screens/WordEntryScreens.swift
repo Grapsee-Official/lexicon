@@ -25,8 +25,7 @@ struct WordOfTheDayScreen: View {
 
     var body: some View {
         let p = lexiconPalette(scheme)
-        let utcDay = Int(Date().timeIntervalSince1970 / 86400)
-        let word = featured[(utcDay + dayIdx) % featured.count]
+        let word = LexiconData.featuredWord(dayOffset: dayIdx)
 
         ScrollView {
             VStack(spacing: 12) {
@@ -828,7 +827,7 @@ struct ExpandedExplorationScreen: View {
         let p = lexiconPalette(scheme)
         let word = vm.detailWord
         let translations = LexiconData.translationsFor(word)
-        let expanded = showAll36 || vm.detailExpanded36
+        let expanded = showAll36
 
         ScrollView {
             VStack(spacing: 11) {
@@ -836,7 +835,7 @@ struct ExpandedExplorationScreen: View {
                     title: "Dictionary",
                     subtitle: "Look up any word, anytime.",
                     illustrationBase: "ill-hero-cottage",
-                    onHistoryClick: { showAll36.toggle() },
+                    onHistoryClick: { vm.navigate(to: .searchDiscovery) },
                     onLogoToggleTheme: { theme.toggle() },
                     heroHeight: 140
                 )
@@ -1045,5 +1044,6 @@ struct ExpandedExplorationScreen: View {
             .padding(.bottom, 88)
         }
         .background(p.background)
+        .onAppear { showAll36 = vm.detailExpanded36 }
     }
 }
