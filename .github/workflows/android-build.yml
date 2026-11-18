@@ -1,13 +1,7 @@
 name: Lexicon Native Release
+# Deliberately manual-only: do not compile, sign, or replace the APK after every
+# UI/design iteration. Run this once after source-to-screen visual QA is approved.
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'native/android/**'
-      - 'native/ios/**'
-      - 'native/cpp/**'
-      - 'scripts/check_countryside_art.py'
-      - '.github/workflows/android-build.yml'
   workflow_dispatch:
 permissions:
   contents: write
