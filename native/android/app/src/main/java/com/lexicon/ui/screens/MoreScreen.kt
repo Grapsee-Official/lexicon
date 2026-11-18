@@ -79,12 +79,12 @@ import com.lexicon.ui.theme.Terracotta
  *
  * Layout:
  *   1. Profile header card — avatar (64dp circular), "Curious Soul" name,
- *      "Lexicon Companion · since 2026" subtitle, saved count + recent count.
+ *      "Lexora Companion · since 2026" subtitle, saved count + recent count.
  *   2. Settings groups (uppercase muted header + card):
  *        APPEARANCE    — Theme (toggle), Text size, Notifications
  *        DICTIONARY    — Language pairs, Storage, Download language packs
  *        PRIVACY & DATA— Clear recent searches, Clear cache
- *        ABOUT         — About Lexicon, Privacy policy, Open source licences
+ *        ABOUT         — About Lexora, Privacy policy, Open source licences
  *   3. Footer — "Crafted in the spirit of the Cotswolds" + tagline.
  *
  * Theme toggle reads vm.uiState.isDark and calls vm.toggleTheme().
@@ -217,8 +217,8 @@ fun MoreScreen(viewModel: LexiconViewModel) {
             SettingsGroup(title = "About") {
                 SettingsRow(
                     icon = Icons.Outlined.Info,
-                    iconLabel = "About Lexicon",
-                    label = "About Lexicon",
+                    iconLabel = "About Lexora",
+                    label = "About Lexora",
                     value = "v1.0.0",
                     onClick = { infoDialog = "about" },
                 )
@@ -254,20 +254,20 @@ fun MoreScreen(viewModel: LexiconViewModel) {
             "packs" -> "Language packs"
             "recent" -> "Clear search history?"
             "cache" -> "Clear temporary cache?"
-            "about" -> "About Lexicon"
+            "about" -> "About Lexora"
             "privacy" -> "Privacy & local storage"
             else -> "Open-source libraries"
         }
         val description = when (infoDialog) {
-            "text" -> "Lexicon follows Android font-size and accessibility settings. Open device Display settings to adjust reading size."
+            "text" -> "Lexora follows Android font-size and accessibility settings. Open device Display settings to adjust reading size."
             "notifications" -> "Daily notifications are not currently scheduled. Your Word of the Day remains available offline."
             "storage" -> "Saved words, notes, study lists and templates are stored on this device. The bundled dictionary works offline."
             "packs" -> "The English dictionary is bundled. Additional downloadable language packs are not yet supported. The translation view shows only curated available translations."
             "recent" -> "Remove recent searches on this device? Your saved words and notes will be kept."
             "cache" -> "Remove temporary files? Saved words, notes and study progress will remain."
-            "about" -> "Lexicon · Words. Wisdom. Worlds. A quiet offline-first language companion inspired by the English countryside."
+            "about" -> "Lexora · Words. Wisdom. Worlds. A quiet offline-first language companion inspired by the English countryside."
             "privacy" -> "Word collections, notes, settings and study progress are kept in local app storage. Search history and temporary files can be cleared separately."
-            else -> "Lexicon uses Kotlin, AndroidX, Jetpack Compose, SQLite and a shared C++17 dictionary engine. See the license notices of each dependency before redistribution."
+            else -> "Lexora uses Kotlin, AndroidX, Jetpack Compose, SQLite and a shared C++17 dictionary engine. See the license notices of each dependency before redistribution."
         }
         AlertDialog(
             onDismissRequest = { infoDialog = null },
@@ -351,7 +351,7 @@ private fun ProfileHeader(
             )
             Spacer(Modifier.height(2.dp))
             Text(
-                text = "Lexicon Companion · since 2026",
+                text = "Lexora Companion · since 2026",
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 12.sp,
             )
@@ -540,7 +540,7 @@ private fun MoreFooter() {
 
         // Tagline
         Text(
-            text = "Lexicon · Words. Wisdom. Worlds.",
+            text = "Lexora · Words. Wisdom. Worlds.",
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
             fontSize = 10.sp,
         )
