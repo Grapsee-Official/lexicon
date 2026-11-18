@@ -228,7 +228,7 @@ struct WordOfTheDayScreen: View {
 
                 CountrysideQuoteBanner(
                     quote: "Words are bridges between minds.",
-                    attribution: "Lexicon",
+                    attribution: "Lexora",
                     illustrationBase: "ill-banner-bridge"
                 )
                 .padding(.horizontal, 16)
@@ -791,7 +791,7 @@ struct SearchResultsScreen: View {
 
                 CountrysideQuoteBanner(
                     quote: "Discover the beauty in every word.",
-                    attribution: "Lexicon",
+                    attribution: "Lexora",
                     illustrationBase: "ill-banner-bridge"
                 )
                 .padding(.horizontal, 16)
@@ -894,7 +894,7 @@ struct ExpandedExplorationScreen: View {
 
                 CountrysideQuoteBanner(
                     quote: "Words are doors to new worlds.",
-                    attribution: "Lexicon",
+                    attribution: "Lexora",
                     illustrationBase: "ill-books-daisies"
                 )
                 .padding(.horizontal, 16)
