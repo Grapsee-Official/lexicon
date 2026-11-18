@@ -421,6 +421,8 @@ struct StudyListsScreen: View {
     @Environment(\.colorScheme) private var scheme
 
     @State private var query: String = ""
+    @State private var practicingList: StudyListItem? = nil
+    @State private var answerRevealed = false
     private var isDark: Bool { scheme == .dark }
 
     var body: some View {
@@ -468,7 +470,7 @@ struct StudyListsScreen: View {
                                 .foregroundStyle(p.foreground)
                         }
                         Spacer()
-                        Button { vm.advanceStudyList("sl1") } label: {
+                        Button { practicingList = vm.studyLists.first(where: { $0.id == "sl1" }); answerRevealed = false } label: {
                             HStack(spacing: 4) {
                                 Text("View details").font(.lexiconBody(11))
                                 Image(systemName: "arrow.right").font(.system(size: 10))
@@ -530,7 +532,7 @@ struct StudyListsScreen: View {
                     BotanicalSectionTitle(
                         title: "Your Study Lists",
                         actionLabel: "View all",
-                        onAction: { vm.navigate(to: .quickTemplates) }
+                        onAction: { query = "" }
                     )
                     VStack(spacing: 7) {
                         ForEach(vm.studyLists.filter { query.isEmpty || $0.title.localizedCaseInsensitiveContains(query) }) { sl in
@@ -569,7 +571,7 @@ struct StudyListsScreen: View {
                                 }
                                 .frame(width: 64, height: 6)
 
-                                Button { vm.advanceStudyList(sl.id) } label: {
+                                Button { practicingList = sl; answerRevealed = false } label: {
                                     Image(systemName: "play.fill")
                                         .font(.system(size: 10))
                                         .foregroundStyle(isDark ? LexiconColors.backgroundDark : .white)
@@ -603,6 +605,69 @@ struct StudyListsScreen: View {
             .padding(.bottom, 88)
         }
         .background(p.background)
+        .sheet(item: $practicingList) { list in
+            reviewSheet(list)
+                .presentationDragIndicator(.visible)
+        }
+    }
+
+    private func reviewSheet(_ list: StudyListItem) -> some View {
+        let p = lexiconPalette(scheme)
+        let current = vm.studyLists.first(where: { $0.id == list.id }) ?? list
+        let nextId = current.wordIds.dropFirst(current.completedWords).first
+        let entry = nextId.flatMap { LexiconData.getWordById($0) }
+        return NavigationStack {
+            VStack(alignment: .leading, spacing: 18) {
+                if let entry {
+                    Text(entry.word)
+                        .font(.lexiconDisplay(30))
+                        .foregroundStyle(p.foreground)
+                    Text(entry.phonetic)
+                        .font(.lexiconBody(16))
+                        .foregroundStyle(p.mutedForeground)
+                    if answerRevealed {
+                        Text(entry.definitions.first ?? "")
+                            .font(.lexiconLong(18))
+                            .foregroundStyle(p.foreground)
+                        if let example = entry.examples.first {
+                            Text(example)
+                                .font(.lexiconLong(15).italic())
+                                .foregroundStyle(p.mutedForeground)
+                        }
+                    } else {
+                        Text("Recall the meaning, then reveal the answer.")
+                            .font(.lexiconBody(16))
+                            .foregroundStyle(p.mutedForeground)
+                    }
+                } else {
+                    Text("All available words reviewed. Beautiful work!")
+                        .font(.lexiconDisplay(20))
+                        .foregroundStyle(p.foreground)
+                }
+                Spacer()
+                Button(entry == nil ? "Done" : answerRevealed ? "Mark learned" : "Reveal meaning") {
+                    guard entry != nil else { practicingList = nil; return }
+                    if !answerRevealed {
+                        answerRevealed = true
+                    } else {
+                        vm.advanceStudyList(current.id)
+                        answerRevealed = false
+                        if current.completedWords + 1 >= current.wordIds.count { practicingList = nil }
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(p.primary)
+            }
+            .padding(24)
+            .background(p.background)
+            .navigationTitle(current.title)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Close") { practicingList = nil; answerRevealed = false }
+                }
+            }
+        }
     }
 
     private func statTile(_ icon: String, _ num: String, _ label: String, p: LexiconPalette) -> some View {

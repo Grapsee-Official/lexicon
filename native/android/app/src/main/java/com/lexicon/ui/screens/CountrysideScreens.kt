@@ -668,6 +668,8 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
     val accent = if (isDark) DarkAccent else OldWoodGold
 
     var query by remember { mutableStateOf("") }
+    var practicingListId by remember { mutableStateOf<String?>(null) }
+    var answerRevealed by remember { mutableStateOf(false) }
     val totalWords = state.studyLists.sumOf { it.totalWords }
     val overallPct = if (totalWords > 0) (state.studyLists.sumOf { it.completedWords } * 100) / totalWords else 0
     val booksRes = resolveCountrysideDrawable("ill_books_daisies", isDark)
@@ -756,7 +758,7 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                     title = "Today’s Study",
                     isDark = isDark,
                     actionLabel = "View details",
-                    onAction = { viewModel.advanceStudyList("sl1") },
+                    onAction = { practicingListId = "sl1"; answerRevealed = false },
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -826,7 +828,7 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                     title = "Your Study Lists",
                     isDark = isDark,
                     actionLabel = "View all",
-                    onAction = { viewModel.navigate(ScreenRoute.QUICK_TEMPLATES) },
+                    onAction = { query = "" },
                     modifier = Modifier.padding(horizontal = 16.dp),
                 )
                 Column(
@@ -885,7 +887,7 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                                         .size(28.dp)
                                         .clip(CircleShape)
                                         .background(if (isDark) DarkAccent else BrandGreen)
-                                        .clickable(role = Role.Button) { viewModel.advanceStudyList(sl.id) },
+                                        .clickable(role = Role.Button) { practicingListId = sl.id; answerRevealed = false },
                                     contentAlignment = Alignment.Center,
                                 ) {
                                     Icon(Icons.Filled.PlayArrow, contentDescription = "Practice", tint = if (isDark) DarkBackground else Color.White, modifier = Modifier.size(16.dp))
@@ -906,6 +908,48 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
         }
+    }
+    // Study progress changes only after the answer is revealed and confirmed.
+    practicingListId?.let { listId ->
+        val list = state.studyLists.firstOrNull { it.id == listId }
+        val entry = list?.wordIds?.getOrNull(list.completedWords)?.let { LexiconData.getWordById(it) }
+        AlertDialog(
+            onDismissRequest = { practicingListId = null; answerRevealed = false },
+            title = { Text(list?.title ?: "Study session", color = fg) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    if (entry != null) {
+                        Text(entry.word, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 24.sp))
+                        Text(entry.phonetic, color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 14.sp))
+                        if (answerRevealed) {
+                            Text(entry.definitions.firstOrNull().orEmpty(), color = fg, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 15.sp))
+                            entry.examples.firstOrNull()?.let { example ->
+                                Text(example, color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 13.sp))
+                            }
+                        } else {
+                            Text("Recall the meaning, then reveal the answer.", color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 14.sp))
+                        }
+                    } else {
+                        Text("All available words reviewed. Beautiful work!", color = fg, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 14.sp))
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (entry == null) {
+                        practicingListId = null
+                    } else if (!answerRevealed) {
+                        answerRevealed = true
+                    } else {
+                        viewModel.advanceStudyList(listId)
+                        answerRevealed = false
+                        if ((list?.completedWords ?: 0) + 1 >= (list?.wordIds?.size ?: 0)) practicingListId = null
+                    }
+                }) { Text(if (entry == null) "Done" else if (answerRevealed) "Mark learned" else "Reveal meaning") }
+            },
+            dismissButton = { TextButton(onClick = { practicingListId = null; answerRevealed = false }) { Text("Close") } },
+            containerColor = cardBg,
+        )
     }
 }
 
