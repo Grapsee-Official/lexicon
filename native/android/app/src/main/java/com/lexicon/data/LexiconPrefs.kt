@@ -50,6 +50,13 @@ class LexiconPrefs(context: Context) {
     val hasSavedIds: Boolean get() = sp.contains(KEY_SAVED)
     val hasRecentSearches: Boolean get() = sp.contains(KEY_RECENT)
 
+    fun loadArticleBookmarks(): Set<String> =
+        sp.getStringSet(KEY_ARTICLE_BOOKMARKS, emptySet())?.toSet() ?: emptySet()
+
+    fun saveArticleBookmarks(ids: Set<String>) {
+        sp.edit().putStringSet(KEY_ARTICLE_BOOKMARKS, ids.toSet()).apply()
+    }
+
     fun loadFavoriteIds(): List<String>? = if (!sp.contains(KEY_FAVORITES)) null else
         sp.getString(KEY_FAVORITES, "").orEmpty().split('\n').filter { it.isNotBlank() }
 
@@ -223,6 +230,7 @@ class LexiconPrefs(context: Context) {
         private const val KEY_RECENT = "recent_searches"
         private const val KEY_DARK   = "is_dark"
         private const val KEY_FAVORITES = "favorite_word_ids"
+        private const val KEY_ARTICLE_BOOKMARKS = "article_bookmark_ids"
         private const val KEY_VIEWED = "recently_viewed_word_ids"
         private const val KEY_NOTES = "notes_json"
         private const val KEY_STUDY = "study_progress_json"

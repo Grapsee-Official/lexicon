@@ -36,6 +36,7 @@ data class LexiconUiState(
     val favoriteWordIds: List<String> = listOf("serendipity", "solitude", "wanderlust", "eloquence"),
     val recentSearches: List<String> = listOf("serendipity", "tranquility", "eloquence", "nostalgia", "wanderlust"),
     val popularSearches: List<String> = listOf("serendipity", "eloquence", "nostalgia", "tranquility", "wanderlust"),
+    val bookmarkedArticleIds: Set<String> = emptySet(),
     val recentlyViewedIds: List<String> = listOf("ephemeral", "wanderlust", "serendipity", "limerence", "ethereal"),
     val notes: List<NoteItem> = LexiconData.defaultNotes,
     val studyLists: List<StudyListItem> = LexiconData.defaultStudyLists,
@@ -79,6 +80,7 @@ class LexiconViewModel : ViewModel() {
                     recentSearches = if (store.hasRecentSearches) recent else s.recentSearches,
                     recentlyViewedIds = store.loadViewedIds() ?: s.recentlyViewedIds,
                     favoriteWordIds = store.loadFavoriteIds() ?: s.favoriteWordIds,
+                    bookmarkedArticleIds = store.loadArticleBookmarks(),
                     notes = store.loadNotes() ?: s.notes,
                     studyLists = store.loadStudyLists() ?: if (progress == null) s.studyLists else s.studyLists.map { list ->
                         list.copy(completedWords = (progress[list.id] ?: list.completedWords).let { old ->
@@ -196,6 +198,15 @@ class LexiconViewModel : ViewModel() {
                 pendingWord = null
             }
         }
+    }
+
+    fun toggleArticleBookmark(id: String) {
+        if (LexiconData.articles.none { it.id == id }) return
+        _uiState.update { s ->
+            s.copy(bookmarkedArticleIds = if (id in s.bookmarkedArticleIds)
+                s.bookmarkedArticleIds - id else s.bookmarkedArticleIds + id)
+        }
+        prefs?.saveArticleBookmarks(_uiState.value.bookmarkedArticleIds)
     }
 
     fun openWord(word: WordEntry) {

@@ -35,6 +35,8 @@ final class LexiconViewModel: ObservableObject {
     @Published var favoriteWordIds: [String] = ["serendipity", "solitude", "wanderlust", "eloquence"]
     @Published var recentSearches: [String] = ["serendipity", "tranquility", "eloquence", "nostalgia", "wanderlust"]
     @Published var popularSearches: [String] = ["serendipity", "eloquence", "nostalgia", "tranquility", "wanderlust"]
+    @Published var bookmarkedArticleIds: Set<String> =
+        Set(UserDefaults.standard.stringArray(forKey: "lexicon.articleBookmarks") ?? [])
     @Published var recentlyViewedIds: [String] = ["ephemeral", "wanderlust", "serendipity", "limerence", "ethereal"]
 
     @Published var notes: [NoteItem] = LexiconData.defaultNotes
@@ -206,6 +208,17 @@ final class LexiconViewModel: ObservableObject {
         utterance.voice = AVSpeechSynthesisVoice(language: "en-GB")
         utterance.rate = AVSpeechUtteranceDefaultSpeechRate
         nativeSpeech.speak(utterance)
+    }
+
+    func toggleArticleBookmark(_ id: String) {
+        guard LexiconData.articles.contains(where: { $0.id == id }) else { return }
+        if bookmarkedArticleIds.contains(id) {
+            bookmarkedArticleIds.remove(id)
+        } else {
+            bookmarkedArticleIds.insert(id)
+        }
+        UserDefaults.standard.set(bookmarkedArticleIds.sorted(),
+                                  forKey: "lexicon.articleBookmarks")
     }
 
     func openWord(_ word: WordEntry) {
