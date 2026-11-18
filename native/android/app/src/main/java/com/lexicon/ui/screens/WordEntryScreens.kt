@@ -1373,7 +1373,11 @@ fun ExpandedExplorationScreen(viewModel: LexiconViewModel) {
                     )
                 }
                 val visibleTranslations = if (showAll36) translations else translations.take(4)
-                visibleTranslations.chunked(2).forEach { pair ->
+                // One column on compact phones: never truncate long translated words.
+                val translationColumns = if (
+                    androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 390
+                ) 1 else 2
+                visibleTranslations.chunked(translationColumns).forEach { pair ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(7.dp),

@@ -921,7 +921,8 @@ struct ExpandedExplorationScreen: View {
                             .foregroundStyle(p.mutedForeground)
                     }
                     let slice = expanded ? translations : Array(translations.prefix(4))
-                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 7), GridItem(.flexible(), spacing: 7)], spacing: 7) {
+                    // Adaptive columns preserve the complete word on narrow iPhones.
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 158), spacing: 7)], spacing: 7) {
                         ForEach(slice) { tr in
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("\(tr.language) (\(tr.code.uppercased()))")
