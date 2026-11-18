@@ -9,6 +9,9 @@ on:
       - 'scripts/check_countryside_art.py'
       - 'scripts/check_capture_quality.py'
       - 'scripts/build_native_contact_sheets.py'
+      - 'scripts/check_editable_botanical_svg.py'
+      - 'artwork/vector/lexora-*.svg'
+      - 'docs/visual-qa/lexora-home-reference-contract.md'
   workflow_dispatch:
 permissions:
   contents: read
@@ -37,8 +40,10 @@ jobs:
     timeout-minutes: 55
     steps:
       - uses: actions/checkout@v4
-      - name: Verify all countryside assets
-        run: python3 scripts/check_countryside_art.py
+      - name: Validate countryside imagery and editable botanicals
+        run: |
+          python3 scripts/check_countryside_art.py
+          python3 scripts/check_editable_botanical_svg.py
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -97,7 +102,10 @@ jobs:
     timeout-minutes: 55
     steps:
       - uses: actions/checkout@v4
-      - run: python3 scripts/check_countryside_art.py
+      - name: Validate countryside imagery and editable botanicals
+        run: |
+          python3 scripts/check_countryside_art.py
+          python3 scripts/check_editable_botanical_svg.py
       - name: Build C++17 for Apple simulator
         run: |
           SDK="$(xcrun --sdk iphonesimulator --show-sdk-path)"
