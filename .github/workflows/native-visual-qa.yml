@@ -71,11 +71,11 @@ jobs:
         run: |
           python3 -m venv "$RUNNER_TEMP/lexicon-qa-venv"
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" -m pip install --disable-pip-version-check "Pillow==11.3.0"
-          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/android --expected-count 22
+          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/android --expected-count 26
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: lexicon-android-22-screen-evidence
+          name: lexicon-android-26-screen-evidence
           path: qa-captures/android/*.png
           if-no-files-found: warn
           retention-days: 7
@@ -109,7 +109,7 @@ jobs:
         run: |
           python3 -m venv "$RUNNER_TEMP/lexicon-qa-venv"
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" -m pip install --disable-pip-version-check "Pillow==11.3.0"
-      - name: Boot a simulator and capture 22 actual SwiftUI screens
+      - name: Boot a simulator and capture 26 actual SwiftUI screens
         run: |
           set -eu
           APP="${RUNNER_TEMP}/DerivedData/Build/Products/Debug-iphonesimulator/Lexicon.app"
@@ -134,7 +134,7 @@ jobs:
           sleep 4
           serial=0
           for mode in light dark; do
-            for screen in home dictionary_home word_of_the_day word_detail collections my_notes study_lists quick_templates search_discovery search_results expanded_exploration; do
+            for screen in home dictionary_home word_of_the_day word_detail collections my_notes study_lists quick_templates search_discovery search_results expanded_exploration more translations; do
               serial=$((serial+1))
               printf '%s|%s|%s\n' "$serial" "$mode" "$screen" > "$SYNC_DIR/req.txt"
               ready=0
@@ -171,8 +171,8 @@ jobs:
               echo "ACK $serial: native iOS $mode/$screen (verified)"
             done
           done
-          test "$(find qa-captures/ios -type f -name '*.png' | wc -l)" -eq 22
-          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/ios --expected-count 22
+          test "$(find qa-captures/ios -type f -name '*.png' | wc -l)" -eq 26
+          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/ios --expected-count 26
           find qa-captures/ios -type f -name '*.png' | sort
       - name: Preserve native iOS crash reports for failed captures
         if: always()
@@ -190,7 +190,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: lexicon-ios-22-screen-evidence
+          name: lexicon-ios-26-screen-evidence
           path: qa-captures/ios/*.png
           if-no-files-found: warn
           retention-days: 7
