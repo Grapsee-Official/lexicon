@@ -9,6 +9,12 @@ struct WordOfTheDayCard: View {
     let word: WordEntry
     @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @State private var measuredWidth: CGFloat = 390
+
+    private var cardHeight: CGFloat {
+        dynamicTypeSize.isAccessibilitySize ? 182 : (measuredWidth < 360 ? 150 : 132)
+    }
 
     private var isDark: Bool { scheme == .dark }
 
@@ -47,6 +53,8 @@ struct WordOfTheDayCard: View {
         } label: {
             GeometryReader { geo in
                 let totalW = geo.size.width
+                let height = cardHeight
+                let compact = totalW < 360
                 let leftW = totalW * 0.43
                 let rightW = totalW - leftW - 1
 
@@ -58,11 +66,13 @@ struct WordOfTheDayCard: View {
                                 .tracking(0.5)
                                 .foregroundStyle(labelGold)
                                 .lineLimit(1)
-                                .fixedSize(horizontal: true, vertical: false)
+                                .minimumScaleFactor(0.78)
 
-                            BotanicalSprig(color: labelGold)
-                                .frame(width: 13, height: 13)
-                                .lexiconDecorative()
+                            if !compact {
+                                BotanicalSprig(color: labelGold)
+                                    .frame(width: 13, height: 13)
+                                    .lexiconDecorative()
+                            }
                         }
 
                         Spacer(minLength: 4)
@@ -71,7 +81,7 @@ struct WordOfTheDayCard: View {
                             Text(word.word)
                                 .font(.lexiconDisplay(18.5, weight: .regular))
                                 .foregroundStyle(wordColor)
-                                .lineLimit(1)
+                                .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
                                 .minimumScaleFactor(0.75)
 
                             Image(systemName: "speaker.wave.2")
@@ -96,12 +106,12 @@ struct WordOfTheDayCard: View {
                     }
                     .padding(.horizontal, 13)
                     .padding(.vertical, 12)
-                    .frame(width: leftW, height: 132, alignment: .leading)
+                    .frame(width: leftW, height: height, alignment: .leading)
                     .background(leftBg)
 
                     Rectangle()
                         .fill(isDark ? LexiconColors.borderDark : LexiconColors.foreground.opacity(0.08))
-                        .frame(width: 1, height: 132)
+                        .frame(width: 1, height: height)
 
                     ZStack(alignment: .leading) {
                         rightBg
@@ -111,14 +121,14 @@ struct WordOfTheDayCard: View {
                             Image(isDark ? "wotd-bg-dark" : "wotd-bg-light")
                                 .resizable()
                                 .scaledToFill()
-                                .frame(width: rightW * 0.54, height: 132)
+                                .frame(width: rightW * 0.54, height: height)
                                 .clipped()
                                 .accessibilityHidden(true)
                         }
 
                         if isDark {
                             NocturneAtmosphere()
-                                .frame(width: rightW * 0.54, height: 132)
+                                .frame(width: rightW * 0.54, height: height)
                                 .frame(maxWidth: .infinity, alignment: .trailing)
                         }
 
@@ -143,11 +153,18 @@ struct WordOfTheDayCard: View {
                         .padding(.leading, 13)
                         .padding(.vertical, 13)
                     }
-                    .frame(width: rightW, height: 132)
+                    .frame(width: rightW, height: height)
                 }
             }
-            .frame(height: 132)
+            .frame(height: cardHeight)
             .frame(maxWidth: .infinity)
+            .background {
+                GeometryReader { measure in
+                    Color.clear
+                        .onAppear { measuredWidth = measure.size.width }
+                        .onChange(of: measure.size.width) { measuredWidth = $0 }
+                }
+            }
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)

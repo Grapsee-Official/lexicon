@@ -29,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
@@ -60,6 +61,10 @@ fun WordOfTheDayCard(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
+    val config = LocalConfiguration.current
+    val compact = config.screenWidthDp < 360
+    val accessible = config.fontScale > 1.2f
+    val cardHeight = if (accessible) 182.dp else if (compact) 150.dp else 132.dp
 
     val leftBg = if (isDark) DarkWotdLeft else BrandGreen
     val rightBg = if (isDark) DarkWotdRight else WotdRightSurface
@@ -77,7 +82,7 @@ fun WordOfTheDayCard(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .height(132.dp)
+            .height(cardHeight)
             .then(
                 if (!isDark) {
                     Modifier.shadow(
@@ -111,10 +116,12 @@ fun WordOfTheDayCard(
                     style = LexiconTextStyles.WotdLabel,
                     maxLines = 1,
                 )
-                LeafSprig(
-                    color = labelGold,
-                    modifier = Modifier.size(13.dp),
-                )
+                if (!compact) {
+                    LeafSprig(
+                        color = labelGold,
+                        modifier = Modifier.size(13.dp),
+                    )
+                }
             }
 
             Row(
@@ -125,7 +132,7 @@ fun WordOfTheDayCard(
                     text = word.word,
                     color = wordColor,
                     style = LexiconTextStyles.WotdWord,
-                    maxLines = 1,
+                    maxLines = if (accessible) 2 else 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                         .weight(1f, fill = false)
