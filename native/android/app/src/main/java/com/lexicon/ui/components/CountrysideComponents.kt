@@ -116,7 +116,14 @@ fun CountrysideHeroHeader(
     val config = androidx.compose.ui.platform.LocalConfiguration.current
     val compact = config.screenWidthDp < 390
     val accessibilityText = config.fontScale >= 1.3f
-    val responsiveHeight = if (accessibilityText) heroHeight + 62.dp else heroHeight
+    // On phone-sized windows, free space for the watercolor quotation below.
+    // Retain increased height for larger system fonts and full artwork on tablets.
+    val phoneHeight = config.screenWidthDp < 600 && config.screenHeightDp < 940
+    val responsiveHeight = when {
+        accessibilityText -> heroHeight + 62.dp
+        phoneHeight -> (heroHeight - 20.dp).coerceAtLeast(112.dp)
+        else -> heroHeight
+    }
     val titleWidth = if (compact || accessibilityText) 0.76f else 0.58f
 
     Box(

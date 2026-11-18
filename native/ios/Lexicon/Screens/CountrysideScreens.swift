@@ -335,7 +335,7 @@ struct MyNotesScreen: View {
                                 }
                                 .padding(11)
                             }
-                            .frame(minHeight: 156)
+                            .frame(minHeight: dynamicTypeSize.isAccessibilitySize ? 218 : 128)
                             .background(p.card)
                             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                             .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(p.border, lineWidth: 1))
@@ -793,6 +793,7 @@ struct QuickTemplatesScreen: View {
     @EnvironmentObject private var vm: LexiconViewModel
     @EnvironmentObject private var theme: LexiconThemeState
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     @State private var query: String = ""
     @State private var filter: String = "All"
@@ -864,7 +865,7 @@ struct QuickTemplatesScreen: View {
                                     Image(countrysideImageName(tpl.illustration, isDark: isDark))
                                         .resizable()
                                         .scaledToFill()
-                                        .frame(height: 76)
+                                        .frame(height: dynamicTypeSize.isAccessibilitySize ? 90 : 62)
                                         .clipped()
                                     Button { vm.toggleTemplateStar(tpl.id) } label: {
                                         Image(systemName: tpl.starred ? "star.fill" : "star")

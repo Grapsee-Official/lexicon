@@ -22,7 +22,9 @@ struct CountrysideHeroHeader: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     private var isDark: Bool { scheme == .dark }
     private var responsiveHeight: CGFloat {
-        dynamicTypeSize.isAccessibilitySize ? heroHeight + 64 : heroHeight
+        if dynamicTypeSize.isAccessibilitySize { return heroHeight + 64 }
+        let phoneSize = UIScreen.main.bounds.width < 600 && UIScreen.main.bounds.height < 940
+        return phoneSize ? max(112, heroHeight - 20) : heroHeight
     }
 
     var body: some View {

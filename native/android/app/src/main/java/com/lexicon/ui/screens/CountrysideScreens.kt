@@ -485,7 +485,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                     Box(
                                         modifier = Modifier
                                             .weight(1f)
-                                            .height(if (androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f) 218.dp else 156.dp)
+                                            .height(if (androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f) 218.dp else 128.dp)
                                             .clip(RoundedCornerShape(16.dp))
                                             .background(cardBg)
                                             .border(1.dp, border, RoundedCornerShape(16.dp))
@@ -1182,7 +1182,7 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                                             templateForNote = tpl
                                         },
                                 ) {
-                                    Box(modifier = Modifier.fillMaxWidth().height(76.dp)) {
+                                    Box(modifier = Modifier.fillMaxWidth().height(if (androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f) 90.dp else 62.dp)) {
                                         Image(
                                             painter = painterResource(artRes),
                                             contentDescription = null,
