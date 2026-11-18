@@ -348,7 +348,7 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
         item(key = "quote") {
             CountrysideQuoteBanner(
                 quote = "A collection of words is a collection of worlds.",
-                attribution = "Lexicon",
+                attribution = "Lexora",
                 illustrationBase = "ill_banner_bridge",
                 isDark = isDark,
                 modifier = Modifier.padding(horizontal = 16.dp),
@@ -623,7 +623,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
         item(key = "quote") {
             CountrysideQuoteBanner(
                 quote = "A well-written note is a small step towards wisdom.",
-                attribution = "Lexicon",
+                attribution = "Lexora",
                 illustrationBase = "ill_banner_bridge",
                 isDark = isDark,
                 modifier = Modifier.padding(horizontal = 16.dp),
@@ -962,7 +962,7 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
         item(key = "quote") {
             CountrysideQuoteBanner(
                 quote = "Knowledge is a journey, not a destination.",
-                attribution = "Lexicon",
+                attribution = "Lexora",
                 illustrationBase = "ill_banner_bridge",
                 isDark = isDark,
                 modifier = Modifier.padding(horizontal = 16.dp),
@@ -1297,7 +1297,7 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
         item(key = "quote") {
             CountrysideQuoteBanner(
                 quote = "Better words. A brighter mind.",
-                attribution = "Lexicon",
+                attribution = "Lexora",
                 illustrationBase = "ill_banner_bridge",
                 isDark = isDark,
                 modifier = Modifier.padding(horizontal = 16.dp),
@@ -1657,7 +1657,7 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
         item(key = "quote") {
             CountrysideQuoteBanner(
                 quote = "A word is a doorway to a bigger world.",
-                attribution = "Lexicon",
+                attribution = "Lexora",
                 illustrationBase = "ill_banner_bridge",
                 isDark = isDark,
                 modifier = Modifier.padding(horizontal = 16.dp),
