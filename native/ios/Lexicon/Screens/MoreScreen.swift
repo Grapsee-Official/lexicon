@@ -21,6 +21,7 @@ struct MoreScreen: View {
     @EnvironmentObject private var vm: LexiconViewModel
     @EnvironmentObject private var theme: LexiconThemeState
     @Environment(\.colorScheme) private var scheme
+    @State private var infoKey: String? = nil
 
     var body: some View {
         ScrollView {
@@ -40,14 +41,14 @@ struct MoreScreen: View {
                     SettingsRowSpec(
                         icon: "eye",
                         label: "Text size",
-                        value: "Default",
-                        action: { UIImpactFeedbackGenerator(style: .light).impactOccurred() }
+                        value: "Device",
+                        action: { infoKey = "text" }
                     ),
                     SettingsRowSpec(
                         icon: "bell",
                         label: "Notifications",
-                        value: "On",
-                        action: { UIImpactFeedbackGenerator(style: .light).impactOccurred() }
+                        value: "Not scheduled",
+                        action: { infoKey = "notifications" }
                     ),
                 ])
 
@@ -55,20 +56,20 @@ struct MoreScreen: View {
                     SettingsRowSpec(
                         icon: "globe",
                         label: "Language pairs",
-                        value: "36 installed",
-                        action: { UIImpactFeedbackGenerator(style: .light).impactOccurred() }
+                        value: "\(LexiconData.translationsFor(LexiconData.serendipityEntry).count) samples",
+                        action: { vm.navigate(to: .expandedExploration, word: LexiconData.serendipityEntry, expand36: true) }
                     ),
                     SettingsRowSpec(
                         icon: "externaldrive",
                         label: "Storage",
-                        value: "412 MB",
-                        action: { UIImpactFeedbackGenerator(style: .light).impactOccurred() }
+                        value: "On device",
+                        action: { infoKey = "storage" }
                     ),
                     SettingsRowSpec(
                         icon: "arrow.down.circle",
                         label: "Download language packs",
-                        value: "",
-                        action: { UIImpactFeedbackGenerator(style: .light).impactOccurred() }
+                        value: "Unavailable",
+                        action: { infoKey = "packs" }
                     ),
                 ])
 
@@ -77,16 +78,13 @@ struct MoreScreen: View {
                         icon: "doc.text",
                         label: "Clear recent searches",
                         value: vm.recentSearches.count > 0 ? "\(vm.recentSearches.count) items" : "Empty",
-                        action: {
-                            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                            vm.clearRecentSearches()
-                        }
+                        action: { infoKey = "recent" }
                     ),
                     SettingsRowSpec(
                         icon: "externaldrive",
                         label: "Clear cache",
-                        value: "412 MB",
-                        action: { UIImpactFeedbackGenerator(style: .light).impactOccurred() }
+                        value: "Temporary files",
+                        action: { infoKey = "cache" }
                     ),
                 ])
 
@@ -95,19 +93,19 @@ struct MoreScreen: View {
                         icon: "info.circle",
                         label: "About Lexicon",
                         value: "v1.0.0",
-                        action: { UIImpactFeedbackGenerator(style: .light).impactOccurred() }
+                        action: { infoKey = "about" }
                     ),
                     SettingsRowSpec(
                         icon: "doc.text",
-                        label: "Privacy policy",
+                        label: "Privacy & storage",
                         value: "",
-                        action: { UIImpactFeedbackGenerator(style: .light).impactOccurred() }
+                        action: { infoKey = "privacy" }
                     ),
                     SettingsRowSpec(
                         icon: "chevron.left.slash.chevron.right",
                         label: "Open source licences",
                         value: "",
-                        action: { UIImpactFeedbackGenerator(style: .light).impactOccurred() }
+                        action: { infoKey = "licenses" }
                     ),
                 ])
 
@@ -118,6 +116,62 @@ struct MoreScreen: View {
             .padding(.bottom, 120) // clear floating bottom nav
         }
         .background(lexiconPalette(scheme).background)
+        .alert(infoTitle, isPresented: Binding(
+            get: { infoKey != nil },
+            set: { if !$0 { infoKey = nil } }
+        )) {
+            if infoKey == "recent" || infoKey == "cache" {
+                Button("Cancel", role: .cancel) { infoKey = nil }
+                Button(infoKey == "recent" ? "Clear history" : "Clear cache", role: .destructive) {
+                    if infoKey == "recent" {
+                        vm.clearRecentSearches()
+                    } else {
+                        clearTemporaryCache()
+                    }
+                    infoKey = nil
+                }
+            } else {
+                Button("Done", role: .cancel) { infoKey = nil }
+            }
+        } message: {
+            Text(infoMessage)
+        }
+    }
+
+    private var infoTitle: String {
+        switch infoKey {
+        case "text": return "Comfortable reading"
+        case "notifications": return "Daily-word reminders"
+        case "storage": return "Your offline library"
+        case "packs": return "Language packs"
+        case "recent": return "Clear search history?"
+        case "cache": return "Clear temporary cache?"
+        case "about": return "About Lexicon"
+        case "privacy": return "Privacy & local storage"
+        default: return "Open-source libraries"
+        }
+    }
+
+    private var infoMessage: String {
+        switch infoKey {
+        case "text": return "Lexicon follows Dynamic Type. To change reading size, open iOS Settings → Accessibility → Display & Text Size."
+        case "notifications": return "Daily notifications are not currently scheduled. Your Word of the Day remains available offline."
+        case "storage": return "Saved words, notes, study lists and templates are stored on this device. The bundled dictionary works offline."
+        case "packs": return "The English dictionary is bundled. Additional downloadable language packs are not yet supported. The translation view shows only curated available translations."
+        case "recent": return "Remove recent searches on this device? Saved words and notes will be kept."
+        case "cache": return "Remove temporary files? Saved words, notes and study progress will remain."
+        case "about": return "Lexicon · Words. Wisdom. Worlds. A quiet offline-first language companion inspired by the English countryside."
+        case "privacy": return "Word collections, notes, settings and study progress are kept in local app storage. Search history and temporary files can be cleared separately."
+        default: return "Lexicon uses SwiftUI, SQLite and a shared C++17 dictionary engine. See the license notices of each external dependency before redistribution."
+        }
+    }
+
+    private func clearTemporaryCache() {
+        let manager = FileManager.default
+        guard let cache = manager.urls(for: .cachesDirectory, in: .userDomainMask).first,
+              let children = try? manager.contentsOfDirectory(at: cache, includingPropertiesForKeys: nil)
+        else { return }
+        for file in children { try? manager.removeItem(at: file) }
     }
 
     // MARK: - Theme resolution
