@@ -1229,8 +1229,7 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
                 isDark = isDark,
                 showMicOnly = true,
                 onSubmit = {
-                    val q = draft.ifBlank { "serendipity" }
-                    viewModel.submitSearch(q)
+                    if (draft.isNotBlank()) viewModel.submitSearch(draft)
                 },
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
@@ -1368,7 +1367,7 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(term.lowercase(), color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 15.sp))
                                         Text(
-                                            text = "${entry?.partOfSpeech?.label() ?: "noun"}  •  ${entry?.phonetic ?: "/ˈlɛksɪkɒn/"}",
+                                            text = entry?.let { "${it.partOfSpeech.label()}  •  ${it.phonetic}" } ?: "Search again for word details",
                                             color = muted,
                                             style = TextStyle(fontFamily = BodyFontFamily, fontStyle = FontStyle.Italic, fontSize = 10.5.sp),
                                         )

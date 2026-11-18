@@ -55,8 +55,9 @@ struct DictionaryHomeScreen: View {
                             actionLabel: "View all",
                             onAction: { vm.navigate(to: .expandedExploration) }
                         )
-                        HStack(spacing: 5) {
-                            ForEach(LexiconData.exploreTopics) { topic in
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(LexiconData.exploreTopics) { topic in
                                 Button {
                                     switch topic.id {
                                     case "languages":
@@ -74,21 +75,21 @@ struct DictionaryHomeScreen: View {
                                         Image(countrysideImageName(topic.illustration, isDark: isDark))
                                             .resizable()
                                             .scaledToFit()
-                                            .frame(width: 31, height: 31)
+                                            .frame(width: 44, height: 44)
                                         Text(topic.title)
-                                            .font(.lexiconDisplay(8.8, weight: .medium))
+                                            .font(.lexiconDisplay(12, weight: .medium))
                                             .foregroundStyle(p.foreground)
                                             .lineLimit(1)
                                             .minimumScaleFactor(0.75)
                                         Text(topic.subtitle)
-                                            .font(.lexiconBody(6.2))
+                                            .font(.lexiconBody(10))
                                             .foregroundStyle(p.mutedForeground)
-                                            .lineLimit(1)
-                                            .minimumScaleFactor(0.75)
+                                            .lineLimit(2)
+                                            .minimumScaleFactor(0.9)
                                     }
-                                    .padding(.horizontal, 3)
-                                    .padding(.vertical, 6)
-                                    .frame(maxWidth: .infinity)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 8)
+                                    .frame(width: 116, height: 102)
                                     .background(p.card)
                                     .clipShape(RoundedRectangle(cornerRadius: 11, style: .continuous))
                                     .overlay(
@@ -98,8 +99,9 @@ struct DictionaryHomeScreen: View {
                                 }
                                 .buttonStyle(.plain)
                             }
+                            }
+                            .padding(.horizontal, 16)
                         }
-                        .padding(.horizontal, 16)
                     }
 
                     // World of Words — Rudyard Kipling teacup card

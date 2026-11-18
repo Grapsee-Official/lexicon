@@ -289,14 +289,15 @@ fun DictionaryHomeScreen(viewModel: LexiconViewModel) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState())
                             .padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(5.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         LexiconData.exploreTopics.forEach { topic ->
                             val iconRes = resolveCountrysideDrawable(topic.illustration, isDark)
                             Column(
                                 modifier = Modifier
-                                    .weight(1f)
+                                    .width(116.dp)
                                     .clip(RoundedCornerShape(11.dp))
                                     .background(cardBg)
                                     .border(1.dp, border, RoundedCornerShape(11.dp))
@@ -319,21 +320,21 @@ fun DictionaryHomeScreen(viewModel: LexiconViewModel) {
                                     painter = painterResource(iconRes),
                                     contentDescription = null,
                                     contentScale = ContentScale.Fit,
-                                    modifier = Modifier.size(32.dp),
+                                    modifier = Modifier.size(44.dp),
                                 )
                                 Text(
                                     text = topic.title,
                                     color = fg,
-                                    style = TextStyle(fontFamily = DisplayFontFamily, fontWeight = FontWeight.Medium, fontSize = 8.8.sp),
+                                    style = TextStyle(fontFamily = DisplayFontFamily, fontWeight = FontWeight.Medium, fontSize = 12.sp),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                 )
                                 Text(
                                     text = topic.subtitle,
                                     color = muted,
-                                    style = TextStyle(fontFamily = BodyFontFamily, fontSize = 6.2.sp, lineHeight = 8.sp),
+                                    style = TextStyle(fontFamily = BodyFontFamily, fontSize = 10.sp, lineHeight = 13.sp),
                                     textAlign = TextAlign.Center,
-                                    maxLines = 1,
+                                    maxLines = 2,
                                     overflow = TextOverflow.Ellipsis,
                                 )
                             }

@@ -10,7 +10,7 @@ import SwiftUI
 final class LexiconViewModel: ObservableObject {
 
     @Published var activeTab: LexiconTab = .home
-    @Published var route: ScreenRoute = .dictionaryHome
+    @Published var route: ScreenRoute = .home
     @Published var routeHistory: [ScreenRoute] = []
 
     @Published var selectedWord: WordEntry? = nil
@@ -164,13 +164,14 @@ final class LexiconViewModel: ObservableObject {
     }
 
     func navigateBack() {
-        let prev = routeHistory.last ?? .dictionaryHome
+        let prev = routeHistory.last ?? .home
         if !routeHistory.isEmpty { routeHistory.removeLast() }
         route = prev
     }
 
     func setActiveTab(_ tab: LexiconTab) {
         activeTab = tab
+        routeHistory = []
         searchOpen = false
         switch tab {
         case .home: route = .home

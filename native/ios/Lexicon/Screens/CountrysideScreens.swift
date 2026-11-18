@@ -851,7 +851,7 @@ struct SearchDiscoveryScreen: View {
                 CountrysideSearchPill(
                     text: $draft,
                     placeholder: "Search for a word...",
-                    onSubmit: { vm.submitSearch(trimmed.isEmpty ? "serendipity" : trimmed) },
+                    onSubmit: { if !trimmed.isEmpty { vm.submitSearch(trimmed) } },
                     showMicOnly: true
                 )
                 .padding(.horizontal, 16)
@@ -949,7 +949,7 @@ struct SearchDiscoveryScreen: View {
                                                 Text(term.lowercased())
                                                     .font(.lexiconDisplay(15))
                                                     .foregroundStyle(p.foreground)
-                                                Text("\(entry?.partOfSpeech.displayValue ?? "noun")  •  \(entry?.phonetic ?? "/ˈlɛksɪkɒn/")")
+                                                Text(entry.map { "\($0.partOfSpeech.displayValue)  •  \($0.phonetic)" } ?? "Search again for word details")
                                                     .font(.lexiconBody(10.5).italic())
                                                     .foregroundStyle(p.mutedForeground)
                                             }

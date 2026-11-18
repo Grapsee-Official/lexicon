@@ -17,7 +17,7 @@ enum class TabKey { HOME, DICTIONARY, SEARCH, COLLECTIONS, MORE }
 
 data class LexiconUiState(
     val activeTab: TabKey = TabKey.HOME,
-    val route: ScreenRoute = ScreenRoute.DICTIONARY_HOME,
+    val route: ScreenRoute = ScreenRoute.HOME,
     val routeHistory: List<ScreenRoute> = emptyList(),
     val selectedWord: WordEntry? = null,
     val detailWord: WordEntry = LexiconData.serendipityEntry,
@@ -121,7 +121,7 @@ class LexiconViewModel : ViewModel() {
 
     fun navigateBack() {
         _uiState.update { s ->
-            val prev = s.routeHistory.lastOrNull() ?: ScreenRoute.DICTIONARY_HOME
+            val prev = s.routeHistory.lastOrNull() ?: ScreenRoute.HOME
             s.copy(
                 route = prev,
                 routeHistory = s.routeHistory.dropLast(1),
@@ -148,6 +148,7 @@ class LexiconViewModel : ViewModel() {
             it.copy(
                 activeTab = tab,
                 route = targetRoute,
+                routeHistory = emptyList(),
                 searchOpen = false,
             )
         }
