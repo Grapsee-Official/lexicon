@@ -8,6 +8,7 @@ on:
       - 'native/**'
       - 'scripts/check_countryside_art.py'
       - 'scripts/check_capture_quality.py'
+      - 'scripts/build_native_contact_sheets.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -72,11 +73,21 @@ jobs:
           python3 -m venv "$RUNNER_TEMP/lexicon-qa-venv"
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" -m pip install --disable-pip-version-check "Pillow==11.3.0"
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/android --expected-count 26
+      - name: Prepare Android visual review galleries
+        run: |
+          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/build_native_contact_sheets.py qa-captures/android qa-captures/android-review --platform android
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: lexicon-android-26-screen-evidence
           path: qa-captures/android/*.png
+          if-no-files-found: warn
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lexora-android-visual-review
+          path: qa-captures/android-review/*.jpg
           if-no-files-found: warn
           retention-days: 7
 
@@ -174,6 +185,16 @@ jobs:
           test "$(find qa-captures/ios -type f -name '*.png' | wc -l)" -eq 26
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/ios --expected-count 26
           find qa-captures/ios -type f -name '*.png' | sort
+      - name: Prepare iOS visual review galleries
+        run: |
+          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/build_native_contact_sheets.py qa-captures/ios qa-captures/ios-review --platform ios
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lexora-ios-visual-review
+          path: qa-captures/ios-review/*.jpg
+          if-no-files-found: warn
+          retention-days: 7
       - name: Preserve native iOS crash reports for failed captures
         if: always()
         run: |
