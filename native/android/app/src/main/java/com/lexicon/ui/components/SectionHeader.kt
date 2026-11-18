@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lexicon.ui.enforceTouchTarget
 import com.lexicon.ui.sectionHeading
+import com.lexicon.ui.theme.BrandGreen
 import com.lexicon.ui.theme.DarkAccent
 import com.lexicon.ui.theme.DarkBackground
 import com.lexicon.ui.theme.DarkChipBorder
@@ -39,7 +40,7 @@ fun SectionHeader(
     modifier: Modifier = Modifier,
 ) {
     val isDark = MaterialTheme.colorScheme.background == DarkBackground
-    val accent = if (isDark) DarkAccent else OldWoodGold
+    val accent = if (isDark) DarkAccent else BrandGreen
     val lineColor = if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.12f)
 
     Row(
