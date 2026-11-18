@@ -112,18 +112,43 @@ jobs:
           xcrun simctl bootstatus "$DEVICE" -b
           xcrun simctl status_bar "$DEVICE" override --time '9:41' --dataNetwork wifi --wifiMode active --wifiBars 3 --batteryState charged --batteryLevel 100
           xcrun simctl install "$DEVICE" "$APP"
-          # Warm up the newly booted Simulator and SwiftUI runtime first.
-          xcrun simctl launch "$DEVICE" com.lexicon.app -lexoraTheme light -lexiconScreen home
-          sleep 12
+          # The in-app snapshot channel confirms the screen is actually active.
+          # Keep one SwiftUI app process instead of repeatedly launching SpringBoard.
+          DATA_DIR="$(xcrun simctl get_app_container "$DEVICE" com.lexicon.app data)"
+          SYNC_DIR="$DATA_DIR/lexicon-qa-sync"
+          mkdir -p "$SYNC_DIR"
+          rm -f "$SYNC_DIR/req.txt" "$SYNC_DIR/ack.txt"
+          xcrun simctl launch "$DEVICE" com.lexicon.app \
+            -lexoraTheme light -lexiconScreen home \
+            -lexiconSnapshotSyncDir "$SYNC_DIR"
+          sleep 4
+          serial=0
           for mode in light dark; do
             for screen in home dictionary_home word_of_the_day word_detail collections my_notes study_lists quick_templates search_discovery search_results expanded_exploration; do
-              xcrun simctl terminate "$DEVICE" com.lexicon.app || true
-              xcrun simctl launch "$DEVICE" com.lexicon.app -lexoraTheme "$mode" -lexiconScreen "$screen"
-              sleep 6
-              xcrun simctl io "$DEVICE" screenshot "qa-captures/ios/${mode}-${screen}.png"
-              test "$(wc -c < "qa-captures/ios/${mode}-${screen}.png")" -gt 20000
+              serial=$((serial+1))
+              printf '%s|%s|%s\n' "$serial" "$mode" "$screen" > "$SYNC_DIR/req.txt"
+              ready=0
+              for tick in $(seq 1 110); do
+                if [ -f "$SYNC_DIR/ack.txt" ] && [ "$(cat "$SYNC_DIR/ack.txt")" = "$serial" ]; then
+                  ready=1
+                  break
+                fi
+                sleep 0.3
+              done
+              if [ "$ready" != 1 ]; then
+                echo "::error::iOS simulator failed to acknowledge screen $mode/$screen"
+                xcrun simctl spawn "$DEVICE" log show --last 20s \
+                  --style compact --predicate 'process == "Lexicon"' \
+                  | tail -90 || true
+                exit 1
+              fi
+              sleep 0.6
+              xcrun simctl io "$DEVICE" screenshot "qa-captures/ios/$mode-$screen.png"
+              test "$(wc -c < "qa-captures/ios/$mode-$screen.png")" -gt 20000
+              echo "ACK $serial: native iOS $mode/$screen"
             done
           done
+          test "$(find qa-captures/ios -type f -name '*.png' | wc -l)" -eq 22
           find qa-captures/ios -type f -name '*.png' | sort
       - name: Preserve native iOS crash reports for failed captures
         if: always()
