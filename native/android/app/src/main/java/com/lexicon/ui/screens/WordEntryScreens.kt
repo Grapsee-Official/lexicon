@@ -426,7 +426,7 @@ fun WordOfTheDayScreen(viewModel: LexiconViewModel) {
         item(key = "quote") {
             CountrysideQuoteBanner(
                 quote = "Words are bridges between minds.",
-                attribution = "Lexicon",
+                attribution = "Lexora",
                 illustrationBase = "ill_banner_bridge",
                 isDark = isDark,
                 modifier = Modifier.padding(horizontal = 16.dp),
@@ -1190,7 +1190,7 @@ fun SearchResultsScreen(viewModel: LexiconViewModel) {
         item(key = "quote") {
             CountrysideQuoteBanner(
                 quote = "Discover the beauty in every word.",
-                attribution = "Lexicon",
+                attribution = "Lexora",
                 illustrationBase = "ill_banner_bridge",
                 isDark = isDark,
                 modifier = Modifier.padding(horizontal = 16.dp),
@@ -1329,7 +1329,7 @@ fun ExpandedExplorationScreen(viewModel: LexiconViewModel) {
         item(key = "books_quote") {
             CountrysideQuoteBanner(
                 quote = "Words are doors to new worlds.",
-                attribution = "Lexicon",
+                attribution = "Lexora",
                 illustrationBase = "ill_books_daisies",
                 isDark = isDark,
                 modifier = Modifier.padding(horizontal = 16.dp),
