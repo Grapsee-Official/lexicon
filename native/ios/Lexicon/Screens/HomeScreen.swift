@@ -8,6 +8,8 @@ import SwiftUI
 struct HomeScreen: View {
     @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
+    @State private var libraryOpen = false
+    @State private var articleToRead: Article? = nil
 
     var body: some View {
         ScrollView {
@@ -44,12 +46,16 @@ struct HomeScreen: View {
                     SectionHeader(
                         title: "From the Library",
                         actionLabel: "View all articles",
-                        divider: true
+                        divider: true,
+                        onAction: { articleToRead = nil; libraryOpen = true }
                     )
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 9) {
                             ForEach(LexiconData.articles) { a in
-                                ArticleCard(article: a)
+                                ArticleCard(
+                                    article: a,
+                                    onOpen: { articleToRead = a; libraryOpen = true }
+                                )
                             }
                         }
                         .padding(.horizontal, 16)
@@ -60,5 +66,80 @@ struct HomeScreen: View {
             .padding(.bottom, 76)
         }
         .background(lexiconPalette(scheme).background)
+        .sheet(isPresented: $libraryOpen) {
+            NavigationStack {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 15) {
+                        if let article = articleToRead {
+                            Image(article.thumbnail + (scheme == .dark ? "-dark" : ""))
+                                .resizable()
+                                .scaledToFit()
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 175)
+                                .clipped()
+                                .accessibilityHidden(true)
+
+                            Text(article.excerpt)
+                                .font(.lexiconBody(15))
+                                .foregroundStyle(lexiconPalette(scheme).mutedForeground)
+
+                            ForEach(Array(LexiconData.articleReading(article.id).enumerated()), id: \.offset) { _, paragraph in
+                                Text(paragraph)
+                                    .font(.lexiconBody(15))
+                                    .foregroundStyle(lexiconPalette(scheme).foreground)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .lineSpacing(6)
+                            }
+                        } else {
+                            Text("Three little journeys through language and time.")
+                                .font(.lexiconBody(14))
+                                .foregroundStyle(lexiconPalette(scheme).mutedForeground)
+
+                            ForEach(LexiconData.articles) { article in
+                                Button { articleToRead = article } label: {
+                                    HStack(spacing: 13) {
+                                        Image(article.thumbnail + (scheme == .dark ? "-dark" : ""))
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 80, height: 80)
+                                            .clipped()
+                                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                                            .accessibilityHidden(true)
+                                        VStack(alignment: .leading, spacing: 5) {
+                                            Text(article.title)
+                                                .font(.lexiconDisplay(17))
+                                                .foregroundStyle(lexiconPalette(scheme).foreground)
+                                            Text(article.excerpt)
+                                                .font(.lexiconBody(12))
+                                                .foregroundStyle(lexiconPalette(scheme).mutedForeground)
+                                        }
+                                        Spacer(minLength: 0)
+                                        Image(systemName: "chevron.right")
+                                            .foregroundStyle(lexiconPalette(scheme).highlight)
+                                    }
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(20)
+                }
+                .background(lexiconPalette(scheme).background)
+                .navigationTitle(articleToRead?.title ?? "From the Library")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        if articleToRead != nil {
+                            Button("All articles") { articleToRead = nil }
+                        }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Done") { libraryOpen = false }
+                    }
+                }
+            }
+            .presentationDragIndicator(.visible)
+        }
     }
 }
