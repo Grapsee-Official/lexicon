@@ -142,6 +142,8 @@ final class LexiconViewModel: ObservableObject {
             navigate(to: .expandedExploration, word: LexiconData.serendipityEntry, expand36: true)
         case "home":
             setActiveTab(.home)
+        case "more":
+            setActiveTab(.more)
         default:
             break
         }
