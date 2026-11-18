@@ -7,6 +7,7 @@ on:
       - '.github/workflows/native-visual-qa.yml'
       - 'native/**'
       - 'scripts/check_countryside_art.py'
+      - 'scripts/check_capture_quality.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -66,6 +67,11 @@ jobs:
           disable-animations: true
           disable-linux-hw-accel: false
           script: bash scripts/capture_android_screens.sh
+      - name: Reject blank or missing Android visual evidence
+        run: |
+          python3 -m venv "$RUNNER_TEMP/lexicon-qa-venv"
+          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" -m pip install --disable-pip-version-check "Pillow==11.3.0"
+          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/android --expected-count 22
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -99,6 +105,10 @@ jobs:
         run: |
           ARCH="$(uname -m)"
           xcodebuild -project Lexicon.xcodeproj -scheme Lexicon -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -configuration Debug -derivedDataPath "${RUNNER_TEMP}/DerivedData" ARCHS="$ARCH" ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" OTHER_LDFLAGS='$(inherited) -llexicon-engine -lsqlite3 -lc++ -L$(SRCROOT)/Lexicon/Engine/lib' HEADER_SEARCH_PATHS='$(inherited) $(SRCROOT)/Lexicon $(SRCROOT)/Lexicon/Engine $(SRCROOT)/Lexicon/Engine/lib $(SRCROOT)/../cpp/include' build
+      - name: Install native screenshot verifier
+        run: |
+          python3 -m venv "$RUNNER_TEMP/lexicon-qa-venv"
+          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" -m pip install --disable-pip-version-check "Pillow==11.3.0"
       - name: Boot a simulator and capture 22 actual SwiftUI screens
         run: |
           set -eu
@@ -142,13 +152,27 @@ jobs:
                   | tail -90 || true
                 exit 1
               fi
-              sleep 0.6
-              xcrun simctl io "$DEVICE" screenshot "qa-captures/ios/$mode-$screen.png"
-              test "$(wc -c < "qa-captures/ios/$mode-$screen.png")" -gt 20000
-              echo "ACK $serial: native iOS $mode/$screen"
+              # SwiftUI transitions can briefly expose the system's white backing
+              # window. Verify actual rendered content, not merely ACK/PNG size.
+              valid=0
+              for attempt in 1 2 3 4; do
+                sleep 1
+                xcrun simctl io "$DEVICE" screenshot "qa-captures/ios/$mode-$screen.png"
+                if "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py "qa-captures/ios/$mode-$screen.png"; then
+                  valid=1
+                  break
+                fi
+                echo "::warning::iOS $mode/$screen blank at attempt $attempt; retrying"
+              done
+              if [ "$valid" != 1 ]; then
+                echo "::error::iOS $mode/$screen remained blank after 4 captures"
+                exit 1
+              fi
+              echo "ACK $serial: native iOS $mode/$screen (verified)"
             done
           done
           test "$(find qa-captures/ios -type f -name '*.png' | wc -l)" -eq 22
+          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/ios --expected-count 22
           find qa-captures/ios -type f -name '*.png' | sort
       - name: Preserve native iOS crash reports for failed captures
         if: always()
