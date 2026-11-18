@@ -484,12 +484,12 @@ fun BotanicalSectionTitle(
 
 /**
  * CountrysideQuoteBanner — Panoramic English village / stone bridge / stacked books quote banner
- * with unified "— Lexicon —" literary attribution.
+ * with unified "— Lexora —" literary attribution.
  */
 @Composable
 fun CountrysideQuoteBanner(
     quote: String,
-    attribution: String = "Lexicon",
+    attribution: String = "Lexora",
     illustrationBase: String = "ill_banner_bridge",
     isDark: Boolean,
     modifier: Modifier = Modifier,
