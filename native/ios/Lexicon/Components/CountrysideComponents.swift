@@ -296,7 +296,7 @@ struct BotanicalSectionTitle: View {
 
 struct CountrysideQuoteBanner: View {
     let quote: String
-    var attribution: String = "Lexicon"
+    var attribution: String = "Lexora"
     var illustrationBase: String = "ill-banner-bridge"
 
     @Environment(\.colorScheme) private var scheme
