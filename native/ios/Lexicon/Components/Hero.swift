@@ -8,6 +8,7 @@ import SwiftUI
 struct Hero: View {
     @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     private var isDark: Bool { scheme == .dark }
 
@@ -30,6 +31,10 @@ struct Hero: View {
     var body: some View {
         GeometryReader { geo in
             let totalWidth = geo.size.width
+            let compact = totalWidth < 360
+            let enlargedText = dynamicTypeSize.isAccessibilitySize
+            let heroHeight: CGFloat = enlargedText ? 310 : (compact ? 270 : 258)
+            let textWidth = totalWidth * ((compact || enlargedText) ? 0.60 : 0.53)
 
             ZStack(alignment: .topLeading) {
                 HStack(spacing: 0) {
@@ -37,15 +42,12 @@ struct Hero: View {
                     Image(isDark ? "hero-dark" : "hero-light")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: totalWidth * 0.71, height: 238, alignment: .bottomTrailing)
+                        .frame(width: totalWidth * (compact ? 0.65 : 0.71), height: heroHeight, alignment: .bottomTrailing)
                         .offset(x: 8, y: 6)
                         .lexiconDecorative()
-                        .onTapGesture {
-                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                            vm.openSearch()
-                        }
+        
                 }
-                .frame(width: totalWidth, height: 238)
+                .frame(width: totalWidth, height: heroHeight)
 
                 if isDark {
                     NocturneAtmosphere()
@@ -55,12 +57,12 @@ struct Hero: View {
                 VStack(alignment: .leading, spacing: 6) {
                     headline
                     Text("A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.")
-                        .font(.lexiconBody(10.5))
+                        .font(.lexiconBody(12.5))
                         .foregroundStyle(subtextColor)
                         .lineSpacing(2)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                .frame(width: totalWidth * 0.50, alignment: .leading)
+                .frame(width: textWidth, alignment: .leading)
                 .padding(.leading, 18)
                 .padding(.top, 2)
 
@@ -68,7 +70,7 @@ struct Hero: View {
                     Spacer()
                     HStack(spacing: 0) {
                         FloatingSearchBar()
-                            .frame(width: totalWidth * 0.78)
+                            .frame(width: totalWidth * (compact ? 0.92 : 0.82))
                         Spacer(minLength: 0)
                     }
                     .padding(.leading, 16)
@@ -77,7 +79,7 @@ struct Hero: View {
                 .frame(width: totalWidth, height: 238)
             }
         }
-        .frame(height: 238)
+        .frame(height: dynamicTypeSize.isAccessibilitySize ? 310 : (UIScreen.main.bounds.width < 360 ? 270 : 258))
     }
 
     @ViewBuilder
