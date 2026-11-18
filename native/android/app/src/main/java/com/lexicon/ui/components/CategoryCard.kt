@@ -6,8 +6,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -16,8 +16,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
@@ -38,9 +39,8 @@ import com.lexicon.ui.theme.LexiconTextStyles
 import com.lexicon.ui.theme.WarmGrey
 
 /**
- * CategoryCard — Uses Modifier.weight(1f) inside the 4-card Row so ALL FOUR
- * categories (Vocabulary, Geography, Literature, Science) fit 100% side-by-side
- * without clipping "Science", matching the Light & Dark reference PNGs!
+ * A small illustrated bookplate, not a square thumbnail crop.
+ * Keep the entire transparent watercolor and its ragged edges visible.
  */
 @Composable
 fun CategoryCard(
@@ -50,57 +50,46 @@ fun CategoryCard(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
-
+    val largeText = LocalConfiguration.current.fontScale > 1.2f
     val ctx = LocalContext.current
     val drawableName = if (isDark) "${category.illustration}_dark" else category.illustration
     val resId = ctx.resources.getIdentifier(drawableName, "drawable", ctx.packageName)
         .takeIf { it != 0 }
         ?: ctx.resources.getIdentifier(category.illustration, "drawable", ctx.packageName)
-
-    val cardBg = if (isDark) DarkCard else CardSurface
-    val borderColor = if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.10f)
-    val titleColor = if (isDark) DarkForeground else DeepForest
-    val subColor = if (isDark) DarkMutedForeground else WarmGrey
-    val shape = RoundedCornerShape(13.dp)
+    val surface = if (isDark) DarkCard else CardSurface
+    val ink = if (isDark) DarkForeground else DeepForest
+    val muted = if (isDark) DarkMutedForeground else WarmGrey
+    val border = if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.10f)
+    val shape = RoundedCornerShape(15.dp)
 
     Column(
         modifier = modifier
-            .then(
-                if (!isDark) {
-                    Modifier.shadow(
-                        elevation = 2.dp,
-                        shape = shape,
-                        ambientColor = DeepForest.copy(alpha = 0.10f),
-                        spotColor = DeepForest.copy(alpha = 0.10f),
-                    )
-                } else Modifier
-            )
+            .height(if (largeText) 144.dp else 112.dp)
             .clip(shape)
-            .background(cardBg)
-            .border(1.dp, borderColor, shape)
+            .background(surface)
+            .border(1.dp, border, shape)
             .clickable(role = Role.Button) { viewModel.setActiveTab(TabKey.DICTIONARY) }
-            .padding(horizontal = 6.dp, vertical = 7.dp),
+            .padding(horizontal = 6.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(5.dp),
+        verticalArrangement = Arrangement.SpaceBetween,
     ) {
         Image(
             painter = painterResource(resId),
-            contentDescription = "${category.title} illustration",
+            contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(1f)
-                .clip(RoundedCornerShape(9.dp)),
-            contentScale = ContentScale.Crop,
+                .height(if (largeText) 84.dp else 67.dp),
+            contentScale = ContentScale.Fit,
+            alignment = Alignment.Center,
         )
-
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(1.5.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             Text(
                 text = category.title,
-                color = titleColor,
+                color = ink,
                 style = LexiconTextStyles.CategoryTitle,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
@@ -108,7 +97,7 @@ fun CategoryCard(
             )
             Text(
                 text = category.subtitle,
-                color = subColor,
+                color = muted,
                 style = LexiconTextStyles.CategorySubtitle,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
