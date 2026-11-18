@@ -10,6 +10,7 @@ struct LexiconHeader: View {
     @EnvironmentObject private var theme: LexiconThemeState
     @Environment(\.colorScheme) private var scheme
 
+    @State private var showDailyLetter = false
     private var isDark: Bool { scheme == .dark }
 
     private var iconTint: Color {
@@ -71,7 +72,7 @@ struct LexiconHeader: View {
             .layoutPriority(1)
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            button(action: {}, label: LexiconAccessibilityLabels.bell) {
+            button(action: { showDailyLetter = true }, label: LexiconAccessibilityLabels.bell) {
                 ZStack(alignment: .topTrailing) {
                     Image(systemName: "bell")
                         .font(.system(size: 18, weight: .light))
@@ -100,6 +101,15 @@ struct LexiconHeader: View {
         }
         .frame(height: 44)
         .padding(.horizontal, 16)
+        .alert("A letter from Lexicon", isPresented: $showDailyLetter) {
+            Button("Explore the word") {
+                vm.navigate(to: .wordOfTheDay, word: LexiconData.featuredWord())
+            }
+            Button("Close", role: .cancel) { }
+        } message: {
+            let featured = LexiconData.featuredWord()
+            Text("Today’s word: \(featured.word). \(featured.definitions.first ?? \"\")")
+        }
     }
 
     private func button(

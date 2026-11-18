@@ -21,10 +21,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,6 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lexicon.R
 import com.lexicon.data.LexiconViewModel
+import com.lexicon.data.LexiconData
+import com.lexicon.data.ScreenRoute
 import com.lexicon.data.TabKey
 import com.lexicon.ui.AccessibilityAudit
 import com.lexicon.ui.enforceTouchTarget
@@ -48,10 +55,12 @@ import com.lexicon.ui.theme.DarkHighlight
 import com.lexicon.ui.theme.DeepForest
 import com.lexicon.ui.theme.LexiconTextStyles
 import com.lexicon.ui.theme.OldWoodGold
+import com.lexicon.ui.theme.CardSurface
+import com.lexicon.ui.theme.DarkCard
 
 /**
  * Exact header layout from the Light & Dark reference PNGs:
- *   [Hamburger] [Crest Mark] [Lexora / Words. Wisdom. Worlds.] ...... [Bell+dot] [Avatar]
+ *   [Hamburger] [Crest Mark] [Lexicon / Words. Wisdom. Worlds.] ...... [Bell+dot] [Avatar]
  * (Zero invented extra icons in the top bar; tapping the brand crest or More->Theme switches mode.)
  */
 @Composable
@@ -61,6 +70,7 @@ fun LexiconHeader(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
+    var showDailyLetter by remember { mutableStateOf(false) }
 
     val iconTint = if (isDark) DarkAccent.copy(alpha = 0.88f) else DeepForest.copy(alpha = 0.72f)
     val wordmarkColor = if (isDark) DarkForeground else BrandGreen
@@ -134,7 +144,7 @@ fun LexiconHeader(
                 .clip(CircleShape)
                 .iconButton(AccessibilityAudit.Descriptions.Bell)
                 .enforceTouchTarget()
-                .clickable(role = Role.Button) { },
+                .clickable(role = Role.Button) { showDailyLetter = true },
             contentAlignment = Alignment.Center,
         ) {
             Icon(
@@ -175,5 +185,39 @@ fun LexiconHeader(
                 modifier = Modifier.fillMaxSize(),
             )
         }
+    }
+
+    if (showDailyLetter) {
+        val word = LexiconData.featuredWord()
+        AlertDialog(
+            onDismissRequest = { showDailyLetter = false },
+            title = {
+                Text("A letter from Lexicon", color = if (isDark) DarkForeground else DeepForest)
+            },
+            text = {
+                Column(verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        "Your word for today",
+                        color = if (isDark) DarkAccent else BrandGreen,
+                    )
+                    Text(word.word, color = if (isDark) DarkForeground else DeepForest,
+                        style = LexiconTextStyles.BrandWordmark)
+                    Text(word.definitions.firstOrNull().orEmpty(),
+                        color = if (isDark) DarkForeground else DeepForest)
+                    Text("A quiet little discovery from the countryside library.",
+                        color = if (isDark) DarkForeground.copy(alpha = 0.7f) else DeepForest.copy(alpha = 0.7f))
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDailyLetter = false
+                    viewModel.navigate(ScreenRoute.WORD_OF_THE_DAY, word = word)
+                }) { Text("Explore the word") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDailyLetter = false }) { Text("Close") }
+            },
+            containerColor = if (isDark) DarkCard else CardSurface,
+        )
     }
 }
