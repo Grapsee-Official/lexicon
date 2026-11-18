@@ -1,5 +1,7 @@
 package com.lexicon.ui.screens
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -36,6 +38,8 @@ import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -54,6 +58,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -61,6 +66,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lexicon.R
 import com.lexicon.data.LexiconViewModel
+import com.lexicon.data.LexiconData
+import com.lexicon.data.ScreenRoute
 import com.lexicon.ui.theme.BrandGreen
 import com.lexicon.ui.theme.DarkAccent
 import com.lexicon.ui.theme.DarkBackground
@@ -88,6 +95,8 @@ import com.lexicon.ui.theme.Terracotta
 fun MoreScreen(viewModel: LexiconViewModel) {
     val state by viewModel.uiState.collectAsState()
     val isDark = state.isDark
+    val context = LocalContext.current
+    var infoDialog by remember { mutableStateOf<String?>(null) }
 
     // Screen entrance animation: fadeIn + slideUp (y: 12dp → 0dp)
     var visible by remember { mutableStateOf(false) }
@@ -138,15 +147,15 @@ fun MoreScreen(viewModel: LexiconViewModel) {
                     icon = Icons.Outlined.Visibility,
                     iconLabel = "Text size",
                     label = "Text size",
-                    value = "Default",
-                    onClick = {},
+                    value = "Device",
+                    onClick = { infoDialog = "text" },
                 )
                 SettingsRow(
                     icon = Icons.Outlined.Notifications,
                     iconLabel = "Notifications",
                     label = "Notifications",
-                    value = "On",
-                    onClick = {},
+                    value = "Not scheduled",
+                    onClick = { infoDialog = "notifications" },
                     isLast = true,
                 )
             }
@@ -159,22 +168,22 @@ fun MoreScreen(viewModel: LexiconViewModel) {
                     icon = Icons.Outlined.Language,
                     iconLabel = "Language pairs",
                     label = "Language pairs",
-                    value = "37 installed",
-                    onClick = {},
+                    value = "${LexiconData.translationsFor(LexiconData.serendipityEntry).size} samples",
+                    onClick = { viewModel.navigate(ScreenRoute.EXPANDED_EXPLORATION, word = LexiconData.serendipityEntry, expand36 = true) },
                 )
                 SettingsRow(
                     icon = Icons.Outlined.Storage,
                     iconLabel = "Storage",
                     label = "Storage",
-                    value = "412 MB",
-                    onClick = {},
+                    value = "On device",
+                    onClick = { infoDialog = "storage" },
                 )
                 SettingsRow(
                     icon = Icons.Outlined.Download,
                     iconLabel = "Download language packs",
                     label = "Download language packs",
-                    value = "",
-                    onClick = {},
+                    value = "Unavailable",
+                    onClick = { infoDialog = "packs" },
                     isLast = true,
                 )
             }
@@ -190,14 +199,14 @@ fun MoreScreen(viewModel: LexiconViewModel) {
                     value = if (state.recentSearches.isNotEmpty())
                         "${state.recentSearches.size} items"
                     else "Empty",
-                    onClick = { viewModel.clearRecentSearches() },
+                    onClick = { infoDialog = "recent" },
                 )
                 SettingsRow(
                     icon = Icons.Outlined.Storage,
                     iconLabel = "Clear cache",
                     label = "Clear cache",
-                    value = "412 MB",
-                    onClick = {},
+                    value = "Temporary files",
+                    onClick = { infoDialog = "cache" },
                     isLast = true,
                 )
             }
@@ -211,21 +220,21 @@ fun MoreScreen(viewModel: LexiconViewModel) {
                     iconLabel = "About Lexicon",
                     label = "About Lexicon",
                     value = "v1.0.0",
-                    onClick = {},
+                    onClick = { infoDialog = "about" },
                 )
                 SettingsRow(
                     icon = Icons.Outlined.Description,
                     iconLabel = "Privacy policy",
-                    label = "Privacy policy",
+                    label = "Privacy & storage",
                     value = "",
-                    onClick = {},
+                    onClick = { infoDialog = "privacy" },
                 )
                 SettingsRow(
                     icon = Icons.Outlined.Code,
                     iconLabel = "Open source licences",
                     label = "Open source licences",
                     value = "",
-                    onClick = {},
+                    onClick = { infoDialog = "licenses" },
                     isLast = true,
                 )
             }
@@ -235,6 +244,60 @@ fun MoreScreen(viewModel: LexiconViewModel) {
         item(key = "footer") {
             MoreFooter()
         }
+    }
+
+    if (infoDialog != null) {
+        val title = when (infoDialog) {
+            "text" -> "Comfortable reading"
+            "notifications" -> "Daily-word reminders"
+            "storage" -> "Your offline library"
+            "packs" -> "Language packs"
+            "recent" -> "Clear search history?"
+            "cache" -> "Clear temporary cache?"
+            "about" -> "About Lexicon"
+            "privacy" -> "Privacy & local storage"
+            else -> "Open-source libraries"
+        }
+        val description = when (infoDialog) {
+            "text" -> "Lexicon follows Android font-size and accessibility settings. Open device Display settings to adjust reading size."
+            "notifications" -> "Daily notifications are not currently scheduled. Your Word of the Day remains available offline."
+            "storage" -> "Saved words, notes, study lists and templates are stored on this device. The bundled dictionary works offline."
+            "packs" -> "The English dictionary is bundled. Additional downloadable language packs are not yet supported. The translation view shows only curated available translations."
+            "recent" -> "Remove recent searches on this device? Your saved words and notes will be kept."
+            "cache" -> "Remove temporary files? Saved words, notes and study progress will remain."
+            "about" -> "Lexicon · Words. Wisdom. Worlds. A quiet offline-first language companion inspired by the English countryside."
+            "privacy" -> "Word collections, notes, settings and study progress are kept in local app storage. Search history and temporary files can be cleared separately."
+            else -> "Lexicon uses Kotlin, AndroidX, Jetpack Compose, SQLite and a shared C++17 dictionary engine. See the license notices of each dependency before redistribution."
+        }
+        AlertDialog(
+            onDismissRequest = { infoDialog = null },
+            title = { Text(title) },
+            text = { Text(description) },
+            confirmButton = {
+                TextButton(onClick = {
+                    when (infoDialog) {
+                        "text" -> context.startActivity(
+                            Intent(Settings.ACTION_DISPLAY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        )
+                        "recent" -> viewModel.clearRecentSearches()
+                        "cache" -> context.cacheDir.listFiles()?.forEach { it.deleteRecursively() }
+                    }
+                    infoDialog = null
+                }) {
+                    Text(when (infoDialog) {
+                        "text" -> "Display settings"
+                        "recent" -> "Clear history"
+                        "cache" -> "Clear cache"
+                        else -> "Done"
+                    })
+                }
+            },
+            dismissButton = {
+                if (infoDialog == "text" || infoDialog == "recent" || infoDialog == "cache") {
+                    TextButton(onClick = { infoDialog = null }) { Text("Cancel") }
+                }
+            },
+        )
     }
 }
 
