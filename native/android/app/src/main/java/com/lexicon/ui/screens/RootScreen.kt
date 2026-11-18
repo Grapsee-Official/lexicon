@@ -25,6 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lexicon.data.LexiconViewModel
 import com.lexicon.data.ScreenRoute
 import com.lexicon.ui.components.BottomNav
+import com.lexicon.ui.components.CountrysideMaterialOverlay
 import com.lexicon.ui.components.LexiconHeader
 import com.lexicon.ui.components.SearchModal
 import com.lexicon.ui.components.WordDetailSheet
@@ -75,6 +76,8 @@ fun RootScreen(viewModel: LexiconViewModel) {
                 }
             }
         }
+
+        CountrysideMaterialOverlay(isDark = state.isDark, modifier = Modifier.fillMaxSize())
 
         if (route != ScreenRoute.HOME) {
             Box(

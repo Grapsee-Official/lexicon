@@ -612,3 +612,37 @@ fun NocturneAtmosphere(modifier: Modifier = Modifier) {
         }
     }
 }
+
+
+/**
+ * A native-vector paper wash shared across the existing countryside screens.
+ * Deterministic normalised coordinates keep it responsive, non-animated and
+ * visually consistent with the editable SVG and SwiftUI drawing.
+ */
+@Composable
+fun CountrysideMaterialOverlay(isDark: Boolean, modifier: Modifier = Modifier) {
+    Canvas(modifier = modifier) {
+        val pigment = if (isDark) Color(0xFFF0D89A) else Color(0xFF8A7152)
+        val wash = if (isDark) Color(0xFF334A5E) else Color(0xFFC98267)
+        val side = size.minDimension
+        drawCircle(
+            color = wash.copy(alpha = if (isDark) 0.025f else 0.022f),
+            radius = side * 0.27f,
+            center = Offset(size.width * 0.04f, size.height * 0.16f),
+        )
+        drawCircle(
+            color = wash.copy(alpha = if (isDark) 0.025f else 0.018f),
+            radius = side * 0.34f,
+            center = Offset(size.width * 0.96f, size.height * 0.77f),
+        )
+        repeat(190) { i ->
+            val x = ((i * 73 + 19) % 257).toFloat() / 257f
+            val y = ((i * 101 + 37) % 263).toFloat() / 263f
+            drawCircle(
+                color = pigment.copy(alpha = if (isDark) 0.048f else 0.037f),
+                radius = (0.4f + (i % 4) * 0.19f).dp.toPx(),
+                center = Offset(size.width * x, size.height * y),
+            )
+        }
+    }
+}

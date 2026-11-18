@@ -399,3 +399,44 @@ struct NocturneAtmosphere: View {
         .allowsHitTesting(false)
     }
 }
+
+
+/// Cross-platform vector material: paper/ink wash, never a repeating bitmap.
+struct CountrysideMaterialOverlay: View {
+    let isDark: Bool
+
+    var body: some View {
+        Canvas { context, size in
+            let pigment = isDark ? Color(hex: "F0D89A") : Color(hex: "8A7152")
+            let wash = isDark ? Color(hex: "334A5E") : Color(hex: "C98267")
+            let side = min(size.width, size.height)
+
+            let radiusA = side * 0.27
+            let centerA = CGPoint(x: size.width * 0.04, y: size.height * 0.16)
+            context.fill(Path(ellipseIn: CGRect(
+                x: centerA.x - radiusA, y: centerA.y - radiusA,
+                width: radiusA * 2, height: radiusA * 2)),
+                with: .color(wash.opacity(isDark ? 0.025 : 0.022))
+            )
+            let radiusB = side * 0.34
+            let centerB = CGPoint(x: size.width * 0.96, y: size.height * 0.77)
+            context.fill(Path(ellipseIn: CGRect(
+                x: centerB.x - radiusB, y: centerB.y - radiusB,
+                width: radiusB * 2, height: radiusB * 2)),
+                with: .color(wash.opacity(isDark ? 0.025 : 0.018))
+            )
+            for i in 0..<190 {
+                let x = CGFloat((i * 73 + 19) % 257) / 257
+                let y = CGFloat((i * 101 + 37) % 263) / 263
+                let radius = 0.4 + CGFloat(i % 4) * 0.19
+                context.fill(Path(ellipseIn: CGRect(
+                    x: size.width * x - radius, y: size.height * y - radius,
+                    width: radius * 2, height: radius * 2)),
+                    with: .color(pigment.opacity(isDark ? 0.048 : 0.037))
+                )
+            }
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+}

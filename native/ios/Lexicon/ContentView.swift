@@ -34,6 +34,10 @@ struct ContentView: View {
                     .lexiconEditMenu(engine: vm.engine)
             }
 
+            CountrysideMaterialOverlay(isDark: scheme == .dark)
+                .ignoresSafeArea()
+                .zIndex(1)
+
             BottomNav()
                 .environmentObject(vm)
                 .environmentObject(theme)
