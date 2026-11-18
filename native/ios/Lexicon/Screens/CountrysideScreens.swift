@@ -153,7 +153,7 @@ struct CollectionsHubScreen: View {
 
                 CountrysideQuoteBanner(
                     quote: "A collection of words is a collection of worlds.",
-                    attribution: "Lexicon",
+                    attribution: "Lexora",
                     illustrationBase: "ill-banner-bridge"
                 )
                 .padding(.horizontal, 16)
@@ -400,7 +400,7 @@ struct MyNotesScreen: View {
 
                 CountrysideQuoteBanner(
                     quote: "A well-written note is a small step towards wisdom.",
-                    attribution: "Lexicon",
+                    attribution: "Lexora",
                     illustrationBase: "ill-banner-bridge"
                 )
                 .padding(.horizontal, 16)
@@ -654,7 +654,7 @@ struct StudyListsScreen: View {
 
                 CountrysideQuoteBanner(
                     quote: "Knowledge is a journey, not a destination.",
-                    attribution: "Lexicon",
+                    attribution: "Lexora",
                     illustrationBase: "ill-banner-bridge"
                 )
                 .padding(.horizontal, 16)
@@ -962,7 +962,7 @@ struct QuickTemplatesScreen: View {
 
                 CountrysideQuoteBanner(
                     quote: "Better words. A brighter mind.",
-                    attribution: "Lexicon",
+                    attribution: "Lexora",
                     illustrationBase: "ill-banner-bridge"
                 )
                 .padding(.horizontal, 16)
@@ -1223,7 +1223,7 @@ struct SearchDiscoveryScreen: View {
 
                 CountrysideQuoteBanner(
                     quote: "A word is a doorway to a bigger world.",
-                    attribution: "Lexicon",
+                    attribution: "Lexora",
                     illustrationBase: "ill-banner-bridge"
                 )
                 .padding(.horizontal, 16)
