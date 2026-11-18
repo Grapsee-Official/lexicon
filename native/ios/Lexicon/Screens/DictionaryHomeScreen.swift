@@ -64,7 +64,7 @@ struct DictionaryHomeScreen: View {
 
                 CountrysideQuoteBanner(
                     quote: "Words are doors to new worlds.",
-                    attribution: "Lexicon", illustrationBase: "ill-books-daisies"
+                    attribution: "Lexora", illustrationBase: "ill-books-daisies"
                 )
                 .padding(.horizontal, 16)
 
