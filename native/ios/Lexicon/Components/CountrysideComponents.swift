@@ -58,6 +58,10 @@ struct CountrysideHeroHeader: View {
                 if isDark {
                     NocturneAtmosphere()
                         .frame(width: w, height: responsiveHeight)
+                    if illustrationBase.replacingOccurrences(of: "_", with: "-") == "ill-hero-cottage" {
+                        CottageWindowGlow()
+                            .frame(width: w, height: responsiveHeight)
+                    }
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
@@ -445,6 +449,35 @@ struct CountrysideMaterialOverlay: View {
                     width: radius * 2, height: radius * 2)),
                     with: .color(pigment.opacity(isDark ? 0.048 : 0.037))
                 )
+            }
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+}
+
+/// Native-vector lantern halos: consistent with the Android night scene.
+struct CottageWindowGlow: View {
+    var body: some View {
+        Canvas { context, size in
+            let points: [(CGFloat, CGFloat)] = [
+                (0.80, 0.69), (0.855, 0.67), (0.88, 0.74)
+            ]
+            for (x, y) in points {
+                let c = CGPoint(x: size.width * x, y: size.height * y)
+                let rings: [(CGFloat, Color, Double)] = [
+                    (15, Color(hex: "F0D89A"), 0.085),
+                    (5, Color(hex: "D4A45A"), 0.23),
+                    (1.25, Color(hex: "F0D89A"), 0.72)
+                ]
+                for (radius, pigment, alpha) in rings {
+                    context.fill(
+                        Path(ellipseIn: CGRect(
+                            x: c.x - radius, y: c.y - radius,
+                            width: radius * 2, height: radius * 2)),
+                        with: .color(pigment.opacity(alpha))
+                    )
+                }
             }
         }
         .allowsHitTesting(false)

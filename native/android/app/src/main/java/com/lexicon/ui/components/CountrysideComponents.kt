@@ -159,6 +159,9 @@ fun CountrysideHeroHeader(
         )
         if (isDark) {
             NocturneAtmosphere(Modifier.fillMaxSize())
+            if (illustrationBase == "ill_hero_cottage") {
+                CottageWindowGlow(Modifier.fillMaxSize())
+            }
         }
 
         Column(
@@ -664,6 +667,21 @@ fun CountrysideMaterialOverlay(isDark: Boolean, modifier: Modifier = Modifier) {
                 radius = (0.4f + (i % 4) * 0.19f).dp.toPx(),
                 center = Offset(size.width * x, size.height * y),
             )
+        }
+    }
+}
+
+/** Editable lantern-lit windows over the moonlit watercolor cottage. */
+@Composable
+fun CottageWindowGlow(modifier: Modifier = Modifier) {
+    Canvas(modifier = modifier) {
+        val glowPoints = listOf(Offset(.80f, .69f), Offset(.855f, .67f), Offset(.88f, .74f))
+        val pale = Color(0xFFF0D89A)
+        for (p in glowPoints) {
+            val c = Offset(size.width * p.x, size.height * p.y)
+            drawCircle(pale.copy(alpha = .085f), 15.dp.toPx(), c)
+            drawCircle(Color(0xFFD4A45A).copy(alpha = .23f), 5.dp.toPx(), c)
+            drawCircle(pale.copy(alpha = .72f), 1.25.dp.toPx(), c)
         }
     }
 }
