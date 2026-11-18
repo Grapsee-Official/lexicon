@@ -25,7 +25,7 @@ import androidx.compose.ui.graphics.Color
 
 // === Light palette ===
 val BrandGreen        = Color(0xFF657D5A) // Primary (#657D5A)
-val DeepForest        = Color(0xFF31462F) // Deep (#31462F)
+val DeepForest        = Color(0xFF252926) // Printed book-ink for headings and body
 val WarmCream         = Color(0xFFFBF5EB) // Pale aged-paper reference canvas
 val DustyBlue         = Color(0xFF7C9297) // Secondary (#7C9297)
 val Terracotta        = Color(0xFFC98267) // Accent (#C98267)
