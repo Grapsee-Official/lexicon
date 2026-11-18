@@ -1426,7 +1426,7 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
                 subtitle = "Find any word, explore its meaning, and discover more.",
                 illustrationBase = "ill_hero_cottage",
                 isDark = isDark,
-                onHistoryClick = { viewModel.navigate(ScreenRoute.EXPANDED_EXPLORATION) },
+                onHistoryClick = { viewModel.navigate(ScreenRoute.DICTIONARY_HOME) },
                 onLogoToggleTheme = { viewModel.toggleTheme() },
                 heroHeight = 142.dp,
             )

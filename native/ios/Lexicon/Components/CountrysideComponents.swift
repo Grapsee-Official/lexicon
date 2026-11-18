@@ -114,6 +114,7 @@ struct CountrysideSearchPill: View {
     var onFilterClick: () -> Void = {}
 
     @Environment(\.colorScheme) private var scheme
+    @FocusState private var searchFocused: Bool
     private var isDark: Bool { scheme == .dark }
 
     var body: some View {
@@ -127,6 +128,7 @@ struct CountrysideSearchPill: View {
             TextField(placeholder, text: $text)
                 .font(.lexiconBody(13.5))
                 .foregroundStyle(lexiconPalette(scheme).foreground)
+                .focused($searchFocused)
                 .submitLabel(.search)
                 .onSubmit { onSubmit() }
 
@@ -152,9 +154,16 @@ struct CountrysideSearchPill: View {
                     .font(.system(size: 14.5))
                     .foregroundStyle(iconTint)
             } else if showMicOnly {
-                Image(systemName: "mic")
-                    .font(.system(size: 15))
-                    .foregroundStyle(iconTint)
+                Button {
+                    searchFocused = true
+                } label: {
+                    Image(systemName: "mic")
+                        .font(.system(size: 16))
+                        .foregroundStyle(iconTint)
+                        .frame(width: 26, height: 28)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Open keyboard for voice dictation")
             }
 
             if showFilter {

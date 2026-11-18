@@ -1053,7 +1053,7 @@ struct SearchDiscoveryScreen: View {
                     title: "Search",
                     subtitle: "Find any word, explore its meaning, and discover more.",
                     illustrationBase: "ill-hero-cottage",
-                    onHistoryClick: { vm.navigate(to: .expandedExploration) },
+                    onHistoryClick: { vm.navigate(to: .dictionaryHome) },
                     onLogoToggleTheme: { theme.toggle() },
                     heroHeight: 140
                 )

@@ -52,6 +52,10 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.runtime.remember
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
@@ -229,6 +233,8 @@ fun CountrysideSearchPill(
     onFilterClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
+    val focusRequester = remember { FocusRequester() }
+    val keyboard = LocalSoftwareKeyboardController.current
     val bg = if (isDark) DarkCard.copy(alpha = 0.96f) else SearchPillLight
     val border = if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.11f)
     val iconTint = if (isDark) DarkAccent else DeepForest.copy(alpha = 0.65f)
@@ -282,7 +288,7 @@ fun CountrysideSearchPill(
                 cursorBrush = SolidColor(if (isDark) DarkAccent else BrandGreen),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = { onSubmit() }),
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
             )
         }
 
@@ -308,7 +314,15 @@ fun CountrysideSearchPill(
             Icon(Icons.Outlined.CameraAlt, contentDescription = "Scan word", tint = iconTint, modifier = Modifier.size(17.dp))
             Icon(Icons.Outlined.Mic, contentDescription = "Voice search", tint = iconTint, modifier = Modifier.size(17.dp))
         } else if (showMicOnly) {
-            Icon(Icons.Outlined.Mic, contentDescription = "Voice search", tint = iconTint, modifier = Modifier.size(18.dp))
+            Icon(
+                Icons.Outlined.Mic,
+                contentDescription = "Open keyboard for voice dictation",
+                tint = iconTint,
+                modifier = Modifier.size(26.dp).clickable(role = Role.Button) {
+                    focusRequester.requestFocus()
+                    keyboard?.show()
+                },
+            )
         }
 
         if (showFilter) {
