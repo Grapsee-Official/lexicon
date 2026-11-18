@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
@@ -49,11 +50,16 @@ fun Hero(
     val sprigColor = if (isDark) DarkAccent else OldWoodGold
     val subtextColor = if (isDark) DarkMutedForeground else DeepForest.copy(alpha = 0.78f)
     val heroArt = if (isDark) R.drawable.hero_dark else R.drawable.hero_light
+    val configuration = LocalConfiguration.current
+    val compact = configuration.screenWidthDp < 360
+    val largeText = configuration.fontScale > 1.2f
+    val heroHeight = if (largeText) 310.dp else if (compact) 270.dp else 258.dp
+    val textWidth = if (compact || largeText) 0.60f else 0.53f
 
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(238.dp),
+            .height(heroHeight),
     ) {
         Image(
             painter = painterResource(heroArt),
@@ -62,10 +68,10 @@ fun Hero(
             alignment = Alignment.BottomEnd,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .fillMaxWidth(0.71f)
+                .fillMaxWidth(if (compact) 0.65f else 0.71f)
                 .height(238.dp)
                 .offset(x = 8.dp, y = 6.dp)
-                .clickable(role = Role.Button) { viewModel.openSearch() },
+                ,
         )
 
         if (isDark) {
@@ -75,7 +81,7 @@ fun Hero(
         Column(
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .fillMaxWidth(0.50f)
+                .fillMaxWidth(textWidth)
                 .padding(start = 18.dp, top = 4.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
@@ -108,7 +114,7 @@ fun Hero(
                 text = "A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.",
                 color = subtextColor,
                 style = LexiconTextStyles.HeroParagraph,
-                maxLines = 4,
+                maxLines = if (largeText) 7 else 6,
             )
         }
 
@@ -117,7 +123,7 @@ fun Hero(
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .padding(start = 16.dp, bottom = 2.dp)
-                .fillMaxWidth(0.78f),
+                .fillMaxWidth(if (compact) 0.92f else 0.82f),
         )
     }
 }
