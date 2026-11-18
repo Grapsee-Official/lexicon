@@ -155,6 +155,10 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
                 placeholder = "Search in your collections...",
                 isDark = isDark,
                 showFilter = true,
+                onFilterClick = {
+                    val options = listOf("All", "Favorites", "Bookmarks")
+                    filter = options[(options.indexOf(filter) + 1) % options.size]
+                },
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
         }
@@ -182,8 +186,7 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
                     title = "My Collections",
                     isDark = isDark,
                     sprigAfterTitle = true,
-                    actionLabel = "View all",
-                    onAction = { viewModel.navigate(ScreenRoute.STUDY_LISTS) },
+                    actionLabel = null,
                     modifier = Modifier.padding(horizontal = 16.dp),
                 )
                 val cards = listOf(
@@ -417,6 +420,10 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                 placeholder = "Search your notes...",
                 isDark = isDark,
                 showFilter = true,
+                onFilterClick = {
+                    val options = listOf("All", "Personal", "Word Notes", "Study", "Ideas")
+                    selectedCat = options[(options.indexOf(selectedCat) + 1) % options.size]
+                },
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
         }
@@ -713,8 +720,7 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                 onValueChange = { query = it },
                 placeholder = "Search your study lists...",
                 isDark = isDark,
-                showFilter = true,
-                onFilterClick = { viewModel.navigate(ScreenRoute.QUICK_TEMPLATES) },
+                showFilter = false,
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
         }
@@ -986,6 +992,9 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
     var filter by remember { mutableStateOf("All") }
     var showAllTemplates by remember { mutableStateOf(false) }
     var showCreateTemplate by remember { mutableStateOf(false) }
+    var templateForNote by remember { mutableStateOf<com.lexicon.data.VocabTemplate?>(null) }
+    var templateNoteTitle by remember { mutableStateOf("") }
+    var templateNoteBody by remember { mutableStateOf("") }
     var newTemplateTitle by remember { mutableStateOf("") }
     var newTemplateDescription by remember { mutableStateOf("") }
     var newTemplateCategory by remember { mutableStateOf(TemplateCategory.LEARNING) }
@@ -1020,6 +1029,10 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                 placeholder = "Search templates...",
                 isDark = isDark,
                 showFilter = true,
+                onFilterClick = {
+                    val options = listOf("All", "Learning", "Writing", "Exam", "Daily Life")
+                    filter = options[(options.indexOf(filter) + 1) % options.size]
+                },
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
         }
@@ -1070,8 +1083,9 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                                         .background(cardBg)
                                         .border(1.dp, border, RoundedCornerShape(16.dp))
                                         .clickable {
-                                            viewModel.addNote(NoteCategory.STUDY, tpl.title, tpl.subtitle)
-                                            viewModel.navigate(ScreenRoute.MY_NOTES)
+                                            templateNoteTitle = tpl.title
+                                            templateNoteBody = tpl.sampleWords.joinToString(", ").ifBlank { tpl.subtitle }
+                                            templateForNote = tpl
                                         },
                                 ) {
                                     Box(modifier = Modifier.fillMaxWidth().height(76.dp)) {
@@ -1242,6 +1256,48 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
             },
             dismissButton = {
                 TextButton(onClick = { showCreateTemplate = false }) { Text("Cancel") }
+            },
+            containerColor = cardBg,
+        )
+    }
+
+    templateForNote?.let { template ->
+        AlertDialog(
+            onDismissRequest = { templateForNote = null },
+            title = { Text("Write from template", color = fg) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(template.subtitle, color = muted,
+                        style = TextStyle(fontFamily = BodyFontFamily, fontSize = 13.sp))
+                    OutlinedTextField(
+                        value = templateNoteTitle,
+                        onValueChange = { templateNoteTitle = it },
+                        label = { Text("Note title") }, singleLine = true,
+                    )
+                    OutlinedTextField(
+                        value = templateNoteBody,
+                        onValueChange = { templateNoteBody = it },
+                        label = { Text("Your thoughts") }, minLines = 4,
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = templateNoteTitle.isNotBlank(),
+                    onClick = {
+                        val cat = when (template.category) {
+                            TemplateCategory.LEARNING, TemplateCategory.EXAM -> NoteCategory.STUDY
+                            TemplateCategory.WRITING -> NoteCategory.WORD_NOTE
+                            TemplateCategory.DAILY_LIFE -> NoteCategory.PERSONAL
+                        }
+                        viewModel.addNote(cat, templateNoteTitle, templateNoteBody)
+                        templateForNote = null
+                        viewModel.navigate(ScreenRoute.MY_NOTES)
+                    },
+                ) { Text("Save note") }
+            },
+            dismissButton = {
+                TextButton(onClick = { templateForNote = null }) { Text("Cancel") }
             },
             containerColor = cardBg,
         )

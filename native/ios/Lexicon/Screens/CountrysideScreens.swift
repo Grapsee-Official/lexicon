@@ -40,7 +40,11 @@ struct CollectionsHubScreen: View {
                 CountrysideSearchPill(
                     text: $query,
                     placeholder: "Search in your collections...",
-                    showFilter: true
+                    showFilter: true,
+                    onFilterClick: {
+                        let options = ["All", "Favorites", "Bookmarks"]
+                        filter = options[((options.firstIndex(of: filter) ?? 0) + 1) % options.count]
+                    }
                 )
                 .padding(.horizontal, 16)
 
@@ -65,8 +69,7 @@ struct CollectionsHubScreen: View {
                     BotanicalSectionTitle(
                         title: "My Collections",
                         sprigAfterTitle: true,
-                        actionLabel: "View all",
-                        onAction: { vm.navigate(to: .studyLists) }
+                        actionLabel: nil
                     )
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 165), spacing: 8)], spacing: 8) {
                         collectionQuadCard(title: "Favorites", count: "\(vm.favoriteWordIds.count) words", icon: "heart", art: "ill-col-favorites", p: p) {
@@ -242,7 +245,13 @@ struct MyNotesScreen: View {
                     heroHeight: 142
                 )
 
-                CountrysideSearchPill(text: $query, placeholder: "Search your notes...", showFilter: true)
+                CountrysideSearchPill(
+                    text: $query, placeholder: "Search your notes...", showFilter: true,
+                    onFilterClick: {
+                        let options = ["All", "Personal", "Word Notes", "Study", "Ideas"]
+                        selectedCat = options[((options.firstIndex(of: selectedCat) ?? 0) + 1) % options.count]
+                    }
+                )
                     .padding(.horizontal, 16)
 
                 CountrysideFilterPills(
@@ -457,8 +466,7 @@ struct StudyListsScreen: View {
                 CountrysideSearchPill(
                     text: $query,
                     placeholder: "Search your study lists...",
-                    showFilter: true,
-                    onFilterClick: { vm.navigate(to: .quickTemplates) }
+                    showFilter: false
                 )
                 .padding(.horizontal, 16)
 
@@ -715,6 +723,9 @@ struct QuickTemplatesScreen: View {
     @State private var filter: String = "All"
     @State private var showAllTemplates = false
     @State private var showCreateTemplate = false
+    @State private var templateForNote: VocabTemplate? = nil
+    @State private var templateNoteTitle = ""
+    @State private var templateNoteBody = ""
     @State private var newTemplateTitle = ""
     @State private var newTemplateDescription = ""
     @State private var newTemplateCategory: TemplateCategory = .learning
@@ -738,7 +749,13 @@ struct QuickTemplatesScreen: View {
                     heroHeight: 140
                 )
 
-                CountrysideSearchPill(text: $query, placeholder: "Search templates...", showFilter: true)
+                CountrysideSearchPill(
+                    text: $query, placeholder: "Search templates...", showFilter: true,
+                    onFilterClick: {
+                        let options = ["All", "Learning", "Writing", "Exam", "Daily Life"]
+                        filter = options[((options.firstIndex(of: filter) ?? 0) + 1) % options.count]
+                    }
+                )
                     .padding(.horizontal, 16)
 
                 CountrysideFilterPills(
@@ -781,8 +798,10 @@ struct QuickTemplatesScreen: View {
                                 }
 
                                 Button {
-                                    vm.addNote(category: .study, title: tpl.title, body: tpl.subtitle)
-                                    vm.navigate(to: .myNotes)
+                                    templateNoteTitle = tpl.title
+                                    templateNoteBody = tpl.sampleWords.isEmpty
+                                        ? tpl.subtitle : tpl.sampleWords.joined(separator: ", ")
+                                    templateForNote = tpl
                                 } label: {
                                     HStack {
                                         VStack(alignment: .leading, spacing: 2) {
@@ -895,6 +914,38 @@ struct QuickTemplatesScreen: View {
                             showCreateTemplate = false
                         }
                         .disabled(newTemplateTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    }
+                }
+            }
+            .presentationDragIndicator(.visible)
+        }
+        .sheet(item: $templateForNote) { tpl in
+            NavigationStack {
+                Form {
+                    Text(tpl.subtitle)
+                        .foregroundStyle(lexiconPalette(scheme).mutedForeground)
+                    TextField("Note title", text: $templateNoteTitle)
+                    TextEditor(text: $templateNoteBody)
+                        .frame(minHeight: 180)
+                }
+                .navigationTitle("Write from template")
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") { templateForNote = nil }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Save note") {
+                            let category: NoteCategory
+                            switch tpl.category {
+                            case .learning, .exam: category = .study
+                            case .writing: category = .wordNote
+                            case .dailyLife: category = .personal
+                            }
+                            vm.addNote(category: category, title: templateNoteTitle, body: templateNoteBody)
+                            templateForNote = nil
+                            vm.navigate(to: .myNotes)
+                        }
+                        .disabled(templateNoteTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     }
                 }
             }
