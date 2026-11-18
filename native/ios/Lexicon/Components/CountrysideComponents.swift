@@ -363,6 +363,7 @@ struct NocturneAtmosphere: View {
                     context.stroke(glimmer, with: .color(lantern.opacity(0.36)),
                                    style: StrokeStyle(lineWidth: 0.6, lineCap: .round))
                 }
+            }
 
             // Star positions use the same normalized mathematics as Compose.
             for index in 0..<64 {
@@ -375,7 +376,6 @@ struct NocturneAtmosphere: View {
                 ))
                 let tone = index.isMultiple(of: 5) ? lantern : moonlitBlue
                 context.fill(dot, with: .color(tone.opacity(0.14 + Double(index % 3) * 0.055)))
-            }
             }
         }
         .accessibilityHidden(true)

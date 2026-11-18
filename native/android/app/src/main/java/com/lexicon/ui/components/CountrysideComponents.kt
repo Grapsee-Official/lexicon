@@ -577,6 +577,7 @@ fun NocturneAtmosphere(modifier: Modifier = Modifier) {
                     cap = StrokeCap.Round,
                 )
             }
+        }
 
         // Fine distant stars are separate editable vector points, never
         // a repeated bitmap or animation.
@@ -590,7 +591,6 @@ fun NocturneAtmosphere(modifier: Modifier = Modifier) {
                 radius = radius,
                 center = Offset(size.width * x, size.height * y),
             )
-        }
         }
     }
 }
