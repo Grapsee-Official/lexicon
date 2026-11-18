@@ -386,6 +386,26 @@ object LexiconData {
         Article("a3", "The Language of Nature", "How countrysides and seasons shaped our lexicon.", 6, "article_3"),
     )
 
+    /** Original offline editorial reading, paired with the illustrated library cards. */
+    fun articleReading(id: String): List<String> = when (id) {
+        "a1" -> listOf(
+            "Words carry the traces of the people who have spoken them. Serendipity, for example, was popularised in the eighteenth century after Horace Walpole recalled the Persian tale of the Three Princes of Serendip. Their clever discoveries were made without looking for them, and a new English word slowly took root.",
+            "Everyday language is full of such journeys. A word may travel with merchants, gather new meanings in a village or library, or become familiar through a single beloved book. Its history is rarely a straight road: older spellings linger, pronunciations change, and stories are retold by generations who never met.",
+            "Try keeping a small word journal. Write down a new word, where you encountered it, and what memory it awakened. Etymology becomes something living when it connects a dictionary entry to the world outside your window.",
+        )
+        "a2" -> listOf(
+            "Some words sound as if they have been waiting patiently between the pages of an old book. Vellichor describes the wistful atmosphere of second-hand bookshops; halcyon recalls a peaceful, golden stretch of time. Even when a word is rare, the feeling behind it can be instantly familiar.",
+            "Language changes because people change. Words rise with new discoveries and fall quiet when the lives that needed them disappear. Reviving an old word does not mean returning to the past. It means allowing a beautiful way of noticing the present to find a place in conversation again.",
+            "Choose one unfamiliar word from today’s reading. Say it aloud, learn its meaning, then use it in a sentence of your own. A word that was once forgotten may become the perfect companion for a new memory.",
+        )
+        "a3" -> listOf(
+            "Before there were weather apps and street signs, fields, trees and rivers helped people name the world. The English countryside still holds a vocabulary of hedgerows, wildflower meadows, winding lanes and stone bridges. Each name points to something worth observing carefully.",
+            "Petrichor, the earthy scent that follows rain, reminds us that language can bring a quiet physical memory into focus. Wanderlust names a longing to set out; tranquility belongs to the moments when we would rather remain. Both feelings can meet on the same footpath.",
+            "On your next walk, notice one small detail: a leaf after rain, an old gate, birds above the fields, or sunlight on weathered stone. Search for its name, then write a line about how it made you feel. That is where vocabulary becomes a story.",
+        )
+        else -> emptyList()
+    }
+
     val defaultNotes: List<NoteItem> = listOf(
         NoteItem(
             id = "n1",
