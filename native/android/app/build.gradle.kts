@@ -101,4 +101,7 @@ dependencies {
     implementation(libs.material)
 
     debugImplementation(libs.androidx.ui.tooling)
+
+    // Native dictionary contract regressions run under testReleaseUnitTest.
+    testImplementation("junit:junit:4.13.2")
 }
