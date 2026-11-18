@@ -12,7 +12,7 @@ permissions:
   contents: read
 concurrency:
   group: lexicon-visual-qa
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   cpp-engine:
