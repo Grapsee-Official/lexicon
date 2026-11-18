@@ -264,7 +264,7 @@ struct MyNotesScreen: View {
                         actionLabel: showAllNotes ? "Show less" : "View all",
                         onAction: { selectedCat = "All"; query = ""; showAllNotes.toggle() }
                     )
-                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 165), spacing: 8)], spacing: 8) {
                         ForEach(showAllNotes ? filtered : Array(filtered.prefix(4))) { note in
                             ZStack(alignment: .bottomTrailing) {
                                 Image(countrysideImageName(note.illustration ?? "ill-note-flowers", isDark: isDark))
@@ -288,11 +288,11 @@ struct MyNotesScreen: View {
                                     }
                                     Spacer(minLength: 4)
                                     Text(note.title)
-                                        .font(.lexiconDisplay(14))
+                                        .font(.lexiconDisplay(16))
                                         .foregroundStyle(p.foreground)
                                         .lineLimit(1)
                                     Text(note.body)
-                                        .font(.lexiconBody(9.5))
+                                        .font(.lexiconBody(11.5))
                                         .foregroundStyle(p.foreground.opacity(0.8))
                                         .lineLimit(2)
                                         .padding(.trailing, 32)
@@ -303,7 +303,7 @@ struct MyNotesScreen: View {
                                                 .font(.system(size: 9))
                                                 .foregroundStyle(p.mutedForeground)
                                             Text(note.dateLabel)
-                                                .font(.lexiconBody(8.5))
+                                                .font(.lexiconBody(10))
                                                 .foregroundStyle(p.mutedForeground)
                                         }
                                         Spacer()
@@ -317,7 +317,7 @@ struct MyNotesScreen: View {
                                 }
                                 .padding(11)
                             }
-                            .frame(height: 130)
+                            .frame(minHeight: 156)
                             .background(p.card)
                             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                             .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(p.border, lineWidth: 1))
@@ -352,7 +352,12 @@ struct MyNotesScreen: View {
                     HStack(spacing: 7) {
                         ForEach(starters, id: \.0) { s in
                             Button {
-                                vm.addNote(category: s.2, title: "New \(s.0)", body: "Added from Quick Templates.")
+                                editorTitle = "New \(s.0)"
+                                editorBody = ""
+                                editingNote = NoteItem(
+                                    id: "__new_note__", category: s.2,
+                                    title: editorTitle, body: "", dateLabel: ""
+                                )
                             } label: {
                                 VStack(spacing: 4) {
                                     Image(systemName: s.1)
@@ -391,19 +396,25 @@ struct MyNotesScreen: View {
                     TextField("Title", text: $editorTitle)
                     TextEditor(text: $editorBody)
                         .frame(minHeight: 180)
-                    Button("Delete Note", role: .destructive) {
-                        vm.deleteNote(note.id)
-                        editingNote = nil
+                    if note.id != "__new_note__" {
+                        Button("Delete Note", role: .destructive) {
+                            vm.deleteNote(note.id)
+                            editingNote = nil
+                        }
                     }
                 }
-                .navigationTitle("Edit note")
+                .navigationTitle(note.id == "__new_note__" ? "Create note" : "Edit note")
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
                         Button("Cancel") { editingNote = nil }
                     }
                     ToolbarItem(placement: .confirmationAction) {
                         Button("Save") {
-                            vm.updateNote(note.id, title: editorTitle, body: editorBody)
+                            if note.id == "__new_note__" {
+                                vm.addNote(category: note.category, title: editorTitle, body: editorBody)
+                            } else {
+                                vm.updateNote(note.id, title: editorTitle, body: editorBody)
+                            }
                             editingNote = nil
                         }
                     }

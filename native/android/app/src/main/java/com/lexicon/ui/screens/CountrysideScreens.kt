@@ -464,7 +464,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                         modifier = Modifier.padding(horizontal = 16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        (if (showAllNotes) filteredNotes else filteredNotes.take(4)).chunked(2).forEach { rowNotes ->
+                        (if (showAllNotes) filteredNotes else filteredNotes.take(4)).chunked(if (androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 390) 1 else 2).forEach { rowNotes ->
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -474,7 +474,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                     Box(
                                         modifier = Modifier
                                             .weight(1f)
-                                            .height(132.dp)
+                                            .height(156.dp)
                                             .clip(RoundedCornerShape(16.dp))
                                             .background(cardBg)
                                             .border(1.dp, border, RoundedCornerShape(16.dp))
@@ -520,7 +520,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                                 verticalArrangement = Arrangement.spacedBy(2.dp),
                                             ) {
                                                 Text(note.title, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                                Text(note.body, color = fg.copy(alpha = 0.8f), style = TextStyle(fontFamily = BodyFontFamily, fontSize = 9.5.sp, lineHeight = 13.sp), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                                Text(note.body, color = fg.copy(alpha = 0.8f), style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.5.sp, lineHeight = 15.sp), maxLines = 2, overflow = TextOverflow.Ellipsis)
                                             }
                                             Row(
                                                 modifier = Modifier.fillMaxWidth(),
@@ -543,7 +543,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                         }
                                     }
                                 }
-                                if (rowNotes.size == 1) Spacer(Modifier.weight(1f))
+                                if (rowNotes.size == 1 && androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp >= 390) Spacer(Modifier.weight(1f))
                             }
                         }
                     }
@@ -588,7 +588,13 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                 .background(cardBg)
                                 .border(1.dp, border, RoundedCornerShape(13.dp))
                                 .clickable(role = Role.Button) {
-                                    viewModel.addNote(cat, "New $label", "Added from countryside Quick Templates.")
+                                    editorTitle = "New $label"
+                                    editorBody = ""
+                                    editingNote = com.lexicon.data.NoteItem(
+                                        id = "__new_note__", category = cat,
+                                        title = editorTitle, body = "",
+                                        dateLabel = "",
+                                    )
                                 }
                                 .padding(6.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -616,7 +622,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
     editingNote?.let { note ->
         AlertDialog(
             onDismissRequest = { editingNote = null },
-            title = { Text("Edit note", color = fg) },
+            title = { Text(if (note.id == "__new_note__") "Create note" else "Edit note", color = fg) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     OutlinedTextField(
@@ -635,16 +641,22 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
             },
             confirmButton = {
                 TextButton(onClick = {
-                    viewModel.updateNote(note.id, editorTitle, editorBody)
+                    if (note.id == "__new_note__") {
+                        viewModel.addNote(note.category, editorTitle, editorBody)
+                    } else {
+                        viewModel.updateNote(note.id, editorTitle, editorBody)
+                    }
                     editingNote = null
                 }) { Text("Save") }
             },
             dismissButton = {
                 Row {
-                    TextButton(onClick = {
-                        viewModel.deleteNote(note.id)
-                        editingNote = null
-                    }) { Text("Delete") }
+                    if (note.id != "__new_note__") {
+                        TextButton(onClick = {
+                            viewModel.deleteNote(note.id)
+                            editingNote = null
+                        }) { Text("Delete") }
+                    }
                     TextButton(onClick = { editingNote = null }) { Text("Cancel") }
                 }
             },
