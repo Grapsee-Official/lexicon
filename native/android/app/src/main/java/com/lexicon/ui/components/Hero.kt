@@ -54,7 +54,7 @@ fun Hero(
     val headlineMain = if (isDark) DarkForeground else DeepForest
     val headlineWords = if (isDark) DarkSage else BrandGreen
     val sprigColor = if (isDark) DarkAccent else OldWoodGold
-    val subtextColor = if (isDark) DarkMutedForeground else DeepForest.copy(alpha = 0.78f)
+    val subtextColor = if (isDark) DarkMutedForeground else DeepForest.copy(alpha = 0.90f)
     val heroArt = if (isDark) R.drawable.hero_dark else R.drawable.hero_light
     val configuration = LocalConfiguration.current
     val compact = configuration.screenWidthDp < 360
