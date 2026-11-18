@@ -209,7 +209,7 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
                     modifier = Modifier.padding(horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    cards.chunked(if (androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 390) 1 else 2).forEach { rowCards ->
+                    cards.chunked(if (androidx.compose.ui.platform.LocalConfiguration.current.let { it.screenWidthDp < 390 || it.fontScale >= 1.3f }) 1 else 2).forEach { rowCards ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -219,7 +219,7 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
-                                        .height(106.dp)
+                                        .height(if (androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f) 146.dp else 106.dp)
                                         .clip(RoundedCornerShape(16.dp))
                                         .background(cardBg)
                                         .border(1.dp, border, RoundedCornerShape(16.dp))
@@ -475,7 +475,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                         modifier = Modifier.padding(horizontal = 16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        (if (showAllNotes) filteredNotes else filteredNotes.take(4)).chunked(if (androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 390) 1 else 2).forEach { rowNotes ->
+                        (if (showAllNotes) filteredNotes else filteredNotes.take(4)).chunked(if (androidx.compose.ui.platform.LocalConfiguration.current.let { it.screenWidthDp < 390 || it.fontScale >= 1.3f }) 1 else 2).forEach { rowNotes ->
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -485,7 +485,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                     Box(
                                         modifier = Modifier
                                             .weight(1f)
-                                            .height(156.dp)
+                                            .height(if (androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f) 218.dp else 156.dp)
                                             .clip(RoundedCornerShape(16.dp))
                                             .background(cardBg)
                                             .border(1.dp, border, RoundedCornerShape(16.dp))
@@ -530,7 +530,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                                 modifier = Modifier.fillMaxWidth(0.76f),
                                                 verticalArrangement = Arrangement.spacedBy(2.dp),
                                             ) {
-                                                Text(note.title, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 14.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                                Text(note.title, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 14.sp), maxLines = if (androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f) 2 else 1, overflow = TextOverflow.Ellipsis)
                                                 Text(note.body, color = fg.copy(alpha = 0.8f), style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.5.sp, lineHeight = 15.sp), maxLines = 2, overflow = TextOverflow.Ellipsis)
                                             }
                                             Row(
@@ -554,7 +554,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                         }
                                     }
                                 }
-                                if (rowNotes.size == 1 && androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp >= 390) Spacer(Modifier.weight(1f))
+                                if (rowNotes.size == 1 && androidx.compose.ui.platform.LocalConfiguration.current.let { it.screenWidthDp >= 390 && it.fontScale < 1.3f }) Spacer(Modifier.weight(1f))
                             }
                         }
                     }

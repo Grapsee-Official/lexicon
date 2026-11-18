@@ -17,6 +17,7 @@ struct CollectionsHubScreen: View {
     @EnvironmentObject private var vm: LexiconViewModel
     @EnvironmentObject private var theme: LexiconThemeState
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     @State private var query: String = ""
     @State private var filter: String = "All"
@@ -71,7 +72,7 @@ struct CollectionsHubScreen: View {
                         sprigAfterTitle: true,
                         actionLabel: nil
                     )
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 165), spacing: 8)], spacing: 8) {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: dynamicTypeSize.isAccessibilitySize ? 260 : 165), spacing: 8)], spacing: 8) {
                         collectionQuadCard(title: "Favorites", count: "\(vm.favoriteWordIds.count) words", icon: "heart", art: "ill-col-favorites", p: p) {
                             filter = "Favorites"
                         }
@@ -214,6 +215,7 @@ struct MyNotesScreen: View {
     @EnvironmentObject private var vm: LexiconViewModel
     @EnvironmentObject private var theme: LexiconThemeState
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     @State private var query: String = ""
     @State private var selectedCat: String = "All"
@@ -274,7 +276,7 @@ struct MyNotesScreen: View {
                         actionLabel: showAllNotes ? "Show less" : "View all",
                         onAction: { selectedCat = "All"; query = ""; showAllNotes.toggle() }
                     )
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 165), spacing: 8)], spacing: 8) {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: dynamicTypeSize.isAccessibilitySize ? 260 : 165), spacing: 8)], spacing: 8) {
                         if filtered.isEmpty {
                             Text("No notes match your search. Choose a Quick Template to start.")
                                 .font(.lexiconBody(13))
