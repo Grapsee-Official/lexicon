@@ -55,7 +55,7 @@ fun TrendingTagRow(
     val scrollState = rememberScrollState()
     Row(
         modifier = modifier.horizontalScroll(scrollState),
-        horizontalArrangement = Arrangement.spacedBy(7.dp),
+        horizontalArrangement = Arrangement.spacedBy(9.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         tags.forEach { tag ->
@@ -67,7 +67,7 @@ fun TrendingTagRow(
                     .clickable(role = Role.Button) {
                         LexiconData.getWordById(tag.wordId)?.let { viewModel.openWord(it) }
                     }
-                    .padding(horizontal = 13.dp, vertical = 5.5.dp),
+                    .padding(horizontal = 12.dp, vertical = 8.5.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
@@ -80,7 +80,7 @@ fun TrendingTagRow(
 
         Box(
             modifier = Modifier
-                .size(width = 32.dp, height = 28.dp)
+                .size(width = 34.dp, height = 34.dp)
                 .clip(RoundedCornerShape(10.dp))
                 .background(chipBg)
                 .border(1.dp, chipBorder, RoundedCornerShape(10.dp))
@@ -92,7 +92,7 @@ fun TrendingTagRow(
                 imageVector = Icons.Outlined.GridView,
                 contentDescription = null,
                 tint = gridTint,
-                modifier = Modifier.size(14.dp),
+                modifier = Modifier.size(16.dp),
             )
         }
     }
