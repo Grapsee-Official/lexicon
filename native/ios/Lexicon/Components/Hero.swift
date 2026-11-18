@@ -66,10 +66,26 @@ struct Hero: View {
                         .frame(width: totalWidth, height: heroHeight)
                 }
 
+                // Preserve the old-paper reading space rather than allowing
+                // the body copy to disappear into the cottage illustration.
+                LinearGradient(
+                    stops: [
+                        .init(color: (isDark ? LexiconColors.backgroundDark : LexiconColors.background).opacity(0.99), location: 0),
+                        .init(color: (isDark ? LexiconColors.backgroundDark : LexiconColors.background).opacity(0.94), location: 0.55),
+                        .init(color: .clear, location: 1)
+                    ],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+                .frame(width: totalWidth * 0.70, height: heroHeight)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+
                 VStack(alignment: .leading, spacing: 6) {
                     headline
                     Text("A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.")
                         .font(.lexiconBody(12.5))
+                        .frame(maxWidth: textWidth * 0.82, alignment: .leading)
                         .foregroundStyle(subtextColor)
                         .lineSpacing(2)
                         .fixedSize(horizontal: false, vertical: true)
