@@ -56,6 +56,37 @@ for title, symbol in screens:
     if f"struct {symbol}: View" not in ios_text:
         missing.add(f"iOS {title} screen")
 
+# Validate static illustration references across the native screen, component
+# and curated-data sources. The material in these references is part of the
+# design specification, so never silently substitute an unrelated stock asset.
+import re
+
+source_roots = [
+    root / "native/android/app/src/main/java/com/lexicon/ui/screens",
+    root / "native/android/app/src/main/java/com/lexicon/ui/components",
+    root / "native/ios/Lexicon/Screens",
+    root / "native/ios/Lexicon/Components",
+]
+data_files = [
+    root / "native/android/app/src/main/java/com/lexicon/data/LexiconData.kt",
+    root / "native/ios/Lexicon/Data/LexiconData.swift",
+]
+code_files = []
+for directory in source_roots:
+    code_files.extend(directory.glob("*.kt"))
+    code_files.extend(directory.glob("*.swift"))
+code_files.extend(data_files)
+references = set()
+for source in code_files:
+    contents = source.read_text(encoding="utf-8")
+    for raw in re.findall(r'["\x27](ill[-_][a-zA-Z0-9_-]+)["\x27]', contents):
+        base = raw.replace("_", "-")
+        references.add(base)
+        if base not in ios or base not in android:
+            missing.add(f"Unresolved image reference {raw} in {source.relative_to(root)}")
+
+print(f"Validated {len(references)} distinct curated illustration references.")
+
 # Require the actual two application heroes, not merely thematic headers.
 for base in ("hero_light", "hero_dark", "wotd_bg_light", "wotd_bg_dark"):
     if not (android_dir / (base + ".png")).is_file():
