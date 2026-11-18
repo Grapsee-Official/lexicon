@@ -91,7 +91,7 @@ struct MoreScreen: View {
                 SettingsGroup(title: "About", rows: [
                     SettingsRowSpec(
                         icon: "info.circle",
-                        label: "About Lexicon",
+                        label: "About Lexora",
                         value: "v1.0.0",
                         action: { infoKey = "about" }
                     ),
@@ -146,7 +146,7 @@ struct MoreScreen: View {
         case "packs": return "Language packs"
         case "recent": return "Clear search history?"
         case "cache": return "Clear temporary cache?"
-        case "about": return "About Lexicon"
+        case "about": return "About Lexora"
         case "privacy": return "Privacy & local storage"
         default: return "Open-source libraries"
         }
@@ -154,15 +154,15 @@ struct MoreScreen: View {
 
     private var infoMessage: String {
         switch infoKey {
-        case "text": return "Lexicon follows Dynamic Type. To change reading size, open iOS Settings → Accessibility → Display & Text Size."
+        case "text": return "Lexora follows Dynamic Type. To change reading size, open iOS Settings → Accessibility → Display & Text Size."
         case "notifications": return "Daily notifications are not currently scheduled. Your Word of the Day remains available offline."
         case "storage": return "Saved words, notes, study lists and templates are stored on this device. The bundled dictionary works offline."
         case "packs": return "The English dictionary is bundled. Additional downloadable language packs are not yet supported. The translation view shows only curated available translations."
         case "recent": return "Remove recent searches on this device? Saved words and notes will be kept."
         case "cache": return "Remove temporary files? Saved words, notes and study progress will remain."
-        case "about": return "Lexicon · Words. Wisdom. Worlds. A quiet offline-first language companion inspired by the English countryside."
+        case "about": return "Lexora · Words. Wisdom. Worlds. A quiet offline-first language companion inspired by the English countryside."
         case "privacy": return "Word collections, notes, settings and study progress are kept in local app storage. Search history and temporary files can be cleared separately."
-        default: return "Lexicon uses SwiftUI, SQLite and a shared C++17 dictionary engine. See the license notices of each external dependency before redistribution."
+        default: return "Lexora uses SwiftUI, SQLite and a shared C++17 dictionary engine. See the license notices of each external dependency before redistribution."
         }
     }
 
@@ -210,7 +210,7 @@ struct MoreScreen: View {
                 Text("Curious Soul")
                     .font(.lexiconDisplay(18, weight: .semibold))
                     .foregroundStyle(lexiconPalette(scheme).foreground)
-                Text("Lexicon Companion · since 2026")
+                Text("Lexora Companion · since 2026")
                     .font(.lexiconBody(12))
                     .foregroundStyle(lexiconPalette(scheme).mutedForeground)
                 HStack(spacing: 16) {
@@ -254,7 +254,7 @@ struct MoreScreen: View {
                     .font(.lexiconBody(11))
                     .foregroundStyle(lexiconPalette(scheme).mutedForeground)
             }
-            Text("Lexicon · Words. Wisdom. Worlds.")
+            Text("Lexora · Words. Wisdom. Worlds.")
                 .font(.lexiconBody(10))
                 .foregroundStyle(lexiconPalette(scheme).mutedForeground.opacity(0.6))
         }
