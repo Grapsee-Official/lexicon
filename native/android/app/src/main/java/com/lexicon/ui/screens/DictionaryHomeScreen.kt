@@ -101,7 +101,7 @@ fun DictionaryHomeScreen(viewModel: LexiconViewModel) {
         }
         item {
             CountrysideQuoteBanner(
-                quote = "Words are doors to new worlds.", attribution = "Lexicon",
+                quote = "Words are doors to new worlds.", attribution = "Lexora",
                 illustrationBase = "ill_books_daisies", isDark = dark,
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
