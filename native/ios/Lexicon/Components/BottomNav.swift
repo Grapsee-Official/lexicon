@@ -44,7 +44,7 @@ struct BottomNav: View {
                 Image(systemName: "magnifyingglass")
                     .font(.system(size: 17, weight: .medium))
                     .foregroundStyle(isDark ? LexiconColors.highlightDark : LexiconColors.primaryForeground)
-                    .frame(width: 50, height: 50)
+                    .frame(width: 54, height: 54)
                     .background(isDark ? Color(hex: "101620") : LexiconColors.primary)
                     .clipShape(Circle())
                     .overlay(
@@ -57,7 +57,7 @@ struct BottomNav: View {
             }
             .buttonStyle(.plain)
             .shadow(color: isDark ? .clear : LexiconColors.foreground.opacity(0.16), radius: 6, y: 2)
-            .offset(y: -8)
+            .offset(y: -10)
             .accessibilityLabel(Text(LexiconAccessibilityLabels.search))
             .accessibilityAddTraits(.isButton)
             .frame(maxWidth: .infinity)
@@ -66,7 +66,7 @@ struct BottomNav: View {
             navItem(.more, label: "More", system: "ellipsis")
         }
         .padding(.horizontal, 8)
-        .padding(.vertical, 5)
+        .padding(.vertical, 7)
         .background {
             Capsule()
                 .fill(lexiconPalette(scheme).card.opacity(0.96))
@@ -89,16 +89,18 @@ struct BottomNav: View {
         } label: {
             VStack(spacing: 2) {
                 Image(systemName: active && system != "ellipsis" ? "\(system).fill" : system)
-                    .font(.system(size: 16, weight: active ? .medium : .regular))
+                    .font(.system(size: 19, weight: active ? .medium : .regular))
                     .foregroundStyle(active ? activeColor : inactiveColor)
 
                 Text(label)
-                    .font(.lexiconBody(9, weight: active ? .medium : .regular))
+                    .font(.lexiconBody(10.5, weight: active ? .medium : .regular))
                     .foregroundStyle(active ? activeColor : inactiveColor)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
 
                 Circle()
                     .fill(active ? dotColor : .clear)
-                    .frame(width: 3, height: 3)
+                    .frame(width: 4, height: 4)
                     .lexiconDecorative()
             }
             .frame(maxWidth: .infinity)
