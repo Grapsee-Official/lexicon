@@ -83,8 +83,8 @@ struct HomeScreen: View {
                                 .font(.lexiconBody(15))
                                 .foregroundStyle(lexiconPalette(scheme).mutedForeground)
 
-                            ForEach(Array(LexiconData.articleReading(article.id).enumerated()), id: \.offset) { _, paragraph in
-                                Text(paragraph)
+                            ForEach(Array(LexiconData.articleReading(article.id).enumerated()), id: \.offset) { item in
+                                Text(item.element)
                                     .font(.lexiconBody(15))
                                     .foregroundStyle(lexiconPalette(scheme).foreground)
                                     .fixedSize(horizontal: false, vertical: true)
