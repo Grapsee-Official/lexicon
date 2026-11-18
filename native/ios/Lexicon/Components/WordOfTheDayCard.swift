@@ -85,9 +85,13 @@ struct WordOfTheDayCard: View {
                                 .minimumScaleFactor(0.75)
 
                             Image(systemName: "speaker.wave.2")
-                                .font(.system(size: 11, weight: .regular))
+                                .font(.system(size: 14, weight: .regular))
                                 .foregroundStyle(labelGold)
-                                .accessibilityHidden(true)
+                                .frame(width: 28, height: 28)
+                                .contentShape(Rectangle())
+                                .onTapGesture { vm.pronounce(word.word) }
+                                .accessibilityLabel("Pronounce \(word.word)")
+                                .accessibilityAddTraits(.isButton)
                         }
 
                         Spacer(minLength: 4)

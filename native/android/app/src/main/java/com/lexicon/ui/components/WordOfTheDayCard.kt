@@ -140,9 +140,10 @@ fun WordOfTheDayCard(
                 )
                 Box(
                     modifier = Modifier
-                        .size(20.dp)
+                        .size(28.dp)
                         .clip(CircleShape)
-                        .iconButton(AccessibilityAudit.Descriptions.Volume),
+                        .iconButton(AccessibilityAudit.Descriptions.Volume)
+                        .clickable(role = Role.Button) { viewModel.pronounce(word.word) },
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
