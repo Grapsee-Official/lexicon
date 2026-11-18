@@ -7,6 +7,7 @@ import SwiftUI
 
 struct ArticleCard: View {
     let article: Article
+    var onOpen: () -> Void = {}
     @Environment(\.colorScheme) private var scheme
 
     private var isDark: Bool { scheme == .dark }
@@ -22,6 +23,7 @@ struct ArticleCard: View {
     var body: some View {
         Button {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            onOpen()
         } label: {
             HStack(spacing: 0) {
                 Image(thumbName)

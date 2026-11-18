@@ -53,6 +53,7 @@ fun ArticleCard(
     article: Article,
     viewModel: LexiconViewModel,
     modifier: Modifier = Modifier,
+    onOpen: () -> Unit = {},
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
@@ -87,7 +88,7 @@ fun ArticleCard(
             .clip(shape)
             .background(cardBg)
             .border(1.dp, borderColor, shape)
-            .clickable(role = Role.Button) { },
+            .clickable(role = Role.Button) { onOpen() },
     ) {
         Box(
             modifier = Modifier
