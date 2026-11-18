@@ -40,7 +40,7 @@ enum LexiconColors {
     // MARK: - Light Palette ("Cotswolds Scholarly")
     static let background        = Color(hex: "FBF5EB")
     static let primary           = Color(hex: "657D5A")
-    static let foreground        = Color(hex: "31462F")
+    static let foreground        = Color(hex: "252926")
     static let secondary         = Color(hex: "7C9297")
     static let accent            = Color(hex: "C98267")
     static let highlight         = Color(hex: "A58A61")
