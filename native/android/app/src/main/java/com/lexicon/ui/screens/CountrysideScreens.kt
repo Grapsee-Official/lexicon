@@ -5,6 +5,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -202,7 +204,7 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
                     modifier = Modifier.padding(horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    cards.chunked(2).forEach { rowCards ->
+                    cards.chunked(if (androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 390) 1 else 2).forEach { rowCards ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -728,13 +730,14 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
                     .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(7.dp),
             ) {
                 stats.forEach { (ic, num, label) ->
                     Column(
                         modifier = Modifier
-                            .weight(1f)
+                            .width(106.dp)
                             .clip(RoundedCornerShape(14.dp))
                             .background(cardBg)
                             .border(1.dp, border, RoundedCornerShape(14.dp))
@@ -744,7 +747,7 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                     ) {
                         Icon(ic, contentDescription = null, tint = if (isDark) DarkAccent else BrandGreen, modifier = Modifier.size(17.dp))
                         Text(num, color = fg, style = TextStyle(fontFamily = BodyFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 14.sp))
-                        Text(label, color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 8.5.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(label, color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 10.5.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                 }
             }
@@ -1051,7 +1054,9 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                     modifier = Modifier.padding(horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    (if (showAllTemplates) filtered else filtered.take(4)).chunked(2).forEach { rowItems ->
+                    (if (showAllTemplates) filtered else filtered.take(4))
+                        .chunked(if (androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 390) 1 else 2)
+                        .forEach { rowItems ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -1103,7 +1108,7 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                                     ) {
                                         Column(modifier = Modifier.weight(1f)) {
                                             Text(tpl.title, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 13.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                            Text(tpl.subtitle, color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 9.5.sp, lineHeight = 12.sp), maxLines = 2)
+                                            Text(tpl.subtitle, color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.sp, lineHeight = 14.sp), maxLines = 2)
                                         }
                                         Box(
                                             modifier = Modifier
@@ -1117,7 +1122,7 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                                     }
                                 }
                             }
-                            if (rowItems.size == 1) Spacer(Modifier.weight(1f))
+                            if (rowItems.size == 1 && androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp >= 390) Spacer(Modifier.weight(1f))
                         }
                     }
                 }
@@ -1466,13 +1471,14 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState())
                         .padding(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(7.dp),
                 ) {
                     filters.forEach { f ->
                         Column(
                             modifier = Modifier
-                                .weight(1f)
+                                .width(112.dp)
                                 .clip(RoundedCornerShape(13.dp))
                                 .background(cardBg)
                                 .border(1.dp, border, RoundedCornerShape(13.dp))
@@ -1482,8 +1488,8 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
                             verticalArrangement = Arrangement.spacedBy(3.dp),
                         ) {
                             Icon(f.icon, contentDescription = null, tint = if (isDark) DarkAccent else BrandGreen, modifier = Modifier.size(16.dp))
-                            Text(f.title, color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 8.5.sp), maxLines = 1)
-                            Text("${f.value} ⌄", color = fg, style = TextStyle(fontFamily = BodyFontFamily, fontWeight = FontWeight.Medium, fontSize = 9.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            Text(f.title, color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 10.5.sp), maxLines = 1)
+                            Text("${f.value} ⌄", color = fg, style = TextStyle(fontFamily = BodyFontFamily, fontWeight = FontWeight.Medium, fontSize = 10.5.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
                         }
                     }
                 }

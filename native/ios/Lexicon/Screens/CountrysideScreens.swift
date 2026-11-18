@@ -68,7 +68,7 @@ struct CollectionsHubScreen: View {
                         actionLabel: "View all",
                         onAction: { vm.navigate(to: .studyLists) }
                     )
-                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 165), spacing: 8)], spacing: 8) {
                         collectionQuadCard(title: "Favorites", count: "\(vm.favoriteWordIds.count) words", icon: "heart", art: "ill-col-favorites", p: p) {
                             filter = "Favorites"
                         }
@@ -463,13 +463,15 @@ struct StudyListsScreen: View {
                 .padding(.horizontal, 16)
 
                 // 4 Stat Cards
-                HStack(spacing: 7) {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 7) {
                     statTile("book", "\(vm.studyLists.count)", "Active Lists", p: p)
                     statTile("checkmark.circle", "\(totalWords)", "Total Words", p: p)
                     statTile("chart.bar", "\(overallPct)%", "Overall Progress", p: p)
                     statTile("star", "\(vm.dayStreak)", "Day Streak", p: p)
                 }
-                .padding(.horizontal, 16)
+                    .padding(.horizontal, 16)
+                }
 
                 // Today's Study Card
                 VStack(spacing: 10) {
@@ -690,12 +692,12 @@ struct StudyListsScreen: View {
                 .font(.lexiconBody(14, weight: .semibold))
                 .foregroundStyle(p.foreground)
             Text(label)
-                .font(.lexiconBody(8.5))
+                .font(.lexiconBody(10.5))
                 .foregroundStyle(p.mutedForeground)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
         }
-        .frame(maxWidth: .infinity)
+        .frame(width: 106)
         .padding(.vertical, 10)
         .background(p.card)
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
@@ -1063,13 +1065,15 @@ struct SearchDiscoveryScreen: View {
                 // 4 Search Filters
                 VStack(spacing: 8) {
                     BotanicalSectionTitle(title: "Search Filters", actionLabel: nil)
-                    HStack(spacing: 7) {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 7) {
                         filterTile("globe", "Language", vm.filterLanguage, key: "language", p: p)
                         filterTile("book", "Part of Speech", vm.filterPos, key: "pos", p: p)
                         filterTile("chart.bar", "Difficulty", vm.filterDifficulty, key: "difficulty", p: p)
                         filterTile("star", "Sort By", vm.filterSort, key: "sort", p: p)
                     }
-                    .padding(.horizontal, 16)
+                        .padding(.horizontal, 16)
+                    }
                 }
 
                 CountrysideQuoteBanner(
@@ -1093,17 +1097,17 @@ struct SearchDiscoveryScreen: View {
                     .font(.system(size: 14))
                     .foregroundStyle(p.primary)
                 Text(title)
-                    .font(.lexiconBody(8.5))
+                    .font(.lexiconBody(10.5))
                     .foregroundStyle(p.mutedForeground)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
                 Text("\(value) ⌄")
-                    .font(.lexiconBody(9, weight: .medium))
+                    .font(.lexiconBody(10.5, weight: .medium))
                     .foregroundStyle(p.foreground)
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
             }
-            .frame(maxWidth: .infinity)
+            .frame(width: 112)
             .padding(.vertical, 9)
             .background(p.card)
             .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
