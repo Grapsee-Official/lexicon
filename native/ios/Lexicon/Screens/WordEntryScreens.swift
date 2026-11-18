@@ -31,6 +31,19 @@ struct WordOfTheDayScreen: View {
         ScrollView {
             VStack(spacing: 12) {
                 ZStack(alignment: .topTrailing) {
+                    Image(countrysideImageName("ill-hero-bridge", isDark: isDark))
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 182, height: 256, alignment: .topTrailing)
+                        .offset(x: 6, y: 34)
+                        .allowsHitTesting(false)
+
+                    if isDark {
+                        NocturneAtmosphere()
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 256)
+                    }
+
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {
                             HStack(spacing: 8) {
@@ -142,12 +155,7 @@ struct WordOfTheDayScreen: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 8)
 
-                    Image(countrysideImageName("ill-hero-bridge", isDark: isDark))
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 182, height: 256, alignment: .topTrailing)
-                        .offset(x: 6, y: 34)
-                        .allowsHitTesting(false)
+
                 }
 
                 // About the Word
@@ -252,6 +260,12 @@ struct WordDetailProfileScreen: View {
                         .frame(width: 192, height: 228, alignment: .topTrailing)
                         .offset(x: 6, y: 24)
                         .allowsHitTesting(false)
+
+                    if isDark {
+                        NocturneAtmosphere()
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 228)
+                    }
 
                     VStack(alignment: .leading, spacing: 6) {
                         HStack {

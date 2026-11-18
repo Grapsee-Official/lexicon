@@ -16,7 +16,7 @@ struct CountrysideHeroHeader: View {
     let illustrationBase: String
     let onHistoryClick: () -> Void
     var onLogoToggleTheme: () -> Void = {}
-    var heroHeight: CGFloat = 144
+    var heroHeight: CGFloat = 146
 
     @Environment(\.colorScheme) private var scheme
     private var isDark: Bool { scheme == .dark }
@@ -50,7 +50,7 @@ struct CountrysideHeroHeader: View {
                         .buttonStyle(.plain)
 
                         Text(title)
-                            .font(.lexiconDisplay(title.count > 14 ? 23 : 27, weight: .regular))
+                            .font(.lexiconDisplay(title.count > 14 ? 24 : 28, weight: .regular))
                             .tracking(-0.3)
                             .foregroundStyle(lexiconPalette(scheme).foreground)
                             .lineLimit(2)
@@ -64,7 +64,7 @@ struct CountrysideHeroHeader: View {
                 }
                 .frame(width: w * 0.58, alignment: .leading)
                 .padding(.leading, 16)
-                .padding(.top, 10)
+                .padding(.top, 12)
 
                 HStack {
                     Spacer()

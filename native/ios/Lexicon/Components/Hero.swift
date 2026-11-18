@@ -37,7 +37,7 @@ struct Hero: View {
                     Image(isDark ? "hero-dark" : "hero-light")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: totalWidth * 0.71, height: 224, alignment: .bottomTrailing)
+                        .frame(width: totalWidth * 0.71, height: 238, alignment: .bottomTrailing)
                         .offset(x: 8, y: 6)
                         .lexiconDecorative()
                         .onTapGesture {
@@ -45,11 +45,11 @@ struct Hero: View {
                             vm.openSearch()
                         }
                 }
-                .frame(width: totalWidth, height: 224)
+                .frame(width: totalWidth, height: 238)
 
                 if isDark {
                     NocturneAtmosphere()
-                        .frame(width: totalWidth, height: 224)
+                        .frame(width: totalWidth, height: 238)
                 }
 
                 VStack(alignment: .leading, spacing: 6) {
@@ -74,10 +74,10 @@ struct Hero: View {
                     .padding(.leading, 16)
                     .padding(.bottom, 2)
                 }
-                .frame(width: totalWidth, height: 224)
+                .frame(width: totalWidth, height: 238)
             }
         }
-        .frame(height: 224)
+        .frame(height: 238)
     }
 
     @ViewBuilder
@@ -95,7 +95,7 @@ struct Hero: View {
                     .lexiconDecorative()
             }
         }
-        .font(.lexiconDisplay(27.5, weight: .regular))
+        .font(.lexiconDisplay(29, weight: .regular))
         .tracking(-0.3)
         .frame(maxWidth: .infinity, alignment: .leading)
         .lexiconCombinedElement()

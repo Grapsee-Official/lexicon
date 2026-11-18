@@ -80,6 +80,7 @@ import com.lexicon.ui.components.CountrysideHeroHeader
 import com.lexicon.ui.components.CountrysideQuoteBanner
 import com.lexicon.ui.components.CountrysideSearchPill
 import com.lexicon.ui.components.LeafSprig
+import com.lexicon.ui.components.NocturneAtmosphere
 import com.lexicon.ui.components.resolveCountrysideDrawable
 import com.lexicon.ui.theme.BodyFontFamily
 import com.lexicon.ui.theme.BrandGreen
@@ -143,6 +144,23 @@ fun WordOfTheDayScreen(viewModel: LexiconViewModel) {
                     .fillMaxWidth()
                     .windowInsetsPadding(WindowInsets.statusBars),
             ) {
+                // Right-anchored Cottage & Stone Bridge Watercolour Vignette
+                Image(
+                    painter = painterResource(bridgeRes),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    alignment = Alignment.TopEnd,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .width(190.dp)
+                        .height(270.dp)
+                        .offset(x = 6.dp, y = 34.dp),
+                )
+
+                if (isDark) {
+                    NocturneAtmosphere(Modifier.fillMaxWidth().height(270.dp))
+                }
+
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -301,18 +319,7 @@ fun WordOfTheDayScreen(viewModel: LexiconViewModel) {
                     }
                 }
 
-                // Right-anchored Cottage & Stone Bridge Watercolour Vignette
-                Image(
-                    painter = painterResource(bridgeRes),
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit,
-                    alignment = Alignment.TopEnd,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .width(190.dp)
-                        .height(270.dp)
-                        .offset(x = 6.dp, y = 34.dp),
-                )
+
             }
         }
 
@@ -482,6 +489,10 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                         .height(235.dp)
                         .offset(x = 6.dp, y = 24.dp),
                 )
+
+                if (isDark) {
+                    NocturneAtmosphere(Modifier.fillMaxWidth().height(235.dp))
+                }
 
                 Column(
                     modifier = Modifier
