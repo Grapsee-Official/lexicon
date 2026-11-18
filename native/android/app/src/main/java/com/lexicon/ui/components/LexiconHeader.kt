@@ -123,7 +123,7 @@ fun LexiconHeader(
                 .clickable(role = Role.Button) { viewModel.setActiveTab(TabKey.HOME) },
         ) {
             Text(
-                text = "Lexicon",
+                text = "Lexora",
                 color = wordmarkColor,
                 style = LexiconTextStyles.BrandWordmark,
                 maxLines = 1,
@@ -192,7 +192,7 @@ fun LexiconHeader(
         AlertDialog(
             onDismissRequest = { showDailyLetter = false },
             title = {
-                Text("A letter from Lexicon", color = if (isDark) DarkForeground else DeepForest)
+                Text("A letter from Lexora", color = if (isDark) DarkForeground else DeepForest)
             },
             text = {
                 Column(verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)) {
