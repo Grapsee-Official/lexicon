@@ -834,6 +834,15 @@ struct ExpandedExplorationScreen: View {
     private var isDark: Bool { scheme == .dark }
 
     var body: some View {
+        if vm.detailExpanded36 {
+            translationsDirectory
+        } else {
+            // The reference depicts a complete word-entry reading page.
+            WordDetailProfileScreen()
+        }
+    }
+
+    private var translationsDirectory: some View {
         let p = lexiconPalette(scheme)
         let word = vm.detailWord
         let translations = LexiconData.translationsFor(word)
