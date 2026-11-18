@@ -50,6 +50,8 @@ import androidx.compose.material.icons.outlined.PersonOutline
 import androidx.compose.material.icons.outlined.School
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -691,6 +693,11 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
     var query by remember { mutableStateOf("") }
     var practicingListId by remember { mutableStateOf<String?>(null) }
     var answerRevealed by remember { mutableStateOf(false) }
+    var showCreateList by remember { mutableStateOf(false) }
+    var newListTitle by remember { mutableStateOf("") }
+    var newListWords by remember { mutableStateOf("") }
+    var listError by remember { mutableStateOf(false) }
+    var expandedListMenu by remember { mutableStateOf<String?>(null) }
     val totalWords = state.studyLists.sumOf { it.totalWords }
     val overallPct = if (totalWords > 0) (state.studyLists.sumOf { it.completedWords } * 100) / totalWords else 0
     val booksRes = resolveCountrysideDrawable("ill_books_daisies", isDark)
@@ -779,7 +786,12 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                     title = "Today’s Study",
                     isDark = isDark,
                     actionLabel = "View details",
-                    onAction = { practicingListId = "sl1"; answerRevealed = false },
+                    onAction = {
+                        practicingListId = state.studyLists.firstOrNull {
+                            it.wordIds.isNotEmpty() && it.completedWords < it.wordIds.size
+                        }?.id
+                        answerRevealed = false
+                    },
                 )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -848,8 +860,8 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                 BotanicalSectionTitle(
                     title = "Your Study Lists",
                     isDark = isDark,
-                    actionLabel = "View all",
-                    onAction = { query = "" },
+                    actionLabel = "New list",
+                    onAction = { listError = false; showCreateList = true },
                     modifier = Modifier.padding(horizontal = 16.dp),
                 )
                 Column(
@@ -919,7 +931,28 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                                 ) {
                                     Icon(Icons.Filled.PlayArrow, contentDescription = "Practice", tint = if (isDark) DarkBackground else Color.White, modifier = Modifier.size(16.dp))
                                 }
-                                Icon(Icons.Outlined.MoreVert, contentDescription = null, tint = muted, modifier = Modifier.size(16.dp))
+                                Box {
+                                    Icon(
+                                        Icons.Outlined.MoreVert, contentDescription = "Manage list",
+                                        tint = muted,
+                                        modifier = Modifier.size(24.dp).clickable { expandedListMenu = sl.id },
+                                    )
+                                    DropdownMenu(
+                                        expanded = expandedListMenu == sl.id,
+                                        onDismissRequest = { expandedListMenu = null },
+                                    ) {
+                                        DropdownMenuItem(
+                                            text = { Text("Reset progress") },
+                                            onClick = { viewModel.resetStudyList(sl.id); expandedListMenu = null },
+                                        )
+                                        if (sl.id.startsWith("sl_custom_")) {
+                                            DropdownMenuItem(
+                                                text = { Text("Delete list") },
+                                                onClick = { viewModel.deleteStudyList(sl.id); expandedListMenu = null },
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
                 }
@@ -936,6 +969,56 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
             )
         }
     }
+    if (showCreateList) {
+        AlertDialog(
+            onDismissRequest = { showCreateList = false; listError = false },
+            title = { Text("New study list", color = fg) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(
+                        "Gather words into your own countryside notebook.", color = muted,
+                        style = TextStyle(fontFamily = BodyFontFamily, fontSize = 13.sp),
+                    )
+                    OutlinedTextField(
+                        value = newListTitle, onValueChange = { newListTitle = it },
+                        label = { Text("List name") }, singleLine = true,
+                    )
+                    OutlinedTextField(
+                        value = newListWords, onValueChange = { newListWords = it; listError = false },
+                        label = { Text("Words, separated by commas") }, minLines = 2,
+                    )
+                    Text(
+                        "Leave words blank to use bookmarks. Only known offline words are added.",
+                        color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.sp),
+                    )
+                    if (listError) {
+                        Text(
+                            "No matching words found. Try Serendipity, Solitude or Wanderlust.",
+                            color = fg, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 12.sp),
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = newListTitle.isNotBlank(),
+                    onClick = {
+                        if (viewModel.createStudyList(newListTitle, newListWords)) {
+                            showCreateList = false
+                            newListTitle = ""
+                            newListWords = ""
+                            query = ""
+                        } else listError = true
+                    },
+                ) { Text("Create") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showCreateList = false; listError = false }) { Text("Cancel") }
+            },
+            containerColor = cardBg,
+        )
+    }
+
     // Study progress changes only after the answer is revealed and confirmed.
     practicingListId?.let { listId ->
         val list = state.studyLists.firstOrNull { it.id == listId }
@@ -1413,7 +1496,10 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .clickable { viewModel.submitSearch(w.word) }
+                                        .clickable {
+                                            viewModel.addRecentSearch(w.word)
+                                            viewModel.openWord(w)
+                                        }
                                         .padding(horizontal = 14.dp, vertical = 10.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(10.dp),

@@ -449,6 +449,10 @@ struct StudyListsScreen: View {
     @State private var query: String = ""
     @State private var practicingList: StudyListItem? = nil
     @State private var answerRevealed = false
+    @State private var showCreateList = false
+    @State private var newListTitle = ""
+    @State private var newListWords = ""
+    @State private var listError = false
     private var isDark: Bool { scheme == .dark }
 
     var body: some View {
@@ -497,7 +501,12 @@ struct StudyListsScreen: View {
                                 .foregroundStyle(p.foreground)
                         }
                         Spacer()
-                        Button { practicingList = vm.studyLists.first(where: { $0.id == "sl1" }); answerRevealed = false } label: {
+                        Button {
+                            practicingList = vm.studyLists.first(where: {
+                                !$0.wordIds.isEmpty && $0.completedWords < $0.wordIds.count
+                            })
+                            answerRevealed = false
+                        } label: {
                             HStack(spacing: 4) {
                                 Text("View details").font(.lexiconBody(11))
                                 Image(systemName: "arrow.right").font(.system(size: 10))
@@ -505,6 +514,9 @@ struct StudyListsScreen: View {
                             .foregroundStyle(p.highlight)
                         }
                         .buttonStyle(.plain)
+                        .disabled(!vm.studyLists.contains(where: {
+                            !$0.wordIds.isEmpty && $0.completedWords < $0.wordIds.count
+                        }))
                     }
                     .padding(.horizontal, 14)
                     HStack(spacing: 12) {
@@ -558,8 +570,8 @@ struct StudyListsScreen: View {
                 VStack(spacing: 8) {
                     BotanicalSectionTitle(
                         title: "Your Study Lists",
-                        actionLabel: "View all",
-                        onAction: { query = "" }
+                        actionLabel: "New list",
+                        onAction: { listError = false; showCreateList = true }
                     )
                     VStack(spacing: 7) {
                         if !query.isEmpty && !vm.studyLists.contains(where: { $0.title.localizedCaseInsensitiveContains(query) }) {
@@ -614,10 +626,19 @@ struct StudyListsScreen: View {
                                 }
                                 .buttonStyle(.plain)
 
-                                Image(systemName: "ellipsis")
-                                    .rotationEffect(.degrees(90))
-                                    .font(.system(size: 11))
-                                    .foregroundStyle(p.mutedForeground)
+                                Menu {
+                                    Button("Reset progress") { vm.resetStudyList(sl.id) }
+                                    if sl.id.hasPrefix("sl_custom_") {
+                                        Button("Delete list", role: .destructive) { vm.deleteStudyList(sl.id) }
+                                    }
+                                } label: {
+                                    Image(systemName: "ellipsis")
+                                        .rotationEffect(.degrees(90))
+                                        .font(.system(size: 14))
+                                        .foregroundStyle(p.mutedForeground)
+                                        .frame(width: 30, height: 36)
+                                }
+                                .accessibilityLabel("Manage \(sl.title)")
                             }
                             .padding(8)
                             .background(p.card)
@@ -642,6 +663,45 @@ struct StudyListsScreen: View {
             reviewSheet(list)
                 .presentationDragIndicator(.visible)
         }
+        .sheet(isPresented: $showCreateList) {
+            NavigationStack {
+                Form {
+                    Section {
+                        TextField("List name", text: $newListTitle)
+                        TextField("Words, separated by commas", text: $newListWords, axis: .vertical)
+                            .lineLimit(2...4)
+                        Text("Leave words blank to use bookmarks. Only known offline words are added.")
+                            .font(.lexiconBody(12))
+                            .foregroundStyle(lexiconPalette(scheme).mutedForeground)
+                        if listError {
+                            Text("No matching words found. Try Serendipity or Wanderlust.")
+                                .font(.lexiconBody(12)).foregroundStyle(.red)
+                        }
+                    } header: { Text("Your vocabulary notebook") }
+                }
+                .navigationTitle("New study list")
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") { showCreateList = false }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Create") {
+                            if vm.createStudyList(title: newListTitle, words: newListWords) {
+                                showCreateList = false
+                                newListTitle = ""
+                                newListWords = ""
+                                query = ""
+                            } else {
+                                listError = true
+                            }
+                        }
+                        .disabled(newListTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    }
+                }
+            }
+            .presentationDragIndicator(.visible)
+        }
+
     }
 
     private func reviewSheet(_ list: StudyListItem) -> some View {
@@ -1033,7 +1093,7 @@ struct SearchDiscoveryScreen: View {
                             }
                             ForEach(Array(matches.enumerated()), id: \.element.id) { idx, w in
                                 if idx > 0 { Rectangle().fill(p.border).frame(height: 1) }
-                                Button { vm.submitSearch(w.word) } label: {
+                                Button { vm.addRecentSearch(w.word); vm.openWord(w) } label: {
                                     HStack {
                                         VStack(alignment: .leading, spacing: 2) {
                                             Text(w.word.lowercased()).font(.lexiconDisplay(15)).foregroundStyle(p.foreground)
