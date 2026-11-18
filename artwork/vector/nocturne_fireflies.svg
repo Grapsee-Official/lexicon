@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="520" viewBox="0 0 960 520" role="img" aria-label="Lexicon midnight starlight and firefly ornament">
+  <title>Lexicon — Editable Nocturne Fireflies</title>
+  <desc>Scalable Cotswolds-inspired moonlit decorative star layer. Each luminous point and botanical flourish is vector-editable. Designed to overlay the watercolor artwork, not replace it.</desc>
+  <defs>
+    <radialGradient id="firefly"><stop stop-color="#F0D89A" stop-opacity=".28"/><stop offset="1" stop-color="#F0D89A" stop-opacity="0"/></radialGradient>
+  </defs>
+  <g fill="#F0D89A" stroke="#F0D89A" stroke-linecap="round">
+    <g id="firefly-1" opacity="0.9"><circle cx="518" cy="52" r="19.2" fill="url(#firefly)" stroke="none"/><circle cx="518" cy="52" r="2.4" stroke="none"/><path d="M511 52H525 M518 45V59" fill="none" stroke-width=".7"/></g>
+    <g id="firefly-2" opacity="0.68"><circle cx="576" cy="114" r="12" fill="url(#firefly)" stroke="none"/><circle cx="576" cy="114" r="1.5" stroke="none"/></g>
+    <g id="firefly-3" opacity="0.58"><circle cx="643" cy="42" r="12" fill="url(#firefly)" stroke="none"/><circle cx="643" cy="42" r="1.5" stroke="none"/></g>
+    <g id="firefly-4" opacity="1"><circle cx="730" cy="94" r="12" fill="url(#firefly)" stroke="none"/><circle cx="730" cy="94" r="1.5" stroke="none"/></g>
+    <g id="firefly-5" opacity="0.7"><circle cx="826" cy="47" r="19.2" fill="url(#firefly)" stroke="none"/><circle cx="826" cy="47" r="2.4" stroke="none"/><path d="M819 47H833 M826 40V54" fill="none" stroke-width=".7"/></g>
+    <g id="firefly-6" opacity="0.66"><circle cx="902" cy="135" r="12" fill="url(#firefly)" stroke="none"/><circle cx="902" cy="135" r="1.5" stroke="none"/></g>
+    <g id="firefly-7" opacity="0.52"><circle cx="547" cy="192" r="12" fill="url(#firefly)" stroke="none"/><circle cx="547" cy="192" r="1.5" stroke="none"/></g>
+    <g id="firefly-8" opacity="0.79"><circle cx="682" cy="172" r="12" fill="url(#firefly)" stroke="none"/><circle cx="682" cy="172" r="1.5" stroke="none"/></g>
+    <g id="firefly-9" opacity="0.55"><circle cx="797" cy="203" r="19.2" fill="url(#firefly)" stroke="none"/><circle cx="797" cy="203" r="2.4" stroke="none"/><path d="M790 203H804 M797 196V210" fill="none" stroke-width=".7"/></g>
+    <g id="firefly-10" opacity="0.85"><circle cx="922" cy="244" r="12" fill="url(#firefly)" stroke="none"/><circle cx="922" cy="244" r="1.5" stroke="none"/></g>
+    <g id="firefly-11" opacity="0.74"><circle cx="614" cy="276" r="12" fill="url(#firefly)" stroke="none"/><circle cx="614" cy="276" r="1.5" stroke="none"/></g>
+    <g id="firefly-12" opacity="0.56"><circle cx="730" cy="312" r="12" fill="url(#firefly)" stroke="none"/><circle cx="730" cy="312" r="1.5" stroke="none"/></g>
+    <g id="firefly-13" opacity="0.88"><circle cx="854" cy="343" r="19.2" fill="url(#firefly)" stroke="none"/><circle cx="854" cy="343" r="2.4" stroke="none"/><path d="M847 343H861 M854 336V350" fill="none" stroke-width=".7"/></g>
+    <g id="firefly-14" opacity="0.48"><circle cx="509" cy="374" r="12" fill="url(#firefly)" stroke="none"/><circle cx="509" cy="374" r="1.5" stroke="none"/></g>
+    <g id="firefly-15" opacity="0.75"><circle cx="662" cy="426" r="12" fill="url(#firefly)" stroke="none"/><circle cx="662" cy="426" r="1.5" stroke="none"/></g>
+    <g id="firefly-16" opacity="0.52"><circle cx="787" cy="463" r="12" fill="url(#firefly)" stroke="none"/><circle cx="787" cy="463" r="1.5" stroke="none"/></g>
+  </g>
+</svg>

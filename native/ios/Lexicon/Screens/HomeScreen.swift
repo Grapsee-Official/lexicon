@@ -28,12 +28,15 @@ struct HomeScreen: View {
                         divider: false,
                         onAction: { vm.setActiveTab(.dictionary) }
                     )
-                    HStack(spacing: 8) {
-                        ForEach(LexiconData.categories) { c in
-                            CategoryCard(category: c)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(LexiconData.categories) { c in
+                                CategoryCard(category: c)
+                                    .frame(width: 94)
+                            }
                         }
+                        .padding(.horizontal, 16)
                     }
-                    .padding(.horizontal, 16)
                 }
 
                 // From the Library (with horizontal hairline divider)

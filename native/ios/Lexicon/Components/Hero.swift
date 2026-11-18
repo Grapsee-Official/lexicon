@@ -47,6 +47,11 @@ struct Hero: View {
                 }
                 .frame(width: totalWidth, height: 224)
 
+                if isDark {
+                    NocturneAtmosphere()
+                        .frame(width: totalWidth, height: 224)
+                }
+
                 VStack(alignment: .leading, spacing: 6) {
                     headline
                     Text("A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.")

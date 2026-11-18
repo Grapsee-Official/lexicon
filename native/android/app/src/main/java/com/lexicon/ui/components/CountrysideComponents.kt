@@ -1,5 +1,6 @@
 package com.lexicon.ui.components
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -43,9 +44,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -124,6 +127,10 @@ fun CountrysideHeroHeader(
                 .height(heroHeight)
                 .offset(x = 6.dp, y = 4.dp),
         )
+
+        if (isDark) {
+            NocturneAtmosphere(Modifier.fillMaxSize())
+        }
 
         Column(
             modifier = Modifier
@@ -511,6 +518,65 @@ fun CountrysideQuoteBanner(
                     letterSpacing = 0.5.sp,
                 ),
             )
+        }
+    }
+}
+
+
+/**
+ * A responsive, fully editable native-vector layer for the moonlit English
+ * countryside. Tiny fireflies and starlight are positioned as fractions of
+ * the available canvas; nothing here is a flattened raster illustration.
+ *
+ * Keep this atmosphere subtle: the painted cottage and the written word
+ * remain the protagonists. No animation, so reduced-motion is respected.
+ */
+@Composable
+fun NocturneAtmosphere(modifier: Modifier = Modifier) {
+    val sparks = listOf(
+        floatArrayOf(.54f, .10f, .90f), floatArrayOf(.60f, .22f, .68f),
+        floatArrayOf(.67f, .08f, .58f), floatArrayOf(.76f, .18f, 1.0f),
+        floatArrayOf(.86f, .09f, .70f), floatArrayOf(.94f, .26f, .66f),
+        floatArrayOf(.57f, .37f, .52f), floatArrayOf(.71f, .33f, .79f),
+        floatArrayOf(.83f, .39f, .55f), floatArrayOf(.96f, .47f, .85f),
+        floatArrayOf(.64f, .53f, .74f), floatArrayOf(.76f, .60f, .56f),
+        floatArrayOf(.89f, .66f, .88f), floatArrayOf(.53f, .72f, .48f),
+        floatArrayOf(.69f, .82f, .75f), floatArrayOf(.82f, .89f, .52f),
+    )
+    Canvas(modifier = modifier) {
+        val gold = Color(0xFFF0D89A)
+        val soft = Color(0xFFBBD0D0)
+        sparks.forEachIndexed { index, point ->
+            val center = Offset(size.width * point[0], size.height * point[1])
+            val intensity = point[2]
+            val radius = (if (index % 4 == 0) 1.5f else 0.85f).dp.toPx()
+            drawCircle(
+                color = gold.copy(alpha = 0.045f * intensity),
+                radius = radius * 7f,
+                center = center,
+            )
+            drawCircle(
+                color = (if (index % 3 == 0) gold else soft).copy(alpha = 0.54f * intensity),
+                radius = radius,
+                center = center,
+            )
+            if (index % 4 == 0) {
+                val arm = 5.dp.toPx() * intensity
+                drawLine(
+                    color = gold.copy(alpha = 0.36f),
+                    start = Offset(center.x - arm, center.y),
+                    end = Offset(center.x + arm, center.y),
+                    strokeWidth = 0.6.dp.toPx(),
+                    cap = StrokeCap.Round,
+                )
+                drawLine(
+                    color = gold.copy(alpha = 0.36f),
+                    start = Offset(center.x, center.y - arm),
+                    end = Offset(center.x, center.y + arm),
+                    strokeWidth = 0.6.dp.toPx(),
+                    cap = StrokeCap.Round,
+                )
+            }
         }
     }
 }

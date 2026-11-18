@@ -36,6 +36,11 @@ struct CountrysideHeroHeader: View {
                 }
                 .frame(width: w, height: heroHeight)
 
+                if isDark {
+                    NocturneAtmosphere()
+                        .frame(width: w, height: heroHeight)
+                }
+
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 8) {
                         Button(action: onLogoToggleTheme) {
@@ -311,5 +316,56 @@ struct CountrysideQuoteBanner: View {
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .stroke(lexiconPalette(scheme).border, lineWidth: 1)
         )
+    }
+}
+
+
+/// Responsive night-sky ornament, drawn as real editable SwiftUI vectors.
+/// Matches the normalized star positions in Android's NocturneAtmosphere.
+struct NocturneAtmosphere: View {
+    private let sparks: [(CGFloat, CGFloat, CGFloat)] = [
+        (0.54, 0.10, 0.90), (0.60, 0.22, 0.68),
+        (0.67, 0.08, 0.58), (0.76, 0.18, 1.00),
+        (0.86, 0.09, 0.70), (0.94, 0.26, 0.66),
+        (0.57, 0.37, 0.52), (0.71, 0.33, 0.79),
+        (0.83, 0.39, 0.55), (0.96, 0.47, 0.85),
+        (0.64, 0.53, 0.74), (0.76, 0.60, 0.56),
+        (0.89, 0.66, 0.88), (0.53, 0.72, 0.48),
+        (0.69, 0.82, 0.75), (0.82, 0.89, 0.52)
+    ]
+
+    var body: some View {
+        Canvas { context, size in
+            let lantern = Color(hex: "F0D89A")
+            let moonlitBlue = Color(hex: "BBD0D0")
+            for (index, spark) in sparks.enumerated() {
+                let center = CGPoint(x: size.width * spark.0, y: size.height * spark.1)
+                let strength = Double(spark.2)
+                let radius: CGFloat = index.isMultiple(of: 4) ? 1.5 : 0.85
+                let glow = Path(ellipseIn: CGRect(
+                    x: center.x - radius * 7, y: center.y - radius * 7,
+                    width: radius * 14, height: radius * 14
+                ))
+                context.fill(glow, with: .color(lantern.opacity(0.045 * strength)))
+                let point = Path(ellipseIn: CGRect(
+                    x: center.x - radius, y: center.y - radius,
+                    width: radius * 2, height: radius * 2
+                ))
+                let ink = index.isMultiple(of: 3) ? lantern : moonlitBlue
+                context.fill(point, with: .color(ink.opacity(0.54 * strength)))
+                if index.isMultiple(of: 4) {
+                    let arm = 5 * spark.2
+                    var glimmer = Path()
+                    glimmer.move(to: CGPoint(x: center.x - arm, y: center.y))
+                    glimmer.addLine(to: CGPoint(x: center.x + arm, y: center.y))
+                    glimmer.move(to: CGPoint(x: center.x, y: center.y - arm))
+                    glimmer.addLine(to: CGPoint(x: center.x, y: center.y + arm))
+                    context.stroke(glimmer, with: .color(lantern.opacity(0.36)),
+                                   style: StrokeStyle(lineWidth: 0.6, lineCap: .round))
+                }
+            }
+        }
+        .accessibilityHidden(true)
+        .allowsHitTesting(false)
     }
 }
