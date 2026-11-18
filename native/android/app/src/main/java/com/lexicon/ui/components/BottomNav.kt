@@ -100,7 +100,7 @@ fun BottomNav(
             .clip(RoundedCornerShape(50))
             .background(barBg)
             .border(1.dp, barBorder, RoundedCornerShape(50))
-            .padding(horizontal = 10.dp, vertical = 4.dp),
+            .padding(horizontal = 9.dp, vertical = 7.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
@@ -132,7 +132,7 @@ fun BottomNav(
 
             // Reserve a symmetric slot: the actual search circle floats above
             // the capsule and must NOT be clipped by its rounded background.
-            Box(Modifier.weight(1f).height(52.dp))
+            Box(Modifier.weight(1f).height(54.dp))
 
             BottomNavItem(
                 label = "Collections",
@@ -166,8 +166,8 @@ fun BottomNav(
         Box(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .offset(y = (-4).dp)
-                .size(50.dp)
+                .offset(y = (-7).dp)
+                .size(54.dp)
                 .then(
                     if (!isDark) Modifier.shadow(
                         elevation = 6.dp,
@@ -191,7 +191,7 @@ fun BottomNav(
                 imageVector = Icons.Outlined.Search,
                 contentDescription = null,
                 tint = if (isDark) DarkHighlight else PrimaryForeground,
-                modifier = Modifier.size(23.dp),
+                modifier = Modifier.size(24.dp),
             )
         }
     }
@@ -213,7 +213,7 @@ private fun BottomNavItem(
         modifier = modifier
             .semantics { selected = isActive }
             .clickable(role = Role.Tab) { onClick() }
-            .padding(horizontal = 6.dp, vertical = 2.dp),
+            .padding(horizontal = 4.dp, vertical = 3.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
@@ -221,12 +221,13 @@ private fun BottomNavItem(
             imageVector = if (isActive) filledIcon else outlinedIcon,
             contentDescription = null,
             tint = if (isActive) activeColor else inactiveColor,
-            modifier = Modifier.size(18.dp),
+            modifier = Modifier.size(19.dp),
         )
         Text(
             text = label,
             color = if (isActive) activeColor else inactiveColor,
             style = LexiconTextStyles.NavLabel,
+            maxLines = 1,
         )
         Box(
             modifier = Modifier
