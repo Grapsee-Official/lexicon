@@ -56,7 +56,7 @@ struct LexiconHeader: View {
                     vm.setActiveTab(.home)
                 } label: {
                     VStack(alignment: .leading, spacing: 1) {
-                        Text("Lexicon")
+                        Text("Lexora")
                             .font(.lexiconDisplay(21, weight: .regular))
                             .tracking(-0.2)
                             .foregroundStyle(wordmarkColor)
@@ -101,7 +101,7 @@ struct LexiconHeader: View {
         }
         .frame(height: 44)
         .padding(.horizontal, 16)
-        .alert("A letter from Lexicon", isPresented: $showDailyLetter) {
+        .alert("A letter from Lexora", isPresented: $showDailyLetter) {
             Button("Explore the word") {
                 vm.navigate(to: .wordOfTheDay, word: LexiconData.featuredWord())
             }
