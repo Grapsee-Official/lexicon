@@ -856,9 +856,15 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                     modifier = Modifier.padding(horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(7.dp),
                 ) {
-                    state.studyLists
-                        .filter { query.isBlank() || it.title.contains(query, ignoreCase = true) }
-                        .forEach { sl ->
+                    val visibleStudyLists = state.studyLists.filter {
+                        query.isBlank() || it.title.contains(query, ignoreCase = true)
+                    }
+                    if (visibleStudyLists.isEmpty()) {
+                        Text("No study lists match your search.", color = muted,
+                            style = TextStyle(fontFamily = BodyFontFamily, fontSize = 13.sp),
+                            modifier = Modifier.padding(12.dp))
+                    }
+                    visibleStudyLists.forEach { sl ->
                             val thumbRes = resolveCountrysideDrawable(sl.thumbnail, isDark)
                             Row(
                                 modifier = Modifier
@@ -1067,6 +1073,11 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                     modifier = Modifier.padding(horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
+                    if (filtered.isEmpty()) {
+                        Text("No templates match your search or category.", color = muted,
+                            style = TextStyle(fontFamily = BodyFontFamily, fontSize = 13.sp),
+                            modifier = Modifier.padding(12.dp))
+                    }
                     (if (showAllTemplates) filtered else filtered.take(4))
                         .chunked(if (androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 390) 1 else 2)
                         .forEach { rowItems ->

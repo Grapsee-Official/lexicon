@@ -274,6 +274,12 @@ struct MyNotesScreen: View {
                         onAction: { selectedCat = "All"; query = ""; showAllNotes.toggle() }
                     )
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 165), spacing: 8)], spacing: 8) {
+                        if filtered.isEmpty {
+                            Text("No notes match your search. Choose a Quick Template to start.")
+                                .font(.lexiconBody(13))
+                                .foregroundStyle(p.mutedForeground)
+                                .padding(12)
+                        }
                         ForEach(showAllNotes ? filtered : Array(filtered.prefix(4))) { note in
                             ZStack(alignment: .bottomTrailing) {
                                 Image(countrysideImageName(note.illustration ?? "ill-note-flowers", isDark: isDark))
@@ -556,6 +562,12 @@ struct StudyListsScreen: View {
                         onAction: { query = "" }
                     )
                     VStack(spacing: 7) {
+                        if !query.isEmpty && !vm.studyLists.contains(where: { $0.title.localizedCaseInsensitiveContains(query) }) {
+                            Text("No study lists match your search.")
+                                .font(.lexiconBody(13))
+                                .foregroundStyle(p.mutedForeground)
+                                .padding(12)
+                        }
                         ForEach(vm.studyLists.filter { query.isEmpty || $0.title.localizedCaseInsensitiveContains(query) }) { sl in
                             HStack(spacing: 10) {
                                 Image(countrysideImageName(sl.thumbnail, isDark: isDark))
@@ -776,7 +788,13 @@ struct QuickTemplatesScreen: View {
                         actionLabel: showAllTemplates ? "Show less" : "View all",
                         onAction: { filter = "All"; query = ""; showAllTemplates.toggle() }
                     )
-                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 165), spacing: 8)], spacing: 8) {
+                        if filtered.isEmpty {
+                            Text("No templates match your search or category.")
+                                .font(.lexiconBody(13))
+                                .foregroundStyle(p.mutedForeground)
+                                .padding(12)
+                        }
                         ForEach(showAllTemplates ? filtered : Array(filtered.prefix(4))) { tpl in
                             VStack(spacing: 0) {
                                 ZStack(alignment: .topTrailing) {
@@ -1006,6 +1024,13 @@ struct SearchDiscoveryScreen: View {
                             onAction: { vm.submitSearch(trimmed) }
                         )
                         VStack(spacing: 0) {
+                            if matches.isEmpty {
+                                Text("No offline match for “\(trimmed)” with current filters.")
+                                    .font(.lexiconBody(13))
+                                    .foregroundStyle(p.mutedForeground)
+                                    .padding(16)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
                             ForEach(Array(matches.enumerated()), id: \.element.id) { idx, w in
                                 if idx > 0 { Rectangle().fill(p.border).frame(height: 1) }
                                 Button { vm.submitSearch(w.word) } label: {
