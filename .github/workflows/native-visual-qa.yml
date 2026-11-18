@@ -51,6 +51,10 @@ jobs:
           chmod +x gradlew
           ./gradlew testDebugUnitTest assembleDebug --no-daemon --stacktrace
           test -s app/build/outputs/apk/debug/app-debug.apk
+      - name: Allow KVM acceleration on GitHub-hosted Linux
+        run: |
+          if [ -e /dev/kvm ]; then sudo chmod 666 /dev/kvm; fi
+          ls -l /dev/kvm || true
       - name: Capture actual Android emulator screens
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -60,6 +64,7 @@ jobs:
           target: google_apis
           emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
           disable-animations: true
+          disable-linux-hw-accel: false
           script: |
             set -eu
             mkdir -p qa-captures/android
@@ -124,16 +129,32 @@ jobs:
           xcrun simctl bootstatus "$DEVICE" -b
           xcrun simctl status_bar "$DEVICE" override --time '9:41' --dataNetwork wifi --wifiMode active --wifiBars 3 --batteryState charged --batteryLevel 100
           xcrun simctl install "$DEVICE" "$APP"
+          # Warm up the newly booted Simulator and SwiftUI runtime first.
+          xcrun simctl launch "$DEVICE" com.lexicon.app -lexoraTheme light -lexiconScreen home
+          sleep 12
           for mode in light dark; do
             for screen in home dictionary_home word_of_the_day word_detail collections my_notes study_lists quick_templates search_discovery search_results expanded_exploration; do
               xcrun simctl terminate "$DEVICE" com.lexicon.app || true
               xcrun simctl launch "$DEVICE" com.lexicon.app -lexoraTheme "$mode" -lexiconScreen "$screen"
-              sleep 2
+              sleep 6
               xcrun simctl io "$DEVICE" screenshot "qa-captures/ios/${mode}-${screen}.png"
               test "$(wc -c < "qa-captures/ios/${mode}-${screen}.png")" -gt 20000
             done
           done
           find qa-captures/ios -type f -name '*.png' | sort
+      - name: Preserve native iOS crash reports for failed captures
+        if: always()
+        run: |
+          mkdir -p qa-captures/ios-diagnostics
+          find "$HOME/Library/Logs/DiagnosticReports" -maxdepth 1 -type f \( -iname '*Lexicon*.ips' -o -iname '*Lexicon*.crash' \) -exec cp {} qa-captures/ios-diagnostics/ \; || true
+          find qa-captures/ios-diagnostics -type f || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lexicon-ios-crash-diagnostics
+          path: qa-captures/ios-diagnostics/*
+          if-no-files-found: ignore
+          retention-days: 7
       - uses: actions/upload-artifact@v4
         if: always()
         with:
