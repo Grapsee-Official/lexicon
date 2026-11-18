@@ -1,724 +1,208 @@
 package com.lexicon.ui.screens
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowForward
-import androidx.compose.material.icons.automirrored.outlined.VolumeUp
-import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.outlined.BookmarkBorder
-import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.History
-import androidx.compose.material.icons.outlined.Shuffle
+import androidx.compose.material.icons.automirrored.outlined.MenuBook
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.lexicon.data.LexiconData
-import com.lexicon.data.LexiconViewModel
-import com.lexicon.data.ScreenRoute
-import com.lexicon.ui.components.BotanicalSectionTitle
-import com.lexicon.ui.components.CountrysideHeroHeader
-import com.lexicon.ui.components.CountrysideSearchPill
-import com.lexicon.ui.components.LeafSprig
-import com.lexicon.ui.components.resolveCountrysideDrawable
-import com.lexicon.ui.theme.BodyFontFamily
-import com.lexicon.ui.theme.BrandGreen
-import com.lexicon.ui.theme.CardSurface
-import com.lexicon.ui.theme.DarkAccent
-import com.lexicon.ui.theme.DarkBackground
-import com.lexicon.ui.theme.DarkCard
-import com.lexicon.ui.theme.DarkChipBorder
-import com.lexicon.ui.theme.DarkForeground
-import com.lexicon.ui.theme.DarkMutedForeground
-import com.lexicon.ui.theme.DeepForest
-import com.lexicon.ui.theme.DisplayFontFamily
-import com.lexicon.ui.theme.LongFontFamily
-import com.lexicon.ui.theme.OldWoodGold
-import com.lexicon.ui.theme.WarmCream
-import com.lexicon.ui.theme.WarmGrey
+import com.lexicon.data.*
+import com.lexicon.ui.components.*
+import com.lexicon.ui.theme.*
 
-/**
- * Page 1: Dictionary Home — Main dictionary dashboard:
- *   - Hero: Botanical sprig + "Dictionary / Every word has a world." + antique books & quill
- *   - Search Pill: [Search for a word... | Camera | Mic]
- *   - Word of the Day ("Solitude") split watercolour meadow cottage card
- *   - Explore Words: 6 botanical miniature cards (Categories, Languages, Phrases, Idioms, Examples, Etymology)
- *   - World of Words: Rudyard Kipling teacup-on-antique-book card
- *   - Recently Viewed (left) & Popular Words (right) side-by-side cards
- *   - Random Word + green Shuffle button + Word Builder ('A' tile) interactive banner
- */
+/** Dictionary Home from the supplied Cotswolds watercolor reference. */
 @Composable
 fun DictionaryHomeScreen(viewModel: LexiconViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val isDark = state.isDark
-    val bg = if (isDark) DarkBackground else WarmCream
-    val cardBg = if (isDark) DarkCard else CardSurface
-    val border = if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.11f)
-    val fg = if (isDark) DarkForeground else DeepForest
-    val muted = if (isDark) DarkMutedForeground else WarmGrey
-    val accent = if (isDark) DarkAccent else OldWoodGold
+    val dark = state.isDark
+    val bg = if (dark) DarkBackground else WarmCream
+    val card = if (dark) DarkCard else CardSurface
+    val border = if (dark) DarkChipBorder else DeepForest.copy(alpha = 0.11f)
+    val fg = if (dark) DarkForeground else DeepForest
+    val muted = if (dark) DarkMutedForeground else WarmGrey
+    val highlight = if (dark) DarkAccent else BrandGreen
+    var draft by remember { mutableStateOf("") }
 
-    var draftQuery by remember { mutableStateOf("") }
-    val solitude = LexiconData.solitudeEntry
-    val solitudeSaved = state.savedWordIds.contains(solitude.id)
-
-    val popularIds = listOf("serendipity", "limerence", "ephemeral", "mellifluous", "quixotic")
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(bg),
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().background(bg),
+        contentPadding = PaddingValues(bottom = 106.dp),
+        verticalArrangement = Arrangement.spacedBy(13.dp),
     ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 96.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            item(key = "hero") {
-                CountrysideHeroHeader(
-                    title = "Dictionary",
-                    subtitle = "Every word has a world.",
-                    illustrationBase = "ill_hero_books",
-                    isDark = isDark,
-                    onHistoryClick = { viewModel.navigate(ScreenRoute.EXPANDED_EXPLORATION) },
-                    onLogoToggleTheme = { viewModel.toggleTheme() },
-                    heroHeight = 136.dp,
-                )
-            }
-
-            item(key = "search") {
-                CountrysideSearchPill(
-                    value = draftQuery,
-                    onValueChange = { draftQuery = it },
-                    placeholder = "Search for a word...",
-                    isDark = isDark,
-                    showCameraMic = true,
-                    onSubmit = {
-                        if (draftQuery.isNotBlank()) viewModel.submitSearch(draftQuery)
-                        else viewModel.navigate(ScreenRoute.SEARCH_DISCOVERY)
+        item {
+            CountrysideHeroHeader(
+                title = "Dictionary", subtitle = "Look up any word, anytime.",
+                illustrationBase = "ill_hero_cottage", isDark = dark,
+                onHistoryClick = { viewModel.navigate(ScreenRoute.SEARCH_DISCOVERY) },
+                onLogoToggleTheme = { viewModel.toggleTheme() }, heroHeight = 148.dp,
+            )
+        }
+        item {
+            CountrysideSearchPill(
+                value = draft, onValueChange = { draft = it },
+                placeholder = "Search for a word...", isDark = dark,
+                showFilter = true,
+                onFilterClick = { viewModel.navigate(ScreenRoute.SEARCH_DISCOVERY) },
+                onSubmit = {
+                    if (draft.isBlank()) viewModel.navigate(ScreenRoute.SEARCH_DISCOVERY)
+                    else viewModel.submitSearch(draft)
+                }, modifier = Modifier.padding(horizontal = 16.dp),
+            )
+        }
+        item {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                BotanicalSectionTitle(
+                    title = "Popular Searches", isDark = dark,
+                    actionLabel = if (state.popularSearches.isEmpty()) "Restore" else "Clear All",
+                    isClearAction = state.popularSearches.isNotEmpty(),
+                    onAction = {
+                        if (state.popularSearches.isEmpty()) viewModel.restorePopularSearches()
+                        else viewModel.clearPopularSearches()
                     },
                     modifier = Modifier.padding(horizontal = 16.dp),
                 )
-            }
-
-            // Word of the Day ("Solitude") panoramic meadow cottage card
-            item(key = "wotd_solitude") {
-                val shape = RoundedCornerShape(18.dp)
-                val wotdRes = resolveCountrysideDrawable("ill_wotd_solitude", isDark)
-                Box(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .fillMaxWidth()
-                        .height(152.dp)
-                        .clip(shape)
-                        .background(cardBg)
-                        .border(1.dp, border, shape)
-                        .clickable(role = Role.Button) {
-                            viewModel.navigate(ScreenRoute.WORD_OF_THE_DAY, word = solitude)
-                        },
-                ) {
-                    Image(
-                        painter = painterResource(wotdRes),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        alignment = Alignment.CenterEnd,
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .fillMaxHeight()
-                            .fillMaxWidth(0.62f),
-                    )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(
-                                Brush.horizontalGradient(
-                                    0.0f to cardBg,
-                                    0.42f to cardBg.copy(alpha = 0.95f),
-                                    0.68f to Color.Transparent,
-                                )
-                            ),
-                    )
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .fillMaxWidth(0.52f)
-                            .padding(start = 15.dp, top = 12.dp, bottom = 12.dp),
-                        verticalArrangement = Arrangement.SpaceBetween,
-                    ) {
-                        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            ) {
-                                Text(
-                                    text = "WORD OF THE DAY",
-                                    color = accent,
-                                    style = TextStyle(
-                                        fontFamily = BodyFontFamily,
-                                        fontWeight = FontWeight.Medium,
-                                        fontSize = 8.5.sp,
-                                        letterSpacing = 0.7.sp,
-                                    ),
-                                )
-                                LeafSprig(color = accent, modifier = Modifier.size(12.dp))
-                            }
-
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(5.dp),
-                            ) {
-                                Text(
-                                    text = solitude.word,
-                                    color = fg,
-                                    style = TextStyle(
-                                        fontFamily = DisplayFontFamily,
-                                        fontSize = 23.sp,
-                                        lineHeight = 26.sp,
-                                    ),
-                                )
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Outlined.VolumeUp,
-                                    contentDescription = null,
-                                    tint = muted,
-                                    modifier = Modifier.size(15.dp),
-                                )
-                            }
-
-                            Text(
-                                text = solitude.phonetic,
-                                color = muted,
-                                style = TextStyle(fontFamily = BodyFontFamily, fontSize = 10.5.sp),
-                            )
-                            Text(
-                                text = solitude.partOfSpeech.label(),
-                                color = fg.copy(alpha = 0.85f),
-                                style = TextStyle(fontFamily = BodyFontFamily, fontWeight = FontWeight.Medium, fontSize = 10.5.sp),
-                            )
-                            Text(
-                                text = solitude.definitions.first(),
-                                color = fg.copy(alpha = 0.84f),
-                                style = TextStyle(fontFamily = BodyFontFamily, fontSize = 10.5.sp, lineHeight = 14.sp),
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                            )
-                        }
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            Text(
-                                text = "View details",
-                                color = if (isDark) DarkAccent else BrandGreen,
-                                style = TextStyle(fontFamily = BodyFontFamily, fontWeight = FontWeight.Medium, fontSize = 10.5.sp),
-                            )
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
-                                contentDescription = null,
-                                tint = if (isDark) DarkAccent else BrandGreen,
-                                modifier = Modifier.size(12.dp),
-                            )
-                        }
-                    }
-
-                    Icon(
-                        imageVector = if (solitudeSaved) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
-                        contentDescription = "Save Solitude",
-                        tint = if (solitudeSaved) accent else fg.copy(alpha = 0.7f),
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(11.dp)
-                            .size(20.dp)
-                            .clickable(role = Role.Button) { viewModel.toggleSave(solitude.id) },
-                    )
-                }
-            }
-
-            // Explore Words (6 botanical miniature cards)
-            item(key = "explore_words") {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    BotanicalSectionTitle(
-                        title = "Explore Words",
-                        isDark = isDark,
-                        sprigAfterTitle = true,
-                        actionLabel = "View all",
-                        onAction = { viewModel.navigate(ScreenRoute.EXPANDED_EXPLORATION) },
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                    )
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .horizontalScroll(rememberScrollState())
-                            .padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        LexiconData.exploreTopics.forEach { topic ->
-                            val iconRes = resolveCountrysideDrawable(topic.illustration, isDark)
-                            Column(
-                                modifier = Modifier
-                                    .width(116.dp)
-                                    .clip(RoundedCornerShape(11.dp))
-                                    .background(cardBg)
-                                    .border(1.dp, border, RoundedCornerShape(11.dp))
-                                    .clickable(role = Role.Button) {
-                                        when (topic.id) {
-                                            "languages" -> viewModel.openWordExpanded(LexiconData.serendipityEntry)
-                                            "phrases", "idioms" -> {
-                                                viewModel.setSearchScopeTab("Idioms")
-                                                viewModel.navigate(ScreenRoute.SEARCH_DISCOVERY)
-                                            }
-                                            "examples" -> viewModel.navigate(ScreenRoute.WORD_OF_THE_DAY)
-                                            else -> viewModel.navigate(ScreenRoute.EXPANDED_EXPLORATION)
-                                        }
-                                    }
-                                    .padding(horizontal = 3.dp, vertical = 6.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(2.dp),
-                            ) {
-                                Image(
-                                    painter = painterResource(iconRes),
-                                    contentDescription = null,
-                                    contentScale = ContentScale.Fit,
-                                    modifier = Modifier.size(44.dp),
-                                )
-                                Text(
-                                    text = topic.title,
-                                    color = fg,
-                                    style = TextStyle(fontFamily = DisplayFontFamily, fontWeight = FontWeight.Medium, fontSize = 12.sp),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
-                                Text(
-                                    text = topic.subtitle,
-                                    color = muted,
-                                    style = TextStyle(fontFamily = BodyFontFamily, fontSize = 10.sp, lineHeight = 13.sp),
-                                    textAlign = TextAlign.Center,
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            // World of Words — Rudyard Kipling teacup card
-            item(key = "world_of_words") {
-                Column(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    BotanicalSectionTitle(
-                        title = "World of Words",
-                        isDark = isDark,
-                        sprigAfterTitle = true,
-                        actionLabel = null,
-                    )
-                    val shape = RoundedCornerShape(16.dp)
-                    val cupRes = resolveCountrysideDrawable("ill_teacup_books", isDark)
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(114.dp)
-                            .clip(shape)
-                            .background(cardBg)
-                            .border(1.dp, border, shape)
-                            .clickable(role = Role.Button) { viewModel.navigate(ScreenRoute.MY_NOTES) },
-                    ) {
-                        Image(
-                            painter = painterResource(cupRes),
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            alignment = Alignment.CenterEnd,
-                            modifier = Modifier
-                                .align(Alignment.CenterEnd)
-                                .fillMaxHeight()
-                                .fillMaxWidth(0.52f),
-                        )
-                        Column(
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .fillMaxWidth(0.56f)
-                                .padding(horizontal = 14.dp, vertical = 11.dp),
-                            verticalArrangement = Arrangement.SpaceBetween,
-                        ) {
-                            Text(
-                                text = "“Words are the most powerful drug used by mankind.”",
-                                color = fg,
-                                style = TextStyle(
-                                    fontFamily = DisplayFontFamily,
-                                    fontSize = 12.5.sp,
-                                    lineHeight = 16.sp,
-                                ),
-                                maxLines = 3,
-                            )
-                            Text(
-                                text = "– Rudyard Kipling",
-                                color = muted,
-                                style = TextStyle(fontFamily = BodyFontFamily, fontSize = 9.5.sp),
-                            )
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            ) {
-                                Text(
-                                    text = "Explore quotes",
-                                    color = if (isDark) DarkAccent else BrandGreen,
-                                    style = TextStyle(fontFamily = BodyFontFamily, fontWeight = FontWeight.Medium, fontSize = 10.sp),
-                                )
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
-                                    contentDescription = null,
-                                    tint = if (isDark) DarkAccent else BrandGreen,
-                                    modifier = Modifier.size(11.dp),
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Dual Columns: Recently Viewed & Popular Words
-            item(key = "dual_lists") {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
                         .padding(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    // Left: Recently Viewed
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                text = "Recently Viewed",
-                                color = fg,
-                                style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 13.5.sp),
-                            )
-                            Text(
-                                text = "View all →",
-                                color = muted,
-                                style = TextStyle(fontFamily = BodyFontFamily, fontSize = 9.sp),
-                                modifier = Modifier.clickable { viewModel.navigate(ScreenRoute.EXPANDED_EXPLORATION) },
-                            )
-                        }
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(13.dp))
-                                .background(cardBg)
-                                .border(1.dp, border, RoundedCornerShape(13.dp)),
-                        ) {
-                            state.recentlyViewedIds.take(5).forEachIndexed { idx, id ->
-                                val w = LexiconData.getWordById(id) ?: return@forEachIndexed
-                                if (idx > 0) {
-                                    Box(Modifier.fillMaxWidth().height(1.dp).background(border))
-                                }
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable { viewModel.openWord(w) }
-                                        .padding(horizontal = 8.dp, vertical = 7.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(5.dp),
-                                ) {
-                                    LeafSprig(color = accent, modifier = Modifier.size(11.dp))
-                                    Text(
-                                        text = w.word,
-                                        color = fg,
-                                        style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 11.sp),
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                        modifier = Modifier.weight(1f),
-                                    )
-                                    Text(
-                                        text = w.partOfSpeech.label(),
-                                        color = muted,
-                                        style = TextStyle(fontFamily = BodyFontFamily, fontSize = 8.sp),
-                                    )
-                                    Icon(Icons.Outlined.History, contentDescription = null, tint = muted, modifier = Modifier.size(11.dp))
-                                }
-                            }
-                        }
+                    if (state.popularSearches.isEmpty()) {
+                        Text("Restore suggestions or search above.", color = muted)
                     }
-
-                    // Right: Popular Words
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
+                    state.popularSearches.forEach { word ->
+                        Box(
+                            Modifier.clip(RoundedCornerShape(28.dp)).background(card)
+                                .border(1.dp, border, RoundedCornerShape(28.dp))
+                                .clickable(role = Role.Button) { viewModel.submitSearch(word) }
+                                .padding(horizontal = 13.dp, vertical = 9.dp),
                         ) {
-                            Text(
-                                text = "Popular Words",
-                                color = fg,
-                                style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 13.5.sp),
-                            )
-                            Text(
-                                text = "View all →",
-                                color = muted,
-                                style = TextStyle(fontFamily = BodyFontFamily, fontSize = 9.sp),
-                                modifier = Modifier.clickable { viewModel.navigate(ScreenRoute.SEARCH_DISCOVERY) },
-                            )
+                            Text(word, color = fg,
+                                style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 12.5.sp))
                         }
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(13.dp))
-                                .background(cardBg)
-                                .border(1.dp, border, RoundedCornerShape(13.dp)),
-                        ) {
-                            popularIds.forEachIndexed { idx, id ->
-                                val w = LexiconData.getWordById(id) ?: return@forEachIndexed
-                                val saved = state.savedWordIds.contains(w.id)
-                                if (idx > 0) {
-                                    Box(Modifier.fillMaxWidth().height(1.dp).background(border))
-                                }
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable { viewModel.openWord(w) }
-                                        .padding(horizontal = 8.dp, vertical = 7.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(5.dp),
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(14.dp)
-                                            .clip(CircleShape)
-                                            .background(accent.copy(alpha = 0.22f)),
-                                        contentAlignment = Alignment.Center,
-                                    ) {
-                                        Text(
-                                            text = "${idx + 1}",
-                                            color = fg,
-                                            style = TextStyle(fontFamily = BodyFontFamily, fontWeight = FontWeight.Medium, fontSize = 8.sp),
-                                        )
-                                    }
-                                    Text(
-                                        text = w.word,
-                                        color = fg,
-                                        style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 11.sp),
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                        modifier = Modifier.weight(1f),
-                                    )
-                                    Icon(
-                                        imageVector = if (saved) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
-                                        contentDescription = null,
-                                        tint = if (saved) accent else muted,
-                                        modifier = Modifier
-                                            .size(12.dp)
-                                            .clickable { viewModel.toggleSave(w.id) },
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Bottom Banner: Random Word + Shuffle Circle + Word Builder ('A' tile)
-            item(key = "random_and_builder") {
-                val vaseRes = resolveCountrysideDrawable("ill_random_vase", isDark)
-                val tileRes = resolveCountrysideDrawable("ill_builder_tile", isDark)
-                val shape = RoundedCornerShape(16.dp)
-                Row(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .fillMaxWidth()
-                        .clip(shape)
-                        .background(cardBg)
-                        .border(1.dp, border, shape)
-                        .padding(horizontal = 10.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable(role = Role.Button) { viewModel.discoverRandomWord() },
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        Image(
-                            painter = painterResource(vaseRes),
-                            contentDescription = null,
-                            modifier = Modifier.size(40.dp),
-                        )
-                        Column {
-                            Text(
-                                text = "Random Word",
-                                color = fg,
-                                style = TextStyle(fontFamily = DisplayFontFamily, fontWeight = FontWeight.Medium, fontSize = 11.5.sp),
-                            )
-                            Text(
-                                text = "Discover a random word and expand your vocabulary.",
-                                color = muted,
-                                style = TextStyle(fontFamily = BodyFontFamily, fontSize = 8.sp, lineHeight = 10.5.sp),
-                                maxLines = 2,
-                            )
-                        }
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .size(38.dp)
-                            .clip(CircleShape)
-                            .background(if (isDark) DarkAccent else BrandGreen)
-                            .clickable(role = Role.Button) { viewModel.discoverRandomWord() },
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Shuffle,
-                            contentDescription = "Random discovery",
-                            tint = if (isDark) DarkBackground else Color.White,
-                            modifier = Modifier.size(18.dp),
-                        )
-                    }
-
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable(role = Role.Button) { viewModel.toggleWordBuilder(true) },
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "Word Builder",
-                                color = fg,
-                                style = TextStyle(fontFamily = DisplayFontFamily, fontWeight = FontWeight.Medium, fontSize = 11.5.sp),
-                            )
-                            Text(
-                                text = "Learn words through roots, prefixes and suffixes.",
-                                color = muted,
-                                style = TextStyle(fontFamily = BodyFontFamily, fontSize = 8.sp, lineHeight = 10.5.sp),
-                                maxLines = 2,
-                            )
-                        }
-                        Image(
-                            painter = painterResource(tileRes),
-                            contentDescription = null,
-                            modifier = Modifier.size(38.dp),
-                        )
                     }
                 }
             }
         }
-
-        // Interactive Word Builder Overlay (roots, prefixes, suffixes)
-        if (state.wordBuilderOpen) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.45f))
-                    .clickable { viewModel.toggleWordBuilder(false) },
-                contentAlignment = Alignment.Center,
-            ) {
+        item {
+            CountrysideQuoteBanner(
+                quote = "Words are doors to new worlds.", attribution = "Lexicon",
+                illustrationBase = "ill_books_daisies", isDark = dark,
+                modifier = Modifier.padding(horizontal = 16.dp),
+            )
+        }
+        item {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                BotanicalSectionTitle(
+                    title = "Recently Searched", isDark = dark,
+                    actionLabel = "View all",
+                    onAction = { viewModel.navigate(ScreenRoute.SEARCH_DISCOVERY) },
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                )
                 Column(
-                    modifier = Modifier
-                        .padding(24.dp)
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(cardBg)
-                        .border(1.dp, border, RoundedCornerShape(20.dp))
-                        .clickable(enabled = false) { }
-                        .padding(18.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                        .clip(RoundedCornerShape(17.dp)).background(card)
+                        .border(1.dp, border, RoundedCornerShape(17.dp)),
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = "Word Builder · Classical Roots",
-                            color = fg,
-                            style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 18.sp),
-                        )
-                        Icon(
-                            imageVector = Icons.Outlined.Close,
-                            contentDescription = "Close Word Builder",
-                            tint = muted,
-                            modifier = Modifier
-                                .size(20.dp)
-                                .clickable { viewModel.toggleWordBuilder(false) },
-                        )
+                    if (state.recentSearches.isEmpty()) {
+                        Text("Search for a word to begin your journey.", color = muted,
+                            modifier = Modifier.padding(16.dp))
                     }
-                    LexiconData.morphemeRoots.forEach { mr ->
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(bg.copy(alpha = 0.65f))
-                                .border(1.dp, border, RoundedCornerShape(12.dp))
-                                .padding(10.dp),
-                            verticalArrangement = Arrangement.spacedBy(3.dp),
+                    state.recentSearches.take(3).forEachIndexed { index, word ->
+                        if (index > 0) Box(Modifier.fillMaxWidth().height(1.dp).background(border))
+                        val entry = LexiconData.getWordById(word)
+                        Row(
+                            Modifier.fillMaxWidth()
+                                .clickable(role = Role.Button) { viewModel.submitSearch(word) }
+                                .padding(horizontal = 14.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
-                            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                Text(mr.root, color = if (isDark) DarkAccent else BrandGreen, style = TextStyle(fontFamily = DisplayFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 13.sp))
-                                Text("(${mr.origin} — “${mr.meaning}”)", color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontStyle = FontStyle.Italic, fontSize = 11.sp))
+                            Icon(Icons.Outlined.History, contentDescription = null,
+                                tint = highlight, modifier = Modifier.size(20.dp))
+                            Column(Modifier.weight(1f)) {
+                                Text(word, color = fg,
+                                    style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 16.sp),
+                                    maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                Text(
+                                    entry?.let { it.partOfSpeech.label() + " · " + it.phonetic }
+                                        ?: "Search again for details",
+                                    color = muted, maxLines = 1,
+                                    style = TextStyle(fontFamily = BodyFontFamily,
+                                        fontSize = 10.5.sp, fontStyle = FontStyle.Italic),
+                                )
                             }
-                            Text(
-                                text = mr.derivatives.joinToString(" · "),
-                                color = fg,
-                                style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.5.sp),
-                            )
+                            Icon(Icons.Outlined.ChevronRight, contentDescription = null,
+                                tint = fg, modifier = Modifier.size(18.dp))
                         }
                     }
                 }
             }
+        }
+        item {
+            Column(
+                Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                    .clip(RoundedCornerShape(18.dp)).background(card)
+                    .border(1.dp, border, RoundedCornerShape(18.dp)).padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Text("✧  Quick Access", color = fg,
+                    style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 17.sp))
+                Text("Jump to useful tools and features.", color = muted,
+                    style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.sp))
+                Row(
+                    Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    listOf(
+                        Triple("Word of the Day", Icons.AutoMirrored.Outlined.MenuBook, ScreenRoute.WORD_OF_THE_DAY),
+                        Triple("Favourite Words", Icons.Outlined.StarOutline, ScreenRoute.COLLECTIONS),
+                        Triple("Bookmarks", Icons.Outlined.BookmarkBorder, ScreenRoute.COLLECTIONS),
+                        Triple("History", Icons.Outlined.History, ScreenRoute.SEARCH_DISCOVERY),
+                    ).forEach { (title, icon, route) ->
+                        Column(
+                            Modifier.width(96.dp).height(88.dp)
+                                .clip(RoundedCornerShape(14.dp)).background(bg.copy(alpha = 0.55f))
+                                .border(1.dp, border, RoundedCornerShape(14.dp))
+                                .clickable(role = Role.Button) { viewModel.navigate(route) }
+                                .padding(8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            Icon(icon, contentDescription = null, tint = highlight,
+                                modifier = Modifier.size(23.dp))
+                            Spacer(Modifier.height(6.dp))
+                            Text(title, color = fg, maxLines = 2,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                style = TextStyle(fontFamily = BodyFontFamily,
+                                    fontSize = 10.sp, lineHeight = 12.sp))
+                        }
+                    }
+                }
+            }
+        }
+        item {
+            Image(
+                painter = painterResource(resolveCountrysideDrawable("ill_banner_bridge", dark)),
+                contentDescription = null, contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                    .height(76.dp).clip(RoundedCornerShape(15.dp)),
+            )
         }
     }
 }
