@@ -34,6 +34,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lexicon.R
 import com.lexicon.data.LexiconViewModel
@@ -64,7 +65,7 @@ fun WordOfTheDayCard(
     val config = LocalConfiguration.current
     val compact = config.screenWidthDp < 360
     val accessible = config.fontScale > 1.2f
-    val cardHeight = if (accessible) 182.dp else if (compact) 150.dp else 132.dp
+    val cardHeight = if (accessible) 186.dp else if (compact) 144.dp else 126.dp
 
     val leftBg = if (isDark) DarkWotdLeft else BrandGreen
     val rightBg = if (isDark) DarkWotdRight else WotdRightSurface
@@ -100,10 +101,10 @@ fun WordOfTheDayCard(
     ) {
         Column(
             modifier = Modifier
-                .weight(0.43f)
+                .weight(0.39f)
                 .fillMaxHeight()
                 .background(leftBg)
-                .padding(horizontal = 12.dp, vertical = 12.dp),
+                .padding(horizontal = 12.dp, vertical = 14.dp),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Row(
@@ -131,8 +132,8 @@ fun WordOfTheDayCard(
                 Text(
                     text = word.word,
                     color = wordColor,
-                    style = LexiconTextStyles.WotdWord,
-                    maxLines = if (accessible) 2 else 1,
+                    style = LexiconTextStyles.WotdWord.copy(fontSize = if (config.screenWidthDp < 420) 16.sp else 19.sp),
+                    maxLines = if (accessible || compact) 2 else 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                         .weight(1f, fill = false)
@@ -181,7 +182,7 @@ fun WordOfTheDayCard(
 
         Box(
             modifier = Modifier
-                .weight(0.57f)
+                .weight(0.61f)
                 .fillMaxHeight()
                 .background(rightBg),
         ) {
@@ -191,21 +192,21 @@ fun WordOfTheDayCard(
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .fillMaxHeight()
-                    .fillMaxWidth(0.54f),
+                    .fillMaxWidth(0.50f),
                 contentScale = ContentScale.Crop,
                 alignment = Alignment.CenterEnd,
             )
 
             if (isDark) {
                 NocturneAtmosphere(
-                    Modifier.align(Alignment.CenterEnd).fillMaxWidth(0.54f).fillMaxHeight()
+                    Modifier.align(Alignment.CenterEnd).fillMaxWidth(0.50f).fillMaxHeight()
                 )
             }
 
             Column(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .fillMaxWidth(0.68f)
+                    .fillMaxWidth(0.69f)
                     .padding(start = 13.dp, top = 13.dp, bottom = 12.dp, end = 4.dp),
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
@@ -213,7 +214,7 @@ fun WordOfTheDayCard(
                     text = word.definitions.first(),
                     color = defColor,
                     style = LexiconTextStyles.WotdDefinition,
-                    maxLines = 3,
+                    maxLines = 4,
                     overflow = TextOverflow.Ellipsis,
                 )
 
