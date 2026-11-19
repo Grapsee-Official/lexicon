@@ -8,7 +8,6 @@ black circle in dark mode. Do not mask it with an opaque Compose/SwiftUI badge.
 from __future__ import annotations
 
 from pathlib import Path
-import numpy as np
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -18,8 +17,6 @@ NAMES = ("ill_tpl_daily", "ill_tpl_exam", "ill_tpl_write", "ill_tpl_travel")
 Y, X = 31, 338
 
 def main() -> None:
-    yy, xx = np.ogrid[:152, :370]
-    inside = (xx - X)**2 + (yy - Y)**2 <= 33**2
     for base in NAMES:
         for suffix in ("", "_dark"):
             key = base + suffix
@@ -31,8 +28,15 @@ def main() -> None:
             image = Image.open(android).convert("RGBA")
             if image.size != (370, 152):
                 raise AssertionError(f"{key}: changed painting dimensions {image.size}")
-            pixels = np.asarray(image)
-            low_alpha = int(pixels[:,:,3][inside].min())
+            alpha = image.getchannel("A")
+            # Pure Pillow: the screenshot QA environment installs Pillow, not
+            # NumPy, so keep this source-painting gate dependency-free.
+            low_alpha = min(
+                alpha.getpixel((x, y))
+                for y in range(max(0, Y - 33), min(image.height, Y + 34))
+                for x in range(max(0, X - 33), min(image.width, X + 34))
+                if (x - X) ** 2 + (y - Y) ** 2 <= 33 ** 2
+            )
             if low_alpha < 250:
                 raise AssertionError(f"{key}: leftover circular transparent star hole alpha={low_alpha}")
             print(f"PASS {key}: continuous watercolor paper; native assets identical")
