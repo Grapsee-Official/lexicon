@@ -728,6 +728,11 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
 
         // Side-by-side Etymology & Usage Examples
         item(key = "etym_usage") {
+            // The illustrated lower corner must stay below up to six lines of
+            // etymology. A 162dp card painted over the last lines on real phones.
+            val detailCardHeight = if (
+                androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f
+            ) 262.dp else 216.dp
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -737,7 +742,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .height(162.dp)
+                        .height(detailCardHeight)
                         .clip(RoundedCornerShape(15.dp))
                         .background(cardBg)
                         .border(1.dp, border, RoundedCornerShape(15.dp))
@@ -769,7 +774,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .height(162.dp)
+                        .height(detailCardHeight)
                         .clip(RoundedCornerShape(15.dp))
                         .background(cardBg)
                         .border(1.dp, border, RoundedCornerShape(15.dp))

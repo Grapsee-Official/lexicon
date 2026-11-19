@@ -390,6 +390,8 @@ struct WordDetailProfileScreen: View {
                 }
 
                 // Side-by-side Etymology & Usage Examples
+                // Reserve a separate lower corner for the original books painting.
+                // The former 162pt card let the painting overrun the body copy.
                 HStack(spacing: 8) {
                     ZStack(alignment: .bottomTrailing) {
                         VStack(alignment: .leading, spacing: 5) {
@@ -411,7 +413,7 @@ struct WordDetailProfileScreen: View {
                             .scaledToFit()
                             .frame(width: 96, height: 96)
                     }
-                    .frame(height: 162)
+                    .frame(height: dynamicTypeSize.isAccessibilitySize ? 262 : 216)
                     .background(p.card)
                     .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
                     .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous).stroke(p.border, lineWidth: 1))
@@ -434,7 +436,7 @@ struct WordDetailProfileScreen: View {
                     }
                     .padding(11)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                    .frame(height: 162)
+                    .frame(height: dynamicTypeSize.isAccessibilitySize ? 262 : 216)
                     .background(p.card)
                     .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
                     .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous).stroke(p.border, lineWidth: 1))

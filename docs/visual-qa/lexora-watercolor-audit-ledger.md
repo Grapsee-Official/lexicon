@@ -67,6 +67,12 @@ PNG files. This document is **not** a declaration of 100% visual fidelity.
   higher-contrast arrow glyphs without opaque circular background patches;
   screenshot confirmation remains pending.
 
+- **Word-detail Etymology painting overlap:** the prior green-run Android
+  and iOS screenshots visibly place the books illustration over the lower
+  etymology text. Both cards in the paired layout now reserve more vertical
+  space (including an accessible-text variant); screenshot acceptance remains
+  OPEN until the original text and painting are separately readable.
+
 ## Verification and completion rule
 
 Native Android, iOS and C++ must build/test on the merged source commit.
