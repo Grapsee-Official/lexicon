@@ -535,6 +535,11 @@ fun CountrysideQuoteBanner(
     val quoteColor = if (isDark) DarkForeground else DeepForest
     val attrColor = if (isDark) DarkAccent else OldWoodGold
     val resId = resolveCountrysideDrawable(illustrationBase, isDark)
+    val painter = painterResource(resId)
+    val measuredArt = painter.intrinsicSize
+    val artRatio = if (measuredArt.width > 1f && measuredArt.height > 1f) {
+        measuredArt.width / measuredArt.height
+    } else 3.0f
     val fontScale = androidx.compose.ui.platform.LocalConfiguration.current.fontScale
     val shape = RoundedCornerShape(18.dp)
 
@@ -543,10 +548,13 @@ fun CountrysideQuoteBanner(
         // The former 94dp banner truncated both the italic quote and the art.
         // Use the real available width; a wide split-screen is still a phone
         // column for sizing purposes, not the device's physical width.
+        val naturalArtHeight = maxWidth / artRatio
         val bannerHeight = if (stacked) {
-            (maxWidth * 0.64f).coerceIn(250.dp, 330.dp)
+            // One readable text leaf above a painting shown at full aspect.
+            naturalArtHeight + 110.dp
         } else {
-            (maxWidth * 0.34f).coerceIn(158.dp, 246.dp)
+            // No card taller than its watercolor source by default.
+            naturalArtHeight
         }
 
         Box(
@@ -560,12 +568,12 @@ fun CountrysideQuoteBanner(
                 .border(1.dp, border, shape),
         ) {
             Image(
-                painter = painterResource(resId),
+                painter = painter,
                 contentDescription = null,
                 contentScale = ContentScale.Fit,
                 alignment = Alignment.BottomEnd,
                 modifier = if (stacked) {
-                    Modifier.align(Alignment.BottomEnd).fillMaxWidth().height(140.dp)
+                    Modifier.align(Alignment.BottomEnd).fillMaxWidth().height(naturalArtHeight)
                 } else {
                     Modifier.fillMaxSize()
                 },
@@ -579,7 +587,7 @@ fun CountrysideQuoteBanner(
                         start = 18.dp,
                         end = 8.dp,
                         top = if (stacked) 20.dp else 0.dp,
-                        bottom = if (stacked) 148.dp else 0.dp,
+                        bottom = if (stacked) naturalArtHeight + 8.dp else 0.dp,
                     ),
                 verticalArrangement = Arrangement.spacedBy(7.dp),
             ) {
