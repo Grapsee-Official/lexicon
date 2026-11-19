@@ -1043,6 +1043,65 @@ struct SearchDiscoveryScreen: View {
     @Environment(\.colorScheme) private var scheme
 
     @State private var draft: String = ""
+    @State private var openingWidth: CGFloat = 390
+
+    /// A dedicated reading entrance: quiet ink above a fully visible village,
+    /// not a cropped right-hand decoration behind the heading.
+    private var countrysideSearchOpening: some View {
+        let p = lexiconPalette(scheme)
+        let isDark = scheme == .dark
+        let paintingHeight = min(420, max(220, openingWidth * 0.68))
+        return VStack(alignment: .leading, spacing: 3) {
+            HStack(spacing: 4) {
+                Button { theme.toggle() } label: {
+                    BotanicalSprig(color: p.primary)
+                        .frame(width: 26, height: 26)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Toggle appearance")
+
+                Text("Search")
+                    .font(.lexiconDisplay(30))
+                    .foregroundStyle(p.foreground)
+                Spacer(minLength: 0)
+                Button { vm.navigate(to: .dictionaryHome) } label: {
+                    Image(systemName: "arrow.left")
+                        .font(.system(size: 20))
+                        .foregroundStyle(p.foreground)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Back to Dictionary")
+            }
+            .padding(.leading, 10)
+            .padding(.trailing, 16)
+            .padding(.top, 12)
+
+            Text("Find any word, explore its meaning, and discover more.")
+                .font(.lexiconLong(13))
+                .foregroundStyle(p.mutedForeground)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 22)
+
+            Image(countrysideImageName("ill-hero-cottage", isDark: isDark))
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: .infinity)
+                .frame(height: paintingHeight, alignment: .bottom)
+                .offset(y: 10)
+                .accessibilityHidden(true)
+        }
+        .background {
+            GeometryReader { geometry in
+                Color.clear
+                    .onAppear { openingWidth = geometry.size.width }
+                    .onChange(of: geometry.size.width) { openingWidth = $0 }
+            }
+        }
+    }
 
     var body: some View {
         let p = lexiconPalette(scheme)
@@ -1050,17 +1109,7 @@ struct SearchDiscoveryScreen: View {
 
         ScrollView {
             VStack(spacing: 11) {
-                CountrysideHeroHeader(
-                    title: "Search",
-                    subtitle: "Find any word, explore its meaning, and discover more.",
-                    // A river bridge, ancient village and meadow rather than the repeated cottage.
-                    illustrationBase: "ill-hero-bridge",
-                    onHistoryClick: { vm.navigate(to: .dictionaryHome) },
-                    actionKind: "back",
-                    actionLabel: "Back to Dictionary",
-                    onLogoToggleTheme: { theme.toggle() },
-                    heroHeight: 140
-                )
+                countrysideSearchOpening
 
                 CountrysideSearchPill(
                     text: $draft,
