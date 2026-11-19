@@ -9,8 +9,6 @@ struct HomeScreen: View {
     @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @State private var libraryOpen = false
-    @State private var articleToRead: Article? = nil
 
     // A fixed editorial fixture makes pixel comparisons reproducible.
     // Real readers continue receiving the daily rotating featured word.
@@ -66,14 +64,14 @@ struct HomeScreen: View {
                         title: "From the Library",
                         actionLabel: "View all articles",
                         divider: true,
-                        onAction: { articleToRead = nil; libraryOpen = true }
+                        onAction: { vm.openLibrary() }
                     )
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 10) {
                             ForEach(LexiconData.articles) { a in
                                 ArticleCard(
                                     article: a,
-                                    onOpen: { articleToRead = a; libraryOpen = true }
+                                    onOpen: { vm.openLibraryArticle(a.id) }
                                 )
                             }
                         }
@@ -85,111 +83,162 @@ struct HomeScreen: View {
             .padding(.bottom, 76)
         }
         .background(lexiconPalette(scheme).background)
-        .task {
-            // Present only after the first mounted frame. Setting sheet state
-            // synchronously in onAppear can be lost on a cold simulator launch,
-            // leaving both Library QA routes on the same Home screenshot.
-            #if DEBUG
-            let args = ProcessInfo.processInfo.arguments
-            if args.contains("-lexoraVisualQa"),
-               let index = args.firstIndex(of: "-lexiconScreen"),
-               index + 1 < args.count {
-                let screen = args[index + 1]
-                if screen == "library" || screen == "library_article" {
-                    try? await Task.sleep(nanoseconds: 450_000_000)
-                    guard !Task.isCancelled else { return }
-                    articleToRead = screen == "library_article"
-                        ? LexiconData.articles.first : nil
-                    libraryOpen = true
+    }
+}
+
+// A true SwiftUI destination, not a sheet that may fail to mount after cold launch.
+struct LibraryReadingScreen: View {
+    @EnvironmentObject private var vm: LexiconViewModel
+    @Environment(\.colorScheme) private var scheme
+    @Environment(\.dynamicTypeSize) private var textSize
+
+    private var selected: Article? {
+        guard let id = vm.libraryArticleId else { return nil }
+        return LexiconData.articles.first(where: { $0.id == id })
+    }
+
+    var body: some View {
+        let p = lexiconPalette(scheme)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                HStack {
+                    Button {
+                        vm.navigateBack()
+                    } label: {
+                        Label(selected == nil ? "Home" : "All articles",
+                              systemImage: "chevron.left")
+                            .font(.lexiconBody(13))
+                            .frame(minHeight: 44)
+                    }
+                    Spacer()
+                    Button("Close") { vm.closeLibrary() }
+                        .font(.lexiconBody(13))
+                        .frame(minHeight: 44)
                 }
+                .foregroundStyle(p.primary)
+                .buttonStyle(.plain)
+
+                if let article = selected {
+                    articlePage(article, palette: p)
+                } else {
+                    indexPage(palette: p)
+                }
+
+                CountrysideQuoteBanner(
+                    quote: "A collection of words is a collection of worlds.",
+                    illustrationBase: "ill-banner-bridge"
+                )
             }
-            #endif
+            .frame(maxWidth: 720, alignment: .leading)
+            .padding(.horizontal, 18)
+            .padding(.top, 12)
+            .padding(.bottom, 128)
+            .frame(maxWidth: .infinity)
         }
-        .sheet(isPresented: $libraryOpen) {
-            NavigationStack {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 15) {
-                        if let article = articleToRead {
-                            Image(article.thumbnail + (scheme == .dark ? "-dark" : ""))
-                                .resizable()
-                                .scaledToFit()
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 175)
-                                .clipped()
-                                .accessibilityHidden(true)
+        .background(p.background)
+        .accessibilityIdentifier(selected == nil ? "lexora-library-index" : "lexora-library-article")
+    }
 
-                            Text(article.excerpt)
-                                .font(.lexiconBody(15))
-                                .foregroundStyle(lexiconPalette(scheme).mutedForeground)
+    @ViewBuilder
+    private func indexPage(palette p: LexiconPalette) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            BotanicalSprig(color: p.primary).frame(width: 32, height: 32)
+            Text("From the Library")
+                .font(.lexiconDisplay(30))
+                .foregroundStyle(p.foreground)
+            Text("Three quiet journeys through words, nature and time.")
+                .font(.lexiconBody(15))
+                .foregroundStyle(p.mutedForeground)
+        }
+        .padding(.bottom, 6)
 
-                            ForEach(Array(LexiconData.articleReading(article.id).enumerated()), id: \.offset) { item in
-                                Text(item.element)
-                                    .font(.lexiconBody(15))
-                                    .foregroundStyle(lexiconPalette(scheme).foreground)
-                                    .fixedSize(horizontal: false, vertical: true)
-                                    .lineSpacing(6)
-                            }
-                        } else {
-                            Text("Three little journeys through language and time.")
-                                .font(.lexiconBody(14))
-                                .foregroundStyle(lexiconPalette(scheme).mutedForeground)
-
-                            ForEach(LexiconData.articles) { article in
-                                Button { articleToRead = article } label: {
-                                    HStack(spacing: 13) {
-                                        Image(article.thumbnail + (scheme == .dark ? "-dark" : ""))
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: 80, height: 80)
-                                            .clipped()
-                                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                                            .accessibilityHidden(true)
-                                        VStack(alignment: .leading, spacing: 5) {
-                                            Text(article.title)
-                                                .font(.lexiconDisplay(17))
-                                                .foregroundStyle(lexiconPalette(scheme).foreground)
-                                            Text(article.excerpt)
-                                                .font(.lexiconBody(12))
-                                                .foregroundStyle(lexiconPalette(scheme).mutedForeground)
-                                        }
-                                        Spacer(minLength: 0)
-                                        Image(systemName: "chevron.right")
-                                            .foregroundStyle(lexiconPalette(scheme).highlight)
-                                    }
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
+        ForEach(LexiconData.articles) { article in
+            Button { vm.openLibraryArticle(article.id) } label: {
+                HStack(alignment: .top, spacing: 12) {
+                    Image(article.thumbnail + (scheme == .dark ? "-dark" : ""))
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 90, height: 105)
+                        .accessibilityHidden(true)
+                    VStack(alignment: .leading, spacing: 7) {
+                        Text(article.title)
+                            .font(.lexiconDisplay(18))
+                            .foregroundStyle(p.foreground)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Text(article.excerpt)
+                            .font(.lexiconBody(12))
+                            .foregroundStyle(p.mutedForeground)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Label("\(article.readMinutes) min read", systemImage: "clock")
+                            .font(.lexiconBody(11))
+                            .foregroundStyle(p.highlight)
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(20)
+                    Spacer(minLength: 0)
+                    Image(systemName: "chevron.right")
+                        .foregroundStyle(p.primary)
                 }
-                .background(lexiconPalette(scheme).background)
-                .navigationTitle(articleToRead?.title ?? "From the Library")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        if articleToRead != nil {
-                            Button("All articles") { articleToRead = nil }
-                        }
-                    }
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("Done") { libraryOpen = false }
-                    }
-                    ToolbarItem(placement: .bottomBar) {
-                        if let article = articleToRead {
-                            Button { vm.toggleArticleBookmark(article.id) } label: {
-                                Label(
-                                    vm.bookmarkedArticleIds.contains(article.id) ? "Saved" : "Save story",
-                                    systemImage: vm.bookmarkedArticleIds.contains(article.id)
-                                        ? "bookmark.fill" : "bookmark"
-                                )
-                            }
-                        }
-                    }
-                }
+                .padding(12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(p.card)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .overlay(RoundedRectangle(cornerRadius: 16).stroke(p.border, lineWidth: 1))
+                .contentShape(Rectangle())
             }
-            .presentationDragIndicator(.visible)
+            .buttonStyle(.plain)
+            .accessibilityLabel("Read \(article.title)")
         }
+    }
+
+    @ViewBuilder
+    private func articlePage(_ article: Article, palette p: LexiconPalette) -> some View {
+        Text("A LETTER FROM THE LIBRARY")
+            .font(.lexiconBody(11))
+            .tracking(1.5)
+            .foregroundStyle(p.highlight)
+        Text(article.title)
+            .font(.lexiconDisplay(30))
+            .foregroundStyle(p.foreground)
+            .fixedSize(horizontal: false, vertical: true)
+        Label("\(article.readMinutes) min read", systemImage: "clock")
+            .font(.lexiconBody(12))
+            .foregroundStyle(p.mutedForeground)
+        Image(article.thumbnail + (scheme == .dark ? "-dark" : ""))
+            .resizable()
+            .scaledToFit()
+            .frame(maxWidth: .infinity)
+            .frame(maxHeight: textSize.isAccessibilitySize ? 250 : 190)
+            .accessibilityHidden(true)
+        Text(article.excerpt)
+            .font(.lexiconDisplay(18))
+            .foregroundStyle(p.primary)
+            .fixedSize(horizontal: false, vertical: true)
+        VStack(alignment: .leading, spacing: 18) {
+            ForEach(Array(LexiconData.articleReading(article.id).enumerated()), id: \.offset) { item in
+                Text(item.element)
+                    .font(.lexiconBody(16))
+                    .foregroundStyle(p.foreground)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .lineSpacing(7)
+                    .textSelection(.enabled)
+            }
+        }
+        .padding(18)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(p.card)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .overlay(RoundedRectangle(cornerRadius: 16).stroke(p.border, lineWidth: 1))
+
+        Button { vm.toggleArticleBookmark(article.id) } label: {
+            Label(vm.bookmarkedArticleIds.contains(article.id) ? "Saved to your library" : "Save this story",
+                  systemImage: vm.bookmarkedArticleIds.contains(article.id) ? "bookmark.fill" : "bookmark")
+                .font(.lexiconBody(14))
+                .foregroundStyle(p.primary)
+                .frame(maxWidth: .infinity)
+                .frame(minHeight: 50)
+                .background(p.card)
+                .clipShape(Capsule())
+                .overlay(Capsule().stroke(p.border, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
     }
 }
