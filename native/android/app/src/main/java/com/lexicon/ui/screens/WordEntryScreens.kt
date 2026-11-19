@@ -282,7 +282,7 @@ fun WordOfTheDayScreen(viewModel: LexiconViewModel) {
                         }
 
                         Text(
-                            text = word.definitions.first(),
+                            text = word.definitions.firstOrNull().orEmpty(),
                             color = fg,
                             style = TextStyle(fontFamily = LongFontFamily, fontSize = 13.5.sp, lineHeight = 19.sp),
                             modifier = Modifier.fillMaxWidth(0.62f),
@@ -299,7 +299,7 @@ fun WordOfTheDayScreen(viewModel: LexiconViewModel) {
                         ) {
                             Icon(Icons.Outlined.FormatQuote, contentDescription = null, tint = accent, modifier = Modifier.size(16.dp))
                             Text(
-                                text = "“${word.examples.first()}”",
+                                text = "“${word.examples.firstOrNull().orEmpty()}”",
                                 color = fg.copy(alpha = 0.85f),
                                 style = TextStyle(fontFamily = LongFontFamily, fontStyle = FontStyle.Italic, fontSize = 12.sp, lineHeight = 17.sp),
                             )
@@ -559,7 +559,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         LeafSprig(color = accent, modifier = Modifier.size(11.dp))
-                        Text("Word of the Day", color = fg, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 10.sp))
+                        Text("Word Journal", color = fg, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 10.sp))
                     }
 
                     Row(
@@ -596,7 +596,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                     }
 
                     Text(
-                        text = word.definitions.first(),
+                        text = word.definitions.firstOrNull().orEmpty(),
                         color = fg,
                         style = TextStyle(fontFamily = LongFontFamily, fontSize = 13.sp, lineHeight = 18.sp),
                         modifier = Modifier.fillMaxWidth(0.64f),
@@ -1093,7 +1093,7 @@ fun SearchResultsScreen(viewModel: LexiconViewModel) {
                         ) {
                             Icon(Icons.Outlined.FormatQuote, contentDescription = null, tint = if (isDark) DarkAccent else BrandGreen, modifier = Modifier.size(18.dp))
                             Text(
-                                text = "“${primaryWord.examples.first()}”",
+                                text = "“${primaryWord.examples.firstOrNull().orEmpty()}”",
                                 color = fg,
                                 style = TextStyle(fontFamily = LongFontFamily, fontStyle = FontStyle.Italic, fontSize = 12.5.sp, lineHeight = 17.5.sp),
                             )
