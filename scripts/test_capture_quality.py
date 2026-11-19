@@ -54,6 +54,14 @@ def main() -> None:
         assert not good and "launcher" in details, (violet_launcher.name, details)
         print("PASS iOS violet launcher wallpaper correctly rejected")
 
+        # Regression: the Nov 19 iOS light/dictionary_home CI artifact was
+        # a pink SpringBoard home screen, yet passed the prior quality gate.
+        pink_launcher = folder / "ios-pink-launcher.png"
+        Image.new("RGB", (1080, 2400), "#D99CB8").save(pink_launcher)
+        good, details = inspect(pink_launcher)
+        assert not good and "launcher" in details, (pink_launcher.name, details)
+        print("PASS iOS pink launcher wallpaper correctly rejected")
+
         blank = folder / "blank-white.png"
         Image.new("RGB", (1080, 2400), "#FFFFFF").save(blank)
         good, details = inspect(blank)
