@@ -1053,7 +1053,8 @@ struct SearchDiscoveryScreen: View {
                 CountrysideHeroHeader(
                     title: "Search",
                     subtitle: "Find any word, explore its meaning, and discover more.",
-                    illustrationBase: "ill-hero-cottage",
+                    // A river bridge, ancient village and meadow rather than the repeated cottage.
+                    illustrationBase: "ill-hero-bridge",
                     onHistoryClick: { vm.navigate(to: .dictionaryHome) },
                     actionKind: "back",
                     actionLabel: "Back to Dictionary",
