@@ -106,7 +106,7 @@ private fun HomeFeed(viewModel: LexiconViewModel) {
     val secondaryInk = if (state.isDark) DarkMutedForeground else WarmGrey
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = 86.dp),
+        contentPadding = PaddingValues(bottom = 160.dp),
         verticalArrangement = Arrangement.spacedBy(11.dp),
     ) {
         item(key = "hero") {

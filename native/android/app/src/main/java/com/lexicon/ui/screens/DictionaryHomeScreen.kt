@@ -42,7 +42,7 @@ fun DictionaryHomeScreen(viewModel: LexiconViewModel) {
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().background(bg),
-        contentPadding = PaddingValues(bottom = 106.dp),
+        contentPadding = PaddingValues(bottom = 162.dp),
         verticalArrangement = Arrangement.spacedBy(13.dp),
     ) {
         item {

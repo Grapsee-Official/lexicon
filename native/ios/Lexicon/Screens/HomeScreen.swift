@@ -80,7 +80,7 @@ struct HomeScreen: View {
                 }
             }
             .padding(.top, 1)
-            .padding(.bottom, 76)
+            .padding(.bottom, 160)
         }
         .background(lexiconPalette(scheme).background)
     }
@@ -132,7 +132,7 @@ struct LibraryReadingScreen: View {
             .frame(maxWidth: 720, alignment: .leading)
             .padding(.horizontal, 18)
             .padding(.top, 12)
-            .padding(.bottom, 128)
+            .padding(.bottom, 160)
             .frame(maxWidth: .infinity)
         }
         .background(p.background)

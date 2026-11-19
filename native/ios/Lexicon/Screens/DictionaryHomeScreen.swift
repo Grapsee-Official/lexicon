@@ -137,7 +137,7 @@ struct DictionaryHomeScreen: View {
                     .clipped().clipShape(RoundedRectangle(cornerRadius: 15))
                     .padding(.horizontal, 16).accessibilityHidden(true)
             }
-            .padding(.bottom, 104)
+            .padding(.bottom, 160)
         }
         .background(p.background)
     }

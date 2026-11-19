@@ -113,7 +113,7 @@ struct MoreScreen: View {
             }
             .padding(.horizontal, 16)
             .padding(.top, 12)
-            .padding(.bottom, 120) // clear floating bottom nav
+            .padding(.bottom, 160) // reveal content above floating bottom nav
         }
         .background(lexiconPalette(scheme).background)
         .alert(infoTitle, isPresented: Binding(

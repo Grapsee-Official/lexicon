@@ -121,7 +121,7 @@ fun MoreScreen(viewModel: LexiconViewModel) {
             start = 16.dp,
             end = 16.dp,
             top = 4.dp,
-            bottom = 96.dp, // clear floating BottomNav
+            bottom = 162.dp, // clear floating BottomNav and reveal final content
         ),
         verticalArrangement = Arrangement.spacedBy(24.dp),
     ) {
