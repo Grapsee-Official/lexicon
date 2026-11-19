@@ -10,6 +10,8 @@ FILES = {
     "sprig": ("lexora-sprig-parchment.svg", "lexora-sprig-midnight.svg"),
     "garden": ("lexora-english-garden-bookplate-parchment.svg",
                "lexora-english-garden-bookplate-midnight.svg"),
+    "village": ("cotswolds-village-parchment.svg",
+                "cotswolds-village-midnight.svg"),
 }
 
 
@@ -26,12 +28,19 @@ def validate(path: Path, kind: str) -> dict[str, int]:
     ellipses = root.findall(".//" + NAMESPACE + "ellipse")
     circles = root.findall(".//" + NAMESPACE + "circle")
     groups = root.findall(".//" + NAMESPACE + "g")
-    assert len(paths) >= (5 if kind == "sprig" else 52), (
+    assert len(paths) >= (5 if kind == "sprig" else 30 if kind == "village" else 52), (
         f"{path.name}: missing editable organic geometry"
     )
     if kind == "garden":
         assert len(ellipses) >= 48, f"{path.name}: painted petals are missing"
         assert len(circles) >= 190, f"{path.name}: independent pigment marks are missing"
+    if kind == "village":
+        assert len(ellipses) >= 300, f"{path.name}: meadow or foliage geometry is missing"
+        assert len(circles) >= 150, f"{path.name}: watercolor grain or fireflies are missing"
+        for layer in ("stone-bridge", "cottage", "daisy-petals", "botanical-stems"):
+            assert root.find(".//*[@id='" + layer + "']") is not None, (
+                f"{path.name}: missing editable layer {layer}"
+            )
     ids = [e.get("id") for e in root.iter() if e.get("id") is not None]
     assert len(ids) == len(set(ids)), f"{path.name}: repeated editable layer ID"
     result = dict(paths=len(paths), ellipses=len(ellipses),
