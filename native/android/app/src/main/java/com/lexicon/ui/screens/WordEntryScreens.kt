@@ -7,6 +7,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -68,6 +70,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalContext
+import android.content.Intent
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -452,6 +456,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
     val muted = if (isDark) DarkMutedForeground else WarmGrey
     val accent = if (isDark) DarkAccent else OldWoodGold
 
+    val context = LocalContext.current
     val bridgeRes = resolveCountrysideDrawable("ill_hero_bridge", isDark)
     val booksRes = resolveCountrysideDrawable("ill_books_daisies", isDark)
     val bayRes = resolveCountrysideDrawable("ill_banner_bay", isDark)
@@ -464,25 +469,28 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
         verticalArrangement = Arrangement.spacedBy(11.dp),
     ) {
         item(key = "detail_hero") {
+            // A full-page watercolor, not a 266dp picture locked on the right.
+            // Height follows the real viewport width so the bridge and meadow
+            // retain their painted proportions in split-screen and rotation.
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .windowInsetsPadding(WindowInsets.statusBars),
+                    .windowInsetsPadding(WindowInsets.statusBars)
+                    .aspectRatio(1.08f),
             ) {
                 Image(
                     painter = painterResource(bridgeRes),
                     contentDescription = null,
                     contentScale = ContentScale.Fit,
-                    alignment = Alignment.TopEnd,
+                    alignment = Alignment.BottomEnd,
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .fillMaxWidth(0.84f)
-                        .height(266.dp)
-                        .offset(y = 16.dp),
+                        .align(Alignment.BottomEnd)
+                        .fillMaxSize(),
+                
                 )
 
                 if (isDark) {
-                    NocturneAtmosphere(Modifier.fillMaxWidth().height(266.dp))
+                    NocturneAtmosphere(Modifier.fillMaxSize())
                 }
 
                 Column(
@@ -502,8 +510,11 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                             contentDescription = "Back",
                             tint = fg,
                             modifier = Modifier
-                                .size(22.dp)
-                                .clickable { viewModel.navigateBack() },
+                                .size(44.dp)
+                                .clickable(role = Role.Button, onClickLabel = "Back") {
+                                    viewModel.navigateBack()
+                                }
+                                .padding(10.dp),
                         )
                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             Icon(
@@ -511,14 +522,26 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                                 contentDescription = "Bookmark",
                                 tint = if (saved) accent else fg,
                                 modifier = Modifier
-                                    .size(21.dp)
-                                    .clickable { viewModel.toggleSave(word.id) },
+                                    .size(44.dp)
+                                    .clickable(role = Role.Button, onClickLabel = if (saved) "Remove bookmark" else "Save word") {
+                                        viewModel.toggleSave(word.id)
+                                    }
+                                    .padding(11.dp),
                             )
                             Icon(
                                 imageVector = Icons.Outlined.Share,
-                                contentDescription = "Share",
+                                contentDescription = "Share word",
                                 tint = fg,
-                                modifier = Modifier.size(20.dp),
+                                modifier = Modifier
+                                    .size(44.dp)
+                                    .clickable(role = Role.Button, onClickLabel = "Share word") {
+                                        val message = "${word.word} — ${word.definitions.firstOrNull().orEmpty()}"
+                                        val intent = Intent(Intent.ACTION_SEND)
+                                            .setType("text/plain")
+                                            .putExtra(Intent.EXTRA_TEXT, message)
+                                        context.startActivity(Intent.createChooser(intent, "Share word"))
+                                    }
+                                    .padding(11.dp),
                             )
                         }
                     }
@@ -573,7 +596,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                         text = word.definitions.first(),
                         color = fg,
                         style = TextStyle(fontFamily = LongFontFamily, fontSize = 13.sp, lineHeight = 18.sp),
-                        modifier = Modifier.fillMaxWidth(0.58f),
+                        modifier = Modifier.fillMaxWidth(0.64f),
                     )
                 }
             }
