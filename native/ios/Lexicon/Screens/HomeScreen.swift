@@ -8,6 +8,7 @@ import SwiftUI
 struct HomeScreen: View {
     @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var libraryOpen = false
     @State private var articleToRead: Article? = nil
 
@@ -56,7 +57,7 @@ struct HomeScreen: View {
                             .padding(.horizontal, 16)
                         }
                     }
-                    .frame(height: 105)
+                    .frame(height: dynamicTypeSize.isAccessibilitySize ? 144 : 105)
                 }
 
                 // From the Library (with horizontal hairline divider)
