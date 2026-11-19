@@ -852,7 +852,7 @@ struct QuickTemplatesScreen: View {
                         actionLabel: showAllTemplates ? "Show less" : "View all",
                         onAction: { filter = "All"; query = ""; showAllTemplates.toggle() }
                     )
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 165), spacing: 8)], spacing: 8) {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: dynamicTypeSize.isAccessibilitySize ? 270 : 165), spacing: 8)], spacing: 8) {
                         if filtered.isEmpty {
                             Text("No templates match your search or category.")
                                 .font(.lexiconBody(13))
@@ -864,9 +864,10 @@ struct QuickTemplatesScreen: View {
                                 ZStack(alignment: .topTrailing) {
                                     Image(countrysideImageName(tpl.illustration, isDark: isDark))
                                         .resizable()
-                                        .scaledToFill()
-                                        .frame(height: dynamicTypeSize.isAccessibilitySize ? 90 : 62)
-                                        .clipped()
+                                        .scaledToFit()
+                                        .frame(height: dynamicTypeSize.isAccessibilitySize ? 106 : 82)
+                                        .frame(maxWidth: .infinity)
+                                        .accessibilityHidden(true)
                                     Button { vm.toggleTemplateStar(tpl.id) } label: {
                                         Image(systemName: tpl.starred ? "star.fill" : "star")
                                             .font(.system(size: 11))
