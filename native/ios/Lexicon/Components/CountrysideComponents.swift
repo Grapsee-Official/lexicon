@@ -163,17 +163,23 @@ struct CountrysideSearchPill: View {
                         .frame(width: 19, height: 19)
                         .background(lexiconPalette(scheme).border)
                         .clipShape(Circle())
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Clear search")
             }
 
             if showCameraMic {
+                // Decorative until OCR and native speech permissions are wired.
                 Image(systemName: "camera")
                     .font(.system(size: 14.5))
                     .foregroundStyle(iconTint)
+                    .accessibilityHidden(true)
                 Image(systemName: "mic")
                     .font(.system(size: 14.5))
                     .foregroundStyle(iconTint)
+                    .accessibilityHidden(true)
             } else if showMicOnly {
                 Button {
                     searchFocused = true
@@ -181,10 +187,11 @@ struct CountrysideSearchPill: View {
                     Image(systemName: "mic")
                         .font(.system(size: 16))
                         .foregroundStyle(iconTint)
-                        .frame(width: 26, height: 28)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Open keyboard for voice dictation")
+                .accessibilityLabel("Focus search; keyboard dictation may be available")
             }
 
             if showFilter {
@@ -195,8 +202,11 @@ struct CountrysideSearchPill: View {
                     Image(systemName: "slider.horizontal.3")
                         .font(.system(size: 14.5))
                         .foregroundStyle(iconTint)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Change search filters")
             }
         }
         .padding(.horizontal, 15)
