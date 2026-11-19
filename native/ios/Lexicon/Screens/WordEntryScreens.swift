@@ -69,15 +69,16 @@ struct WordOfTheDayScreen: View {
                             Button {
                                 dayIdx = (dayIdx + 1) % featured.count
                             } label: {
-                                Image(systemName: "clock.arrow.circlepath")
+                                Image(systemName: "arrow.right")
                                     .font(.system(size: 15))
                                     .foregroundStyle(p.foreground)
-                                    .frame(width: 34, height: 34)
+                                    .frame(width: 44, height: 44)
                                     .background(p.card.opacity(0.85))
                                     .clipShape(Circle())
                                     .overlay(Circle().stroke(p.border, lineWidth: 1))
                             }
                             .buttonStyle(.plain)
+                            .accessibilityLabel("Next featured word")
                         }
 
                         HStack(spacing: 6) {
