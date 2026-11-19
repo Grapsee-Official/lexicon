@@ -523,11 +523,11 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                     Box(
                                         modifier = Modifier
                                             .weight(1f)
-                                            .height(if (androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f) 218.dp else 148.dp)
+                                            .height(if (config.fontScale >= 1.3f) 248.dp else 170.dp)
                                             .clip(RoundedCornerShape(16.dp))
                                             .background(cardBg)
                                             .border(1.dp, border, RoundedCornerShape(16.dp))
-                                            .clickable {
+                                            .clickable(role = Role.Button, onClickLabel = "Edit note: ${note.title}") {
                                                 editorTitle = note.title
                                                 editorBody = note.body
                                                 editingNote = note
@@ -567,11 +567,13 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                                 Icon(Icons.Outlined.MoreHoriz, contentDescription = null, tint = muted, modifier = Modifier.size(16.dp))
                                             }
                                             Column(
-                                                modifier = Modifier.fillMaxWidth(0.50f),
+                                                // Narrow two-column cards need legible copy as well as
+                                                // freely positioned botanical artwork at the edge.
+                                                modifier = Modifier.fillMaxWidth(0.60f),
                                                 verticalArrangement = Arrangement.spacedBy(2.dp),
                                             ) {
                                                 Text(note.title, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 14.sp), maxLines = 2, overflow = TextOverflow.Ellipsis)
-                                                Text(note.body, color = fg.copy(alpha = 0.8f), style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.5.sp, lineHeight = 15.sp), maxLines = if (config.fontScale >= 1.3f) 4 else 3, overflow = TextOverflow.Ellipsis)
+                                                Text(note.body, color = fg.copy(alpha = 0.8f), style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.5.sp, lineHeight = 15.sp), maxLines = if (config.fontScale >= 1.3f) 4 else 2, overflow = TextOverflow.Ellipsis)
                                             }
                                             Row(
                                                 modifier = Modifier.fillMaxWidth(),
