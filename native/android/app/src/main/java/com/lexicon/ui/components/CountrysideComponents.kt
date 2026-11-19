@@ -30,6 +30,9 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Style
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.DeleteOutline
@@ -106,6 +109,8 @@ fun CountrysideHeroHeader(
     illustrationBase: String,
     isDark: Boolean,
     onHistoryClick: () -> Unit,
+    actionKind: String = "history",
+    actionLabel: String = "Search history",
     onLogoToggleTheme: () -> Unit = {},
     heroHeight: Dp = 146.dp,
 ) {
@@ -113,6 +118,13 @@ fun CountrysideHeroHeader(
     val subColor = if (isDark) DarkMutedForeground else DeepForest.copy(alpha = 0.78f)
     val sprigColor = if (isDark) DarkAccent else BrandGreen
     val resId = resolveCountrysideDrawable(illustrationBase, isDark)
+    // Match the rendered icon and spoken label to the true destination.
+    val actionImage: ImageVector = when (actionKind) {
+        "back" -> Icons.AutoMirrored.Outlined.ArrowBack
+        "notes" -> Icons.Outlined.Description
+        "templates" -> Icons.Outlined.Style
+        else -> Icons.Outlined.History
+    }
     val config = androidx.compose.ui.platform.LocalConfiguration.current
     val compact = config.screenWidthDp < 390
     val accessibilityText = config.fontScale >= 1.3f
@@ -221,14 +233,14 @@ fun CountrysideHeroHeader(
                 .align(Alignment.TopEnd)
                 .padding(top = 10.dp, end = 16.dp)
                 .size(44.dp)
-                .clickable(role = Role.Button, onClickLabel = "Search history") {
+                .clickable(role = Role.Button, onClickLabel = actionLabel) {
                     onHistoryClick()
                 },
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                imageVector = Icons.Outlined.History,
-                contentDescription = "Search history",
+                imageVector = actionImage,
+                contentDescription = actionLabel,
                 tint = if (isDark) DarkAccent else DeepForest.copy(alpha = 0.78f),
                 modifier = Modifier.size(18.dp),
             )
