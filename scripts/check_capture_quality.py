@@ -28,8 +28,26 @@ def inspect(path: Path) -> tuple[bool, str]:
             core = image.crop((int(width * .08), int(height * .13),
                                int(width * .92), int(height * .83)))
             pixels = list(core.resize((96, 160), Image.Resampling.BILINEAR).getdata())
+            # Android ANR/system permission sheets can leave the app visible
+            # under a dim scrim. A nonblank screenshot is NOT a valid capture.
+            center = image.crop((int(width * .15), int(height * .42),
+                                 int(width * .85), int(height * .56)))
+            center_pixels = list(center.resize((70, 40), Image.Resampling.BILINEAR).getdata())
+            upper = image.crop((int(width * .05), int(height * .12),
+                                int(width * .30), int(height * .28)))
+            upper_pixels = list(upper.resize((30, 20), Image.Resampling.BILINEAR).getdata())
     except (OSError, UnidentifiedImageError) as error:
         return False, f"unreadable PNG: {error}"
+
+    modal_fraction = sum(
+        min(rgb) > 210 and max(rgb) - min(rgb) < 20 for rgb in center_pixels
+    ) / len(center_pixels)
+    upper_brightness = sum(sum(rgb) / 3 for rgb in upper_pixels) / len(upper_pixels)
+    if modal_fraction > .79 and upper_brightness < 165:
+        return False, (
+            f"OS modal/ANR obscures app (neutral modal={modal_fraction:.1%}, "
+            f"dimmed background={upper_brightness:.0f})"
+        )
 
     n = len(pixels)
     white = sum(min(rgb) >= 247 for rgb in pixels) / n
