@@ -158,8 +158,13 @@ struct WordOfTheDayScreen: View {
                     }
                     .padding(.horizontal, 16)
                     .padding(.top, 8)
-
-
+                }
+                .background {
+                    GeometryReader { scene in
+                        Color.clear
+                            .onAppear { artworkWidth = scene.size.width }
+                            .onChange(of: scene.size.width) { artworkWidth = $0 }
+                    }
                 }
 
                 // About the Word
