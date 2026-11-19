@@ -205,14 +205,16 @@ fun WordOfTheDayScreen(viewModel: LexiconViewModel) {
 
                         Box(
                             modifier = Modifier
-                                .size(34.dp)
+                                .size(44.dp)
                                 .clip(CircleShape)
                                 .background(cardBg.copy(alpha = 0.8f))
                                 .border(1.dp, border, CircleShape)
-                                .clickable { dayIdx = (dayIdx + 1) % featuredWords.size },
+                                .clickable(role = Role.Button, onClickLabel = "Next featured word") {
+                                    dayIdx = (dayIdx + 1) % featuredWords.size
+                                },
                             contentAlignment = Alignment.Center,
                         ) {
-                            Icon(Icons.Outlined.History, contentDescription = "Cycle daily words", tint = fg, modifier = Modifier.size(18.dp))
+                            Icon(Icons.AutoMirrored.Outlined.ArrowForward, contentDescription = null, tint = fg, modifier = Modifier.size(19.dp))
                         }
                     }
 
