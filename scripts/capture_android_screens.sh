@@ -13,7 +13,7 @@ adb shell wm density 420
 adb shell settings put system accelerometer_rotation 0
 
 for theme in light dark; do
-  for screen in home dictionary_home word_of_the_day word_detail collections my_notes study_lists quick_templates search_discovery search_results expanded_exploration more translations; do
+  for screen in home dictionary_home word_of_the_day word_detail collections my_notes study_lists quick_templates search_discovery search_results expanded_exploration more translations library library_article; do
     output="qa-captures/android/$theme-$screen.png"
     valid=0
     for attempt in 1 2 3; do
@@ -47,5 +47,5 @@ for theme in light dark; do
   done
 done
 count=$(find qa-captures/android -type f -name '*.png' | wc -l)
-test "$count" -eq 26
+test "$count" -eq 30
 echo "Captured $count validated native Android screens without publication."
