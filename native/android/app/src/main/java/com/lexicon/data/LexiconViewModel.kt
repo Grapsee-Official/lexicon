@@ -496,10 +496,17 @@ class LexiconViewModel : ViewModel() {
         LexiconData.searchWords(q, limit = limit).forEach { w ->
             out.putIfAbsent(w.id, w)
         }
-        if (s.searchScopeTab == "Examples") {
-            LexiconData.dictionary.filter { w ->
-                w.examples.any { it.contains(q, ignoreCase = true) }
-            }.forEach { out.putIfAbsent(it.id, it) }
+        // Meanings and Examples search the actual dictionary corpus,
+        // not merely the handful of already matched headwords.
+        // All combines those with the engine's exact/prefix/fuzzy results.
+        if (s.searchScopeTab in setOf("All", "Meanings", "Examples")) {
+            LexiconData.dictionary.forEach { w ->
+                val meaningMatch = s.searchScopeTab != "Examples" &&
+                    w.definitions.any { it.contains(q, ignoreCase = true) }
+                val exampleMatch = s.searchScopeTab != "Meanings" &&
+                    w.examples.any { it.contains(q, ignoreCase = true) }
+                if (meaningMatch || exampleMatch) out.putIfAbsent(w.id, w)
+            }
         }
 
         var list = out.values.toList()
