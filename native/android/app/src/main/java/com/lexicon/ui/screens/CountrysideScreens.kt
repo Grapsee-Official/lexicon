@@ -1560,7 +1560,11 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
                 isDark = isDark,
                 showMicOnly = true,
                 onSubmit = {
-                    if (draft.isNotBlank()) viewModel.submitSearch(draft)
+                    // Idiom results live on this screen; don't navigate to a
+                    // word-only results route that would be empty for idioms.
+                    if (draft.isNotBlank() && state.searchScopeTab != "Idioms") {
+                        viewModel.submitSearch(draft)
+                    }
                 },
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
