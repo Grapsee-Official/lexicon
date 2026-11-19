@@ -172,20 +172,20 @@ object LexiconTextStyles {
     val CategoryTitle = TextStyle(
         fontFamily = DisplayFontFamily,
         fontWeight = FontWeight.Medium,
-        fontSize = 13.sp,
-        lineHeight = 16.sp,
+        fontSize = 11.3.sp,
+        lineHeight = 14.sp,
     )
     val CategorySubtitle = TextStyle(
         fontFamily = BodyFontFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 9.sp,
-        lineHeight = 12.sp,
+        fontSize = 8.4.sp,
+        lineHeight = 11.sp,
     )
     val ArticleTitle = TextStyle(
         fontFamily = DisplayFontFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 13.sp,
-        lineHeight = 17.sp,
+        fontSize = 11.5.sp,
+        lineHeight = 15.5.sp,
     )
     val ArticleMeta = TextStyle(
         fontFamily = BodyFontFamily,
@@ -208,7 +208,7 @@ object LexiconTextStyles {
     val NavLabel = TextStyle(
         fontFamily = BodyFontFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 10.5.sp,
-        lineHeight = 13.sp,
+        fontSize = 9.5.sp,
+        lineHeight = 12.sp,
     )
 }
