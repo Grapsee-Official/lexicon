@@ -86,7 +86,7 @@ class MainActivity : ComponentActivity() {
                     }
                     "10", "expanded", "expanded_exploration" -> viewModel.navigate(ScreenRoute.EXPANDED_EXPLORATION, word = LexiconData.serendipityEntry, expand36 = false)
                     "10_expanded", "translations" -> viewModel.navigate(ScreenRoute.EXPANDED_EXPLORATION, word = LexiconData.serendipityEntry, expand36 = true)
-                    "home" -> viewModel.setActiveTab(TabKey.HOME)
+                    "home", "library", "library_article" -> viewModel.setActiveTab(TabKey.HOME)
                     "more" -> viewModel.setActiveTab(TabKey.MORE)
                 }
             }
