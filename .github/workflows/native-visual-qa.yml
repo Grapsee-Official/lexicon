@@ -20,6 +20,14 @@ on:
       - 'artwork/vector/countryside-*-material.svg'
       - 'artwork/vector/lexora-*.svg'
       - 'docs/visual-qa/lexora-home-reference-contract.md'
+  # Run simulator screenshot QA on review branches, not only after merge.
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/native-visual-qa.yml'
+      - 'native/**'
+      - 'scripts/**'
+      - 'artwork/vector/**'
   workflow_dispatch:
   # Autonomous debug-only visual QA; scheduling can be delayed by GitHub.
   schedule:
@@ -27,8 +35,8 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: lexicon-visual-qa
-  # Collapse rapid commits into a single verification of the newest main.
+  group: lexicon-visual-qa-${{ github.event.pull_request.number || github.ref }}
+  # Avoid PR runs canceling verification of main, or vice versa.
   cancel-in-progress: true
 
 jobs:
