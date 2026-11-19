@@ -126,31 +126,30 @@ fun CountrysideHeroHeader(
         "templates" -> Icons.Outlined.Style
         else -> Icons.Outlined.History
     }
-    val config = androidx.compose.ui.platform.LocalConfiguration.current
-    val compact = config.screenWidthDp < 390
-    val accessibilityText = config.fontScale >= 1.3f
-    // On phone-sized windows, free space for the watercolor quotation below.
-    // Retain increased height for larger system fonts and full artwork on tablets.
-    val phoneHeight = config.screenWidthDp < 600 && config.screenHeightDp < 940
-    val responsiveHeight = when {
-        // The original painting is portrait-ish (~508x345). On an 800dp
-        // tablet a 146dp hero leaves it a tiny corner vignette; give the
-        // whole scene real page space without cropping a single brushstroke.
-        config.screenWidthDp >= 600 ->
-            maxOf(heroHeight + 64.dp, (config.screenWidthDp * 0.34f).dp)
-                .coerceAtMost(300.dp)
-        accessibilityText -> heroHeight + 62.dp
-        phoneHeight -> heroHeight + 12.dp
-        else -> heroHeight
-    }
-    val titleWidth = if (compact || accessibilityText) 0.76f else 0.58f
+    val accessibilityText =
+        androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f
 
-    Box(
+    // Width comes from the real Compose viewport, including split-screen and
+    // freeform windows. Do not squeeze a 508x345 watercolor into 142dp.
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxWidth()
-            .windowInsetsPadding(WindowInsets.statusBars)
-            .height(responsiveHeight),
+            .windowInsetsPadding(WindowInsets.statusBars),
     ) {
+        val compact = maxWidth < 390.dp
+        val fullPaintingHeight = (maxWidth * 0.68f).coerceIn(218.dp, 540.dp)
+        val responsiveHeight = maxOf(
+            heroHeight + 18.dp,
+            fullPaintingHeight,
+            if (accessibilityText) heroHeight + 106.dp else 0.dp,
+        )
+        val titleWidth = if (compact || accessibilityText) 0.76f else 0.58f
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(responsiveHeight),
+        ) {
         Image(
             painter = painterResource(resId),
             contentDescription = null,
@@ -245,6 +244,7 @@ fun CountrysideHeroHeader(
                 tint = if (isDark) DarkAccent else DeepForest.copy(alpha = 0.78f),
                 modifier = Modifier.size(18.dp),
             )
+        }
         }
     }
 }
