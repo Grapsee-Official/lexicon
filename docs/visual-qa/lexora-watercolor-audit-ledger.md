@@ -169,6 +169,20 @@ PNG files. This document is **not** a declaration of 100% visual fidelity.
       screenshots, plus compact/tablet responsive captures. Source success is
       not pixel-perfect UI sign-off.
 
+## Responsive template composition and actionable native stars
+
+- **Found in tablet evidence from run 44559735340:** Quick Templates
+  illustrations were confined to 82dp/106dp-height thumbnails. In 800dp
+  two-column layouts, the original 370:152 paintings were smaller than
+  their cards and visually detached from the star action.
+- **Android and iOS:** paintings now follow their full original 370:152
+  aspect ratio within each adaptive-width card. No pixels are cropped.
+- **Interaction:** star icons have 44dp/44pt hit targets with no opaque
+  circle or masked paint; titles may use two lines with larger text.
+- [ ] Review all four illustrated template cards in light/dark on
+      compact phones, standard phones, tablets and native iOS, including
+      bottom navigation scrolling.
+
 ## Verification and completion rule
 
 Native Android, iOS and C++ must build/test on the merged source commit.

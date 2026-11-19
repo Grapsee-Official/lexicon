@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -1230,7 +1231,8 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                                             templateForNote = tpl
                                         },
                                 ) {
-                                    Box(modifier = Modifier.fillMaxWidth().height(if (androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f) 106.dp else 82.dp)) {
+                                    // Preserve the original 370:152 painting at every width.
+                                    Box(modifier = Modifier.fillMaxWidth().aspectRatio(370f / 152f)) {
                                         Image(
                                             painter = painterResource(artRes),
                                             contentDescription = null,
@@ -1240,17 +1242,19 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                                         Box(
                                             modifier = Modifier
                                                 .align(Alignment.TopEnd)
-                                                .padding(6.dp)
-                                                .size(22.dp)
-                                                .clip(CircleShape)
-                                                .clickable { viewModel.toggleTemplateStar(tpl.id) },
+                                                .padding(2.dp)
+                                                // No badge/cream patch: accessible native tap target.
+                                                .size(44.dp)
+                                                .clickable(role = Role.Button) {
+                                                    viewModel.toggleTemplateStar(tpl.id)
+                                                },
                                             contentAlignment = Alignment.Center,
                                         ) {
                                             Icon(
                                                 imageVector = if (tpl.starred) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                                                contentDescription = null,
+                                                contentDescription = if (tpl.starred) "Unstar ${tpl.title}" else "Star ${tpl.title}",
                                                 tint = accent,
-                                                modifier = Modifier.size(13.dp),
+                                                modifier = Modifier.size(18.dp),
                                             )
                                         }
                                     }
@@ -1262,7 +1266,7 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                                         horizontalArrangement = Arrangement.SpaceBetween,
                                     ) {
                                         Column(modifier = Modifier.weight(1f)) {
-                                            Text(tpl.title, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 13.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                            Text(tpl.title, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 13.sp), maxLines = if (config.fontScale >= 1.3f) 2 else 1, overflow = TextOverflow.Ellipsis)
                                             Text(tpl.subtitle, color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.sp, lineHeight = 14.sp), maxLines = 2)
                                         }
                                         Box(

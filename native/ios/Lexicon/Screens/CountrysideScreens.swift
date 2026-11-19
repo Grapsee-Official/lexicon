@@ -867,19 +867,22 @@ struct QuickTemplatesScreen: View {
                         ForEach(showAllTemplates ? filtered : Array(filtered.prefix(4))) { tpl in
                             VStack(spacing: 0) {
                                 ZStack(alignment: .topTrailing) {
+                                    // Full watercolor aspect, never a fixed-height
+                                    // thumbnail; the native star sits on blank paper.
                                     Image(countrysideImageName(tpl.illustration, isDark: isDark))
                                         .resizable()
-                                        .scaledToFit()
-                                        .frame(height: dynamicTypeSize.isAccessibilitySize ? 106 : 82)
+                                        .aspectRatio(370.0 / 152.0, contentMode: .fit)
                                         .frame(maxWidth: .infinity)
                                         .accessibilityHidden(true)
                                     Button { vm.toggleTemplateStar(tpl.id) } label: {
                                         Image(systemName: tpl.starred ? "star.fill" : "star")
-                                            .font(.system(size: 11))
+                                            .font(.system(size: 17, weight: .medium))
                                             .foregroundStyle(p.highlight)
-                                            .frame(width: 22, height: 22)
-                                            .padding(6)
+                                            .frame(width: 44, height: 44)
+                                            .contentShape(Rectangle())
                                     }
+                                    .accessibilityLabel(tpl.starred ? "Unstar ${tpl.title}" : "Star ${tpl.title}")
+                                    .padding(2)
                                     .buttonStyle(.plain)
                                 }
 
@@ -894,7 +897,7 @@ struct QuickTemplatesScreen: View {
                                             Text(tpl.title)
                                                 .font(.lexiconDisplay(13))
                                                 .foregroundStyle(p.foreground)
-                                                .lineLimit(1)
+                                                .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
                                             Text(tpl.subtitle)
                                                 .font(.lexiconBody(9.5))
                                                 .foregroundStyle(p.mutedForeground)
