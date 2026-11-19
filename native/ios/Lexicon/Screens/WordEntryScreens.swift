@@ -250,7 +250,11 @@ struct WordDetailProfileScreen: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var heroWidth: CGFloat = 390
     private var isDark: Bool { scheme == .dark }
-    private var heroHeight: CGFloat { max(326, min(470, heroWidth / 1.08)) }
+    private var heroHeight: CGFloat {
+        dynamicTypeSize.isAccessibilitySize
+            ? max(410, heroWidth)
+            : max(290, min(420, heroWidth * 0.77))
+    }
 
     var body: some View {
         let p = lexiconPalette(scheme)
