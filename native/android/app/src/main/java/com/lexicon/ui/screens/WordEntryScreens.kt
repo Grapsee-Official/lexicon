@@ -423,15 +423,6 @@ fun WordOfTheDayScreen(viewModel: LexiconViewModel) {
             }
         }
 
-        item(key = "quote") {
-            CountrysideQuoteBanner(
-                quote = "Words are bridges between minds.",
-                attribution = "Lexora",
-                illustrationBase = "ill_banner_bridge",
-                isDark = isDark,
-                modifier = Modifier.padding(horizontal = 16.dp),
-            )
-        }
     }
 }
 
@@ -1194,15 +1185,6 @@ fun SearchResultsScreen(viewModel: LexiconViewModel) {
             }
         }
 
-        item(key = "quote") {
-            CountrysideQuoteBanner(
-                quote = "Discover the beauty in every word.",
-                attribution = "Lexora",
-                illustrationBase = "ill_banner_bridge",
-                isDark = isDark,
-                modifier = Modifier.padding(horizontal = 16.dp),
-            )
-        }
     }
 }
 
@@ -1341,16 +1323,6 @@ fun ExpandedExplorationScreen(viewModel: LexiconViewModel) {
             }
         }
 
-        // Stacked Books & Daisies Quote Card
-        item(key = "books_quote") {
-            CountrysideQuoteBanner(
-                quote = "Words are doors to new worlds.",
-                attribution = "Lexora",
-                illustrationBase = "ill_books_daisies",
-                isDark = isDark,
-                modifier = Modifier.padding(horizontal = 16.dp),
-            )
-        }
 
         // Progressively Expandable 36-Language Word Exploration Panel
         item(key = "expanded_36_panel") {
