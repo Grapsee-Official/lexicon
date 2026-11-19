@@ -50,6 +50,37 @@ Java_com_lexicon_engine_LexiconEngine_nativeFuzzySearch(JNIEnv* env, jobject thi
     return reinterpret_cast<jlong>(results);
 }
 
+// Return actual DAWG prefix matches, not an exact-only fuzzy search.
+JNIEXPORT jobjectArray JNICALL
+Java_com_lexicon_engine_LexiconEngine_nativePrefixSearch(
+    JNIEnv* env, jobject thiz, jlong handle, jstring prefix, jint limit
+) {
+    jclass stringClass = env->FindClass("java/lang/String");
+    if (!stringClass) return nullptr;
+    if (!handle || !prefix || limit <= 0) {
+        return env->NewObjectArray(0, stringClass, nullptr);
+    }
+    const char* prefixStr = env->GetStringUTFChars(prefix, nullptr);
+    if (!prefixStr) return nullptr;
+    LexiconStringResults* matches = lexicon_engine_prefix_search(
+        CAST_HANDLE(handle), prefixStr, static_cast<uint32_t>(limit));
+    env->ReleaseStringUTFChars(prefix, prefixStr);
+
+    const jsize count = matches ? static_cast<jsize>(matches->count) : 0;
+    jobjectArray output = env->NewObjectArray(count, stringClass, nullptr);
+    if (output && matches) {
+        for (jsize i = 0; i < count; ++i) {
+            jstring word = env->NewStringUTF(matches->words[i] ? matches->words[i] : "");
+            if (!word) break; // JNI already raised an allocation exception.
+            env->SetObjectArrayElement(output, i, word);
+            env->DeleteLocalRef(word);
+            if (env->ExceptionCheck()) break;
+        }
+    }
+    lexicon_engine_free_string_results(matches);
+    return output;
+}
+
 JNIEXPORT void JNICALL
 Java_com_lexicon_engine_LexiconEngine_nativeFreeEntry(JNIEnv* env, jobject thiz, jlong entry_ptr) {
     auto* entry = reinterpret_cast<LexiconWordEntry*>(entry_ptr);
