@@ -26,13 +26,12 @@ struct CountrysideHeroHeader: View {
 
     private var isDark: Bool { scheme == .dark }
     private var responsiveHeight: CGFloat {
-        // Use the actual container width, never the physical device's bounds.
-        // On iPad split view the scene can be much narrower than UIScreen.
-        if measuredWidth >= 600 {
-            return min(300, max(heroHeight + 64, measuredWidth * 0.34))
-        }
-        if dynamicTypeSize.isAccessibilitySize { return heroHeight + 64 }
-        return heroHeight + 12
+        // Give the full 508x345 painted vignette its natural space.
+        // A narrow iPad window uses its real container width, not UIScreen.
+        let completePainting = min(540, max(218, measuredWidth * 0.68))
+        let textAllowance = dynamicTypeSize.isAccessibilitySize
+            ? heroHeight + 106 : heroHeight + 18
+        return max(completePainting, textAllowance)
     }
 
     var body: some View {
