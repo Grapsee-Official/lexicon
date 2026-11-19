@@ -140,7 +140,7 @@ final class LexiconViewModel: ObservableObject {
             navigate(to: .expandedExploration, word: LexiconData.serendipityEntry, expand36: false)
         case "10_expanded", "translations":
             navigate(to: .expandedExploration, word: LexiconData.serendipityEntry, expand36: true)
-        case "home":
+        case "home", "library", "library_article":
             setActiveTab(.home)
         case "more":
             setActiveTab(.more)
