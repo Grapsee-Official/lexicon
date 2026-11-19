@@ -15,7 +15,7 @@ struct SectionHeader: View {
     var body: some View {
         HStack(spacing: 8) {
             Text(title)
-                .font(.lexiconDisplay(18, weight: .regular))
+                .font(.lexiconDisplay(16.5, weight: .regular))
                 .tracking(-0.2)
                 .foregroundStyle(lexiconPalette(scheme).foreground)
                 .lineLimit(1)
