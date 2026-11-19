@@ -23,6 +23,11 @@ final class LexiconViewModel: ObservableObject {
     @Published var searchOpen: Bool = false
     @Published var menuOpen: Bool = false
 
+    // Native library navigation: independent of SwiftUI sheet presentation
+    // timing, so users and cold-launch screenshot tests see the same routes.
+    @Published var libraryOpen: Bool = false
+    @Published var libraryArticleId: String? = nil
+
     @Published var searchQuery: String = "serendipity"
     @Published var collectionFilter: String = "All"
     @Published var searchScopeTab: String = "All"
@@ -140,8 +145,12 @@ final class LexiconViewModel: ObservableObject {
             navigate(to: .expandedExploration, word: LexiconData.serendipityEntry, expand36: false)
         case "10_expanded", "translations":
             navigate(to: .expandedExploration, word: LexiconData.serendipityEntry, expand36: true)
-        case "home", "library", "library_article":
+        case "home":
             setActiveTab(.home)
+        case "library":
+            openLibrary()
+        case "library_article":
+            openLibrary(articleId: LexiconData.articles.first?.id)
         case "more":
             setActiveTab(.more)
         default:
@@ -149,7 +158,29 @@ final class LexiconViewModel: ObservableObject {
         }
     }
 
+    func openLibrary(articleId: String? = nil) {
+        let validArticle = articleId.flatMap { id in
+            LexiconData.articles.first(where: { $0.id == id })?.id
+        }
+        searchOpen = false
+        menuOpen = false
+        libraryArticleId = validArticle
+        libraryOpen = true
+        activeTab = .home
+        route = .home
+    }
+
+    func openLibraryArticle(_ id: String) {
+        openLibrary(articleId: id)
+    }
+
+    func closeLibrary() {
+        libraryOpen = false
+        libraryArticleId = nil
+    }
+
     func navigate(to target: ScreenRoute, word: WordEntry? = nil, expand36: Bool = false) {
+        closeLibrary()
         let nextTab: LexiconTab
         switch target {
         case .home:
@@ -176,12 +207,21 @@ final class LexiconViewModel: ObservableObject {
     }
 
     func navigateBack() {
+        if libraryOpen {
+            if libraryArticleId != nil {
+                libraryArticleId = nil
+            } else {
+                closeLibrary()
+            }
+            return
+        }
         let prev = routeHistory.last ?? .home
         if !routeHistory.isEmpty { routeHistory.removeLast() }
         route = prev
     }
 
     func setActiveTab(_ tab: LexiconTab) {
+        closeLibrary()
         activeTab = tab
         routeHistory = []
         searchOpen = false
