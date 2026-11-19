@@ -27,6 +27,16 @@ jobs:
           cp native/android/app/src/main/res/drawable-nodpi/wotd_bg_*.png recovery-preview/original/
           cp native/android/app/src/main/res/drawable-nodpi/hero_*.png recovery-preview/original/
           ls -lh recovery-preview/original
+      - name: Install isolated restoration dependencies
+        run: python3 -m pip install --quiet pillow numpy opencv-python-headless
+      - name: Render source-preserving repaired assets (preview only)
+        run: python3 scripts/restore_native_watercolors.py --output-dir recovery-preview/restored
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lexora-watercolor-restoration-candidates
+          path: recovery-preview/restored/*.png
+          retention-days: 3
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         with:
           name: lexora-unmodified-painting-sources
