@@ -13,7 +13,7 @@ struct WordOfTheDayCard: View {
     @State private var measuredWidth: CGFloat = 390
 
     private var cardHeight: CGFloat {
-        dynamicTypeSize.isAccessibilitySize ? 186 : (measuredWidth < 360 ? 144 : 126)
+        dynamicTypeSize.isAccessibilitySize ? 186 : (measuredWidth < 360 ? 144 : 118)
     }
 
     private var isDark: Bool { scheme == .dark }
