@@ -85,6 +85,22 @@ struct HomeScreen: View {
             .padding(.bottom, 76)
         }
         .background(lexiconPalette(scheme).background)
+        .onAppear {
+            // Only native debug screenshot sessions request an initial sheet.
+            #if DEBUG
+            let args = ProcessInfo.processInfo.arguments
+            if args.contains("-lexoraVisualQa"),
+               let index = args.firstIndex(of: "-lexiconScreen"),
+               index + 1 < args.count {
+                let screen = args[index + 1]
+                if screen == "library" || screen == "library_article" {
+                    articleToRead = screen == "library_article"
+                        ? LexiconData.articles.first : nil
+                    libraryOpen = true
+                }
+            }
+            #endif
+        }
         .sheet(isPresented: $libraryOpen) {
             NavigationStack {
                 ScrollView {
