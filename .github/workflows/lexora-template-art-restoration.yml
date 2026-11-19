@@ -1,0 +1,29 @@
+name: Lexora template watercolor restoration preview
+
+on:
+  push:
+    branches:
+      - lexora/template-source-art-recovery
+    paths:
+      - .github/workflows/lexora-template-art-restoration.yml
+      - scripts/restore_template_watercolors.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  original-template-artwork:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install lightweight image restoration dependencies
+        run: python3 -m pip install --quiet pillow numpy opencv-python-headless
+      - name: Prepare exact localized badge-free painting previews
+        run: python3 scripts/restore_template_watercolors.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lexora-template-watercolor-original-vs-restored
+          path: qa-template-restoration
+          retention-days: 3
+          if-no-files-found: error
