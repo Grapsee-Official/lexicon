@@ -35,7 +35,7 @@ struct Hero: View {
     }
 
     private var subtextColor: Color {
-        isDark ? LexiconColors.mutedForegroundDark : LexiconColors.foreground.opacity(0.90)
+        isDark ? Color(hex: "D3C6B2") : LexiconColors.foreground.opacity(0.90)
     }
 
     var body: some View {
