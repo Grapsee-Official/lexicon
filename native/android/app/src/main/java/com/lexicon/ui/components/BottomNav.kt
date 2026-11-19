@@ -38,6 +38,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lexicon.data.LexiconViewModel
 import com.lexicon.data.TabKey
@@ -69,6 +72,7 @@ fun BottomNav(
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val compactLabels = LocalConfiguration.current.screenWidthDp < 360
     val activeTab = state.activeTab
     val isDark = state.isDark
 
@@ -113,6 +117,7 @@ fun BottomNav(
                 activeColor = activeColor,
                 inactiveColor = inactiveColor,
                 dotColor = if (isDark) DarkHighlight else BrandGreen,
+                compact = compactLabels,
             ) {
                 viewModel.setActiveTab(TabKey.HOME)
             }
@@ -126,6 +131,7 @@ fun BottomNav(
                 activeColor = activeColor,
                 inactiveColor = inactiveColor,
                 dotColor = if (isDark) DarkHighlight else BrandGreen,
+                compact = compactLabels,
             ) {
                 viewModel.setActiveTab(TabKey.DICTIONARY)
             }
@@ -143,6 +149,7 @@ fun BottomNav(
                 activeColor = activeColor,
                 inactiveColor = inactiveColor,
                 dotColor = if (isDark) DarkHighlight else BrandGreen,
+                compact = compactLabels,
             ) {
                 viewModel.setActiveTab(TabKey.COLLECTIONS)
             }
@@ -156,6 +163,7 @@ fun BottomNav(
                 activeColor = activeColor,
                 inactiveColor = inactiveColor,
                 dotColor = if (isDark) DarkHighlight else BrandGreen,
+                compact = compactLabels,
             ) {
                 viewModel.setActiveTab(TabKey.MORE)
             }
@@ -207,6 +215,7 @@ private fun BottomNavItem(
     activeColor: Color,
     inactiveColor: Color,
     dotColor: Color,
+    compact: Boolean,
     onClick: () -> Unit,
 ) {
     Column(
@@ -226,8 +235,9 @@ private fun BottomNavItem(
         Text(
             text = label,
             color = if (isActive) activeColor else inactiveColor,
-            style = LexiconTextStyles.NavLabel,
+            style = if (compact) LexiconTextStyles.NavLabel.copy(fontSize = 8.sp) else LexiconTextStyles.NavLabel,
             maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
         )
         Box(
             modifier = Modifier
