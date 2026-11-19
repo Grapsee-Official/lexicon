@@ -62,11 +62,6 @@ struct DictionaryHomeScreen: View {
                     }
                 }
 
-                CountrysideQuoteBanner(
-                    quote: "Words are doors to new worlds.",
-                    attribution: "Lexora", illustrationBase: "ill-books-daisies"
-                )
-                .padding(.horizontal, 16)
 
                 VStack(spacing: 8) {
                     BotanicalSectionTitle(
