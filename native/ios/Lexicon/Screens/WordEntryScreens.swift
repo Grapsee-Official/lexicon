@@ -18,6 +18,7 @@ struct WordOfTheDayScreen: View {
     @Environment(\.colorScheme) private var scheme
 
     @State private var dayIdx: Int = 0
+    @State private var artworkWidth: CGFloat = 390
     private var isDark: Bool { scheme == .dark }
     private var featured: [WordEntry] {
         [LexiconData.serendipityEntry, LexiconData.solitudeEntry, LexiconData.wordOfTheDay, LexiconData.dictionary[3]]
@@ -30,11 +31,15 @@ struct WordOfTheDayScreen: View {
         ScrollView {
             VStack(spacing: 12) {
                 ZStack(alignment: .topTrailing) {
+                    // The watercolor spans the available native page instead
+                    // of being confined to a fixed 282pt right-hand box.
                     Image(countrysideImageName("ill-hero-bridge", isDark: isDark))
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 282, height: 288, alignment: .topTrailing)
-                         .offset(y: 18)
+                        .frame(width: artworkWidth,
+                               height: max(300, min(470, artworkWidth / 1.08)),
+                               alignment: .bottomTrailing)
+                        .offset(y: 16)
                         .allowsHitTesting(false)
 
                     if isDark {
