@@ -324,7 +324,7 @@ class LexiconViewModel : ViewModel() {
         val cleanBody = body.trim().ifEmpty { "Captured during countryside study." }
         val today = SimpleDateFormat("MMM d, yyyy", Locale.US).format(Date())
         val item = NoteItem(
-            id = "note_${System.currentTimeMillis()}",
+            id = "note_" + java.util.UUID.randomUUID().toString(),
             category = category,
             title = cleanTitle,
             body = cleanBody,
@@ -420,7 +420,7 @@ class LexiconViewModel : ViewModel() {
 
     fun createCustomTemplate(title: String, subtitle: String, category: TemplateCategory) {
         val tpl = VocabTemplate(
-            id = "tpl_${System.currentTimeMillis()}",
+            id = "tpl_" + java.util.UUID.randomUUID().toString(),
             title = title.trim().ifEmpty { "Countryside Journal" },
             subtitle = subtitle.trim().ifEmpty { "Custom literary word study." },
             category = category,
