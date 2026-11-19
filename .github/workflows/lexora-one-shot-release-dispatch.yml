@@ -1,0 +1,22 @@
+# One-shot bridge for the explicitly requested Android real-device audit.
+# This workflow only dispatches the repository's existing manually gated
+# release workflow. It performs no build, signing, or publishing itself.
+name: Lexora One-Shot Audit Release Dispatch
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/lexora-one-shot-release-dispatch.yml'
+permissions:
+  contents: read
+  actions: write
+jobs:
+  dispatch:
+    if: github.event.head_commit.message == 'Trigger requested Lexora audit release (one-shot)'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch existing native release workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run android-build.yml --repo "$GITHUB_REPOSITORY" --ref main
