@@ -61,11 +61,11 @@ fun Hero(
     val expanded = configuration.screenWidthDp >= 600
     val largeText = configuration.fontScale > 1.2f
     val heroHeight = when {
-        expanded && largeText -> 410.dp
-        expanded -> 350.dp
-        largeText -> 310.dp
-        compact -> 270.dp
-        else -> 258.dp
+        expanded && largeText -> 425.dp
+        expanded -> 365.dp
+        largeText -> 330.dp
+        compact -> 290.dp
+        else -> 278.dp
     }
     val textWidth = if (compact || largeText) 0.60f else 0.52f
 
@@ -81,9 +81,8 @@ fun Hero(
             alignment = Alignment.BottomEnd,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .fillMaxWidth(if (compact) 0.65f else 0.71f)
-                .height(heroHeight)
-                .offset(x = 8.dp, y = 6.dp),
+                .fillMaxWidth(if (compact) 0.82f else 0.88f)
+                .height(heroHeight),
         )
 
         if (isDark) {
@@ -99,8 +98,8 @@ fun Hero(
                 .height(heroHeight)
                 .background(
                     Brush.horizontalGradient(
-                        0.00f to (if (isDark) DarkBackground else WarmCream).copy(alpha = 0.99f),
-                        0.42f to (if (isDark) DarkBackground else WarmCream).copy(alpha = 0.92f),
+                        0.00f to (if (isDark) DarkBackground else WarmCream).copy(alpha = 0.94f),
+                        0.42f to (if (isDark) DarkBackground else WarmCream).copy(alpha = 0.72f),
                         1.00f to Color.Transparent,
                     ),
                 ),

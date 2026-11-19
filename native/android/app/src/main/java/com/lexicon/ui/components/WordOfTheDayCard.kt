@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -27,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -192,16 +194,28 @@ fun WordOfTheDayCard(
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .fillMaxHeight()
-                    .fillMaxWidth(0.50f),
-                contentScale = ContentScale.Crop,
-                alignment = Alignment.CenterEnd,
+                    .fillMaxWidth(0.96f),
+                contentScale = ContentScale.Fit,
+                alignment = Alignment.BottomEnd,
             )
 
             if (isDark) {
                 NocturneAtmosphere(
-                    Modifier.align(Alignment.CenterEnd).fillMaxWidth(0.50f).fillMaxHeight()
+                    Modifier.align(Alignment.CenterEnd).fillMaxWidth(0.96f).fillMaxHeight()
                 )
             }
+
+            // Feather the left edge of the painting into the reading surface;
+            // do not crop or hide the countryside behind a solid rectangle.
+            Box(
+                modifier = Modifier.fillMaxSize().background(
+                    Brush.horizontalGradient(
+                        0.0f to rightBg.copy(alpha = 0.96f),
+                        0.38f to rightBg.copy(alpha = 0.72f),
+                        0.83f to Color.Transparent,
+                    )
+                ),
+            )
 
             Column(
                 modifier = Modifier

@@ -24,7 +24,7 @@ struct CountrysideHeroHeader: View {
     private var responsiveHeight: CGFloat {
         if dynamicTypeSize.isAccessibilitySize { return heroHeight + 64 }
         let phoneSize = UIScreen.main.bounds.width < 600 && UIScreen.main.bounds.height < 940
-        return phoneSize ? max(112, heroHeight - 20) : heroHeight
+        return phoneSize ? heroHeight + 12 : heroHeight
     }
 
     var body: some View {
@@ -36,18 +36,17 @@ struct CountrysideHeroHeader: View {
                     Image(countrysideImageName(illustrationBase, isDark: isDark))
                         .resizable()
                         .scaledToFit()
-                        .frame(width: w * 0.66, height: responsiveHeight, alignment: .bottomTrailing)
-                        .offset(x: 6, y: 4)
+                        .frame(width: w * 0.90, height: responsiveHeight, alignment: .bottomTrailing)
                         .accessibilityHidden(true)
                 }
                 .frame(width: w, height: responsiveHeight)
 
                 LinearGradient(
                     stops: [
-                        .init(color: isDark ? LexiconColors.backgroundDark.opacity(0.84)
-                            : LexiconColors.background.opacity(0.78), location: 0),
-                        .init(color: isDark ? LexiconColors.backgroundDark.opacity(0.46)
-                            : LexiconColors.background.opacity(0.42), location: 0.38),
+                        .init(color: isDark ? LexiconColors.backgroundDark.opacity(0.70)
+                            : LexiconColors.background.opacity(0.65), location: 0),
+                        .init(color: isDark ? LexiconColors.backgroundDark.opacity(0.32)
+                            : LexiconColors.background.opacity(0.27), location: 0.38),
                         .init(color: .clear, location: 0.78),
                     ],
                     startPoint: .leading, endPoint: .trailing
@@ -96,9 +95,7 @@ struct CountrysideHeroHeader: View {
                             .font(.system(size: 15, weight: .regular))
                             .foregroundStyle(isDark ? LexiconColors.accentDark : LexiconColors.foreground.opacity(0.78))
                             .frame(width: 34, height: 34)
-                            .background(lexiconPalette(scheme).searchPill.opacity(0.76))
-                            .clipShape(Circle())
-                            .overlay(Circle().stroke(lexiconPalette(scheme).border, lineWidth: 1))
+                            
                     }
                     .buttonStyle(.plain)
                 }
@@ -313,15 +310,14 @@ struct CountrysideQuoteBanner: View {
                     Spacer(minLength: 0)
                     Image(countrysideImageName(illustrationBase, isDark: isDark))
                         .resizable()
-                        .scaledToFill()
-                        .frame(width: w * 0.58, height: 92)
-                        .clipped()
+                        .scaledToFit()
+                        .frame(width: w, height: 92, alignment: .bottomTrailing)
                 }
 
                 LinearGradient(
                     stops: [
                         .init(color: cardBg, location: 0.0),
-                        .init(color: cardBg.opacity(0.94), location: 0.46),
+                        .init(color: cardBg.opacity(0.78), location: 0.33),
                         .init(color: .clear, location: 0.74),
                     ],
                     startPoint: .leading,

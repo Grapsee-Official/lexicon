@@ -14,10 +14,10 @@ struct Hero: View {
     private var adaptiveHeight: CGFloat {
         let compact = measuredWidth < 360
         let expanded = measuredWidth >= 600
-        if expanded && dynamicTypeSize.isAccessibilitySize { return 410 }
-        if expanded { return 350 }
-        if dynamicTypeSize.isAccessibilitySize { return 310 }
-        return compact ? 246 : 215
+        if expanded && dynamicTypeSize.isAccessibilitySize { return 425 }
+        if expanded { return 365 }
+        if dynamicTypeSize.isAccessibilitySize { return 330 }
+        return compact ? 266 : 245
     }
 
     private var isDark: Bool { scheme == .dark }
@@ -44,8 +44,8 @@ struct Hero: View {
             let compact = totalWidth < 360
             let enlargedText = dynamicTypeSize.isAccessibilitySize
             let expanded = totalWidth >= 600
-            let heroHeight: CGFloat = expanded ? (enlargedText ? 410 : 350)
-                : (enlargedText ? 310 : (compact ? 246 : 215))
+            let heroHeight: CGFloat = expanded ? (enlargedText ? 425 : 365)
+                : (enlargedText ? 330 : (compact ? 266 : 245))
             let textWidth = totalWidth * ((compact || enlargedText) ? 0.60 : 0.52)
 
             ZStack(alignment: .topLeading) {
@@ -54,8 +54,7 @@ struct Hero: View {
                     Image(isDark ? "hero-dark" : "hero-light")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: totalWidth * (compact ? 0.65 : 0.71), height: heroHeight, alignment: .bottomTrailing)
-                        .offset(x: 8, y: 6)
+                        .frame(width: totalWidth * (compact ? 0.82 : 0.88), height: heroHeight, alignment: .bottomTrailing)
                         .lexiconDecorative()
         
                 }
@@ -70,8 +69,8 @@ struct Hero: View {
                 // the body copy to disappear into the cottage illustration.
                 LinearGradient(
                     stops: [
-                        .init(color: (isDark ? LexiconColors.backgroundDark : LexiconColors.background).opacity(0.99), location: 0),
-                        .init(color: (isDark ? LexiconColors.backgroundDark : LexiconColors.background).opacity(0.92), location: 0.42),
+                        .init(color: (isDark ? LexiconColors.backgroundDark : LexiconColors.background).opacity(0.94), location: 0),
+                        .init(color: (isDark ? LexiconColors.backgroundDark : LexiconColors.background).opacity(0.72), location: 0.42),
                         .init(color: .clear, location: 1)
                     ],
                     startPoint: .leading,

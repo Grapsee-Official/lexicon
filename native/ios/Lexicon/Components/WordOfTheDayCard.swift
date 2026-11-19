@@ -122,17 +122,28 @@ struct WordOfTheDayCard: View {
                             Spacer(minLength: 0)
                             Image(isDark ? "wotd-bg-dark" : "wotd-bg-light")
                                 .resizable()
-                                .scaledToFill()
-                                .frame(width: rightW * 0.50, height: height)
-                                .clipped()
+                                .scaledToFit()
+                                .frame(width: rightW * 0.96, height: height, alignment: .bottomTrailing)
                                 .accessibilityHidden(true)
                         }
 
                         if isDark {
                             NocturneAtmosphere()
-                                .frame(width: rightW * 0.50, height: height)
+                                .frame(width: rightW * 0.96, height: height)
                                 .frame(maxWidth: .infinity, alignment: .trailing)
                         }
+
+                        // Feather the complete illustration behind the definition.
+                        LinearGradient(
+                            stops: [
+                                .init(color: rightBg.opacity(0.96), location: 0),
+                                .init(color: rightBg.opacity(0.72), location: 0.38),
+                                .init(color: .clear, location: 0.83),
+                            ],
+                            startPoint: .leading, endPoint: .trailing
+                        )
+                        .frame(width: rightW, height: height)
+                        .allowsHitTesting(false)
 
                         VStack(alignment: .leading, spacing: 0) {
                             Text(word.definitions.first ?? "")

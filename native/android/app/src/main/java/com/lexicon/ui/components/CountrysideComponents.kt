@@ -121,7 +121,7 @@ fun CountrysideHeroHeader(
     val phoneHeight = config.screenWidthDp < 600 && config.screenHeightDp < 940
     val responsiveHeight = when {
         accessibilityText -> heroHeight + 62.dp
-        phoneHeight -> (heroHeight - 20.dp).coerceAtLeast(112.dp)
+        phoneHeight -> heroHeight + 12.dp
         else -> heroHeight
     }
     val titleWidth = if (compact || accessibilityText) 0.76f else 0.58f
@@ -139,9 +139,8 @@ fun CountrysideHeroHeader(
             alignment = Alignment.BottomEnd,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .fillMaxWidth(0.66f)
-                .height(responsiveHeight)
-                .offset(x = 6.dp, y = 4.dp),
+                .fillMaxWidth(0.90f)
+                .height(responsiveHeight),
         )
 
         // A responsive painted-paper wash protects legibility
@@ -149,10 +148,10 @@ fun CountrysideHeroHeader(
         Box(
             modifier = Modifier.fillMaxSize().background(
                 Brush.horizontalGradient(
-                    0.0f to (if (isDark) Color(0xFF0E131B).copy(alpha = 0.84f)
-                        else Color(0xFFF3EBDD).copy(alpha = 0.78f)),
-                    0.38f to (if (isDark) Color(0xFF0E131B).copy(alpha = 0.46f)
-                        else Color(0xFFF3EBDD).copy(alpha = 0.42f)),
+                    0.0f to (if (isDark) Color(0xFF0E131B).copy(alpha = 0.70f)
+                        else Color(0xFFF3EBDD).copy(alpha = 0.65f)),
+                    0.38f to (if (isDark) Color(0xFF0E131B).copy(alpha = 0.32f)
+                        else Color(0xFFF3EBDD).copy(alpha = 0.27f)),
                     0.78f to Color.Transparent,
                 )
             ),
@@ -210,9 +209,6 @@ fun CountrysideHeroHeader(
                 .align(Alignment.TopEnd)
                 .padding(top = 10.dp, end = 16.dp)
                 .size(34.dp)
-                .clip(CircleShape)
-                .background(if (isDark) DarkCard.copy(alpha = 0.72f) else SearchPillLight.copy(alpha = 0.72f))
-                .border(1.dp, if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.12f), CircleShape)
                 .clickable(role = Role.Button) { onHistoryClick() },
             contentAlignment = Alignment.Center,
         ) {
@@ -512,12 +508,11 @@ fun CountrysideQuoteBanner(
         Image(
             painter = painterResource(resId),
             contentDescription = null,
-            contentScale = ContentScale.Crop,
+            contentScale = ContentScale.Fit,
             alignment = Alignment.CenterEnd,
             modifier = Modifier
                 .align(Alignment.CenterEnd)
-                .fillMaxHeight()
-                .fillMaxWidth(0.58f),
+                .fillMaxSize(),
         )
 
         Box(
@@ -526,7 +521,7 @@ fun CountrysideQuoteBanner(
                 .background(
                     Brush.horizontalGradient(
                         0.0f to cardBg,
-                        0.46f to cardBg.copy(alpha = 0.94f),
+                        0.33f to cardBg.copy(alpha = 0.78f),
                         0.72f to Color.Transparent,
                     )
                 ),
