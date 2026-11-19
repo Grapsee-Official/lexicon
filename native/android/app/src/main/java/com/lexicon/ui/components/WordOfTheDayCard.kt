@@ -132,7 +132,7 @@ fun WordOfTheDayCard(
                 Text(
                     text = word.word,
                     color = wordColor,
-                    style = LexiconTextStyles.WotdWord.copy(fontSize = if (config.screenWidthDp < 420) 16.sp else 19.sp),
+                    style = LexiconTextStyles.WotdWord.copy(fontSize = if (config.screenWidthDp < 370) 18.sp else 21.sp),
                     maxLines = if (accessible || compact) 2 else 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
