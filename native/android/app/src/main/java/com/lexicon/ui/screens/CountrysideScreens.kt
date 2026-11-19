@@ -377,15 +377,6 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
             }
         }
 
-        item(key = "quote") {
-            CountrysideQuoteBanner(
-                quote = "A collection of words is a collection of worlds.",
-                attribution = "Lexora",
-                illustrationBase = "ill_banner_bridge",
-                isDark = isDark,
-                modifier = Modifier.padding(horizontal = 16.dp),
-            )
-        }
     }
 }
 
@@ -675,15 +666,6 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
             }
         }
 
-        item(key = "quote") {
-            CountrysideQuoteBanner(
-                quote = "A well-written note is a small step towards wisdom.",
-                attribution = "Lexora",
-                illustrationBase = "ill_banner_bridge",
-                isDark = isDark,
-                modifier = Modifier.padding(horizontal = 16.dp),
-            )
-        }
     }
     editingNote?.let { note ->
         AlertDialog(
@@ -1016,15 +998,6 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
             }
         }
 
-        item(key = "quote") {
-            CountrysideQuoteBanner(
-                quote = "Knowledge is a journey, not a destination.",
-                attribution = "Lexora",
-                illustrationBase = "ill_banner_bridge",
-                isDark = isDark,
-                modifier = Modifier.padding(horizontal = 16.dp),
-            )
-        }
     }
     if (showCreateList) {
         AlertDialog(
@@ -1364,15 +1337,6 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
             }
         }
 
-        item(key = "quote") {
-            CountrysideQuoteBanner(
-                quote = "Better words. A brighter mind.",
-                attribution = "Lexora",
-                illustrationBase = "ill_banner_bridge",
-                isDark = isDark,
-                modifier = Modifier.padding(horizontal = 16.dp),
-            )
-        }
     }
     if (showCreateTemplate) {
         AlertDialog(
@@ -1726,15 +1690,6 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
             }
         }
 
-        item(key = "quote") {
-            CountrysideQuoteBanner(
-                quote = "A word is a doorway to a bigger world.",
-                attribution = "Lexora",
-                illustrationBase = "ill_banner_bridge",
-                isDark = isDark,
-                modifier = Modifier.padding(horizontal = 16.dp),
-            )
-        }
     }
 }
 
