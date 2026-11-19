@@ -161,7 +161,10 @@ fun CountrysideHeroHeader(
                 // No arbitrary 90%-width picture box. Give the source PNG
                 // the whole literary page; its own alpha defines the edges.
                 .fillMaxWidth()
-                .height(responsiveHeight),
+                .height(responsiveHeight)
+                // Watercolor may flow under the search pill rather than
+                // ending at an artificial horizontal picture boundary.
+                .offset(y = 24.dp),
         )
 
         // Keep ink legible over the left margin without bleaching the
