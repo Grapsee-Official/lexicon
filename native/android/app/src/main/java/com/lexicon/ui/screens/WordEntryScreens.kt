@@ -928,6 +928,8 @@ fun SearchResultsScreen(viewModel: LexiconViewModel) {
                 illustrationBase = "ill_hero_cottage",
                 isDark = isDark,
                 onHistoryClick = { viewModel.navigate(ScreenRoute.SEARCH_DISCOVERY) },
+                actionKind = "back",
+                actionLabel = "Back to Search",
                 onLogoToggleTheme = { viewModel.toggleTheme() },
                 heroHeight = 148.dp,
             )
@@ -1279,6 +1281,8 @@ fun ExpandedExplorationScreen(viewModel: LexiconViewModel) {
                 illustrationBase = "ill_hero_cottage",
                 isDark = isDark,
                 onHistoryClick = { viewModel.navigate(ScreenRoute.SEARCH_DISCOVERY) },
+                actionKind = "back",
+                actionLabel = "Back to Search",
                 onLogoToggleTheme = { viewModel.toggleTheme() },
                 heroHeight = 142.dp,
             )
