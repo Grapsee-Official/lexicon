@@ -15,7 +15,7 @@ struct HomeScreen: View {
     // Real readers continue receiving the daily rotating featured word.
     private var displayedHomeWord: WordEntry {
         #if DEBUG
-        if ProcessInfo.processInfo.arguments.contains("-lexiconSnapshotSyncDir") {
+        if ProcessInfo.processInfo.arguments.contains("-lexoraVisualQa") || ProcessInfo.processInfo.arguments.contains("-lexiconSnapshotSyncDir") {
             return LexiconData.wordOfTheDay
         }
         #endif
