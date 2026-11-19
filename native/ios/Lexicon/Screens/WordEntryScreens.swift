@@ -445,35 +445,57 @@ struct WordDetailProfileScreen: View {
                 .padding(.horizontal, 16)
 
                 if !word.didYouKnow.isEmpty {
-                    // Match the generous painted bay to the natural bookplate.
-                    // The text grows with Dynamic Type; there is no line clamp.
-                    ZStack(alignment: .leading) {
-                        p.card
-                        Image(countrysideImageName("ill-banner-bay", isDark: isDark))
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxWidth: .infinity, alignment: .bottomTrailing)
-                            .frame(height: max(154, min(230, heroWidth * 0.41)),
-                                   alignment: .bottomTrailing)
-                            .accessibilityHidden(true)
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack(spacing: 7) {
-                                Image(systemName: "lightbulb")
-                                    .font(.system(size: 16))
-                                    .foregroundStyle(p.highlight)
+                    // The bookplate height follows its own watercolor ratio;
+                    // large type moves copy above it rather than stretching or
+                    // cropping the original art.
+                    let artName = countrysideImageName("ill-banner-bay", isDark: isDark)
+                    let natural = UIImage(named: artName)?.size ?? CGSize(width: 3, height: 1)
+                    let artRatio = max(1, natural.width / max(1, natural.height))
+                    let artHeight = (heroWidth - 32) / artRatio
+                    let stacked = dynamicTypeSize.isAccessibilitySize || word.didYouKnow.count > 135
+
+                    VStack(alignment: .leading, spacing: 0) {
+                        if stacked {
+                            VStack(alignment: .leading, spacing: 8) {
                                 Text("Did You Know?")
-                                    .font(.lexiconDisplay(17))
+                                    .font(.lexiconDisplay(18))
                                     .foregroundStyle(p.foreground)
+                                Text(word.didYouKnow)
+                                    .font(.lexiconBody(13))
+                                    .foregroundStyle(p.foreground.opacity(0.9))
+                                    .fixedSize(horizontal: false, vertical: true)
                             }
-                            Text(word.didYouKnow)
-                                .font(.lexiconBody(12))
-                                .foregroundStyle(p.foreground.opacity(0.90))
-                                .fixedSize(horizontal: false, vertical: true)
+                            .padding(16)
                         }
-                        .frame(width: heroWidth * 0.59, alignment: .leading)
-                        .padding(16)
+
+                        ZStack(alignment: .leading) {
+                            Image(artName)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(maxWidth: .infinity)
+                                .frame(height: artHeight, alignment: .bottomTrailing)
+                                .accessibilityHidden(true)
+
+                            if !stacked {
+                                VStack(alignment: .leading, spacing: 5) {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "lightbulb")
+                                            .foregroundStyle(p.highlight)
+                                        Text("Did You Know?")
+                                            .font(.lexiconDisplay(15))
+                                    }
+                                    Text(word.didYouKnow)
+                                        .font(.lexiconBody(11.5))
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                                .foregroundStyle(p.foreground)
+                                .frame(width: (heroWidth - 32) * 0.62, alignment: .leading)
+                                .padding(.leading, 12)
+                            }
+                        }
+                        .frame(height: artHeight)
                     }
-                    .frame(minHeight: max(154, min(230, heroWidth * 0.41)))
+                    .frame(maxWidth: .infinity)
                     .background(p.card)
                     .clipShape(RoundedRectangle(cornerRadius: 17, style: .continuous))
                     .overlay(
