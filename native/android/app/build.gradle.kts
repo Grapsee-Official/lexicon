@@ -12,8 +12,8 @@ android {
         applicationId = "com.lexicon"
         minSdk = 24
         targetSdk = 34
-        versionCode = 2
-        versionName = "1.0.1"
+        versionCode = 3
+        versionName = "1.0.2"
         vectorDrawables { useSupportLibrary = true }
 
         // ── Native build (liblexicon-engine.so) ───────────────────────────
