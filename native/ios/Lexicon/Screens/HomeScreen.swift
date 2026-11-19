@@ -124,10 +124,6 @@ struct LibraryReadingScreen: View {
                     indexPage(palette: p)
                 }
 
-                CountrysideQuoteBanner(
-                    quote: "A collection of words is a collection of worlds.",
-                    illustrationBase: "ill-banner-bridge"
-                )
             }
             .frame(maxWidth: 720, alignment: .leading)
             .padding(.horizontal, 18)
@@ -151,6 +147,14 @@ struct LibraryReadingScreen: View {
                 .foregroundStyle(p.mutedForeground)
         }
         .padding(.bottom, 6)
+
+        // One intentional bookplate: the entrance to the reading Library.
+        // No repeated epigraphs on working tools or within an article.
+        CountrysideQuoteBanner(
+            quote: "A collection of words is a collection of worlds.",
+            illustrationBase: "ill-banner-bridge"
+        )
+        .padding(.vertical, 8)
 
         ForEach(LexiconData.articles) { article in
             Button { vm.openLibraryArticle(article.id) } label: {
