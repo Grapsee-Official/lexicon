@@ -442,6 +442,8 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                 illustrationBase = "ill_hero_notes",
                 isDark = isDark,
                 onHistoryClick = { viewModel.navigate(ScreenRoute.COLLECTIONS) },
+                actionKind = "back",
+                actionLabel = "Back to Collections",
                 onLogoToggleTheme = { viewModel.toggleTheme() },
                 heroHeight = 144.dp,
             )
@@ -769,6 +771,8 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                 illustrationBase = "ill_hero_cottage",
                 isDark = isDark,
                 onHistoryClick = { viewModel.navigate(ScreenRoute.QUICK_TEMPLATES) },
+                actionKind = "templates",
+                actionLabel = "Open Quick Templates",
                 onLogoToggleTheme = { viewModel.toggleTheme() },
                 heroHeight = 142.dp,
             )
@@ -1159,6 +1163,8 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                 illustrationBase = "ill_hero_cottage",
                 isDark = isDark,
                 onHistoryClick = { viewModel.navigate(ScreenRoute.MY_NOTES) },
+                actionKind = "notes",
+                actionLabel = "Open Notes",
                 onLogoToggleTheme = { viewModel.toggleTheme() },
                 heroHeight = 142.dp,
             )
@@ -1491,6 +1497,8 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
                 illustrationBase = "ill_hero_cottage",
                 isDark = isDark,
                 onHistoryClick = { viewModel.navigate(ScreenRoute.DICTIONARY_HOME) },
+                actionKind = "back",
+                actionLabel = "Back to Dictionary",
                 onLogoToggleTheme = { viewModel.toggleTheme() },
                 heroHeight = 142.dp,
             )
