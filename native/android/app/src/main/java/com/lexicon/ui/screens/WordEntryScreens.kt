@@ -740,78 +740,76 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
             }
         }
 
-        // Side-by-side Etymology & Usage Examples
+        // Two quiet journal entries instead of two fixed-height storage boxes.
+        // No truncated etymology, dead vertical space, or pinned 96dp artwork.
+        // Height follows text and the watercolor's own transparent silhouette.
         item(key = "etym_usage") {
-            // The illustrated lower corner must stay below up to six lines of
-            // etymology. A 162dp card painted over the last lines on real phones.
-            val detailCardHeight = if (
-                androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f
-            ) 262.dp else 216.dp
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Box(
+                val shape = RoundedCornerShape(17.dp)
+                Column(
                     modifier = Modifier
-                        .weight(1f)
-                        .height(detailCardHeight)
-                        .clip(RoundedCornerShape(15.dp))
-                        .background(cardBg)
-                        .border(1.dp, border, RoundedCornerShape(15.dp))
-                        .padding(11.dp),
+                        .fillMaxWidth()
+                        .background(cardBg, shape)
+                        .border(1.dp, border, shape)
+                        .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                        LeafSprig(color = accent, modifier = Modifier.size(17.dp))
+                        Text("Etymology", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 18.sp))
+                    }
+                    Text(
+                        word.etymology,
+                        color = fg.copy(alpha = 0.88f),
+                        style = TextStyle(fontFamily = LongFontFamily, fontSize = 14.sp, lineHeight = 21.sp),
+                    )
+                    // A full-width botanical footpiece. Artwork is not confined
+                    // to a small right-corner square and is never cropped.
                     Image(
                         painter = painterResource(booksRes),
                         contentDescription = null,
                         contentScale = ContentScale.Fit,
+                        alignment = Alignment.BottomCenter,
                         modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .size(96.dp),
+                            .fillMaxWidth()
+                            .height(144.dp),
                     )
-                    Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                            LeafSprig(color = accent, modifier = Modifier.size(13.dp))
-                            Text("Etymology", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 14.sp))
-                        }
-                        Text(
-                            text = word.etymology,
-                            color = fg.copy(alpha = 0.85f),
-                            style = TextStyle(fontFamily = LongFontFamily, fontSize = 10.sp, lineHeight = 14.sp),
-                            maxLines = 6,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
                 }
-
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(detailCardHeight)
-                        .clip(RoundedCornerShape(15.dp))
-                        .background(cardBg)
-                        .border(1.dp, border, RoundedCornerShape(15.dp))
-                        .padding(11.dp),
-                    verticalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                        LeafSprig(color = accent, modifier = Modifier.size(13.dp))
-                        Text("Usage Examples", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 14.sp))
+                val examples = word.examples.filter { it.isNotBlank() }.distinct().take(2)
+                if (examples.isNotEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(cardBg, shape)
+                            .border(1.dp, border, shape)
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                            LeafSprig(color = accent, modifier = Modifier.size(17.dp))
+                            Text("Usage Examples", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 18.sp))
+                        }
+                        examples.forEachIndexed { index, example ->
+                            if (index > 0) {
+                                Box(Modifier.fillMaxWidth().height(1.dp).background(border))
+                            }
+                            Text(
+                                "“$example”",
+                                color = fg.copy(alpha = 0.88f),
+                                style = TextStyle(
+                                    fontFamily = LongFontFamily,
+                                    fontStyle = FontStyle.Italic,
+                                    fontSize = 14.sp,
+                                    lineHeight = 21.sp,
+                                ),
+                            )
+                        }
                     }
-                    Text(
-                        text = "“${word.examples.firstOrNull() ?: ""}”",
-                        color = fg.copy(alpha = 0.88f),
-                        style = TextStyle(fontFamily = LongFontFamily, fontStyle = FontStyle.Italic, fontSize = 10.5.sp, lineHeight = 14.sp),
-                        maxLines = 3,
-                    )
-                    Box(Modifier.fillMaxWidth().height(1.dp).background(border))
-                    Text(
-                        text = "“${word.examples.lastOrNull() ?: ""}”",
-                        color = fg.copy(alpha = 0.88f),
-                        style = TextStyle(fontFamily = LongFontFamily, fontStyle = FontStyle.Italic, fontSize = 10.5.sp, lineHeight = 14.sp),
-                        maxLines = 2,
-                    )
                 }
             }
         }
