@@ -64,8 +64,8 @@ fun Hero(
         expanded && largeText -> 410.dp
         expanded -> 350.dp
         largeText -> 310.dp
-        compact -> 246.dp
-        else -> 215.dp
+        compact -> 270.dp
+        else -> 258.dp
     }
     val textWidth = if (compact || largeText) 0.60f else 0.52f
 
