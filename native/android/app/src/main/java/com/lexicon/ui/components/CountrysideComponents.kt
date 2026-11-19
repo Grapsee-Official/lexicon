@@ -659,12 +659,14 @@ fun CountrysideMaterialOverlay(isDark: Boolean, modifier: Modifier = Modifier) {
             radius = side * 0.34f,
             center = Offset(size.width * 0.96f, size.height * 0.77f),
         )
-        repeat(190) { i ->
-            val x = ((i * 73 + 19) % 257).toFloat() / 257f
-            val y = ((i * 101 + 37) % 263).toFloat() / 263f
+        // Fine non-repeating page granulation. Same normalised editable
+        // geometry as SwiftUI and the companion source SVGs.
+        repeat(620) { i ->
+            val x = ((i * 73 + 19) % 997).toFloat() / 997f
+            val y = ((i * 101 + 37) % 991).toFloat() / 991f
             drawCircle(
-                color = pigment.copy(alpha = if (isDark) 0.048f else 0.037f),
-                radius = (0.4f + (i % 4) * 0.19f).dp.toPx(),
+                color = pigment.copy(alpha = if (isDark) 0.045f else 0.062f),
+                radius = (0.36f + (i % 5) * 0.13f).dp.toPx(),
                 center = Offset(size.width * x, size.height * y),
             )
         }
