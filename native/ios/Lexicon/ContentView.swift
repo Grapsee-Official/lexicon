@@ -183,7 +183,7 @@ struct ContentView: View {
                     Text("Settings")
                         .font(.lexiconDisplay(20, weight: .semibold))
                         .foregroundStyle(lexiconPalette(scheme).foreground)
-                    Text("Make Lexicon yours")
+                    Text("Make Lexora yours")
                         .font(.lexiconBody(11))
                         .foregroundStyle(lexiconPalette(scheme).mutedForeground)
                 }
@@ -199,7 +199,7 @@ struct ContentView: View {
 
     private func handleWordSelected(_ note: Notification) {
         guard let raw = note.userInfo?["word"] else {
-            showToast("Word not found in Lexicon")
+            showToast("Word not found in Lexora")
             return
         }
         if let wordString = extractWordString(from: raw),
@@ -210,12 +210,12 @@ struct ContentView: View {
             return
         }
         let displayWord = extractWordString(from: raw) ?? "that word"
-        showToast("\"\(displayWord)\" isn't in Lexicon yet")
+        showToast("\"\(displayWord)\" isn't in Lexora yet")
     }
 
     private func handleWordNotFound(_ note: Notification) {
         let word = (note.userInfo?["word"] as? String) ?? "that word"
-        showToast("\"\(word)\" isn't in Lexicon yet")
+        showToast("\"\(word)\" isn't in Lexora yet")
     }
 
     private func extractWordString(from raw: Any) -> String? {
