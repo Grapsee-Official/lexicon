@@ -39,7 +39,10 @@ fun RootScreen(viewModel: LexiconViewModel) {
     val route = state.route
     val bg = if (state.isDark) DarkBackground else WarmCream
 
-    BackHandler(enabled = state.routeHistory.isNotEmpty()) {
+    // After direct tab switching the back stack is deliberately empty.
+    // Still intercept system Back outside Home, so readers return to Home
+    // rather than unexpectedly leaving the native book.
+    BackHandler(enabled = state.routeHistory.isNotEmpty() || route != ScreenRoute.HOME) {
         viewModel.navigateBack()
     }
 
