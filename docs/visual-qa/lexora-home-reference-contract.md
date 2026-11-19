@@ -45,3 +45,11 @@ The five-leaf sprig's path coordinates match the native `LeafSprig` (Compose Can
 - Check 320–432 dp phone widths and accessibility text size; cards must never clip essential content or block gestures.
 - Compare screenshots side by side against the user's reference at equal viewport sizes and inspect typography, paper material, border rhythm, crop, color, nav safe areas, and available touch targets.
 - Automated checks are necessary, but **100% visual parity is not certified without source-to-render evidence on every required screen**. Never label a successful compilation as visual approval.
+
+## Native reading-room and responsive-flow implementation
+
+- iOS Library is a **native in-app destination**, not an asynchronous sheet: `LexiconViewModel.libraryOpen` and `libraryArticleId` select an index or article reader directly from `ContentView.activeScreen`. Home article taps, back navigation, the persistent bookmark action, and debug screenshot routes share exactly the same state transitions.
+- Article prose remains selectable, accessible, and width-constrained on iPad; its paper bookplate leaves sufficient bottom scroll space for the floating navigation.
+- Quick Templates retain the transparent painted edges of the original illustrations (`scaledToFit` / `ContentScale.Fit`) rather than cropping the books and flowers to a modern thumbnail.
+- Android Notes and Templates use 1 column on compact / enlarged-text screens, 2 on standard phones, 3 at 600+ dp, and 4 at 840+ dp. iOS uses adaptive columns with wider minimum card widths under accessibility text sizes.
+- Android and C++ passed the prior run; iOS did not: screenshot-difference QA found identical Library and Article captures. This batch fixes the source navigation cause; **the subsequent CI run must validate the result**.
