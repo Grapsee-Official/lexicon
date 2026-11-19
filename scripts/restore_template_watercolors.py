@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ANDROID = ROOT / "native/android/app/src/main/res/drawable-nodpi"
 IOS = ROOT / "native/ios/Lexicon/Assets.xcassets"
 NAMES = ("ill_tpl_daily", "ill_tpl_exam", "ill_tpl_write", "ill_tpl_travel")
-SOURCE_SIZE = (370, 150)
+SOURCE_SIZE = (370, 152)
 # The round native-action badge was flattened into all four source PNGs.
 # These are the badge coordinates, not the actual watercolor subject.
 CENTER = (338, 31)
