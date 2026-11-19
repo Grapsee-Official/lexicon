@@ -25,7 +25,7 @@ struct ContentView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                if vm.route == .home || vm.route == .more {
+                if !vm.libraryOpen && (vm.route == .home || vm.route == .more) {
                     LexiconHeader()
                 }
 
@@ -154,7 +154,10 @@ struct ContentView: View {
 
     @ViewBuilder
     private var activeScreen: some View {
-        switch vm.route {
+        if vm.libraryOpen {
+            LibraryReadingScreen()
+        } else {
+            switch vm.route {
         case .home:
             HomeScreen()
         case .dictionaryHome:
@@ -193,6 +196,7 @@ struct ContentView: View {
                 .padding(.bottom, 4)
 
                 MoreScreen()
+            }
             }
         }
     }
