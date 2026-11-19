@@ -520,8 +520,8 @@ fun CountrysideQuoteBanner(
                 .fillMaxSize()
                 .background(
                     Brush.horizontalGradient(
-                        0.0f to cardBg,
-                        0.33f to cardBg.copy(alpha = 0.78f),
+                        0.0f to cardBg.copy(alpha = 0.22f),
+                        0.33f to cardBg.copy(alpha = 0.14f),
                         0.72f to Color.Transparent,
                     )
                 ),

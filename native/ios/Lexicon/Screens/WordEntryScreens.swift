@@ -479,8 +479,8 @@ struct WordDetailProfileScreen: View {
                             }
                             LinearGradient(
                                 stops: [
-                                    .init(color: p.card, location: 0.0),
-                                    .init(color: p.card.opacity(0.78), location: 0.33),
+                                    .init(color: p.card.opacity(0.22), location: 0.0),
+                                    .init(color: p.card.opacity(0.14), location: 0.33),
                                     .init(color: .clear, location: 0.72),
                                 ],
                                 startPoint: .leading,

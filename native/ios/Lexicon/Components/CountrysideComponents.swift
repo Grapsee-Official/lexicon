@@ -316,8 +316,8 @@ struct CountrysideQuoteBanner: View {
 
                 LinearGradient(
                     stops: [
-                        .init(color: cardBg, location: 0.0),
-                        .init(color: cardBg.opacity(0.78), location: 0.33),
+                        .init(color: cardBg.opacity(0.22), location: 0.0),
+                        .init(color: cardBg.opacity(0.14), location: 0.33),
                         .init(color: .clear, location: 0.74),
                     ],
                     startPoint: .leading,
