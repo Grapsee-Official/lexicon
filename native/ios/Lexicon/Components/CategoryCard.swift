@@ -32,12 +32,12 @@ struct CategoryCard: View {
 
                 VStack(spacing: 2) {
                     Text(category.title)
-                        .font(.lexiconDisplay(12.5))
+                        .font(.lexiconDisplay(11.5))
                         .foregroundStyle(p.foreground)
                         .lineLimit(1)
                         .minimumScaleFactor(0.76)
                     Text(category.subtitle)
-                        .font(.lexiconBody(9))
+                        .font(.lexiconBody(8.5))
                         .foregroundStyle(p.mutedForeground)
                         .lineLimit(1)
                         .minimumScaleFactor(0.75)
