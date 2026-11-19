@@ -147,6 +147,28 @@ PNG files. This document is **not** a declaration of 100% visual fidelity.
 - [ ] Approve native Quick Templates light/dark screenshot renders on compact,
       standard and enlarged-text tablet, and iOS, before closing this item.
 
+## Verified template paper-opacity regression (2026-11-19)
+
+- **Actual screenshot defect on main SHA 7c93426, run 44559735340:**
+  the earlier RGB-only star removal left the original zero-alpha circular
+  badge mask. It appeared as a white hole on light paper and an almost black
+  hole on dark paper, even with the star icon drawn natively elsewhere.
+- **Corrected in original PNGs on both platforms:** fill only the alpha
+  damage in the right-hand 39px blank-paper region of all four template
+  paintings, light and dark. Existing watercolor RGB bytes, painted subjects,
+  and all pixels outside the bounded paper region remain unchanged.
+- **Source verification:** the isolated GitHub repair run
+  https://github.com/Grapsee-Official/lexicon/actions/runs/44565139151
+  succeeded and its before/after composite artifact visibly eliminates both
+  pale and black discs. Exact 16-file repaired source commit:
+  https://github.com/Grapsee-Official/lexicon/commit/55c66bb22553cf8d25aec1772025b57682435771
+- **Regression gate:** scripts/check_template_paper_alpha.py checks that
+  template paper is opaque around the damaged region and that Android/iOS
+  image bytes match, after Pillow is installed in each native QA job.
+- [ ] Approve the corrected paintings on fresh light/dark Android and iOS
+      screenshots, plus compact/tablet responsive captures. Source success is
+      not pixel-perfect UI sign-off.
+
 ## Verification and completion rule
 
 Native Android, iOS and C++ must build/test on the merged source commit.
