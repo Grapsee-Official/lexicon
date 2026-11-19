@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -548,7 +549,9 @@ fun CountrysideQuoteBanner(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(bannerHeight)
+                // Text and the painting may demand more room at larger
+                // accessibility font scales; minimum, never forced height.
+                .heightIn(min = bannerHeight)
                 .clip(shape)
                 .background(cardBg)
                 .border(1.dp, border, shape),
@@ -569,7 +572,12 @@ fun CountrysideQuoteBanner(
                 modifier = Modifier
                     .align(if (stacked) Alignment.TopStart else Alignment.CenterStart)
                     .then(if (stacked) Modifier.fillMaxWidth() else Modifier.fillMaxWidth(0.56f))
-                    .padding(start = 18.dp, end = 8.dp, top = if (stacked) 20.dp else 0.dp),
+                    .padding(
+                        start = 18.dp,
+                        end = 8.dp,
+                        top = if (stacked) 20.dp else 0.dp,
+                        bottom = if (stacked) 148.dp else 0.dp,
+                    ),
                 verticalArrangement = Arrangement.spacedBy(7.dp),
             ) {
                 Text(
