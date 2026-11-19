@@ -315,17 +315,21 @@ fun CountrysideSearchPill(
         if (value.isNotEmpty()) {
             Box(
                 modifier = Modifier
-                    .size(20.dp)
-                    .clip(CircleShape)
-                    .background(if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.12f))
-                    .clickable(role = Role.Button) { onValueChange("") },
+                    .size(44.dp)
+                    .clickable(role = Role.Button, onClickLabel = "Clear search") {
+                        onValueChange("")
+                    },
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Close,
                     contentDescription = "Clear",
                     tint = textColor,
-                    modifier = Modifier.size(12.dp),
+                    modifier = Modifier
+                        .size(20.dp)
+                        .clip(CircleShape)
+                        .background(if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.12f))
+                        .padding(4.dp),
                 )
             }
         }
@@ -336,12 +340,12 @@ fun CountrysideSearchPill(
         } else if (showMicOnly) {
             Icon(
                 Icons.Outlined.Mic,
-                contentDescription = "Open keyboard for voice dictation",
+                contentDescription = "Focus search; keyboard dictation may be available",
                 tint = iconTint,
-                modifier = Modifier.size(26.dp).clickable(role = Role.Button) {
+                modifier = Modifier.size(44.dp).clickable(role = Role.Button) {
                     focusRequester.requestFocus()
                     keyboard?.show()
-                },
+                }.padding(10.dp),
             )
         }
 
@@ -354,11 +358,12 @@ fun CountrysideSearchPill(
             )
             Icon(
                 imageVector = Icons.Outlined.Tune,
-                contentDescription = "Filter",
+                contentDescription = "Change search filters",
                 tint = iconTint,
                 modifier = Modifier
-                    .size(18.dp)
-                    .clickable(role = Role.Button) { onFilterClick() },
+                    .size(44.dp)
+                    .clickable(role = Role.Button) { onFilterClick() }
+                    .padding(12.dp),
             )
         }
     }
