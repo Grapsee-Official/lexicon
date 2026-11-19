@@ -122,19 +122,24 @@ private fun HomeFeed(viewModel: LexiconViewModel) {
                     onAction = { viewModel.setActiveTab(TabKey.DICTIONARY) },
                     modifier = Modifier.padding(horizontal = 16.dp),
                 )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState())
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                ) {
-                    LexiconData.categories.forEach { category ->
-                        CategoryCard(
-                            category = category,
-                            viewModel = viewModel,
-                            modifier = Modifier.width(if (androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp >= 420) 88.dp else 84.dp),
-                        )
+                androidx.compose.foundation.layout.BoxWithConstraints(Modifier.fillMaxWidth()) {
+                    // Keep four complete bookplates visible when width permits.
+                    // Narrow phones scroll; no compressed/clipped category labels.
+                    val readableWidth = ((maxWidth - 62.dp) / 4).coerceIn(78.dp, 108.dp)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState())
+                            .padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        LexiconData.categories.forEach { category ->
+                            CategoryCard(
+                                category = category,
+                                viewModel = viewModel,
+                                modifier = Modifier.width(readableWidth),
+                            )
+                        }
                     }
                 }
             }
