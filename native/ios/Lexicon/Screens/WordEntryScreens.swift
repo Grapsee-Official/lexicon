@@ -489,7 +489,7 @@ struct WordDetailProfileScreen: View {
     // Text is never truncated; the botanical painting spans the full leaf.
     private func etymologyUsageCards(word: WordEntry, p: LexiconPalette) -> some View {
         let shape = RoundedRectangle(cornerRadius: 17, style: .continuous)
-        let examples = Array(NSOrderedSet(array: word.examples.filter { !$0.isEmpty }).array.compactMap { $0 as? String }.prefix(2))
+        let examples = Array(word.examples.filter { !$0.isEmpty }.prefix(2))
 
         return VStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 8) {
