@@ -391,7 +391,9 @@ struct CountrysideQuoteBanner: View {
                     .padding(.leading, 18)
             }
         }
-        .frame(height: bannerHeight)
+        // A minimum height, not a lid: accessibility-size quotes may
+        // expand above the entire, naturally sized painting.
+        .frame(minHeight: bannerHeight)
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
