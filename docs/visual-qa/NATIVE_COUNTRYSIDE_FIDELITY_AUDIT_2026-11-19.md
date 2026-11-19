@@ -58,3 +58,16 @@ This branch contains targeted source fixes and original editable vector draft so
 5. **QA gates:** current screenshot gate verifies appearance/presence and foreground provenance; it cannot certify pixel-for-pixel parity or interaction sequences. Require owner visual review before merge/release.
 
 The standalone `artwork/vector/cotswolds-village-*.svg` files are editable concept artwork, **not** approved replacements for the raster watercolor assets in production.
+
+## Owner's real-device screenshots — quote epigraph and hero composition correction
+
+Evidence: four owner-supplied screenshots with three narrow quote bookplates and the cropped-looking Search cottage header. The old component fixed mobile banners to ~92–120 dp/pt, forced quotes into a 58% region with a two-line limit, and rendered each hero within ~142–158 dp/pt regardless of the illustration's roughly 508×345 composition. The previous gradient washed over the full art width. These are structural layout defects, not a request to regenerate the paintings.
+
+**Changes on review branch**
+- Quote epigraphs are removed from the ends of Collections, Notes, Study Lists, Quick Templates, Dictionary, Search, Word Detail, and Expanded Exploration. The single remaining quote lives **inside the Library's article-index entrance**, before readers choose an article; it does not interrupt article prose.
+- Both native epigraph components now size from the real available width, wrap quotations naturally rather than truncating them, and reserve uncompressed art space. For accessibility-sized text the painting sits below the words; its original transparent edges remain intact.
+- Shared cottage/notes header scenes now reserve natural painting height based on measured container width rather than squeezing them into a short header or using physical-device dimensions. They use full-width `Fit` / `scaledToFit` with the protective ink wash restricted to the left reading margin; right-hand cottages, bridges and flowers are not bleached or artificially cropped.
+- `ArticleCard` and the Android `LibraryReaderSheet` thumbnail avoid `Crop`/`scaledToFill` on original watercolor illustrations.
+- The source inventory check now enforces the single-Library epigraph rule, safeguards article paintings, and verifies width-aware header contracts.
+
+**Acceptance still open:** device screenshots at multiple phone widths and tablet layouts, portrait/landscape, light/night, larger text; compare full painted cottage/church/flowers, quote wraps, paper texture and floating search/navigation overlap with owner's originals. Changes are proposed source fixes, not proof of 100% pixel fidelity. Do not silently substitute the experimental SVG draft for approved original artwork.
