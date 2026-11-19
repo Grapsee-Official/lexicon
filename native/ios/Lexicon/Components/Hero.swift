@@ -17,7 +17,7 @@ struct Hero: View {
         if expanded && dynamicTypeSize.isAccessibilitySize { return 410 }
         if expanded { return 350 }
         if dynamicTypeSize.isAccessibilitySize { return 310 }
-        return compact ? 270 : 258
+        return compact ? 246 : 215
     }
 
     private var isDark: Bool { scheme == .dark }
@@ -45,8 +45,8 @@ struct Hero: View {
             let enlargedText = dynamicTypeSize.isAccessibilitySize
             let expanded = totalWidth >= 600
             let heroHeight: CGFloat = expanded ? (enlargedText ? 410 : 350)
-                : (enlargedText ? 310 : (compact ? 270 : 258))
-            let textWidth = totalWidth * ((compact || enlargedText) ? 0.60 : 0.53)
+                : (enlargedText ? 310 : (compact ? 246 : 215))
+            let textWidth = totalWidth * ((compact || enlargedText) ? 0.60 : 0.52)
 
             ZStack(alignment: .topLeading) {
                 HStack(spacing: 0) {
@@ -84,8 +84,8 @@ struct Hero: View {
                 VStack(alignment: .leading, spacing: 6) {
                     headline
                     Text("A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.")
-                        .font(.lexiconBody(12.5))
-                        .frame(maxWidth: textWidth * 0.82, alignment: .leading)
+                        .font(.lexiconBody(11.5))
+                        .frame(maxWidth: textWidth * 0.88, alignment: .leading)
                         .foregroundStyle(subtextColor)
                         .lineSpacing(2)
                         .fixedSize(horizontal: false, vertical: true)
@@ -98,7 +98,7 @@ struct Hero: View {
                     Spacer()
                     HStack(spacing: 0) {
                         FloatingSearchBar()
-                            .frame(width: totalWidth * (compact ? 0.92 : 0.82))
+                            .frame(width: totalWidth * (compact ? 0.90 : 0.75))
                         Spacer(minLength: 0)
                     }
                     .padding(.leading, 16)
@@ -132,7 +132,7 @@ struct Hero: View {
                     .lexiconDecorative()
             }
         }
-        .font(.lexiconDisplay(measuredWidth >= 600 ? 36 : 29, weight: .regular))
+        .font(.lexiconDisplay(measuredWidth >= 600 ? 36 : 27, weight: .regular))
         .tracking(-0.3)
         .frame(maxWidth: .infinity, alignment: .leading)
         .lexiconCombinedElement()
