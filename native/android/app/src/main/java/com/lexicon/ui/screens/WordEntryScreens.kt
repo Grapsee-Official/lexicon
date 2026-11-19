@@ -780,14 +780,21 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                     )
                     // A full-width botanical footpiece. Artwork is not confined
                     // to a small right-corner square and is never cropped.
+                    val bookPainter = painterResource(booksRes)
+                    val bookSize = bookPainter.intrinsicSize
+                    val bookRatio = if (bookSize.width > 1f && bookSize.height > 1f) {
+                        bookSize.width / bookSize.height
+                    } else 1.5f
                     Image(
-                        painter = painterResource(booksRes),
+                        painter = bookPainter,
                         contentDescription = null,
                         contentScale = ContentScale.Fit,
                         alignment = Alignment.BottomCenter,
+                        // The whole botanical painting fills the page's breadth
+                        // at its real proportion, never a fixed 96/144dp box.
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(144.dp),
+                            .aspectRatio(bookRatio),
                     )
                 }
                 val examples = word.examples.filter { it.isNotBlank() }.distinct().take(2)
