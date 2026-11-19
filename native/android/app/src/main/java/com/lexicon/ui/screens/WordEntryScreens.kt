@@ -479,7 +479,12 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .windowInsetsPadding(WindowInsets.statusBars)
-                    .aspectRatio(1.08f),
+                    // Wide literary page, not a tall blank art frame.
+                    // Accessibility type is allowed a taller page.
+                    .aspectRatio(
+                        if (androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f)
+                            1.0f else 1.30f
+                    ),
             ) {
                 Image(
                     painter = painterResource(bridgeRes),
