@@ -81,13 +81,16 @@ def restore(name: str, image: Image.Image, source: Path) -> Image.Image:
         return output
     if base == "ill_hero_cottage":
         if image.size != (508, 345): raise ValueError(name)
-        return borrow_strokes(image, image, (442, 97), (270, 85), (53, 51), 0.24)
+        return borrow_strokes(image, image, (442, 97), (90, 75), (53, 51), 0.24)
     if base == "ill_hero_bridge":
         if image.size != (418, 670): raise ValueError(name)
-        return borrow_strokes(image, image, (371, 106), (130, 110), (67, 67), 0.27)
+        clouds = Image.open(source / ("ill_hero_cottage_dark.png" if dark else
+                                      "ill_hero_cottage.png")).convert("RGBA")
+        return borrow_strokes(image, clouds, (371, 106), (90, 65), (67, 67), 0.27)
     if base == "ill_note_flowers":
         if image.size != (164, 248): raise ValueError(name)
         output = borrow_strokes(image, image, (123, 220), (78, 178), (36, 37), 0.24)
+        output = borrow_strokes(output, image, (120, 5), (88, 42), (32, 32), 0.25)
         return remove_faint_text(output, (0, 109, 47, 144), dark)
     if base == "ill_banner_bridge":
         if image.size != (420, 206): raise ValueError(name)

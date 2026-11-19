@@ -1,4 +1,4 @@
-name: Lexora watercolor restoration preview
+name: Lexora watercolor source restoration
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   original-artwork:
@@ -37,6 +37,22 @@ jobs:
           path: recovery-preview/restored/*.png
           retention-days: 3
           if-no-files-found: error
+      - name: Apply reviewed localized watercolor repairs to Android and iOS sources
+        run: python3 scripts/restore_native_watercolors.py --apply
+      - name: Commit repaired PNGs ONLY to the isolated artwork-recovery branch
+        env:
+          TARGET_BRANCH: lexora/watercolor-asset-recovery
+        run: |
+          git config user.name "Lexora Artwork Recovery"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -u native/android/app/src/main/res/drawable-nodpi native/ios/Lexicon/Assets.xcassets
+          git diff --cached --stat
+          if git diff --cached --quiet; then
+            echo "::error::Expected repaired PNG changes were not produced"
+            exit 1
+          fi
+          git commit -m "Restore missing watercolor strokes and clear transparent banner padding in both native asset catalogs"
+          git push origin "HEAD:refs/heads/$TARGET_BRANCH"
       - uses: actions/upload-artifact@v4
         with:
           name: lexora-unmodified-painting-sources
