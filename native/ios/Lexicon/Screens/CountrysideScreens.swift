@@ -1115,7 +1115,13 @@ struct SearchDiscoveryScreen: View {
                 CountrysideSearchPill(
                     text: $draft,
                     placeholder: "Search for a word...",
-                    onSubmit: { if !trimmed.isEmpty { vm.submitSearch(trimmed) } },
+                    onSubmit: {
+                        // The idiom catalog is presented inline, not in the
+                        // ordinary headword-results screen.
+                        if !trimmed.isEmpty && vm.searchScopeTab != "Idioms" {
+                            vm.submitSearch(trimmed)
+                        }
+                    },
                     showMicOnly: true
                 )
                 .padding(.horizontal, 16)
