@@ -37,3 +37,24 @@ For every route and both themes: capture actual Android emulator and iOS simulat
 This branch contains targeted source fixes and original editable vector draft sources. A pull-request-triggered native screenshot workflow is proposed so future iterations can be tested **before merge**. **Current status: unverified visually and not certified 100%.** Source inspection is not an emulator capture. C++ and Android/iOS test results must be taken from the specific GitHub Actions run for this branch; do not imply a pass without those results.
 
 **Never publish/re-sign an APK or merge unverified native changes just because a source edit was committed.** Owner-approved visual fidelity is the release gate.
+
+## Continued line-level review — 2026-11-20
+
+### Confirmed defects corrected on draft branch
+- **Search presentation:** submitting a query on either platform no longer automatically sets the full word sheet's selected entry while navigating to the dedicated Results screen. Repeating the same route does not duplicate the back stack.
+- **Bottom navigation correctness:** when using Back, the active tab is derived from the restored nested route; Android's system Back from a directly opened non-Home tab falls back to Home.
+- **Real C++ prefix suggestions:** previously Android, KMM Android, and iOS labeled exact-distance-0 fuzzy search as "prefix search." Added a memory-owned UTF-8 string-array C ABI and connected the existing C++ DAWG prefix implementation to JNI and Swift. A C++ ABI test asserts `seren` → `serendipity`, unknown-prefix empty, and safe release.
+- **Responsive SwiftUI header:** use measured SwiftUI container width instead of `UIScreen.main.bounds`, preserving split view and resized window support. Android/iOS header controls have 44dp/pt transparent hit targets.
+- **Note card readability:** the compact two-column layout now reserves more ink width, limits short-body preview to a readable excerpt, and provides adequate height for the bookmark hit target and larger type. Needs visual verification to balance card proportions against the owner's precise mockup.
+- **Saved item identity:** new Notes and Templates use UUIDs rather than millisecond timestamps on both platforms.
+- **Honest affordances:** removed inert camera/voice-search buttons from the search overlay. The pictured glyphs remain decorative until permissioned recognition/OCR is actually implemented.
+- **Native header semantics:** a clock formerly routed to unrelated destinations (Collections, Templates, Dictionary); the same illustrated header now renders destination-specific symbols with appropriate VoiceOver/TalkBack labels.
+
+### Still open — never equate compilation with approval
+1. **Full rendering fidelity:** compare actual iOS and Android daytime/nighttime frames against owner assets, per scene and per viewport, including illustrations with uninterrupted transparent boundaries and book-paper/ink tones. No images from the reference are assumed safe to crop.
+2. **Dense layout and accessibility:** physically inspect 320pt/360pt/390pt/432pt phones, tablet split-screen, landscape, iOS Dynamic Type and Android font scales, keyboard focus, bottom navigation, note-card long titles, multiline etymologies, and 44pt accessibility. Header and note-card changes remain visually unverified until new screenshot galleries arrive.
+3. **Feature completeness:** camera OCR, microphone recognition, verified speech voices, full language packs, advanced learning systems, and full accessibility behavior still require product and native test work; decorative camera/mic glyphs must not masquerade as live controls.
+4. **Architecture:** verify database integrity and full offline data search beyond the embedded starter lexicon; C++ unit tests alone cannot prove the Android/iOS JNI/Swift runtime behavior.
+5. **QA gates:** current screenshot gate verifies appearance/presence and foreground provenance; it cannot certify pixel-for-pixel parity or interaction sequences. Require owner visual review before merge/release.
+
+The standalone `artwork/vector/cotswolds-village-*.svg` files are editable concept artwork, **not** approved replacements for the raster watercolor assets in production.
