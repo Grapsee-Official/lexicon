@@ -10,6 +10,7 @@ on:
       - 'scripts/check_capture_quality.py'
       - 'scripts/build_native_contact_sheets.py'
       - 'scripts/check_editable_botanical_svg.py'
+      - 'scripts/check_bundled_fonts.py'
       - 'artwork/vector/lexora-*.svg'
       - 'docs/visual-qa/lexora-home-reference-contract.md'
   workflow_dispatch:
@@ -44,6 +45,7 @@ jobs:
         run: |
           python3 scripts/check_countryside_art.py
           python3 scripts/check_editable_botanical_svg.py
+          python3 scripts/check_bundled_fonts.py
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -106,6 +108,7 @@ jobs:
         run: |
           python3 scripts/check_countryside_art.py
           python3 scripts/check_editable_botanical_svg.py
+          python3 scripts/check_bundled_fonts.py
       - name: Build C++17 for Apple simulator
         run: |
           SDK="$(xcrun --sdk iphonesimulator --show-sdk-path)"
