@@ -41,7 +41,7 @@ concurrency:
 
 jobs:
   cpp-engine:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -54,7 +54,7 @@ jobs:
           ctest --test-dir native/cpp/build --output-on-failure
 
   android-screens:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 55
     steps:
       - uses: actions/checkout@v4
