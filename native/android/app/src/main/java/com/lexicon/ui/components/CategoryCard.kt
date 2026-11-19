@@ -78,7 +78,7 @@ fun CategoryCard(
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(if (largeText) 84.dp else 63.dp),
+                .height(if (largeText) 84.dp else 57.dp),
             contentScale = ContentScale.Fit,
             alignment = Alignment.Center,
         )
