@@ -485,67 +485,66 @@ struct WordDetailProfileScreen: View {
     }
 
 
-    // A separate view expression keeps the large word-detail body tractable
-    // for Swift's type checker. Reserve space for the complete watercolor
-    // below the etymology copy rather than cutting the painting or text.
+    // Two flowing manuscript leaves, not equal-height half-width boxes.
+    // Text is never truncated; the botanical painting spans the full leaf.
     private func etymologyUsageCards(word: WordEntry, p: LexiconPalette) -> some View {
-        let detailCardHeight: CGFloat = dynamicTypeSize.isAccessibilitySize ? 262 : 216
-        return HStack(spacing: 8) {
-            ZStack(alignment: .bottomTrailing) {
-                VStack(alignment: .leading, spacing: 5) {
-                    HStack(spacing: 5) {
-                        BotanicalSprig(color: p.highlight)
-                            .frame(width: 13, height: 13)
-                        Text("Etymology")
-                            .font(.lexiconDisplay(14))
-                            .foregroundStyle(p.foreground)
-                    }
-                    Text(word.etymology)
-                        .font(.lexiconLong(10))
-                        .foregroundStyle(p.foreground.opacity(0.86))
-                        .lineLimit(6)
-                    Spacer(minLength: 0)
+        let shape = RoundedRectangle(cornerRadius: 17, style: .continuous)
+        let examples = Array(NSOrderedSet(array: word.examples.filter { !$0.isEmpty }).array.compactMap { $0 as? String }.prefix(2))
+
+        return VStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 7) {
+                    BotanicalSprig(color: p.highlight)
+                        .frame(width: 17, height: 17)
+                    Text("Etymology")
+                        .font(.lexiconDisplay(18))
+                        .foregroundStyle(p.foreground)
                 }
-                .padding(11)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                Text(word.etymology)
+                    .font(.lexiconLong(14))
+                    .foregroundStyle(p.foreground.opacity(0.88))
+                    .fixedSize(horizontal: false, vertical: true)
 
                 Image(countrysideImageName("ill-books-daisies", isDark: isDark))
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 96, height: 96)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 144, alignment: .bottom)
                     .accessibilityHidden(true)
             }
-            .frame(maxWidth: .infinity)
-            .frame(height: detailCardHeight)
-            .background(p.card)
-            .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous).stroke(p.border, lineWidth: 1))
+            .padding(.top, 16)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 4)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(p.card, in: shape)
+            .overlay(shape.stroke(p.border, lineWidth: 1))
 
-            VStack(alignment: .leading, spacing: 6) {
-                HStack(spacing: 5) {
-                    BotanicalSprig(color: p.highlight)
-                        .frame(width: 13, height: 13)
-                    Text("Usage Examples")
-                        .font(.lexiconDisplay(14))
-                        .foregroundStyle(p.foreground)
+            if !examples.isEmpty {
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack(spacing: 7) {
+                        BotanicalSprig(color: p.highlight)
+                            .frame(width: 17, height: 17)
+                        Text("Usage Examples")
+                            .font(.lexiconDisplay(18))
+                            .foregroundStyle(p.foreground)
+                    }
+                    ForEach(Array(examples.enumerated()), id: \.offset) { index, example in
+                        if index > 0 {
+                            Rectangle()
+                                .fill(p.border)
+                                .frame(height: 1)
+                        }
+                        Text("“\(example)”")
+                            .font(.lexiconLong(14).italic())
+                            .foregroundStyle(p.foreground.opacity(0.88))
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                 }
-                Text("“\(word.examples.first ?? "")”")
-                    .font(.lexiconLong(10.5).italic())
-                    .foregroundStyle(p.foreground.opacity(0.88))
-                    .lineLimit(3)
-                Rectangle().fill(p.border).frame(height: 1)
-                Text("“\(word.examples.last ?? "")”")
-                    .font(.lexiconLong(10.5).italic())
-                    .foregroundStyle(p.foreground.opacity(0.88))
-                    .lineLimit(2)
-                Spacer(minLength: 0)
+                .padding(16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(p.card, in: shape)
+                .overlay(shape.stroke(p.border, lineWidth: 1))
             }
-            .padding(11)
-            .frame(maxWidth: .infinity)
-            .frame(height: detailCardHeight)
-            .background(p.card)
-            .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous).stroke(p.border, lineWidth: 1))
         }
         .padding(.horizontal, 16)
     }
