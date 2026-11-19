@@ -69,7 +69,7 @@ fun RootScreen(viewModel: LexiconViewModel) {
                 ScreenRoute.EXPANDED_EXPLORATION -> ExpandedExplorationScreen(viewModel = viewModel)
                 ScreenRoute.MORE -> NonHomeTab(
                     title = "Settings",
-                    subtitle = "Make Lexicon yours",
+                    subtitle = "Make Lexora yours",
                     viewModel = viewModel,
                 ) {
                     MoreScreen(viewModel = viewModel)
