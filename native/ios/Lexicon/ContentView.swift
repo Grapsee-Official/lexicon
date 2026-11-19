@@ -76,6 +76,19 @@ struct ContentView: View {
                 .allowsHitTesting(false)
             }
         }
+        .overlay(alignment: .bottomLeading) {
+            // Simulator capture provenance. A SpringBoard screenshot used to
+            // pass the nonblank test even when Lexicon wasn't foregrounded.
+            // This sentinel is invisible outside explicitly requested QA runs.
+            if ProcessInfo.processInfo.arguments.contains("-lexoraVisualQa") {
+                Color(red: 1, green: 0, blue: 0.76)
+                    .frame(width: 8, height: 8)
+                    .padding(.leading, 4)
+                    .padding(.bottom, 4)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            }
+        }
         .background(lexiconPalette(scheme).background)
         .sheet(item: selectedWordBinding) { (word: WordEntry) in
             WordDetailSheet(word: word)
