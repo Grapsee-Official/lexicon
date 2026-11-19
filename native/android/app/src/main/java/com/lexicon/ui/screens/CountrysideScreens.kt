@@ -1458,7 +1458,8 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
             CountrysideHeroHeader(
                 title = "Search",
                 subtitle = "Find any word, explore its meaning, and discover more.",
-                illustrationBase = "ill_hero_cottage",
+                // Bridge, water, wildflowers and an ancient village deepen the reading journey.
+                illustrationBase = "ill_hero_bridge",
                 isDark = isDark,
                 onHistoryClick = { viewModel.navigate(ScreenRoute.DICTIONARY_HOME) },
                 actionKind = "back",
