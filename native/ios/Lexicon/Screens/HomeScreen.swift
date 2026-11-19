@@ -30,15 +30,22 @@ struct HomeScreen: View {
                         divider: false,
                         onAction: { vm.setActiveTab(.dictionary) }
                     )
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 10) {
-                            ForEach(LexiconData.categories) { c in
-                                CategoryCard(category: c)
-                                    .frame(width: 86)
+                    // Four illustrated bookplates on a standard phone; on
+                    // narrow devices retain their readable size and scroll.
+                    GeometryReader { layout in
+                        let available = layout.size.width
+                        let bookplateWidth = max(78, min(108, (available - 32 - 30) / 4))
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 10) {
+                                ForEach(LexiconData.categories) { c in
+                                    CategoryCard(category: c)
+                                        .frame(width: bookplateWidth)
+                                }
                             }
+                            .padding(.horizontal, 16)
                         }
-                        .padding(.horizontal, 16)
                     }
+                    .frame(height: 105)
                 }
 
                 // From the Library (with horizontal hairline divider)
