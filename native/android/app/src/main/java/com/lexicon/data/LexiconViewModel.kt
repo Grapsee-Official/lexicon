@@ -16,6 +16,23 @@ import java.util.Locale
 
 enum class TabKey { HOME, DICTIONARY, SEARCH, COLLECTIONS, MORE }
 
+/** Map nested reading destinations to their parent navigation tab. */
+internal fun tabForRoute(route: ScreenRoute): TabKey = when (route) {
+    ScreenRoute.HOME -> TabKey.HOME
+    ScreenRoute.DICTIONARY_HOME,
+    ScreenRoute.WORD_OF_THE_DAY,
+    ScreenRoute.WORD_DETAIL,
+    ScreenRoute.SEARCH_RESULTS,
+    ScreenRoute.EXPANDED_EXPLORATION -> TabKey.DICTIONARY
+    ScreenRoute.SEARCH_DISCOVERY -> TabKey.SEARCH
+    ScreenRoute.COLLECTIONS,
+    ScreenRoute.MY_NOTES,
+    ScreenRoute.STUDY_LISTS,
+    ScreenRoute.QUICK_TEMPLATES -> TabKey.COLLECTIONS
+    ScreenRoute.MORE -> TabKey.MORE
+}
+
+
 data class LexiconUiState(
     val activeTab: TabKey = TabKey.HOME,
     val route: ScreenRoute = ScreenRoute.HOME,
@@ -98,22 +115,6 @@ class LexiconViewModel : ViewModel() {
                 runCatching { engine.loadDatabase(externalDb.absolutePath) }
             }
         }
-    }
-
-    /** Map nested reading destinations to their parent navigation tab. */
-    private fun tabForRoute(route: ScreenRoute): TabKey = when (route) {
-        ScreenRoute.HOME -> TabKey.HOME
-        ScreenRoute.DICTIONARY_HOME,
-        ScreenRoute.WORD_OF_THE_DAY,
-        ScreenRoute.WORD_DETAIL,
-        ScreenRoute.SEARCH_RESULTS,
-        ScreenRoute.EXPANDED_EXPLORATION -> TabKey.DICTIONARY
-        ScreenRoute.SEARCH_DISCOVERY -> TabKey.SEARCH
-        ScreenRoute.COLLECTIONS,
-        ScreenRoute.MY_NOTES,
-        ScreenRoute.STUDY_LISTS,
-        ScreenRoute.QUICK_TEMPLATES -> TabKey.COLLECTIONS
-        ScreenRoute.MORE -> TabKey.MORE
     }
 
     fun navigate(to: ScreenRoute, word: WordEntry? = null, expand36: Boolean = false) {
