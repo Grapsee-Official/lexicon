@@ -43,22 +43,26 @@ struct CountrysideHeroHeader: View {
                     Image(countrysideImageName(illustrationBase, isDark: isDark))
                         .resizable()
                         .scaledToFit()
-                        .frame(width: w * 0.90, height: responsiveHeight, alignment: .bottomTrailing)
+                        // The watercolor receives the complete page width;
+                        // alpha edges belong to the painter, not a picture box.
+                        .frame(width: w, height: responsiveHeight, alignment: .bottomTrailing)
                         .accessibilityHidden(true)
                 }
                 .frame(width: w, height: responsiveHeight)
 
+                // Blend only the reading margin. The right-hand cottages
+                // and flowers keep their original watercolor colors.
                 LinearGradient(
                     stops: [
-                        .init(color: isDark ? LexiconColors.backgroundDark.opacity(0.70)
-                            : LexiconColors.background.opacity(0.65), location: 0),
-                        .init(color: isDark ? LexiconColors.backgroundDark.opacity(0.32)
-                            : LexiconColors.background.opacity(0.27), location: 0.38),
-                        .init(color: .clear, location: 0.78),
+                        .init(color: isDark ? LexiconColors.backgroundDark.opacity(0.72)
+                            : LexiconColors.background.opacity(0.72), location: 0),
+                        .init(color: isDark ? LexiconColors.backgroundDark.opacity(0.24)
+                            : LexiconColors.background.opacity(0.24), location: 0.55),
+                        .init(color: .clear, location: 1.0),
                     ],
                     startPoint: .leading, endPoint: .trailing
                 )
-                .frame(width: w, height: responsiveHeight)
+                .frame(width: w * 0.68, height: responsiveHeight)
                 .allowsHitTesting(false)
 
                 if isDark {
