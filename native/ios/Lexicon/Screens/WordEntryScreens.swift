@@ -445,47 +445,41 @@ struct WordDetailProfileScreen: View {
                 .padding(.horizontal, 16)
 
                 if !word.didYouKnow.isEmpty {
-                    GeometryReader { geo in
-                        let w = geo.size.width
-                        ZStack(alignment: .leading) {
-                            p.card
-                            HStack(spacing: 0) {
-                                Spacer(minLength: 0)
-                                Image(countrysideImageName("ill-banner-bay", isDark: isDark))
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: w, height: 94, alignment: .bottomTrailing)
+                    // Match the generous painted bay to the natural bookplate.
+                    // The text grows with Dynamic Type; there is no line clamp.
+                    ZStack(alignment: .leading) {
+                        p.card
+                        Image(countrysideImageName("ill-banner-bay", isDark: isDark))
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxWidth: .infinity, alignment: .bottomTrailing)
+                            .frame(height: max(154, min(230, heroWidth * 0.41)),
+                                   alignment: .bottomTrailing)
+                            .accessibilityHidden(true)
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack(spacing: 7) {
+                                Image(systemName: "lightbulb")
+                                    .font(.system(size: 16))
+                                    .foregroundStyle(p.highlight)
+                                Text("Did You Know?")
+                                    .font(.lexiconDisplay(17))
+                                    .foregroundStyle(p.foreground)
                             }
-                            LinearGradient(
-                                stops: [
-                                    .init(color: p.card.opacity(0.22), location: 0.0),
-                                    .init(color: p.card.opacity(0.14), location: 0.33),
-                                    .init(color: .clear, location: 0.72),
-                                ],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                            VStack(alignment: .leading, spacing: 4) {
-                                HStack(spacing: 5) {
-                                    Image(systemName: "lightbulb")
-                                        .font(.system(size: 12))
-                                        .foregroundStyle(p.highlight)
-                                    Text("Did You Know?")
-                                        .font(.lexiconDisplay(14))
-                                        .foregroundStyle(p.foreground)
-                                }
-                                Text(word.didYouKnow)
-                                    .font(.lexiconBody(10))
-                                    .foregroundStyle(p.foreground.opacity(0.86))
-                                    .lineLimit(3)
-                            }
-                            .frame(width: w * 0.63, alignment: .leading)
-                            .padding(.leading, 13)
+                            Text(word.didYouKnow)
+                                .font(.lexiconBody(12))
+                                .foregroundStyle(p.foreground.opacity(0.90))
+                                .fixedSize(horizontal: false, vertical: true)
                         }
+                        .frame(width: heroWidth * 0.59, alignment: .leading)
+                        .padding(16)
                     }
-                    .frame(height: 94)
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                    .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(p.border, lineWidth: 1))
+                    .frame(minHeight: max(154, min(230, heroWidth * 0.41)))
+                    .background(p.card)
+                    .clipShape(RoundedRectangle(cornerRadius: 17, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 17, style: .continuous)
+                            .stroke(p.border, lineWidth: 1)
+                    )
                     .padding(.horizontal, 16)
                 }
             }
