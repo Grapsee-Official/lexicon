@@ -323,65 +323,84 @@ struct BotanicalSectionTitle: View {
     }
 }
 
+/// A considered literary epigraph in the Library, not a repeated footer.
+/// The source painting is never cropped, and the words are never ellipsized.
 struct CountrysideQuoteBanner: View {
     let quote: String
-    var attribution: String = "Lexora"
+    var attribution: String = "Lexicon"
     var illustrationBase: String = "ill-banner-bridge"
 
     @Environment(\.colorScheme) private var scheme
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @State private var availableWidth: CGFloat = 390
+
     private var isDark: Bool { scheme == .dark }
+    private var stacked: Bool {
+        dynamicTypeSize.isAccessibilitySize || availableWidth < 340
+    }
+    private var bannerHeight: CGFloat {
+        stacked ? min(330, max(250, availableWidth * 0.64))
+            : min(246, max(158, availableWidth * 0.34))
+    }
+
+    private var words: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            Text("“\(quote)”")
+                .font(.lexiconDisplay(16, weight: .regular).italic())
+                .foregroundStyle(lexiconPalette(scheme).foreground)
+                .fixedSize(horizontal: false, vertical: true)
+            Text("— \(attribution) —")
+                .font(.lexiconBody(11))
+                .tracking(0.3)
+                .foregroundStyle(lexiconPalette(scheme).highlight)
+        }
+    }
 
     var body: some View {
-        let cardBg = lexiconPalette(scheme).card
-        // Regular-width layouts deserve a broader watercolor bookplate.
-        // Keep the painting intact instead of asking scaledToFill to crop it.
-        let bannerHeight: CGFloat = horizontalSizeClass == .regular ? 156
-            : (dynamicTypeSize.isAccessibilitySize ? 120 : 92)
-        GeometryReader { geo in
-            let w = geo.size.width
-            ZStack(alignment: .leading) {
-                cardBg
+        let p = lexiconPalette(scheme)
+        ZStack(alignment: .leading) {
+            p.card
 
-                HStack(spacing: 0) {
-                    Spacer(minLength: 0)
+            if stacked {
+                VStack(alignment: .leading, spacing: 0) {
+                    words
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 18)
+                        .padding(.top, 20)
+                    Spacer(minLength: 8)
                     Image(countrysideImageName(illustrationBase, isDark: isDark))
                         .resizable()
                         .scaledToFit()
-                        .frame(width: w, height: bannerHeight, alignment: .bottomTrailing)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 140, alignment: .bottomTrailing)
+                        .accessibilityHidden(true)
                 }
+            } else {
+                Image(countrysideImageName(illustrationBase, isDark: isDark))
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity,
+                           alignment: .bottomTrailing)
+                    .accessibilityHidden(true)
 
-                LinearGradient(
-                    stops: [
-                        .init(color: cardBg.opacity(0.22), location: 0.0),
-                        .init(color: cardBg.opacity(0.14), location: 0.33),
-                        .init(color: .clear, location: 0.74),
-                    ],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("“\(quote)”")
-                        .font(.lexiconDisplay(13, weight: .regular).italic())
-                        .foregroundStyle(lexiconPalette(scheme).foreground)
-                        .lineLimit(dynamicTypeSize.isAccessibilitySize ? 3 : 2)
-                    Text("— \(attribution) —")
-                        .font(.lexiconBody(10))
-                        .tracking(0.5)
-                        .foregroundStyle(lexiconPalette(scheme).highlight)
-                }
-                .frame(width: w * 0.58, alignment: .leading)
-                .padding(.leading, 16)
+                words
+                    .frame(width: availableWidth * 0.54, alignment: .leading)
+                    .padding(.leading, 18)
             }
         }
         .frame(height: bannerHeight)
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(lexiconPalette(scheme).border, lineWidth: 1)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(p.border, lineWidth: 1)
         )
+        .background {
+            GeometryReader { measurement in
+                Color.clear
+                    .onAppear { availableWidth = measurement.size.width }
+                    .onChange(of: measurement.size.width) { availableWidth = $0 }
+            }
+        }
     }
 }
 
