@@ -125,7 +125,7 @@ private fun HomeFeed(viewModel: LexiconViewModel) {
                 androidx.compose.foundation.layout.BoxWithConstraints(Modifier.fillMaxWidth()) {
                     // Keep four complete bookplates visible when width permits.
                     // Narrow phones scroll; no compressed/clipped category labels.
-                    val readableWidth = ((maxWidth - 62.dp) / 4).coerceIn(78.dp, 108.dp)
+                    val readableWidth = ((maxWidth - 62.dp) / 4f).coerceIn(78.dp, 108.dp)
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
