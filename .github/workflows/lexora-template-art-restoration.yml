@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   original-template-artwork:
@@ -21,6 +21,23 @@ jobs:
         run: python3 -m pip install --quiet pillow numpy opencv-python-headless
       - name: Prepare exact localized badge-free painting previews
         run: python3 scripts/restore_template_watercolors.py
+      - name: Apply reviewed local repairs to both native asset catalogs
+        run: python3 scripts/restore_template_watercolors.py --apply
+      - name: Commit ONLY the 16 repaired template PNGs to this isolated branch
+        env:
+          TARGET_BRANCH: lexora/template-source-art-recovery
+        run: |
+          git config user.name "Lexora Watercolor Restore"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -u native/android/app/src/main/res/drawable-nodpi native/ios/Lexicon/Assets.xcassets
+          git diff --cached --name-only
+          changed="$(git diff --cached --name-only | wc -l)"
+          if [ "$changed" -ne 16 ]; then
+            echo "::error::Expected 8 light/dark template images on each platform; got $changed"
+            exit 1
+          fi
+          git commit -m "Remove embedded star disks from native template paintings without altering subjects"
+          git push origin "HEAD:refs/heads/$TARGET_BRANCH"
       - uses: actions/upload-artifact@v4
         with:
           name: lexora-template-watercolor-original-vs-restored
