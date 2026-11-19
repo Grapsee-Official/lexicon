@@ -219,7 +219,7 @@ jobs:
                 for attempt in 1 2 3 4; do
                   sleep 2
                   xcrun simctl io "$DEVICE" screenshot "qa-captures/ios/$mode-$screen.png"
-                  if "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py "qa-captures/ios/$mode-$screen.png"; then
+                  if "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py "qa-captures/ios/$mode-$screen.png" --require-lexicon-marker; then
                     valid=1
                     break
                   fi
@@ -239,7 +239,7 @@ jobs:
             done
           done
           test "$(find qa-captures/ios -type f -name '*.png' | wc -l)" -eq 30
-          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/ios --expected-count 30
+          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/ios --expected-count 30 --require-lexicon-marker
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_home_bookplate_geometry.py qa-captures/ios/light-home.png
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_screen_diversity.py qa-captures/ios
           find qa-captures/ios -type f -name '*.png' | sort
