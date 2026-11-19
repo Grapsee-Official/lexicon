@@ -135,7 +135,7 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
         modifier = Modifier
             .fillMaxSize()
             .background(bg),
-        contentPadding = PaddingValues(bottom = 96.dp),
+        contentPadding = PaddingValues(bottom = 162.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item(key = "hero") {
@@ -219,7 +219,7 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
-                                        .height(if (androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f) 146.dp else 96.dp)
+                                        .height(if (androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f) 146.dp else 112.dp)
                                         .clip(RoundedCornerShape(16.dp))
                                         .background(cardBg)
                                         .border(1.dp, border, RoundedCornerShape(16.dp))
@@ -228,12 +228,12 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
                                     Image(
                                         painter = painterResource(artRes),
                                         contentDescription = null,
-                                        contentScale = ContentScale.Crop,
-                                        alignment = Alignment.CenterEnd,
+                                        contentScale = ContentScale.Fit,
+                                        alignment = Alignment.BottomEnd,
                                         modifier = Modifier
-                                            .align(Alignment.CenterEnd)
+                                            .align(Alignment.BottomEnd)
                                             .fillMaxHeight()
-                                            .fillMaxWidth(0.72f),
+                                            .fillMaxWidth(0.86f),
                                     )
                                     Column(
                                         modifier = Modifier
@@ -245,7 +245,6 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
                                             modifier = Modifier
                                                 .size(28.dp)
                                                 .clip(CircleShape)
-                                                .background(bg.copy(alpha = 0.85f))
                                                 .border(1.dp, border, CircleShape),
                                             contentAlignment = Alignment.Center,
                                         ) {
@@ -260,10 +259,7 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
                                         modifier = Modifier
                                             .align(Alignment.BottomEnd)
                                             .padding(9.dp)
-                                            .size(24.dp)
-                                            .clip(CircleShape)
-                                            .background(cardBg.copy(alpha = 0.92f))
-                                            .border(1.dp, border, CircleShape),
+                                            .size(24.dp),
                                         contentAlignment = Alignment.Center,
                                     ) {
                                         Icon(Icons.AutoMirrored.Outlined.ArrowForward, contentDescription = null, tint = fg, modifier = Modifier.size(12.dp))
@@ -400,7 +396,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
         modifier = Modifier
             .fillMaxSize()
             .background(bg),
-        contentPadding = PaddingValues(bottom = 96.dp),
+        contentPadding = PaddingValues(bottom = 162.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item(key = "hero") {
@@ -506,12 +502,12 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                         Image(
                                             painter = painterResource(artRes),
                                             contentDescription = null,
-                                            contentScale = ContentScale.Crop,
+                                            contentScale = ContentScale.Fit,
                                             alignment = Alignment.BottomEnd,
                                             modifier = Modifier
                                                 .align(Alignment.BottomEnd)
-                                                .fillMaxHeight(0.86f)
-                                                .fillMaxWidth(0.50f),
+                                                .fillMaxHeight(0.94f)
+                                                .fillMaxWidth(0.68f),
                                         )
                                         Column(
                                             modifier = Modifier
@@ -714,7 +710,7 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
         modifier = Modifier
             .fillMaxSize()
             .background(bg),
-        contentPadding = PaddingValues(bottom = 96.dp),
+        contentPadding = PaddingValues(bottom = 162.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item(key = "hero") {
@@ -852,7 +848,7 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                     Image(
                         painter = painterResource(booksRes),
                         contentDescription = null,
-                        contentScale = ContentScale.Crop,
+                        contentScale = ContentScale.Fit,
                         modifier = Modifier
                             .width(88.dp)
                             .height(74.dp)
@@ -1104,7 +1100,7 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
         modifier = Modifier
             .fillMaxSize()
             .background(bg),
-        contentPadding = PaddingValues(bottom = 96.dp),
+        contentPadding = PaddingValues(bottom = 162.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item(key = "hero") {
@@ -1211,7 +1207,6 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                                                 .padding(6.dp)
                                                 .size(22.dp)
                                                 .clip(CircleShape)
-                                                .background(cardBg.copy(alpha = 0.88f))
                                                 .clickable { viewModel.toggleTemplateStar(tpl.id) },
                                             contentAlignment = Alignment.Center,
                                         ) {
@@ -1279,11 +1274,11 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                     Image(
                         painter = painterResource(floralsRes),
                         contentDescription = null,
-                        contentScale = ContentScale.Crop,
+                        contentScale = ContentScale.Fit,
                         modifier = Modifier
                             .align(Alignment.CenterEnd)
                             .fillMaxHeight()
-                            .width(104.dp),
+                            .width(132.dp),
                     )
                     Row(
                         modifier = Modifier
@@ -1433,7 +1428,7 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
         modifier = Modifier
             .fillMaxSize()
             .background(bg),
-        contentPadding = PaddingValues(bottom = 96.dp),
+        contentPadding = PaddingValues(bottom = 162.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item(key = "hero") {

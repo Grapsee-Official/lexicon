@@ -134,7 +134,7 @@ fun WordOfTheDayScreen(viewModel: LexiconViewModel) {
         modifier = Modifier
             .fillMaxSize()
             .background(bg),
-        contentPadding = PaddingValues(bottom = 96.dp),
+        contentPadding = PaddingValues(bottom = 162.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         // Top Header + Cottage Stone Bridge Hero Card
@@ -152,9 +152,9 @@ fun WordOfTheDayScreen(viewModel: LexiconViewModel) {
                     alignment = Alignment.TopEnd,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .width(190.dp)
-                        .height(270.dp)
-                        .offset(x = 6.dp, y = 34.dp),
+                        .fillMaxWidth(0.84f)
+                        .height(282.dp)
+                        .offset(y = 18.dp),
                 )
 
                 if (isDark) {
@@ -348,7 +348,7 @@ fun WordOfTheDayScreen(viewModel: LexiconViewModel) {
                     Image(
                         painter = painterResource(openBookRes),
                         contentDescription = null,
-                        contentScale = ContentScale.Crop,
+                        contentScale = ContentScale.Fit,
                         modifier = Modifier
                             .width(116.dp)
                             .height(86.dp)
@@ -462,14 +462,14 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
     val accent = if (isDark) DarkAccent else OldWoodGold
 
     val bridgeRes = resolveCountrysideDrawable("ill_hero_bridge", isDark)
-    val booksRes = resolveCountrysideDrawable("ill_col_bookmarks", isDark)
+    val booksRes = resolveCountrysideDrawable("ill_books_daisies", isDark)
     val bayRes = resolveCountrysideDrawable("ill_banner_bay", isDark)
 
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .background(bg),
-        contentPadding = PaddingValues(bottom = 96.dp),
+        contentPadding = PaddingValues(bottom = 162.dp),
         verticalArrangement = Arrangement.spacedBy(11.dp),
     ) {
         item(key = "detail_hero") {
@@ -485,13 +485,13 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                     alignment = Alignment.TopEnd,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .width(196.dp)
-                        .height(235.dp)
-                        .offset(x = 6.dp, y = 24.dp),
+                        .fillMaxWidth(0.84f)
+                        .height(266.dp)
+                        .offset(y = 16.dp),
                 )
 
                 if (isDark) {
-                    NocturneAtmosphere(Modifier.fillMaxWidth().height(235.dp))
+                    NocturneAtmosphere(Modifier.fillMaxWidth().height(266.dp))
                 }
 
                 Column(
@@ -737,7 +737,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .height(142.dp)
+                        .height(162.dp)
                         .clip(RoundedCornerShape(15.dp))
                         .background(cardBg)
                         .border(1.dp, border, RoundedCornerShape(15.dp))
@@ -746,9 +746,10 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                     Image(
                         painter = painterResource(booksRes),
                         contentDescription = null,
+                        contentScale = ContentScale.Fit,
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
-                            .size(58.dp),
+                            .size(96.dp),
                     )
                     Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
@@ -768,7 +769,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .height(142.dp)
+                        .height(162.dp)
                         .clip(RoundedCornerShape(15.dp))
                         .background(cardBg)
                         .border(1.dp, border, RoundedCornerShape(15.dp))
@@ -838,12 +839,11 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                     Image(
                         painter = painterResource(bayRes),
                         contentDescription = null,
-                        contentScale = ContentScale.Crop,
+                        contentScale = ContentScale.Fit,
                         alignment = Alignment.CenterEnd,
                         modifier = Modifier
                             .align(Alignment.CenterEnd)
-                            .fillMaxHeight()
-                            .fillMaxWidth(0.48f),
+                            .fillMaxSize(),
                     )
                     Box(
                         modifier = Modifier
@@ -851,8 +851,8 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                             .background(
                                 Brush.horizontalGradient(
                                     0.0f to cardBg,
-                                    0.52f to cardBg.copy(alpha = 0.94f),
-                                    0.78f to Color.Transparent,
+                                    0.33f to cardBg.copy(alpha = 0.78f),
+                                    0.72f to Color.Transparent,
                                 )
                             ),
                     )
@@ -913,7 +913,7 @@ fun SearchResultsScreen(viewModel: LexiconViewModel) {
         modifier = Modifier
             .fillMaxSize()
             .background(bg),
-        contentPadding = PaddingValues(bottom = 96.dp),
+        contentPadding = PaddingValues(bottom = 162.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item(key = "hero") {
@@ -1264,7 +1264,7 @@ fun ExpandedExplorationScreen(viewModel: LexiconViewModel) {
         modifier = Modifier
             .fillMaxSize()
             .background(bg),
-        contentPadding = PaddingValues(bottom = 96.dp),
+        contentPadding = PaddingValues(bottom = 162.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item(key = "hero") {
@@ -1514,7 +1514,7 @@ fun ExpandedExplorationScreen(viewModel: LexiconViewModel) {
             Image(
                 painter = painterResource(churchRes),
                 contentDescription = null,
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
                     .fillMaxWidth()

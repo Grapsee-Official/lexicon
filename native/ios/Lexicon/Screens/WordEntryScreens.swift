@@ -33,8 +33,8 @@ struct WordOfTheDayScreen: View {
                     Image(countrysideImageName("ill-hero-bridge", isDark: isDark))
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 182, height: 256, alignment: .topTrailing)
-                        .offset(x: 6, y: 34)
+                        .frame(width: 282, height: 288, alignment: .topTrailing)
+                         .offset(y: 18)
                         .allowsHitTesting(false)
 
                     if isDark {
@@ -233,7 +233,7 @@ struct WordOfTheDayScreen: View {
                 )
                 .padding(.horizontal, 16)
             }
-            .padding(.bottom, 88)
+            .padding(.bottom, 160)
         }
         .background(p.background)
     }
@@ -256,14 +256,14 @@ struct WordDetailProfileScreen: View {
                     Image(countrysideImageName("ill-hero-bridge", isDark: isDark))
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 192, height: 228, alignment: .topTrailing)
-                        .offset(x: 6, y: 24)
+                        .frame(width: 282, height: 264, alignment: .topTrailing)
+                         .offset(y: 16)
                         .allowsHitTesting(false)
 
                     if isDark {
                         NocturneAtmosphere()
                             .frame(maxWidth: .infinity)
-                            .frame(height: 228)
+                            .frame(height: 264)
                     }
 
                     VStack(alignment: .leading, spacing: 6) {
@@ -406,13 +406,12 @@ struct WordDetailProfileScreen: View {
                         .padding(11)
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
 
-                        Image(countrysideImageName("ill-col-bookmarks", isDark: isDark))
+                        Image(countrysideImageName("ill-books-daisies", isDark: isDark))
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 54, height: 54)
-                            .padding(6)
+                            .frame(width: 96, height: 96)
                     }
-                    .frame(height: 138)
+                    .frame(height: 162)
                     .background(p.card)
                     .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
                     .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous).stroke(p.border, lineWidth: 1))
@@ -435,7 +434,7 @@ struct WordDetailProfileScreen: View {
                     }
                     .padding(11)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                    .frame(height: 138)
+                    .frame(height: 162)
                     .background(p.card)
                     .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
                     .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous).stroke(p.border, lineWidth: 1))
@@ -475,15 +474,14 @@ struct WordDetailProfileScreen: View {
                                 Spacer(minLength: 0)
                                 Image(countrysideImageName("ill-banner-bay", isDark: isDark))
                                     .resizable()
-                                    .scaledToFill()
-                                    .frame(width: w * 0.48, height: 94)
-                                    .clipped()
+                                    .scaledToFit()
+                                    .frame(width: w, height: 94, alignment: .bottomTrailing)
                             }
                             LinearGradient(
                                 stops: [
                                     .init(color: p.card, location: 0.0),
-                                    .init(color: p.card.opacity(0.94), location: 0.52),
-                                    .init(color: .clear, location: 0.80),
+                                    .init(color: p.card.opacity(0.78), location: 0.33),
+                                    .init(color: .clear, location: 0.72),
                                 ],
                                 startPoint: .leading,
                                 endPoint: .trailing
@@ -512,7 +510,7 @@ struct WordDetailProfileScreen: View {
                     .padding(.horizontal, 16)
                 }
             }
-            .padding(.bottom, 88)
+            .padding(.bottom, 160)
         }
         .background(p.background)
     }
@@ -796,7 +794,7 @@ struct SearchResultsScreen: View {
                 )
                 .padding(.horizontal, 16)
             }
-            .padding(.bottom, 88)
+            .padding(.bottom, 160)
         }
         .background(p.background)
     }
@@ -1061,7 +1059,7 @@ struct ExpandedExplorationScreen: View {
                     .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous).stroke(p.border, lineWidth: 1))
                     .padding(.horizontal, 16)
             }
-            .padding(.bottom, 88)
+            .padding(.bottom, 160)
         }
         .background(p.background)
         .onAppear { showAll36 = vm.detailExpanded36 }

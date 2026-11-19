@@ -158,7 +158,7 @@ struct CollectionsHubScreen: View {
                 )
                 .padding(.horizontal, 16)
             }
-            .padding(.bottom, 88)
+            .padding(.bottom, 160)
         }
         .background(p.background)
         .onAppear { filter = vm.collectionFilter }
@@ -174,17 +174,14 @@ struct CollectionsHubScreen: View {
                             Spacer(minLength: 0)
                             Image(countrysideImageName(art, isDark: isDark))
                                 .resizable()
-                                .scaledToFill()
-                                .frame(width: geo.size.width * 0.72, height: dynamicTypeSize.isAccessibilitySize ? 146 : 96)
-                                .clipped()
+                                .scaledToFit()
+                                .frame(width: geo.size.width * 0.86, height: dynamicTypeSize.isAccessibilitySize ? 146 : 112, alignment: .bottomTrailing)
                         }
                         VStack(alignment: .leading, spacing: 0) {
                             Image(systemName: icon)
                                 .font(.system(size: 12))
                                 .foregroundStyle(p.foreground)
                                 .frame(width: 28, height: 28)
-                                .background(p.background.opacity(0.86))
-                                .clipShape(Circle())
                                 .overlay(Circle().stroke(p.border, lineWidth: 1))
                             Spacer()
                             Text(title).font(.lexiconDisplay(14.5)).foregroundStyle(p.foreground)
@@ -197,12 +194,9 @@ struct CollectionsHubScreen: View {
                     .font(.system(size: 10, weight: .medium))
                     .foregroundStyle(p.foreground)
                     .frame(width: 24, height: 24)
-                    .background(p.card.opacity(0.92))
-                    .clipShape(Circle())
-                    .overlay(Circle().stroke(p.border, lineWidth: 1))
                     .padding(9)
             }
-            .frame(height: dynamicTypeSize.isAccessibilitySize ? 146 : 96)
+            .frame(height: dynamicTypeSize.isAccessibilitySize ? 146 : 112)
             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(p.border, lineWidth: 1))
         }
@@ -288,7 +282,7 @@ struct MyNotesScreen: View {
                                 Image(countrysideImageName(note.illustration ?? "ill-note-flowers", isDark: isDark))
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(width: 78, height: 104, alignment: .bottomTrailing)
+                                    .frame(width: 110, height: 114, alignment: .bottomTrailing)
 
                                 VStack(alignment: .leading, spacing: 0) {
                                     HStack {
@@ -405,7 +399,7 @@ struct MyNotesScreen: View {
                 )
                 .padding(.horizontal, 16)
             }
-            .padding(.bottom, 88)
+            .padding(.bottom, 160)
         }
         .background(p.background)
         .sheet(item: $editingNote) { note in
@@ -556,9 +550,8 @@ struct StudyListsScreen: View {
 
                         Image(countrysideImageName("ill-books-daisies", isDark: isDark))
                             .resizable()
-                            .scaledToFill()
-                            .frame(width: 86, height: 72)
-                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            .scaledToFit()
+                            .frame(width: 95, height: 82)
                     }
                     .padding(.horizontal, 14)
                     .padding(.bottom, 4)
@@ -659,7 +652,7 @@ struct StudyListsScreen: View {
                 )
                 .padding(.horizontal, 16)
             }
-            .padding(.bottom, 88)
+            .padding(.bottom, 160)
         }
         .background(p.background)
         .sheet(item: $practicingList) { list in
@@ -873,8 +866,6 @@ struct QuickTemplatesScreen: View {
                                             .font(.system(size: 11))
                                             .foregroundStyle(p.highlight)
                                             .frame(width: 22, height: 22)
-                                            .background(p.card.opacity(0.88))
-                                            .clipShape(Circle())
                                             .padding(6)
                                     }
                                     .buttonStyle(.plain)
@@ -931,9 +922,8 @@ struct QuickTemplatesScreen: View {
                         ZStack(alignment: .trailing) {
                             Image(countrysideImageName("ill-note-flowers", isDark: isDark))
                                 .resizable()
-                                .scaledToFill()
-                                .frame(width: 100, height: 74)
-                                .clipped()
+                                .scaledToFit()
+                                .frame(width: 132, height: 74)
 
                             HStack(spacing: 12) {
                                 Image(systemName: "plus")
@@ -968,7 +958,7 @@ struct QuickTemplatesScreen: View {
                 )
                 .padding(.horizontal, 16)
             }
-            .padding(.bottom, 88)
+            .padding(.bottom, 160)
         }
         .background(p.background)
         .sheet(isPresented: $showCreateTemplate) {
@@ -1229,7 +1219,7 @@ struct SearchDiscoveryScreen: View {
                 )
                 .padding(.horizontal, 16)
             }
-            .padding(.bottom, 88)
+            .padding(.bottom, 160)
         }
         .background(p.background)
     }
