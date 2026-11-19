@@ -332,10 +332,14 @@ struct MyNotesScreen: View {
                                         Spacer()
                                         Button { vm.toggleNoteBookmark(note.id) } label: {
                                             Image(systemName: note.bookmarked ? "bookmark.fill" : "bookmark")
-                                                .font(.system(size: 11.5))
+                                                .font(.system(size: 14))
                                                 .foregroundStyle(note.bookmarked ? p.highlight : p.mutedForeground)
+                                                // Transparent tap area: no cream patch in the painting.
+                                                .frame(width: 44, height: 44)
+                                                .contentShape(Rectangle())
                                         }
                                         .buttonStyle(.plain)
+                                        .accessibilityLabel(note.bookmarked ? "Remove note bookmark" : "Bookmark note")
                                     }
                                 }
                                 .padding(11)
