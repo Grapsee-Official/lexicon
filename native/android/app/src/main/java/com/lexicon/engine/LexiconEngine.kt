@@ -29,6 +29,7 @@ class LexiconEngine : MemoryPressureListener {
     private external fun nativeLoad(handle: Long, dbDir: String): Boolean
     private external fun nativeLookup(handle: Long, word: String): Long
     private external fun nativeFuzzySearch(handle: Long, query: String, maxDist: Int, limit: Int): Long
+    private external fun nativePrefixSearch(handle: Long, prefix: String, limit: Int): Array<String>
     private external fun nativeFreeEntry(entryPtr: Long)
     private external fun nativeFreeResults(resultsPtr: Long)
     private external fun nativeEnableDawg(handle: Long, enabled: Boolean)
@@ -84,8 +85,11 @@ class LexiconEngine : MemoryPressureListener {
         }
     }
 
-    fun prefixSearch(prefix: String, limit: Int = 50): List<String> =
-        fuzzySearch(prefix, 0, limit).map { it.entry.word }
+    /** Proper starts-with results from C++ DAWG, not exact-only fuzzy matches. */
+    fun prefixSearch(prefix: String, limit: Int = 50): List<String> {
+        if (handle == 0L || prefix.isBlank() || limit <= 0) return emptyList()
+        return nativePrefixSearch(handle, prefix.trim(), limit).toList()
+    }
 
     fun getWordById(id: String): EngineWordEntry? = lookup(id)
 
