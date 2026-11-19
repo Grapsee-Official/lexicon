@@ -46,6 +46,9 @@ struct CountrysideHeroHeader: View {
                         // The watercolor receives the complete page width;
                         // alpha edges belong to the painter, not a picture box.
                         .frame(width: w, height: responsiveHeight, alignment: .bottomTrailing)
+                        // The transparent lower watercolor may overlap the
+                        // next search capsule; it is not chopped at the header.
+                        .offset(y: 24)
                         .accessibilityHidden(true)
                 }
                 .frame(width: w, height: responsiveHeight)
