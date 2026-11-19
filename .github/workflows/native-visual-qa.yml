@@ -89,20 +89,22 @@ jobs:
           script: bash scripts/capture_android_screens.sh && bash scripts/capture_android_adaptive.sh
       - name: Reject blank or missing Android visual evidence
         run: |
-          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/android --expected-count 26
+          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/android --expected-count 30
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_home_bookplate_geometry.py qa-captures/android/light-home.png
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_screen_diversity.py qa-captures/android
-          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/android-adaptive/compact --expected-count 12
-          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/android-adaptive/tablet --expected-count 12
-      - name: Prepare Android visual review galleries
+          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/android-adaptive/compact --expected-count 14
+          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/android-adaptive/tablet --expected-count 14
+      - name: Prepare Android visual review galleries (including partial captures)
+        if: always()
         run: |
+          if [ ! -x "$RUNNER_TEMP/lexicon-qa-venv/bin/python" ]; then echo "No capture verifier was installed"; exit 0; fi
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/build_native_contact_sheets.py qa-captures/android qa-captures/android-review --platform android
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/build_native_contact_sheets.py qa-captures/android-adaptive/compact qa-captures/android-adaptive/compact-review --platform android
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/build_native_contact_sheets.py qa-captures/android-adaptive/tablet qa-captures/android-adaptive/tablet-review --platform android
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: lexicon-android-26-screen-evidence
+          name: lexicon-android-30-screen-evidence
           path: qa-captures/android/*.png
           if-no-files-found: warn
           retention-days: 7
@@ -161,7 +163,7 @@ jobs:
         run: |
           python3 -m venv "$RUNNER_TEMP/lexicon-qa-venv"
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" -m pip install --disable-pip-version-check "Pillow==11.3.0"
-      - name: Boot a simulator and capture 26 actual SwiftUI screens
+      - name: Boot a simulator and capture 30 actual SwiftUI screens
         run: |
           set -eu
           APP="${RUNNER_TEMP}/DerivedData/Build/Products/Debug-iphonesimulator/Lexicon.app"
@@ -178,7 +180,7 @@ jobs:
           # snapshot-sync task disguising a navigation regression as a PNG.
           serial=0
           for mode in light dark; do
-            for screen in home dictionary_home word_of_the_day word_detail collections my_notes study_lists quick_templates search_discovery search_results expanded_exploration more translations; do
+            for screen in home dictionary_home word_of_the_day word_detail collections my_notes study_lists quick_templates search_discovery search_results expanded_exploration more translations library library_article; do
               serial=$((serial+1))
               valid=0
               for launch_attempt in 1 2; do
@@ -208,13 +210,15 @@ jobs:
               echo "CAPTURE $serial: native iOS $mode/$screen"
             done
           done
-          test "$(find qa-captures/ios -type f -name '*.png' | wc -l)" -eq 26
-          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/ios --expected-count 26
+          test "$(find qa-captures/ios -type f -name '*.png' | wc -l)" -eq 30
+          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/ios --expected-count 30
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_home_bookplate_geometry.py qa-captures/ios/light-home.png
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_screen_diversity.py qa-captures/ios
           find qa-captures/ios -type f -name '*.png' | sort
-      - name: Prepare iOS visual review galleries
+      - name: Prepare iOS visual review galleries (including partial captures)
+        if: always()
         run: |
+          if [ ! -x "$RUNNER_TEMP/lexicon-qa-venv/bin/python" ]; then echo "No capture verifier was installed"; exit 0; fi
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/build_native_contact_sheets.py qa-captures/ios qa-captures/ios-review --platform ios
       - uses: actions/upload-artifact@v4
         if: always()
@@ -239,7 +243,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: lexicon-ios-26-screen-evidence
+          name: lexicon-ios-30-screen-evidence
           path: qa-captures/ios/*.png
           if-no-files-found: warn
           retention-days: 7
