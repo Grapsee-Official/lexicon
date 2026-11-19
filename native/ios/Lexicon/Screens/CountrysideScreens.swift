@@ -1093,6 +1093,15 @@ struct SearchDiscoveryScreen: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: paintingHeight, alignment: .bottom)
                 .offset(y: 10)
+                .overlay {
+                    if isDark {
+                        ZStack {
+                            NocturneAtmosphere()
+                            CottageWindowGlow()
+                        }
+                        .allowsHitTesting(false)
+                    }
+                }
                 .accessibilityHidden(true)
         }
         .background {
