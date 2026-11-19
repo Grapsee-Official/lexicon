@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -510,13 +511,14 @@ fun BotanicalSectionTitle(
 }
 
 /**
- * CountrysideQuoteBanner — Panoramic English village / stone bridge / stacked books quote banner
- * with unified "— Lexora —" literary attribution.
+ * A single literary epigraph for the Library entrance, not an automatic
+ * footer on every functional screen. Original painted edge transparency
+ * stays intact in both themes and at every window width.
  */
 @Composable
 fun CountrysideQuoteBanner(
     quote: String,
-    attribution: String = "Lexora",
+    attribution: String = "Lexicon",
     illustrationBase: String = "ill_banner_bridge",
     isDark: Boolean,
     modifier: Modifier = Modifier,
@@ -526,73 +528,68 @@ fun CountrysideQuoteBanner(
     val quoteColor = if (isDark) DarkForeground else DeepForest
     val attrColor = if (isDark) DarkAccent else OldWoodGold
     val resId = resolveCountrysideDrawable(illustrationBase, isDark)
-    val shape = RoundedCornerShape(16.dp)
-    val config = androidx.compose.ui.platform.LocalConfiguration.current
-    // The 94dp phone banner is too shallow for an 800dp tablet: the
-    // complete watercolor becomes a tiny isolated thumbnail. Scale its
-    // bookplate height with usable width, but never crop the original art.
-    val scaledHeight = ((config.screenWidthDp - 32).coerceAtLeast(0) * 0.20f)
-        .dp.coerceIn(94.dp, 164.dp)
-    val bannerHeight = if (config.fontScale >= 1.3f) maxOf(scaledHeight, 120.dp) else scaledHeight
+    val fontScale = androidx.compose.ui.platform.LocalConfiguration.current.fontScale
+    val shape = RoundedCornerShape(18.dp)
 
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(bannerHeight)
-            .clip(shape)
-            .background(cardBg)
-            .border(1.dp, border, shape),
-    ) {
-        Image(
-            painter = painterResource(resId),
-            contentDescription = null,
-            contentScale = ContentScale.Fit,
-            alignment = Alignment.CenterEnd,
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .fillMaxSize(),
-        )
+    BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
+        val stacked = fontScale >= 1.3f || maxWidth < 340.dp
+        // The former 94dp banner truncated both the italic quote and the art.
+        // Use the real available width; a wide split-screen is still a phone
+        // column for sizing purposes, not the device's physical width.
+        val bannerHeight = if (stacked) {
+            (maxWidth * 0.64f).coerceIn(250.dp, 330.dp)
+        } else {
+            (maxWidth * 0.34f).coerceIn(158.dp, 246.dp)
+        }
 
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.horizontalGradient(
-                        0.0f to cardBg.copy(alpha = 0.22f),
-                        0.33f to cardBg.copy(alpha = 0.14f),
-                        0.72f to Color.Transparent,
-                    )
-                ),
-        )
-
-        Column(
-            modifier = Modifier
-                .align(Alignment.CenterStart)
-                .fillMaxWidth(0.58f)
-                .padding(start = 16.dp, end = 6.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+                .fillMaxWidth()
+                .height(bannerHeight)
+                .clip(shape)
+                .background(cardBg)
+                .border(1.dp, border, shape),
         ) {
-            Text(
-                text = "“$quote”",
-                color = quoteColor,
-                style = TextStyle(
-                    fontFamily = DisplayFontFamily,
-                    fontStyle = FontStyle.Italic,
-                    fontSize = 13.sp,
-                    lineHeight = 17.sp,
-                ),
-                maxLines = if (config.fontScale >= 1.3f) 3 else 2,
-                overflow = TextOverflow.Ellipsis,
+            Image(
+                painter = painterResource(resId),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                alignment = Alignment.BottomEnd,
+                modifier = if (stacked) {
+                    Modifier.align(Alignment.BottomEnd).fillMaxWidth().height(140.dp)
+                } else {
+                    Modifier.fillMaxSize()
+                },
             )
-            Text(
-                text = "— $attribution —",
-                color = attrColor,
-                style = TextStyle(
-                    fontFamily = BodyFontFamily,
-                    fontSize = 10.sp,
-                    letterSpacing = 0.5.sp,
-                ),
-            )
+
+            Column(
+                modifier = Modifier
+                    .align(if (stacked) Alignment.TopStart else Alignment.CenterStart)
+                    .then(if (stacked) Modifier.fillMaxWidth() else Modifier.fillMaxWidth(0.56f))
+                    .padding(start = 18.dp, end = 8.dp, top = if (stacked) 20.dp else 0.dp),
+                verticalArrangement = Arrangement.spacedBy(7.dp),
+            ) {
+                Text(
+                    text = "“$quote”",
+                    color = quoteColor,
+                    style = TextStyle(
+                        fontFamily = DisplayFontFamily,
+                        fontStyle = FontStyle.Italic,
+                        fontSize = 16.sp,
+                        lineHeight = 21.sp,
+                    ),
+                    // No two-line truncation of an epigraph.
+                )
+                Text(
+                    text = "— $attribution —",
+                    color = attrColor,
+                    style = TextStyle(
+                        fontFamily = BodyFontFamily,
+                        fontSize = 11.sp,
+                        letterSpacing = 0.3.sp,
+                    ),
+                )
+            }
         }
     }
 }
