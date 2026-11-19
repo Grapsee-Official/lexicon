@@ -65,7 +65,7 @@ fun WordOfTheDayCard(
     val config = LocalConfiguration.current
     val compact = config.screenWidthDp < 360
     val accessible = config.fontScale > 1.2f
-    val cardHeight = if (accessible) 186.dp else if (compact) 144.dp else 126.dp
+    val cardHeight = if (accessible) 186.dp else if (compact) 144.dp else 118.dp
 
     val leftBg = if (isDark) DarkWotdLeft else BrandGreen
     val rightBg = if (isDark) DarkWotdRight else WotdRightSurface
