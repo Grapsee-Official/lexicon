@@ -30,7 +30,7 @@ for layout in compact tablet; do
   outdir="qa-captures/android-adaptive/$layout"
   mkdir -p "$outdir"
   for theme in light dark; do
-    for screen in home dictionary_home word_detail collections my_notes more library_article; do
+    for screen in home dictionary_home word_of_the_day word_detail collections my_notes study_lists quick_templates search_discovery search_results expanded_exploration more library_article; do
       output="$outdir/$theme-$screen.png"
       valid=0
       for attempt in 1 2 3; do
@@ -57,6 +57,6 @@ for layout in compact tablet; do
     done
   done
   count=$(find "$outdir" -maxdepth 1 -name '*.png' | wc -l)
-  test "$count" -eq 14
+  test "$count" -eq 26
 done
-echo "Validated 28 additional phone/tablet layout captures in the original app."
+echo "Validated 52 light/dark compact/tablet captures across 13 original screens."

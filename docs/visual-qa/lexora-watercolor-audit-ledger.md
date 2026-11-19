@@ -79,6 +79,23 @@ PNG files. This document is **not** a declaration of 100% visual fidelity.
   the etymology/usage cards into a smaller view expression. This correction
   requires a fresh native iOS compile and screenshots before approval.
 
+## Responsiveness audit — newly confirmed tablet issue
+
+- **Android 800dp tablet at fontScale 1.3:** the former single-column
+  short-circuit ignored available width, producing oversized one-card rows on
+  Collections, My Notes, and Quick Templates. Grid column counts now account
+  for both the minimum readable bookplate width and actual screen width.
+- **Compact phones:** preserve single-column layout where two illustrated
+  cards cannot fit. Maintain legible titles, captions, and original painting
+  proportions rather than forcing a cramped grid.
+- **JVM regression tests:** cover 320dp phone, typical phone, enlarged-text
+  phone, 600dp intermediate device, and 800dp tablet, in normal and enlarged
+  text configurations.
+- **Expanded native evidence:** responsive debug-only QA now captures 13
+  illustrated screens in each light/dark mode for both compact and tablet
+  profiles (52 captures instead of 28). Screen-content fidelity and final
+  bottom-scroll clearance remain OPEN until actual image review.
+
 ## Verification and completion rule
 
 Native Android, iOS and C++ must build/test on the merged source commit.

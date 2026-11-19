@@ -106,6 +106,24 @@ import com.lexicon.ui.theme.WarmCream
 import com.lexicon.ui.theme.WarmGrey
 
 /**
+ * Compute columns from usable width rather than dropping to one column for
+ * every enlarged-text device. A tablet at 800dp and fontScale=1.3 has room
+ * for two illustrated bookplates; a 320dp phone does not.
+ *
+ * Aligns with the native SwiftUI adaptive grid minimums (165/260dp).
+ */
+internal fun countrysideAdaptiveColumns(
+    screenWidthDp: Int,
+    fontScale: Float,
+    maxColumns: Int = 4,
+    accessibleMinCardWidthDp: Int = 260,
+): Int {
+    val minCardWidthDp = if (fontScale >= 1.3f) accessibleMinCardWidthDp else 165
+    val usableWidthDp = (screenWidthDp - 32).coerceAtLeast(0) // 16dp page gutters
+    return ((usableWidthDp + 8) / (minCardWidthDp + 8)).coerceIn(1, maxColumns)
+}
+
+/**
  * Page 4: Collections — Organise favourites, bookmarks, notes and personal vocabulary collections.
  */
 @Composable
@@ -209,7 +227,11 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
                     modifier = Modifier.padding(horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    cards.chunked(if (androidx.compose.ui.platform.LocalConfiguration.current.let { it.screenWidthDp < 390 || it.fontScale >= 1.3f }) 1 else 2).forEach { rowCards ->
+                    val config = androidx.compose.ui.platform.LocalConfiguration.current
+                    val collectionColumns = countrysideAdaptiveColumns(
+                        config.screenWidthDp, config.fontScale, maxColumns = 2,
+                    )
+                    cards.chunked(collectionColumns).forEach { rowCards ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -484,15 +506,13 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                         modifier = Modifier.padding(horizontal = 16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        (if (showAllNotes) filteredNotes else filteredNotes.take(4)).chunked(
-                            when {
-                                androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f -> 1
-                                androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 390 -> 1
-                                androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp >= 840 -> 4
-                                androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp >= 600 -> 3
-                                else -> 2
-                            }
-                        ).forEach { rowNotes ->
+                        val config = androidx.compose.ui.platform.LocalConfiguration.current
+                        val noteColumns = countrysideAdaptiveColumns(
+                            config.screenWidthDp, config.fontScale, maxColumns = 4,
+                        )
+                        (if (showAllNotes) filteredNotes else filteredNotes.take(4))
+                            .chunked(noteColumns)
+                            .forEach { rowNotes ->
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -571,7 +591,9 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                         }
                                     }
                                 }
-                                if (rowNotes.size == 1 && androidx.compose.ui.platform.LocalConfiguration.current.let { it.screenWidthDp >= 390 && it.fontScale < 1.3f }) Spacer(Modifier.weight(1f))
+                                repeat(noteColumns - rowNotes.size) {
+                                    Spacer(Modifier.weight(1f))
+                                }
                             }
                         }
                     }
@@ -1178,16 +1200,15 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                             style = TextStyle(fontFamily = BodyFontFamily, fontSize = 13.sp),
                             modifier = Modifier.padding(12.dp))
                     }
+                    val config = androidx.compose.ui.platform.LocalConfiguration.current
+                    val templateColumns = countrysideAdaptiveColumns(
+                        config.screenWidthDp,
+                        config.fontScale,
+                        maxColumns = 4,
+                        accessibleMinCardWidthDp = 270,
+                    )
                     (if (showAllTemplates) filtered else filtered.take(4))
-                        .chunked(
-                            when {
-                                androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f -> 1
-                                androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 390 -> 1
-                                androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp >= 840 -> 4
-                                androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp >= 600 -> 3
-                                else -> 2
-                            }
-                        )
+                        .chunked(templateColumns)
                         .forEach { rowItems ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -1254,7 +1275,9 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                                     }
                                 }
                             }
-                            if (rowItems.size == 1 && androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp >= 390) Spacer(Modifier.weight(1f))
+                            repeat(templateColumns - rowItems.size) {
+                                Spacer(Modifier.weight(1f))
+                            }
                         }
                     }
                 }

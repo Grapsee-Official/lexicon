@@ -94,8 +94,8 @@ jobs:
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/android --expected-count 30
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_home_bookplate_geometry.py qa-captures/android/light-home.png
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_screen_diversity.py qa-captures/android
-          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/android-adaptive/compact --expected-count 14
-          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/android-adaptive/tablet --expected-count 14
+          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/android-adaptive/compact --expected-count 26
+          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/android-adaptive/tablet --expected-count 26
       - name: Prepare Android visual review galleries (including partial captures)
         if: always()
         run: |
