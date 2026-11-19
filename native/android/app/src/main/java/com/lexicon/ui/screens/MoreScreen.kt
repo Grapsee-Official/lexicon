@@ -2,6 +2,7 @@ package com.lexicon.ui.screens
 
 import android.content.Intent
 import android.provider.Settings
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -18,6 +19,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -27,6 +31,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.DarkMode
@@ -79,12 +84,12 @@ import com.lexicon.ui.theme.Terracotta
  *
  * Layout:
  *   1. Profile header card — avatar (64dp circular), "Curious Soul" name,
- *      "Lexora Companion · since 2026" subtitle, saved count + recent count.
+ *      "Lexicon Companion · since 2026" subtitle, saved count + recent count.
  *   2. Settings groups (uppercase muted header + card):
  *        APPEARANCE    — Theme (toggle), Text size, Notifications
  *        DICTIONARY    — Language pairs, Storage, Download language packs
  *        PRIVACY & DATA— Clear recent searches, Clear cache
- *        ABOUT         — About Lexora, Privacy policy, Open source licences
+ *        ABOUT         — About Lexicon, Privacy policy, Open source licences
  *   3. Footer — "Crafted in the spirit of the Cotswolds" + tagline.
  *
  * Theme toggle reads vm.uiState.isDark and calls vm.toggleTheme().
@@ -97,6 +102,14 @@ fun MoreScreen(viewModel: LexiconViewModel) {
     val isDark = state.isDark
     val context = LocalContext.current
     var infoDialog by remember { mutableStateOf<String?>(null) }
+    var readingPage by remember { mutableStateOf<String?>(null) }
+    if (readingPage != null) {
+        MoreReaderPage(
+            page = readingPage!!,
+            onBack = { readingPage = null },
+        )
+        return
+    }
 
     // Screen entrance animation: fadeIn + slideUp (y: 12dp → 0dp)
     var visible by remember { mutableStateOf(false) }
@@ -217,24 +230,24 @@ fun MoreScreen(viewModel: LexiconViewModel) {
             SettingsGroup(title = "About") {
                 SettingsRow(
                     icon = Icons.Outlined.Info,
-                    iconLabel = "About Lexora",
-                    label = "About Lexora",
-                    value = "v1.0.0",
-                    onClick = { infoDialog = "about" },
+                    iconLabel = "About Lexicon",
+                    label = "About Lexicon",
+                    value = "Native edition",
+                    onClick = { readingPage = "about" },
                 )
                 SettingsRow(
                     icon = Icons.Outlined.Description,
                     iconLabel = "Privacy policy",
                     label = "Privacy & storage",
                     value = "",
-                    onClick = { infoDialog = "privacy" },
+                    onClick = { readingPage = "privacy" },
                 )
                 SettingsRow(
                     icon = Icons.Outlined.Code,
                     iconLabel = "Open source licences",
                     label = "Open source licences",
                     value = "",
-                    onClick = { infoDialog = "licenses" },
+                    onClick = { readingPage = "licenses" },
                     isLast = true,
                 )
             }
@@ -254,20 +267,20 @@ fun MoreScreen(viewModel: LexiconViewModel) {
             "packs" -> "Language packs"
             "recent" -> "Clear search history?"
             "cache" -> "Clear temporary cache?"
-            "about" -> "About Lexora"
+            "about" -> "About Lexicon"
             "privacy" -> "Privacy & local storage"
             else -> "Open-source libraries"
         }
         val description = when (infoDialog) {
-            "text" -> "Lexora follows Android font-size and accessibility settings. Open device Display settings to adjust reading size."
+            "text" -> "Lexicon follows Android font-size and accessibility settings. Open device Display settings to adjust reading size."
             "notifications" -> "Daily notifications are not currently scheduled. Your Word of the Day remains available offline."
             "storage" -> "Saved words, notes, study lists and templates are stored on this device. The bundled dictionary works offline."
             "packs" -> "The English dictionary is bundled. Additional downloadable language packs are not yet supported. The translation view shows only curated available translations."
             "recent" -> "Remove recent searches on this device? Your saved words and notes will be kept."
             "cache" -> "Remove temporary files? Saved words, notes and study progress will remain."
-            "about" -> "Lexora · Words. Wisdom. Worlds. A quiet offline-first language companion inspired by the English countryside."
+            "about" -> "Lexicon · Words. Wisdom. Worlds. A quiet offline-first language companion inspired by the English countryside."
             "privacy" -> "Word collections, notes, settings and study progress are kept in local app storage. Search history and temporary files can be cleared separately."
-            else -> "Lexora uses Kotlin, AndroidX, Jetpack Compose, SQLite and a shared C++17 dictionary engine. See the license notices of each dependency before redistribution."
+            else -> "Lexicon uses Kotlin, AndroidX, Jetpack Compose, SQLite and a shared C++17 dictionary engine. See the license notices of each dependency before redistribution."
         }
         AlertDialog(
             onDismissRequest = { infoDialog = null },
@@ -298,6 +311,84 @@ fun MoreScreen(viewModel: LexiconViewModel) {
                 }
             },
         )
+    }
+}
+
+
+/**
+ * Real native reading pages behind About / Privacy / Licences.
+ * Unlike a one-line alert they are scrollable, accessible, and return with
+ * system Back without accidentally changing the selected bottom tab.
+ */
+@Composable
+private fun MoreReaderPage(page: String, onBack: () -> Unit) {
+    BackHandler(onBack = onBack)
+    val title = when (page) {
+        "about" -> "About Lexicon"
+        "privacy" -> "Privacy & storage"
+        else -> "Open-source notices"
+    }
+    val paragraphs = when (page) {
+        "about" -> listOf(
+            "Words. Wisdom. Worlds.",
+            "Lexicon is a quiet, native reading companion inspired by the old English countryside. Its illustrations, journal notes and dictionary belong to one thoughtful world.",
+            "Built for Android with Jetpack Compose and a shared C++17 dictionary engine. The English starter library and your saved words can be used offline."
+        )
+        "privacy" -> listOf(
+            "Your words are yours.",
+            "Saved words, study lists, templates, notes and recent searches are stored in the application's local storage. You can clear recent searches separately without deleting your notes or saved words.",
+            "Temporary cache files can be cleared in More. Removing the app may remove locally stored material. Keep your own copies of anything precious."
+        )
+        else -> listOf(
+            "A little library is built by many hands.",
+            "Lexicon uses AndroidX, Jetpack Compose, Kotlin and a shared C++17 engine. These technologies carry their own licences and acknowledgements.",
+            "For the complete upstream licence texts and the project's source code, consult the dependency distributions and the Grapsee-Official/lexicon repository. This page does not substitute for the upstream legal notices."
+        )
+    }
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .windowInsetsPadding(WindowInsets.statusBars),
+        contentPadding = PaddingValues(start = 22.dp, end = 22.dp, bottom = 166.dp),
+        verticalArrangement = Arrangement.spacedBy(18.dp),
+    ) {
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                    contentDescription = "Back to More",
+                    tint = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clickable { onBack() }
+                        .padding(10.dp),
+                )
+                Text(
+                    title,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontFamily = DisplayFontFamily,
+                    fontSize = 27.sp,
+                )
+            }
+        }
+        paragraphs.forEachIndexed { index, text ->
+            item(key = "paragraph_${index}") {
+                Text(
+                    text = text,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontFamily = if (index == 0) DisplayFontFamily else com.lexicon.ui.theme.LongFontFamily,
+                    fontSize = if (index == 0) 23.sp else 16.sp,
+                    lineHeight = if (index == 0) 30.sp else 25.sp,
+                )
+            }
+        }
     }
 }
 
@@ -351,7 +442,7 @@ private fun ProfileHeader(
             )
             Spacer(Modifier.height(2.dp))
             Text(
-                text = "Lexora Companion · since 2026",
+                text = "Lexicon Companion · since 2026",
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 12.sp,
             )
@@ -540,7 +631,7 @@ private fun MoreFooter() {
 
         // Tagline
         Text(
-            text = "Lexora · Words. Wisdom. Worlds.",
+            text = "Lexicon · Words. Wisdom. Worlds.",
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
             fontSize = 10.sp,
         )
