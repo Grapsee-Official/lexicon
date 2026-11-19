@@ -120,6 +120,12 @@ fun CountrysideHeroHeader(
     // Retain increased height for larger system fonts and full artwork on tablets.
     val phoneHeight = config.screenWidthDp < 600 && config.screenHeightDp < 940
     val responsiveHeight = when {
+        // The original painting is portrait-ish (~508x345). On an 800dp
+        // tablet a 146dp hero leaves it a tiny corner vignette; give the
+        // whole scene real page space without cropping a single brushstroke.
+        config.screenWidthDp >= 600 ->
+            maxOf(heroHeight + 64.dp, (config.screenWidthDp * 0.34f).dp)
+                .coerceAtMost(300.dp)
         accessibilityText -> heroHeight + 62.dp
         phoneHeight -> heroHeight + 12.dp
         else -> heroHeight

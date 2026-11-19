@@ -183,6 +183,19 @@ PNG files. This document is **not** a declaration of 100% visual fidelity.
       compact phones, standard phones, tablets and native iOS, including
       bottom navigation scrolling.
 
+## Shared tablet hero artwork sizing
+
+- **Source and screenshot finding (800dp Android tablet):** the shared
+  countryside hero uses phone-sized ~146dp height even on tablet, turning
+  complete Cotswolds cottages and trees into a small corner motif.
+- **Android and iOS:** the common hero header now scales its illustrated
+  height with screen width from 600dp upward, up to 300dp, while keeping
+  the existing fit/feather behavior and all original painting pixels.
+  Phone heights and the established search-pill geometry are unchanged.
+- [ ] Review updated top heroes on every affected screen on light/dark
+      tablet, compact phone, and iOS, checking text contrast and scroll
+      balance. This is a source correction, not final screenshot signoff.
+
 ## Verification and completion rule
 
 Native Android, iOS and C++ must build/test on the merged source commit.

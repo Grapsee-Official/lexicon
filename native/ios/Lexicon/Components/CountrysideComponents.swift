@@ -22,8 +22,14 @@ struct CountrysideHeroHeader: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     private var isDark: Bool { scheme == .dark }
     private var responsiveHeight: CGFloat {
+        let screen = UIScreen.main.bounds
+        if screen.width >= 600 {
+            // The Cotswolds painting must not shrink into a tablet corner.
+            // Preserve its complete aspect ratio with a taller native header.
+            return min(300, max(heroHeight + 64, screen.width * 0.34))
+        }
         if dynamicTypeSize.isAccessibilitySize { return heroHeight + 64 }
-        let phoneSize = UIScreen.main.bounds.width < 600 && UIScreen.main.bounds.height < 940
+        let phoneSize = screen.height < 940
         return phoneSize ? heroHeight + 12 : heroHeight
     }
 
