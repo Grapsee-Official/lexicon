@@ -13,6 +13,7 @@ on:
       - 'scripts/check_bundled_fonts.py'
       - 'scripts/check_home_bookplate_geometry.py'
       - 'scripts/check_native_material_parity.py'
+      - 'scripts/check_screen_diversity.py'
       - 'artwork/vector/countryside-*-material.svg'
       - 'artwork/vector/lexora-*.svg'
       - 'docs/visual-qa/lexora-home-reference-contract.md'
@@ -85,6 +86,7 @@ jobs:
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" -m pip install --disable-pip-version-check "Pillow==11.3.0"
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/android --expected-count 26
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_home_bookplate_geometry.py qa-captures/android/light-home.png
+          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_screen_diversity.py qa-captures/android
       - name: Prepare Android visual review galleries
         run: |
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/build_native_contact_sheets.py qa-captures/android qa-captures/android-review --platform android
@@ -183,6 +185,7 @@ jobs:
           test "$(find qa-captures/ios -type f -name '*.png' | wc -l)" -eq 26
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/ios --expected-count 26
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_home_bookplate_geometry.py qa-captures/ios/light-home.png
+          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_screen_diversity.py qa-captures/ios
           find qa-captures/ios -type f -name '*.png' | sort
       - name: Prepare iOS visual review galleries
         run: |
