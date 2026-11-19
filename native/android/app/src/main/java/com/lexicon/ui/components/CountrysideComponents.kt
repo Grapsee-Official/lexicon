@@ -180,12 +180,18 @@ fun CountrysideHeroHeader(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                LeafSprig(
-                    color = sprigColor,
+                // Keep the painted ornament 26dp, but let the tap target
+                // breathe at 44dp without an opaque background.
+                Box(
                     modifier = Modifier
-                        .size(26.dp)
-                        .clickable(role = Role.Button) { onLogoToggleTheme() },
-                )
+                        .size(44.dp)
+                        .clickable(role = Role.Button, onClickLabel = "Toggle appearance") {
+                            onLogoToggleTheme()
+                        },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    LeafSprig(color = sprigColor, modifier = Modifier.size(26.dp))
+                }
                 Text(
                     text = title,
                     color = titleColor,
@@ -214,8 +220,10 @@ fun CountrysideHeroHeader(
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(top = 10.dp, end = 16.dp)
-                .size(34.dp)
-                .clickable(role = Role.Button) { onHistoryClick() },
+                .size(44.dp)
+                .clickable(role = Role.Button, onClickLabel = "Search history") {
+                    onHistoryClick()
+                },
             contentAlignment = Alignment.Center,
         ) {
             Icon(
