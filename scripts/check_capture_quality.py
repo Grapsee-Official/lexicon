@@ -63,10 +63,21 @@ def inspect(path: Path) -> tuple[bool, str]:
         and red > green * 1.18 and blue > red * .86
         for red, green, blue in pixels
     ) / len(pixels)
-    if launcher_blue > .45 or launcher_violet > .45:
+    # The current iPhone simulator's SpringBoard uses a pink / blush /
+    # violet wave. Its pink field does not satisfy the saturated-blue or
+    # violet-only test above, and was falsely accepted as a valid Lexicon
+    # light-dictionary_home screenshot in a successful CI run.
+    launcher_pink = sum(
+        red > 125 and blue > 100
+        and red > green * 1.22 and blue > green * 1.14
+        and red > blue * .8
+        for red, green, blue in pixels
+    ) / len(pixels)
+    if launcher_blue > .45 or launcher_violet > .45 or launcher_pink > .23:
         return False, (
             "iOS launcher/system wallpaper visible "
-            f"(blue={launcher_blue:.1%}, violet={launcher_violet:.1%})"
+            f"(blue={launcher_blue:.1%}, violet={launcher_violet:.1%}, "
+            f"pink={launcher_pink:.1%})"
         )
 
     n = len(pixels)
