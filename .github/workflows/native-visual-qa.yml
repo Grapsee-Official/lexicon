@@ -69,6 +69,10 @@ jobs:
         run: |
           if [ -e /dev/kvm ]; then sudo chmod 666 /dev/kvm; fi
           ls -l /dev/kvm || true
+      - name: Install Android screenshot verifier before capture
+        run: |
+          python3 -m venv "$RUNNER_TEMP/lexicon-qa-venv"
+          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" -m pip install --disable-pip-version-check "Pillow==11.3.0"
       - name: Capture actual Android emulator screens
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -82,8 +86,6 @@ jobs:
           script: bash scripts/capture_android_screens.sh
       - name: Reject blank or missing Android visual evidence
         run: |
-          python3 -m venv "$RUNNER_TEMP/lexicon-qa-venv"
-          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" -m pip install --disable-pip-version-check "Pillow==11.3.0"
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/android --expected-count 26
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_home_bookplate_geometry.py qa-captures/android/light-home.png
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_screen_diversity.py qa-captures/android
@@ -158,22 +160,26 @@ jobs:
           for mode in light dark; do
             for screen in home dictionary_home word_of_the_day word_detail collections my_notes study_lists quick_templates search_discovery search_results expanded_exploration more translations; do
               serial=$((serial+1))
-              xcrun simctl terminate "$DEVICE" com.lexicon.app >/dev/null 2>&1 || true
-              xcrun simctl launch "$DEVICE" com.lexicon.app \
-                -lexoraTheme "$mode" -lexiconScreen "$screen" -lexoraVisualQa 1
-              sleep 2
               valid=0
-              for attempt in 1 2 3 4; do
-                sleep 1
-                xcrun simctl io "$DEVICE" screenshot "qa-captures/ios/$mode-$screen.png"
-                if "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py "qa-captures/ios/$mode-$screen.png"; then
-                  valid=1
-                  break
-                fi
-                echo "::warning::iOS $mode/$screen blank at attempt $attempt; retrying"
+              for launch_attempt in 1 2; do
+                xcrun simctl terminate "$DEVICE" com.lexicon.app >/dev/null 2>&1 || true
+                xcrun simctl launch "$DEVICE" com.lexicon.app \
+                  -lexoraTheme "$mode" -lexiconScreen "$screen" -lexoraVisualQa 1
+                sleep 3
+                for attempt in 1 2 3 4; do
+                  sleep 2
+                  xcrun simctl io "$DEVICE" screenshot "qa-captures/ios/$mode-$screen.png"
+                  if "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py "qa-captures/ios/$mode-$screen.png"; then
+                    valid=1
+                    break
+                  fi
+                  echo "::warning::iOS $mode/$screen blank on launch $launch_attempt, capture $attempt"
+                done
+                if [ "$valid" = 1 ]; then break; fi
+                echo "::warning::Relaunching the iOS screen after persistent blank frames"
               done
               if [ "$valid" != 1 ]; then
-                echo "::error::iOS $mode/$screen remained blank after 4 captures"
+                echo "::error::iOS $mode/$screen remained blank after 2 fresh launches"
                 xcrun simctl spawn "$DEVICE" log show --last 20s \
                   --style compact --predicate 'process == "Lexicon"' \
                   | tail -90 || true
