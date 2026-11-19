@@ -33,6 +33,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lexicon.BuildConfig
+import androidx.compose.ui.platform.LocalContext
 import com.lexicon.data.Article
 import com.lexicon.data.LexiconData
 import com.lexicon.data.LexiconViewModel
@@ -84,6 +86,12 @@ fun HomeScreen(viewModel: LexiconViewModel) {
 @Composable
 private fun HomeFeed(viewModel: LexiconViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    // Match the canonical Wanderlust reference during explicit debug captures;
+    // ordinary users retain the correctly rotating daily-word feature.
+    val isCapture = BuildConfig.DEBUG &&
+        ((context as? android.app.Activity)?.intent?.hasExtra("lexicon_screen") == true)
+    val homeWord = if (isCapture) LexiconData.wordOfTheDay else LexiconData.featuredWord()
     var libraryOpen by remember { mutableStateOf(false) }
     var articleToRead by remember { mutableStateOf<Article?>(null) }
     val ink = if (state.isDark) DarkForeground else DeepForest
@@ -106,7 +114,7 @@ private fun HomeFeed(viewModel: LexiconViewModel) {
 
         item(key = "wotd") {
             WordOfTheDayCard(
-                word = LexiconData.featuredWord(),
+                word = homeWord,
                 viewModel = viewModel,
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
