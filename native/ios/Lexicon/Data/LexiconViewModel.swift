@@ -364,7 +364,7 @@ final class LexiconViewModel: ObservableObject {
         case .idea: art = "ill-note-lantern"
         }
         let item = NoteItem(
-            id: "note_\(Int(Date().timeIntervalSince1970 * 1000))",
+            id: "note_\(UUID().uuidString)",
             category: category,
             title: cleanTitle.isEmpty ? "Untitled Note" : cleanTitle,
             body: cleanBody.isEmpty ? "Captured during countryside study." : cleanBody,
@@ -457,7 +457,7 @@ final class LexiconViewModel: ObservableObject {
 
     func createCustomTemplate(title: String, subtitle: String, category: TemplateCategory) {
         let tpl = VocabTemplate(
-            id: "tpl_\(Int(Date().timeIntervalSince1970 * 1000))",
+            id: "tpl_\(UUID().uuidString)",
             title: title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Countryside Journal" : title,
             subtitle: subtitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Custom literary word study." : subtitle,
             category: category,
