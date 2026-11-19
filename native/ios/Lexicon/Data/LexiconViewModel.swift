@@ -524,10 +524,15 @@ final class LexiconViewModel: ObservableObject {
                 results.append(entry)
             }
         }
-        if searchScopeTab == "Examples" {
-            for entry in LexiconData.dictionary
-                where entry.examples.contains(where: { $0.localizedCaseInsensitiveContains(q) }) {
-                if !seen.contains(entry.id) {
+        // Query meanings and example sentences across the actual curated
+        // lexicon; filtering fuzzy headword hits alone loses valid results.
+        if ["All", "Meanings", "Examples"].contains(searchScopeTab) {
+            for entry in LexiconData.dictionary {
+                let meaningMatch = searchScopeTab != "Examples" &&
+                    entry.definitions.contains(where: { $0.localizedCaseInsensitiveContains(q) })
+                let exampleMatch = searchScopeTab != "Meanings" &&
+                    entry.examples.contains(where: { $0.localizedCaseInsensitiveContains(q) })
+                if (meaningMatch || exampleMatch) && !seen.contains(entry.id) {
                     seen.insert(entry.id)
                     results.append(entry)
                 }
