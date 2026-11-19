@@ -15,7 +15,7 @@ except ImportError as error:
     raise SystemExit("Pillow is required: python -m pip install Pillow") from error
 
 
-def inspect(path: Path) -> tuple[bool, str]:
+def inspect(path: Path, require_marker: bool = False) -> tuple[bool, str]:
     try:
         with Image.open(path) as image:
             image.verify()
@@ -36,8 +36,18 @@ def inspect(path: Path) -> tuple[bool, str]:
             upper = image.crop((int(width * .05), int(height * .12),
                                 int(width * .30), int(height * .28)))
             upper_pixels = list(upper.resize((30, 20), Image.Resampling.BILINEAR).getdata())
+            # Only the actual SwiftUI ContentView emits this QA-only marker.
+            marker_region = image.crop((0, int(height * .72),
+                                        int(width * .12), height))
+            marker_count = sum(
+                red >= 235 and green <= 18 and 160 <= blue <= 215
+                for red, green, blue in marker_region.getdata()
+            ) if require_marker else 0
     except (OSError, UnidentifiedImageError) as error:
         return False, f"unreadable PNG: {error}"
+
+    if require_marker and marker_count < 20:
+        return False, "Lexicon QA foreground marker missing; launcher or wrong app captured"
 
     modal_fraction = sum(
         min(rgb) > 210 and max(rgb) - min(rgb) < 20 for rgb in center_pixels
@@ -96,6 +106,8 @@ def main() -> int:
     parser.add_argument("paths", nargs="+", type=Path,
                         help="Screenshot PNG files or folders")
     parser.add_argument("--expected-count", type=int, default=None)
+    parser.add_argument("--require-lexicon-marker", action="store_true",
+                        help="Require native SwiftUI QA-only foreground marker")
     args = parser.parse_args()
     paths = sorted({image for candidate in args.paths
                     for image in (candidate.glob("*.png") if candidate.is_dir() else [candidate])})
@@ -107,7 +119,7 @@ def main() -> int:
         return 1
     failures = []
     for path in paths:
-        good, reason = inspect(path)
+        good, reason = inspect(path, require_marker=args.require_lexicon_marker)
         print(f"{'PASS' if good else 'FAIL'} {path}: {reason}")
         if not good:
             failures.append(path)
