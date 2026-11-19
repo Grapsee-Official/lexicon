@@ -95,12 +95,12 @@ fun Hero(
         Box(
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .fillMaxWidth(0.70f)
+                .fillMaxWidth(0.60f)
                 .height(heroHeight)
                 .background(
                     Brush.horizontalGradient(
                         0.00f to (if (isDark) DarkBackground else WarmCream).copy(alpha = 0.99f),
-                        0.55f to (if (isDark) DarkBackground else WarmCream).copy(alpha = 0.94f),
+                        0.42f to (if (isDark) DarkBackground else WarmCream).copy(alpha = 0.92f),
                         1.00f to Color.Transparent,
                     ),
                 ),
