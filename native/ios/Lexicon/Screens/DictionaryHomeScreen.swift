@@ -131,11 +131,19 @@ struct DictionaryHomeScreen: View {
                     .stroke(p.border, lineWidth: 1))
                 .padding(.horizontal, 16)
 
+                // Preserve the entire original panorama, with the intrinsic
+                // 420:182 aspect rather than cropping it into a 76pt strip.
+                // On iPad it becomes a centred, generously sized bookplate.
                 Image(countrysideImageName("ill-banner-bridge", isDark: isDark))
-                    .resizable().scaledToFill()
-                    .frame(height: 76).frame(maxWidth: .infinity)
-                    .clipped().clipShape(RoundedRectangle(cornerRadius: 15))
-                    .padding(.horizontal, 16).accessibilityHidden(true)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: 640)
+                    .background(p.card)
+                    .overlay(RoundedRectangle(cornerRadius: 15)
+                        .stroke(p.border, lineWidth: 1))
+                    .padding(.horizontal, 16)
+                    .frame(maxWidth: .infinity)
+                    .accessibilityHidden(true)
             }
             .padding(.bottom, 160)
         }

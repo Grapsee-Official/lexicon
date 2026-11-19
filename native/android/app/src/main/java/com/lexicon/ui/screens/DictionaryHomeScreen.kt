@@ -203,12 +203,25 @@ fun DictionaryHomeScreen(viewModel: LexiconViewModel) {
             }
         }
         item {
-            Image(
-                painter = painterResource(resolveCountrysideDrawable("ill_banner_bridge", dark)),
-                contentDescription = null, contentScale = ContentScale.Fit,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
-                    .height(76.dp).clip(RoundedCornerShape(15.dp)),
-            )
+            // Give the original 420x182 panorama its own responsive bookplate.
+            // A fixed 76dp height made it a tiny orphan on tablets; cropping
+            // it to fill a flat strip would discard the original painting.
+            BoxWithConstraints(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                val paintingWidth = maxWidth.coerceAtMost(640.dp)
+                Image(
+                    painter = painterResource(resolveCountrysideDrawable("ill_banner_bridge", dark)),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .width(paintingWidth)
+                        .aspectRatio(420f / 182f)
+                        .background(card)
+                        .border(1.dp, border, RoundedCornerShape(15.dp)),
+                )
+            }
         }
     }
 }

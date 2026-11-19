@@ -297,10 +297,16 @@ struct CountrysideQuoteBanner: View {
     var illustrationBase: String = "ill-banner-bridge"
 
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     private var isDark: Bool { scheme == .dark }
 
     var body: some View {
         let cardBg = lexiconPalette(scheme).card
+        // Regular-width layouts deserve a broader watercolor bookplate.
+        // Keep the painting intact instead of asking scaledToFill to crop it.
+        let bannerHeight: CGFloat = horizontalSizeClass == .regular ? 156
+            : (dynamicTypeSize.isAccessibilitySize ? 120 : 92)
         GeometryReader { geo in
             let w = geo.size.width
             ZStack(alignment: .leading) {
@@ -311,7 +317,7 @@ struct CountrysideQuoteBanner: View {
                     Image(countrysideImageName(illustrationBase, isDark: isDark))
                         .resizable()
                         .scaledToFit()
-                        .frame(width: w, height: 92, alignment: .bottomTrailing)
+                        .frame(width: w, height: bannerHeight, alignment: .bottomTrailing)
                 }
 
                 LinearGradient(
@@ -328,7 +334,7 @@ struct CountrysideQuoteBanner: View {
                     Text("“\(quote)”")
                         .font(.lexiconDisplay(13, weight: .regular).italic())
                         .foregroundStyle(lexiconPalette(scheme).foreground)
-                        .lineLimit(2)
+                        .lineLimit(dynamicTypeSize.isAccessibilitySize ? 3 : 2)
                     Text("— \(attribution) —")
                         .font(.lexiconBody(10))
                         .tracking(0.5)
@@ -338,7 +344,7 @@ struct CountrysideQuoteBanner: View {
                 .padding(.leading, 16)
             }
         }
-        .frame(height: 92)
+        .frame(height: bannerHeight)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 16, style: .continuous)

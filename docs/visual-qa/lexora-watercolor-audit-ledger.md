@@ -96,6 +96,22 @@ PNG files. This document is **not** a declaration of 100% visual fidelity.
   profiles (52 captures instead of 28). Screen-content fidelity and final
   bottom-scroll clearance remain OPEN until actual image review.
 
+## Illustrated bookplate composition — new responsive correction
+
+- **Dictionary panorama:** the 800dp Android tablet evidence (run 44542164484)
+  showed the bottom stone-bridge watercolor as a small orphan image in
+  otherwise empty space. Android fixed its image frame to only 76dp high;
+  iOS used a similarly short scaledToFill/clipped treatment. Both now display
+  the entire original 420:182 panorama in a centred responsive bookplate,
+  capped at 640dp wide rather than cropping or stretching its watercolor.
+- **Cross-screen quote banners:** formerly a universal 92–94dp height made
+  paintings diminish on tablets. Shared Android and iOS components now give
+  wide screens a more generous illustration area, while preserving familiar
+  phone proportions and supporting larger text.
+- [ ] Review light/dark phone, tablet, enlarged-type and final-scroll renders
+      for each banner after the current native CI completes. No 100% fidelity
+      claim is made from source edits alone.
+
 ## Verification and completion rule
 
 Native Android, iOS and C++ must build/test on the merged source commit.

@@ -496,11 +496,18 @@ fun CountrysideQuoteBanner(
     val attrColor = if (isDark) DarkAccent else OldWoodGold
     val resId = resolveCountrysideDrawable(illustrationBase, isDark)
     val shape = RoundedCornerShape(16.dp)
+    val config = androidx.compose.ui.platform.LocalConfiguration.current
+    // The 94dp phone banner is too shallow for an 800dp tablet: the
+    // complete watercolor becomes a tiny isolated thumbnail. Scale its
+    // bookplate height with usable width, but never crop the original art.
+    val scaledHeight = ((config.screenWidthDp - 32).coerceAtLeast(0) * 0.20f)
+        .dp.coerceIn(94.dp, 164.dp)
+    val bannerHeight = if (config.fontScale >= 1.3f) maxOf(scaledHeight, 120.dp) else scaledHeight
 
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(94.dp)
+            .height(bannerHeight)
             .clip(shape)
             .background(cardBg)
             .border(1.dp, border, shape),
@@ -543,7 +550,7 @@ fun CountrysideQuoteBanner(
                     fontSize = 13.sp,
                     lineHeight = 17.sp,
                 ),
-                maxLines = 2,
+                maxLines = if (config.fontScale >= 1.3f) 3 else 2,
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
