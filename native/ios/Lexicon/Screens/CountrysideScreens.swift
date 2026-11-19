@@ -881,7 +881,7 @@ struct QuickTemplatesScreen: View {
                                             .frame(width: 44, height: 44)
                                             .contentShape(Rectangle())
                                     }
-                                    .accessibilityLabel(tpl.starred ? "Unstar ${tpl.title}" : "Star ${tpl.title}")
+                                    .accessibilityLabel(tpl.starred ? "Unstar \(tpl.title)" : "Star \(tpl.title)")
                                     .padding(2)
                                     .buttonStyle(.plain)
                                 }
