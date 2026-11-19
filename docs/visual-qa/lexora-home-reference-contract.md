@@ -19,7 +19,7 @@ The app must feel like an illustrated English countryside book rather than a sta
 | --- | --- | --- |
 | Trending words | Airy, low-contrast pill labels with clear separation and grid access | 30+ pt visual height; horizontal scroll; buttons remain accessible |
 | Word of the Day | Bookplate split approx 39/61, vivid sage or midnight left panel, scenic artwork on the right | Natural content, full pronunciation action, no truncating definition or word on compact devices |
-| Explore by Category | Four small painted bookplates, watercolor edges fully visible, compact captions | Viewport-measured 78–108 pt widths, four visible on standard phones, 105 pt height; aspect-fit art |
+| Explore by Category | Four small painted bookplates, watercolor edges fully visible, compact captions | Viewport-measured 78–108 pt widths, four visible on standard phones, 105 pt card height with 57 pt aspect-fit illustration; captions never clipped |
 | From the Library | Reading cards with framed illustration, legible serif titles, reading-time metadata | Compact horizontally scrollable 174 × 90 pt editorial tiles |
 | Bottom navigation | Quiet cream/ink capsule with a raised search seal, legible icons and labels | Native tab semantics, independent center search, preserved scroll breathing room |
 | Canvas | Pale aged-paper ivory / blue-black nocturne as in the supplied targets | Shared Android + iOS palette, editable paper material and original watercolor raster art |
