@@ -440,14 +440,16 @@ struct CountrysideMaterialOverlay: View {
                 width: radiusB * 2, height: radiusB * 2)),
                 with: .color(wash.opacity(isDark ? 0.025 : 0.018))
             )
-            for i in 0..<190 {
-                let x = CGFloat((i * 73 + 19) % 257) / 257
-                let y = CGFloat((i * 101 + 37) % 263) / 263
-                let radius = 0.4 + CGFloat(i % 4) * 0.19
+            // Fine, non-repeating print/paper granulation. All marks remain
+            // editable native geometry and share coordinates with the SVGs.
+            for i in 0..<620 {
+                let x = CGFloat((i * 73 + 19) % 997) / 997
+                let y = CGFloat((i * 101 + 37) % 991) / 991
+                let radius = 0.36 + CGFloat(i % 5) * 0.13
                 context.fill(Path(ellipseIn: CGRect(
                     x: size.width * x - radius, y: size.height * y - radius,
                     width: radius * 2, height: radius * 2)),
-                    with: .color(pigment.opacity(isDark ? 0.048 : 0.037))
+                    with: .color(pigment.opacity(isDark ? 0.045 : 0.062))
                 )
             }
         }
