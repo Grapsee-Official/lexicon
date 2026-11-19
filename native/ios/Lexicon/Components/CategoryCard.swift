@@ -25,7 +25,7 @@ struct CategoryCard: View {
                     .resizable()
                     .scaledToFit()
                     .frame(maxWidth: .infinity)
-                    .frame(height: largeText ? 84 : 63)
+                    .frame(height: largeText ? 84 : 57)
                     .accessibilityHidden(true)
 
                 Spacer(minLength: 2)
