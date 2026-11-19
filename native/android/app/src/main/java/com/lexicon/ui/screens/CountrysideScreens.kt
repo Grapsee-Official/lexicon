@@ -10,6 +10,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -26,6 +30,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.filled.Bookmark
@@ -1436,6 +1441,90 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
  * Page 8: Search & Discovery — Search suggestions, recent searches, filters, language selection & search history.
  */
 @Composable
+/**
+ * Search's own illustrated opening. The title occupies readable parchment;
+ * the entire cottage painting follows naturally, with its alpha edges free.
+ * We never crop the picture into a right-hand panel or put words over roofs.
+ */
+@Composable
+private fun SearchCountrysideHeader(
+    isDark: Boolean,
+    onBack: () -> Unit,
+    onToggleTheme: () -> Unit,
+) {
+    val resId = resolveCountrysideDrawable("ill_hero_cottage", isDark)
+    val ink = if (isDark) DarkForeground else DeepForest
+    val mutedInk = if (isDark) DarkMutedForeground else DeepForest.copy(alpha = 0.78f)
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxWidth()
+            .windowInsetsPadding(WindowInsets.statusBars),
+    ) {
+        val sceneHeight = (maxWidth * 0.68f).coerceIn(220.dp, 420.dp)
+        Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 10.dp, end = 16.dp, top = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clickable(role = Role.Button, onClickLabel = "Toggle appearance") { onToggleTheme() },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    LeafSprig(color = if (isDark) DarkAccent else BrandGreen, modifier = Modifier.size(26.dp))
+                }
+                Text(
+                    "Search",
+                    color = ink,
+                    style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 30.sp),
+                    modifier = Modifier.weight(1f).padding(start = 4.dp),
+                )
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clickable(role = Role.Button, onClickLabel = "Back to Dictionary") { onBack() },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        Icons.AutoMirrored.Outlined.ArrowBack,
+                        contentDescription = null,
+                        tint = ink,
+                        modifier = Modifier.size(22.dp),
+                    )
+                }
+            }
+            Text(
+                "Find any word, explore its meaning, and discover more.",
+                color = mutedInk,
+                style = TextStyle(fontFamily = LongFontFamily, fontSize = 13.sp, lineHeight = 19.sp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 22.dp),
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(sceneHeight),
+                contentAlignment = Alignment.BottomCenter,
+            ) {
+                Image(
+                    painter = painterResource(resId),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    alignment = Alignment.BottomCenter,
+                    // The vignette has a full-width canvas and may extend
+                    // its fading lower wash beneath the search capsule.
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .offset(y = 10.dp),
+                )
+            }
+        }
+    }
+}
+
+@Composable
 fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
@@ -1455,17 +1544,12 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item(key = "hero") {
-            CountrysideHeroHeader(
-                title = "Search",
-                subtitle = "Find any word, explore its meaning, and discover more.",
-                // Bridge, water, wildflowers and an ancient village deepen the reading journey.
-                illustrationBase = "ill_hero_bridge",
+            // Search deserves its own opening scene, not a generic header
+            // squeezing the cottage over the title and status bar.
+            SearchCountrysideHeader(
                 isDark = isDark,
-                onHistoryClick = { viewModel.navigate(ScreenRoute.DICTIONARY_HOME) },
-                actionKind = "back",
-                actionLabel = "Back to Dictionary",
-                onLogoToggleTheme = { viewModel.toggleTheme() },
-                heroHeight = 142.dp,
+                onBack = { viewModel.navigate(ScreenRoute.DICTIONARY_HOME) },
+                onToggleTheme = { viewModel.toggleTheme() },
             )
         }
 
