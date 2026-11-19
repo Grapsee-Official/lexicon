@@ -37,7 +37,7 @@ struct ArticleCard: View {
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text(article.title)
-                        .font(.lexiconDisplay(13, weight: .regular))
+                        .font(.lexiconDisplay(11.5, weight: .regular))
                         .foregroundStyle(lexiconPalette(scheme).foreground)
                         .lineLimit(3)
                         .multilineTextAlignment(.leading)
