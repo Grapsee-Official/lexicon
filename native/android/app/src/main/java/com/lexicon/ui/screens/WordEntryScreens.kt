@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -842,54 +843,43 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
             }
         }
 
-        // Did You Know? panoramic bay card
+        // The true painted bay forms the bookplate, not a shallow strip
+        // behind a three-line truncation.
         item(key = "did_you_know") {
             if (word.didYouKnow.isNotBlank()) {
-                val shape = RoundedCornerShape(16.dp)
+                val shape = RoundedCornerShape(17.dp)
                 Box(
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .fillMaxWidth()
-                        .height(98.dp)
-                        .clip(shape)
-                        .background(cardBg)
+                        .heightIn(min = 154.dp)
+                        .background(cardBg, shape)
                         .border(1.dp, border, shape),
                 ) {
                     Image(
                         painter = painterResource(bayRes),
                         contentDescription = null,
                         contentScale = ContentScale.Fit,
-                        alignment = Alignment.CenterEnd,
+                        alignment = Alignment.BottomEnd,
                         modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .fillMaxSize(),
-                    )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(
-                                Brush.horizontalGradient(
-                                    0.0f to cardBg.copy(alpha = 0.22f),
-                                    0.33f to cardBg.copy(alpha = 0.14f),
-                                    0.72f to Color.Transparent,
-                                )
-                            ),
+                            .align(Alignment.BottomEnd)
+                            .fillMaxWidth()
+                            .height(154.dp),
                     )
                     Column(
                         modifier = Modifier
-                            .fillMaxWidth(0.64f)
-                            .padding(13.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                            .fillMaxWidth(0.65f)
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                            Icon(Icons.Outlined.Lightbulb, contentDescription = null, tint = accent, modifier = Modifier.size(15.dp))
-                            Text("Did You Know?", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 14.5.sp))
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                            Icon(Icons.Outlined.Lightbulb, contentDescription = null, tint = accent, modifier = Modifier.size(18.dp))
+                            Text("Did You Know?", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 17.sp))
                         }
                         Text(
-                            text = word.didYouKnow,
-                            color = fg.copy(alpha = 0.85f),
-                            style = TextStyle(fontFamily = BodyFontFamily, fontSize = 10.sp, lineHeight = 14.sp),
-                            maxLines = 3,
+                            word.didYouKnow,
+                            color = fg.copy(alpha = 0.90f),
+                            style = TextStyle(fontFamily = BodyFontFamily, fontSize = 12.sp, lineHeight = 18.sp),
                         )
                     }
                 }
