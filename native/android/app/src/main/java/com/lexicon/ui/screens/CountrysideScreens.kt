@@ -475,7 +475,15 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                         modifier = Modifier.padding(horizontal = 16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        (if (showAllNotes) filteredNotes else filteredNotes.take(4)).chunked(if (androidx.compose.ui.platform.LocalConfiguration.current.let { it.screenWidthDp < 390 || it.fontScale >= 1.3f }) 1 else 2).forEach { rowNotes ->
+                        (if (showAllNotes) filteredNotes else filteredNotes.take(4)).chunked(
+                            when {
+                                androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f -> 1
+                                androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 390 -> 1
+                                androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp >= 840 -> 4
+                                androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp >= 600 -> 3
+                                else -> 2
+                            }
+                        ).forEach { rowNotes ->
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -1162,7 +1170,15 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                             modifier = Modifier.padding(12.dp))
                     }
                     (if (showAllTemplates) filtered else filtered.take(4))
-                        .chunked(if (androidx.compose.ui.platform.LocalConfiguration.current.let { it.screenWidthDp < 390 || it.fontScale >= 1.3f }) 1 else 2)
+                        .chunked(
+                            when {
+                                androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f -> 1
+                                androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 390 -> 1
+                                androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp >= 840 -> 4
+                                androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp >= 600 -> 3
+                                else -> 2
+                            }
+                        )
                         .forEach { rowItems ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
