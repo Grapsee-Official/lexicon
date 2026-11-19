@@ -539,8 +539,9 @@ struct WordDetailProfileScreen: View {
                 Image(countrysideImageName("ill-books-daisies", isDark: isDark))
                     .resizable()
                     .scaledToFit()
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 144, alignment: .bottom)
+                    // SwiftUI uses the painter's natural aspect: a manuscript
+                    // footpiece rather than a small fixed square illustration.
+                    .frame(maxWidth: .infinity, alignment: .bottom)
                     .accessibilityHidden(true)
             }
             .padding(.top, 16)
