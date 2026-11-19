@@ -523,7 +523,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                     Box(
                                         modifier = Modifier
                                             .weight(1f)
-                                            .height(if (androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f) 218.dp else 128.dp)
+                                            .height(if (androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f) 218.dp else 148.dp)
                                             .clip(RoundedCornerShape(16.dp))
                                             .background(cardBg)
                                             .border(1.dp, border, RoundedCornerShape(16.dp))
@@ -570,8 +570,8 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                                 modifier = Modifier.fillMaxWidth(0.50f),
                                                 verticalArrangement = Arrangement.spacedBy(2.dp),
                                             ) {
-                                                Text(note.title, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 14.sp), maxLines = if (androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f) 2 else 1, overflow = TextOverflow.Ellipsis)
-                                                Text(note.body, color = fg.copy(alpha = 0.8f), style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.5.sp, lineHeight = 15.sp), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                                Text(note.title, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 14.sp), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                                Text(note.body, color = fg.copy(alpha = 0.8f), style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.5.sp, lineHeight = 15.sp), maxLines = if (config.fontScale >= 1.3f) 4 else 3, overflow = TextOverflow.Ellipsis)
                                             }
                                             Row(
                                                 modifier = Modifier.fillMaxWidth(),
@@ -582,14 +582,23 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                                     Icon(Icons.Outlined.CalendarToday, contentDescription = null, tint = muted, modifier = Modifier.size(10.dp))
                                                     Text(note.dateLabel, color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 8.5.sp))
                                                 }
-                                                Icon(
-                                                    imageVector = if (note.bookmarked) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
-                                                    contentDescription = null,
-                                                    tint = if (note.bookmarked) accent else muted,
+                                                // Touchable 44dp seal, with transparent
+                                                // background so the watercolor is unharmed.
+                                                Box(
                                                     modifier = Modifier
-                                                        .size(14.dp)
-                                                        .clickable { viewModel.toggleNoteBookmark(note.id) },
-                                                )
+                                                        .size(44.dp)
+                                                        .clickable(role = Role.Button) {
+                                                            viewModel.toggleNoteBookmark(note.id)
+                                                        },
+                                                    contentAlignment = Alignment.Center,
+                                                ) {
+                                                    Icon(
+                                                        imageVector = if (note.bookmarked) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
+                                                        contentDescription = if (note.bookmarked) "Remove note bookmark" else "Bookmark note",
+                                                        tint = if (note.bookmarked) accent else muted,
+                                                        modifier = Modifier.size(16.dp),
+                                                    )
+                                                }
                                             }
                                         }
                                     }
