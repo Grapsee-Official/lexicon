@@ -94,6 +94,8 @@ import com.lexicon.ui.components.CountrysideHeroHeader
 import com.lexicon.ui.components.CountrysideQuoteBanner
 import com.lexicon.ui.components.CountrysideSearchPill
 import com.lexicon.ui.components.LeafSprig
+import com.lexicon.ui.components.NocturneAtmosphere
+import com.lexicon.ui.components.CottageWindowGlow
 import com.lexicon.ui.components.resolveCountrysideDrawable
 import com.lexicon.ui.theme.BodyFontFamily
 import com.lexicon.ui.theme.BrandGreen
@@ -1518,6 +1520,12 @@ private fun SearchCountrysideHeader(
                         .fillMaxSize()
                         .offset(y = 10.dp),
                 )
+                if (isDark) {
+                    // Starlight is genuine native vector geometry, not a
+                    // cropped bitmap or animated visual distraction.
+                    NocturneAtmosphere(Modifier.matchParentSize())
+                    CottageWindowGlow(Modifier.matchParentSize())
+                }
             }
         }
     }
