@@ -243,6 +243,7 @@ struct WordOfTheDayScreen: View {
 struct WordDetailProfileScreen: View {
     @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     private var isDark: Bool { scheme == .dark }
 
     var body: some View {
@@ -389,59 +390,7 @@ struct WordDetailProfileScreen: View {
                         .padding(.horizontal, 16)
                 }
 
-                // Side-by-side Etymology & Usage Examples
-                // Reserve a separate lower corner for the original books painting.
-                // The former 162pt card let the painting overrun the body copy.
-                HStack(spacing: 8) {
-                    ZStack(alignment: .bottomTrailing) {
-                        VStack(alignment: .leading, spacing: 5) {
-                            HStack(spacing: 5) {
-                                BotanicalSprig(color: p.highlight).frame(width: 13, height: 13)
-                                Text("Etymology").font(.lexiconDisplay(14)).foregroundStyle(p.foreground)
-                            }
-                            Text(word.etymology)
-                                .font(.lexiconLong(10))
-                                .foregroundStyle(p.foreground.opacity(0.86))
-                                .lineLimit(6)
-                            Spacer(minLength: 0)
-                        }
-                        .padding(11)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-
-                        Image(countrysideImageName("ill-books-daisies", isDark: isDark))
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 96, height: 96)
-                    }
-                    .frame(height: dynamicTypeSize.isAccessibilitySize ? 262 : 216)
-                    .background(p.card)
-                    .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
-                    .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous).stroke(p.border, lineWidth: 1))
-
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack(spacing: 5) {
-                            BotanicalSprig(color: p.highlight).frame(width: 13, height: 13)
-                            Text("Usage Examples").font(.lexiconDisplay(14)).foregroundStyle(p.foreground)
-                        }
-                        Text("“\(word.examples.first ?? "")”")
-                            .font(.lexiconLong(10.5).italic())
-                            .foregroundStyle(p.foreground.opacity(0.88))
-                            .lineLimit(3)
-                        Rectangle().fill(p.border).frame(height: 1)
-                        Text("“\(word.examples.last ?? "")”")
-                            .font(.lexiconLong(10.5).italic())
-                            .foregroundStyle(p.foreground.opacity(0.88))
-                            .lineLimit(2)
-                        Spacer(minLength: 0)
-                    }
-                    .padding(11)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                    .frame(height: dynamicTypeSize.isAccessibilitySize ? 262 : 216)
-                    .background(p.card)
-                    .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
-                    .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous).stroke(p.border, lineWidth: 1))
-                }
-                .padding(.horizontal, 16)
+                etymologyUsageCards(word: word, p: p)
 
                 // Progressive Expansion to Page 10 (36 Languages)
                 Button {
@@ -515,6 +464,72 @@ struct WordDetailProfileScreen: View {
             .padding(.bottom, 160)
         }
         .background(p.background)
+    }
+
+
+    // A separate view expression keeps the large word-detail body tractable
+    // for Swift's type checker. Reserve space for the complete watercolor
+    // below the etymology copy rather than cutting the painting or text.
+    private func etymologyUsageCards(word: WordEntry, p: LexiconPalette) -> some View {
+        let detailCardHeight: CGFloat = dynamicTypeSize.isAccessibilitySize ? 262 : 216
+        return HStack(spacing: 8) {
+            ZStack(alignment: .bottomTrailing) {
+                VStack(alignment: .leading, spacing: 5) {
+                    HStack(spacing: 5) {
+                        BotanicalSprig(color: p.highlight)
+                            .frame(width: 13, height: 13)
+                        Text("Etymology")
+                            .font(.lexiconDisplay(14))
+                            .foregroundStyle(p.foreground)
+                    }
+                    Text(word.etymology)
+                        .font(.lexiconLong(10))
+                        .foregroundStyle(p.foreground.opacity(0.86))
+                        .lineLimit(6)
+                    Spacer(minLength: 0)
+                }
+                .padding(11)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+
+                Image(countrysideImageName("ill-books-daisies", isDark: isDark))
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 96, height: 96)
+                    .accessibilityHidden(true)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: detailCardHeight)
+            .background(p.card)
+            .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous).stroke(p.border, lineWidth: 1))
+
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 5) {
+                    BotanicalSprig(color: p.highlight)
+                        .frame(width: 13, height: 13)
+                    Text("Usage Examples")
+                        .font(.lexiconDisplay(14))
+                        .foregroundStyle(p.foreground)
+                }
+                Text("“\(word.examples.first ?? "")”")
+                    .font(.lexiconLong(10.5).italic())
+                    .foregroundStyle(p.foreground.opacity(0.88))
+                    .lineLimit(3)
+                Rectangle().fill(p.border).frame(height: 1)
+                Text("“\(word.examples.last ?? "")”")
+                    .font(.lexiconLong(10.5).italic())
+                    .foregroundStyle(p.foreground.opacity(0.88))
+                    .lineLimit(2)
+                Spacer(minLength: 0)
+            }
+            .padding(11)
+            .frame(maxWidth: .infinity)
+            .frame(height: detailCardHeight)
+            .background(p.card)
+            .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous).stroke(p.border, lineWidth: 1))
+        }
+        .padding(.horizontal, 16)
     }
 
     private func metaTile(_ icon: String, _ label: String, _ value: String, p: LexiconPalette) -> some View {

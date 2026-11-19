@@ -73,6 +73,12 @@ PNG files. This document is **not** a declaration of 100% visual fidelity.
   space (including an accessible-text variant); screenshot acceptance remains
   OPEN until the original text and painting are separately readable.
 
+- **iOS build regression (run 44547551579):** Swift failed to type-check
+  the enlarged word-detail screen after a Dynamic Type height change.
+  WordDetailProfileScreen now explicitly reads dynamicTypeSize and separates
+  the etymology/usage cards into a smaller view expression. This correction
+  requires a fresh native iOS compile and screenshots before approval.
+
 ## Verification and completion rule
 
 Native Android, iOS and C++ must build/test on the merged source commit.
