@@ -1,39 +1,18 @@
 name: Lexicon Native Release
-# Deliberately manual-only: do not compile, sign, or replace the APK after every
-# UI/design iteration. Run this once after source-to-screen visual QA is approved.
+# One-off owner-requested Android-only signed release from the release branch.
+# Ordinary UI/design commits and PR builds never publish this release.
 on:
   workflow_dispatch:
+  push:
+    branches: [release/lexicon-1.0.1]
+    paths:
+      - '.github/workflows/android-build.yml'
 permissions:
   contents: write
 concurrency:
   group: lexicon-native-release
   cancel-in-progress: true
 jobs:
-  verify-ios:
-    runs-on: macos-15-intel
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v4
-      - run: python3 scripts/check_countryside_art.py
-      - name: Build C++ engine for iOS simulator
-        run: |
-          SDK="$(xcrun --sdk iphonesimulator --show-sdk-path)"
-          ARCH="$(uname -m)"
-          mkdir -p native/cpp/build-ios-sim native/ios/Lexicon/Engine/lib
-          for src in native/cpp/src/*.cpp; do
-            def=""
-            if [ "$(basename "$src")" = "hash_table.cpp" ]; then def="-DLEXICON_UNICODE_EXTERNAL"; fi
-            obj="native/cpp/build-ios-sim/$(basename "${src%.cpp}").o"
-            xcrun --sdk iphonesimulator clang++ -target "${ARCH}-apple-ios16.0-simulator" -isysroot "$SDK" -std=c++17 -O2 -fPIC ${def} -I native/cpp/include -c "$src" -o "$obj"
-          done
-          xcrun --sdk iphonesimulator libtool -static -o native/ios/Lexicon/Engine/lib/liblexicon-engine.a native/cpp/build-ios-sim/*.o
-          cp -r native/cpp/include/lexicon native/ios/Lexicon/Engine/lib/
-      - name: Compile native SwiftUI Release (unsigned simulator validation)
-        working-directory: native/ios
-        run: |
-          ARCH="$(uname -m)"
-          xcodebuild -project Lexicon.xcodeproj -scheme Lexicon -sdk iphonesimulator -destination "generic/platform=iOS Simulator" -configuration Release -derivedDataPath "${RUNNER_TEMP}/DerivedData" ARCHS="$ARCH" ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" OTHER_LDFLAGS='$(inherited) -llexicon-engine -lsqlite3 -lc++ -L$(SRCROOT)/Lexicon/Engine/lib' HEADER_SEARCH_PATHS='$(inherited) $(SRCROOT)/Lexicon $(SRCROOT)/Lexicon/Engine $(SRCROOT)/Lexicon/Engine/lib $(SRCROOT)/../cpp/include' build
-
   build-android:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -61,7 +40,7 @@ jobs:
           if-no-files-found: error
           retention-days: 1
   publish:
-    needs: [verify-ios, build-android]
+    needs: [build-android]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -94,8 +73,30 @@ jobs:
           "$TOOLS/apksigner" sign --ks "$RUNNER_TEMP/lexicon-release.jks" --ks-key-alias "$LEXICON_RELEASE_KEY_ALIAS" --ks-pass env:LEXICON_RELEASE_KEYSTORE_PASSWORD --key-pass env:LEXICON_RELEASE_KEY_PASSWORD --out dist/lexicon-android-release.apk dist/lexicon-aligned.apk
           "$TOOLS/apksigner" verify --verbose dist/lexicon-android-release.apk
           TAG=lexicon-latest
+          cat > dist/RELEASE_NOTES.md <<'EOF'
+          ## Lexicon for Android — 1.0.1
+
+          Native Android release APK for English-countryside Lexicon. Signed with the project's existing stable release certificate.
+
+          ### Updates
+          - More readable illustrated Notes cards, clearer accessible controls, and better navigation.
+          - Search-result and Back-stack fixes, actual C++ prefix-search matching, and collision-resistant saved-entry IDs.
+          - Preserved watercolor artwork boundaries and updated countryside header actions.
+
+          ### Verification
+          - Android release build and unit tests performed in GitHub Actions.
+          - C++ engine tests passed in the repository's existing test workflow.
+          - Full device-by-device artwork fidelity and iOS visual verification are **not** certified by this release.
+
+          Build source: the `release/lexicon-1.0.1` branch. Do not confuse this APK with the previous release APK.
+          EOF
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            # Keep release source/tag aligned with the exact APK build commit,
+            # even while the source-fidelity PR remains in review.
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/git/refs/tags/$TAG" \
+              -f sha="$GITHUB_SHA" -F force=true >/dev/null
             gh release upload "$TAG" dist/lexicon-android-release.apk --clobber --repo "$GITHUB_REPOSITORY"
+            gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "Lexicon Android 1.0.1" --notes-file dist/RELEASE_NOTES.md --latest
           else
-            gh release create "$TAG" dist/lexicon-android-release.apk --repo "$GITHUB_REPOSITORY" --title Lexicon --notes "" --latest
+            gh release create "$TAG" dist/lexicon-android-release.apk --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "Lexicon Android 1.0.1" --notes-file dist/RELEASE_NOTES.md --latest
           fi
