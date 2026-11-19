@@ -57,6 +57,16 @@ PNG files. This document is **not** a declaration of 100% visual fidelity.
   The narrowly localized restoration borrows original watercolor brushwork;
   it is not lossless recovery of the unavailable master artwork.
 
+## Follow-up defects found in native screenshot review
+
+- **Android Home WOTD word wrapping:** run 44542164484 visibly split
+  "Wanderlust" between lines, unlike the original UI reference. Responsive
+  type sizing was corrected; check the next emulator captures before closing.
+- **Collections quad-card arrows:** run 44542164484 rendered arrows too
+  faint/small on detailed floral backgrounds. Both platforms now use
+  higher-contrast arrow glyphs without opaque circular background patches;
+  screenshot confirmation remains pending.
+
 ## Verification and completion rule
 
 Native Android, iOS and C++ must build/test on the merged source commit.

@@ -79,6 +79,14 @@ fun WordOfTheDayCard(
     val defColor = if (isDark) DarkForeground.copy(alpha = 0.90f) else DeepForest.copy(alpha = 0.88f)
     val exploreColor = if (isDark) DarkAccent else BrandGreen
     val imageRes = if (isDark) R.drawable.wotd_bg_dark else R.drawable.wotd_bg_light
+    // Fit ordinary long words beside the speaker icon without splitting them
+    // into unnatural fragments on narrow phones (e.g. "Wanderlu" / "st").
+    val wordSize = when {
+        word.word.length >= 15 -> 12.sp
+        word.word.length >= 11 -> if (compact || accessible) 13.sp else 14.sp
+        word.word.length >= 9 -> if (compact || accessible) 14.sp else 15.sp
+        else -> if (compact || accessible) 17.sp else 20.sp
+    }
 
     val shape = RoundedCornerShape(16.dp)
 
@@ -134,8 +142,8 @@ fun WordOfTheDayCard(
                 Text(
                     text = word.word,
                     color = wordColor,
-                    style = LexiconTextStyles.WotdWord.copy(fontSize = if (config.screenWidthDp < 370) 18.sp else 21.sp),
-                    maxLines = 2,
+                    style = LexiconTextStyles.WotdWord.copy(fontSize = wordSize),
+                    maxLines = if (word.word.length > 14 || accessible) 2 else 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                         .weight(1f, fill = false)

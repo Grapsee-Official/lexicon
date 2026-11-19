@@ -191,8 +191,11 @@ struct CollectionsHubScreen: View {
                     }
                 }
                 Image(systemName: "arrow.right")
-                    .font(.system(size: 10, weight: .medium))
+                    .font(.system(size: 17, weight: .semibold))
                     .foregroundStyle(p.foreground)
+                    // A glyph-only halo maintains contrast on watercolor flowers;
+                    // no opaque control background erases the painting.
+                    .shadow(color: (isDark ? Color.black : Color.white).opacity(0.92), radius: 2)
                     .frame(width: 24, height: 24)
                     .padding(9)
             }

@@ -262,7 +262,20 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
                                             .size(24.dp),
                                         contentAlignment = Alignment.Center,
                                     ) {
-                                        Icon(Icons.AutoMirrored.Outlined.ArrowForward, contentDescription = null, tint = fg, modifier = Modifier.size(12.dp))
+                                        // Two strokes outline the arrow itself, not the artwork:
+                                        // the full watercolor remains visible around the icon.
+                                        Icon(
+                                            Icons.AutoMirrored.Outlined.ArrowForward,
+                                            contentDescription = null,
+                                            tint = if (isDark) DarkBackground else Color.White,
+                                            modifier = Modifier.size(21.dp),
+                                        )
+                                        Icon(
+                                            Icons.AutoMirrored.Outlined.ArrowForward,
+                                            contentDescription = null,
+                                            tint = fg,
+                                            modifier = Modifier.size(17.dp),
+                                        )
                                     }
                                 }
                             }
