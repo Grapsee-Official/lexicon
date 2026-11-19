@@ -1440,7 +1440,6 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
 /**
  * Page 8: Search & Discovery — Search suggestions, recent searches, filters, language selection & search history.
  */
-@Composable
 /**
  * Search's own illustrated opening. The title occupies readable parchment;
  * the entire cottage painting follows naturally, with its alpha edges free.
