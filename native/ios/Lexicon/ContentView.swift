@@ -38,10 +38,14 @@ struct ContentView: View {
                 .ignoresSafeArea()
                 .zIndex(1)
 
-            BottomNav()
-                .environmentObject(vm)
-                .environmentObject(theme)
-                .zIndex(2)
+            // The Library is a reading destination. Do not lay a floating
+            // five-tab control across its paragraphs and illustrated bookplates.
+            if !vm.libraryOpen {
+                BottomNav()
+                    .environmentObject(vm)
+                    .environmentObject(theme)
+                    .zIndex(2)
+            }
 
             if vm.searchOpen {
                 SearchModal()
