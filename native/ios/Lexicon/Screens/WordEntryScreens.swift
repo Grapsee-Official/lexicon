@@ -226,12 +226,6 @@ struct WordOfTheDayScreen: View {
                     .padding(.horizontal, 16)
                 }
 
-                CountrysideQuoteBanner(
-                    quote: "Words are bridges between minds.",
-                    attribution: "Lexora",
-                    illustrationBase: "ill-banner-bridge"
-                )
-                .padding(.horizontal, 16)
             }
             .padding(.bottom, 160)
         }
@@ -806,12 +800,6 @@ struct SearchResultsScreen: View {
                     .padding(.horizontal, 16)
                 }
 
-                CountrysideQuoteBanner(
-                    quote: "Discover the beauty in every word.",
-                    attribution: "Lexora",
-                    illustrationBase: "ill-banner-bridge"
-                )
-                .padding(.horizontal, 16)
             }
             .padding(.bottom, 160)
         }
@@ -920,12 +908,6 @@ struct ExpandedExplorationScreen: View {
                     }
                 }
 
-                CountrysideQuoteBanner(
-                    quote: "Words are doors to new worlds.",
-                    attribution: "Lexora",
-                    illustrationBase: "ill-books-daisies"
-                )
-                .padding(.horizontal, 16)
 
                 // Progressively Expandable 36-Language Word Exploration Card
                 VStack(alignment: .leading, spacing: 8) {
