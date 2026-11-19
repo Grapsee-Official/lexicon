@@ -157,22 +157,25 @@ fun CountrysideHeroHeader(
             alignment = Alignment.BottomEnd,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .fillMaxWidth(0.90f)
+                // No arbitrary 90%-width picture box. Give the source PNG
+                // the whole literary page; its own alpha defines the edges.
+                .fillMaxWidth()
                 .height(responsiveHeight),
         )
 
-        // A responsive painted-paper wash protects legibility
-        // without removing the watercolor landscape.
+        // Keep ink legible over the left margin without bleaching the
+        // cottage, flowers and sky on the right side of the painting.
         Box(
-            modifier = Modifier.fillMaxSize().background(
-                Brush.horizontalGradient(
-                    0.0f to (if (isDark) Color(0xFF0E131B).copy(alpha = 0.70f)
-                        else Color(0xFFF3EBDD).copy(alpha = 0.65f)),
-                    0.38f to (if (isDark) Color(0xFF0E131B).copy(alpha = 0.32f)
-                        else Color(0xFFF3EBDD).copy(alpha = 0.27f)),
-                    0.78f to Color.Transparent,
-                )
-            ),
+            modifier = Modifier
+                .fillMaxWidth(0.68f)
+                .fillMaxHeight()
+                .background(
+                    Brush.horizontalGradient(
+                        0.0f to (if (isDark) Color(0xFF0E131B) else Color(0xFFF3EBDD)).copy(alpha = 0.72f),
+                        0.55f to (if (isDark) Color(0xFF0E131B) else Color(0xFFF3EBDD)).copy(alpha = 0.24f),
+                        1.0f to Color.Transparent,
+                    ),
+                ),
         )
         if (isDark) {
             NocturneAtmosphere(Modifier.fillMaxSize())
