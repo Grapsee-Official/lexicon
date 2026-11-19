@@ -194,7 +194,11 @@ final class LexiconViewModel: ObservableObject {
     func navigate(to target: ScreenRoute, word: WordEntry? = nil, expand36: Bool = false) {
         closeLibrary()
         let nextTab = tab(for: target)
-        routeHistory = Array((routeHistory + [route]).suffix(12))
+        // Reopening the current destination with a new word or query must
+        // not put a duplicate page in the native back stack.
+        if route != target {
+            routeHistory = Array((routeHistory + [route]).suffix(12))
+        }
         if let w = word {
             detailWord = w
             recentlyViewedIds = Array(([w.id] + recentlyViewedIds.filter { $0 != w.id }).prefix(8))
