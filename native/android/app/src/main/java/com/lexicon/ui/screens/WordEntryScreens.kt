@@ -153,16 +153,18 @@ fun WordOfTheDayScreen(viewModel: LexiconViewModel) {
                     painter = painterResource(bridgeRes),
                     contentDescription = null,
                     contentScale = ContentScale.Fit,
-                    alignment = Alignment.TopEnd,
+                    alignment = Alignment.BottomEnd,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .fillMaxWidth(0.84f)
-                        .height(282.dp)
-                        .offset(y = 18.dp),
+                        // No right-hand image prison. The full painted scene
+                        // scales naturally with the viewport's width.
+                        .fillMaxWidth()
+                        .aspectRatio(1.08f)
+                        .offset(y = 16.dp),
                 )
 
                 if (isDark) {
-                    NocturneAtmosphere(Modifier.fillMaxWidth().height(270.dp))
+                    NocturneAtmosphere(Modifier.fillMaxWidth().aspectRatio(1.08f))
                 }
 
                 Column(
