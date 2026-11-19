@@ -31,8 +31,8 @@ def main() -> int:
     errors = []
     for mode in ("light", "dark"):
         paths = sorted(args.folder.glob(f"{mode}-*.png"))
-        if len(paths) != 13:
-            errors.append(f"{mode}: expected 13 named screens, got {len(paths)}")
+        if len(paths) != 15:
+            errors.append(f"{mode}: expected 15 named screens, got {len(paths)}")
             continue
         images = {p.stem.removeprefix(f"{mode}-"): thumbnail(p) for p in paths}
         for a, b in itertools.combinations(images, 2):
