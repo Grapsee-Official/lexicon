@@ -57,8 +57,17 @@ def inspect(path: Path) -> tuple[bool, str]:
         blue > 125 and blue > red * 1.25 and blue > green * 1.08
         for red, green, blue in pixels
     ) / len(pixels)
-    if launcher_blue > .45:
-        return False, f"iOS launcher/system-blue wallpaper visible ({launcher_blue:.1%})"
+    # Modern simulators also use violet SpringBoard wallpaper.
+    launcher_violet = sum(
+        blue > 105 and red > 75 and blue > green * 1.28
+        and red > green * 1.18 and blue > red * .86
+        for red, green, blue in pixels
+    ) / len(pixels)
+    if launcher_blue > .45 or launcher_violet > .45:
+        return False, (
+            "iOS launcher/system wallpaper visible "
+            f"(blue={launcher_blue:.1%}, violet={launcher_violet:.1%})"
+        )
 
     n = len(pixels)
     white = sum(min(rgb) >= 247 for rgb in pixels) / n

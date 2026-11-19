@@ -48,6 +48,12 @@ def main() -> None:
         assert not good and "launcher" in details, (launcher.name, details)
         print("PASS iOS launcher wallpaper correctly rejected")
 
+        violet_launcher = folder / "ios-violet-launcher.png"
+        Image.new("RGB", (1080, 2400), "#8057B5").save(violet_launcher)
+        good, details = inspect(violet_launcher)
+        assert not good and "launcher" in details, (violet_launcher.name, details)
+        print("PASS iOS violet launcher wallpaper correctly rejected")
+
         blank = folder / "blank-white.png"
         Image.new("RGB", (1080, 2400), "#FFFFFF").save(blank)
         good, details = inspect(blank)
