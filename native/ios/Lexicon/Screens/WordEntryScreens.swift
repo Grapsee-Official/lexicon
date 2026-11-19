@@ -249,13 +249,7 @@ struct WordDetailProfileScreen: View {
     @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @State private var heroWidth: CGFloat = 390
     private var isDark: Bool { scheme == .dark }
-    private var heroHeight: CGFloat {
-        dynamicTypeSize.isAccessibilitySize
-            ? max(410, heroWidth)
-            : max(290, min(420, heroWidth * 0.77))
-    }
 
     var body: some View {
         let p = lexiconPalette(scheme)
@@ -264,109 +258,95 @@ struct WordDetailProfileScreen: View {
 
         ScrollView {
             VStack(spacing: 11) {
-                ZStack(alignment: .topTrailing) {
-                    // The painting occupies the entire page breadth.
-                    // No fixed-width right-hand picture box or painted edge clipping.
+                // An open journal page, not an illustration in a right-hand
+                // cell. Words remain readable before the full painted landscape.
+                VStack(alignment: .leading, spacing: 7) {
+                    HStack {
+                        Button { vm.navigateBack() } label: {
+                            Image(systemName: "arrow.left")
+                                .font(.system(size: 17, weight: .medium))
+                                .foregroundStyle(p.foreground)
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Back")
+                        Spacer()
+                        Button { vm.toggleSave(word.id) } label: {
+                            Image(systemName: saved ? "bookmark.fill" : "bookmark")
+                                .font(.system(size: 18))
+                                .foregroundStyle(saved ? p.highlight : p.foreground)
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(saved ? "Remove bookmark" : "Save word")
+                        ShareLink(item: "\(word.word) — \(word.definitions.first ?? "")") {
+                            Image(systemName: "square.and.arrow.up")
+                                .font(.system(size: 17))
+                                .foregroundStyle(p.foreground)
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
+                        }
+                        .accessibilityLabel("Share word")
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.top, 6)
+
+                    HStack(spacing: 5) {
+                        BotanicalSprig(color: p.highlight)
+                            .frame(width: 12, height: 12)
+                        Text("Word Journal")
+                            .font(.lexiconBody(11))
+                            .foregroundStyle(p.foreground)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 5)
+                    .background(p.card, in: Capsule())
+                    .overlay(Capsule().stroke(p.border, lineWidth: 1))
+                    .padding(.horizontal, 18)
+
+                    HStack(alignment: .center, spacing: 8) {
+                        Text(word.word)
+                            .font(.lexiconDisplay(34))
+                            .foregroundStyle(p.foreground)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Button { vm.pronounce(word.word) } label: {
+                            Image(systemName: "speaker.wave.2")
+                                .font(.system(size: 18))
+                                .foregroundStyle(p.mutedForeground)
+                                .frame(width: 44, height: 44)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Pronounce word")
+                    }
+                    .padding(.horizontal, 18)
+
+                    Text(word.phonetic)
+                        .font(.lexiconLong(14).italic())
+                        .foregroundStyle(p.mutedForeground)
+                        .padding(.horizontal, 18)
+
+                    Text(word.partOfSpeech.displayValue)
+                        .font(.lexiconLong(12).italic())
+                        .foregroundStyle(p.foreground)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 5)
+                        .background(p.highlight.opacity(0.18), in: Capsule())
+                        .padding(.horizontal, 18)
+
+                    Text(word.definitions.first ?? "")
+                        .font(.lexiconLong(16))
+                        .foregroundStyle(p.foreground)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 18)
+
                     Image(countrysideImageName("ill-hero-bridge", isDark: isDark))
                         .resizable()
                         .scaledToFit()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity,
-                               alignment: .bottomTrailing)
-                        .allowsHitTesting(false)
-
-                    if isDark {
-                        NocturneAtmosphere()
-                            .frame(maxWidth: .infinity)
-                            .frame(height: heroHeight)
-                    }
-
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack {
-                            Button { vm.navigateBack() } label: {
-                                Image(systemName: "arrow.left")
-                                    .font(.system(size: 17, weight: .medium))
-                                    .foregroundStyle(p.foreground)
-                                    .frame(width: 44, height: 44)
-                                    .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
-                            Spacer()
-                            HStack(spacing: 12) {
-                                Button { vm.toggleSave(word.id) } label: {
-                                    Image(systemName: saved ? "bookmark.fill" : "bookmark")
-                                        .font(.system(size: 17))
-                                        .foregroundStyle(saved ? p.highlight : p.foreground)
-                                        .frame(width: 44, height: 44)
-                                        .contentShape(Rectangle())
-                                }
-                                .buttonStyle(.plain)
-                                ShareLink(item: "\(word.word) — \(word.definitions.first ?? "")") {
-                                    Image(systemName: "square.and.arrow.up")
-                                        .font(.system(size: 16))
-                                        .foregroundStyle(p.foreground)
-                                        .frame(width: 44, height: 44)
-                                        .contentShape(Rectangle())
-                                }
-                                .accessibilityLabel("Share word")
-                            }
-                        }
-                        .padding(.top, 6)
-
-                        HStack(spacing: 4) {
-                            BotanicalSprig(color: p.highlight).frame(width: 11, height: 11)
-                            Text("Word Journal")
-                                .font(.lexiconBody(10))
-                                .foregroundStyle(p.foreground)
-                        }
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 4)
-                        .background(p.card)
-                        .clipShape(Capsule())
-                        .overlay(Capsule().stroke(p.border, lineWidth: 1))
-
-                        HStack(spacing: 8) {
-                            Text(word.word)
-                                .font(.lexiconDisplay(30))
-                                .foregroundStyle(p.foreground)
-                                .lineLimit(2)
-                                .minimumScaleFactor(0.68)
-                            Button { vm.pronounce(word.word) } label: {
-                                Image(systemName: "speaker.wave.2")
-                                    .font(.system(size: 17))
-                                    .foregroundStyle(p.mutedForeground)
-                                    .frame(width: 44, height: 44)
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel("Pronounce word")
-                        }
-
-                        Text(word.phonetic)
-                            .font(.lexiconLong(13.5).italic())
-                            .foregroundStyle(p.mutedForeground)
-
-                        Text(word.partOfSpeech.displayValue)
-                            .font(.lexiconLong(11.5).italic())
-                            .foregroundStyle(p.foreground)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 4)
-                            .background(p.highlight.opacity(0.20))
-                            .clipShape(Capsule())
-
-                        Text(word.definitions.first ?? "")
-                            .font(.lexiconLong(13))
-                            .foregroundStyle(p.foreground)
-                            .frame(maxWidth: max(230, heroWidth * 0.64), alignment: .leading)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                    .padding(.horizontal, 16)
-                }
-                .frame(height: heroHeight)
-                .background {
-                    GeometryReader { measurement in
-                        Color.clear
-                            .onAppear { heroWidth = measurement.size.width }
-                            .onChange(of: measurement.size.width) { heroWidth = $0 }
-                    }
+                        .frame(maxWidth: .infinity)
+                        .accessibilityHidden(true)
                 }
 
                 // 4 Metadata Cards
