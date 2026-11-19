@@ -179,21 +179,21 @@ final class LexiconViewModel: ObservableObject {
         libraryArticleId = nil
     }
 
+    /// The selected bottom tab follows the current nested reading route.
+    private func tab(for route: ScreenRoute) -> LexiconTab {
+        switch route {
+        case .home: return .home
+        case .dictionaryHome, .wordOfTheDay, .wordDetail, .searchResults, .expandedExploration:
+            return .dictionary
+        case .searchDiscovery: return .search
+        case .collections, .myNotes, .studyLists, .quickTemplates: return .collections
+        case .more: return .more
+        }
+    }
+
     func navigate(to target: ScreenRoute, word: WordEntry? = nil, expand36: Bool = false) {
         closeLibrary()
-        let nextTab: LexiconTab
-        switch target {
-        case .home:
-            nextTab = .home
-        case .dictionaryHome, .wordOfTheDay, .wordDetail, .searchResults, .expandedExploration:
-            nextTab = .dictionary
-        case .searchDiscovery:
-            nextTab = .search
-        case .collections, .myNotes, .studyLists, .quickTemplates:
-            nextTab = .collections
-        case .more:
-            nextTab = .more
-        }
+        let nextTab = tab(for: target)
         routeHistory = Array((routeHistory + [route]).suffix(12))
         if let w = word {
             detailWord = w
@@ -218,6 +218,7 @@ final class LexiconViewModel: ObservableObject {
         let prev = routeHistory.last ?? .home
         if !routeHistory.isEmpty { routeHistory.removeLast() }
         route = prev
+        activeTab = tab(for: prev)
     }
 
     func setActiveTab(_ tab: LexiconTab) {
@@ -289,7 +290,9 @@ final class LexiconViewModel: ObservableObject {
         addRecentSearch(trimmed)
         searchQuery = trimmed
         let top = searchWords(trimmed, limit: 1).first
-        selectedWord = top
+        // A search reveals its results page first, never a blocking modal.
+        // The word sheet is reserved for an explicit selection.
+        selectedWord = nil
         navigate(to: .searchResults, word: top)
     }
 
