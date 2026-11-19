@@ -844,47 +844,67 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
         }
 
         // The true painted bay forms the bookplate, not a shallow strip
-        // behind a three-line truncation.
+        // The bookplate follows the *source image's* aspect ratio.
+        // Text grows above the painting where normal overlay would collide.
         item(key = "did_you_know") {
             if (word.didYouKnow.isNotBlank()) {
                 val shape = RoundedCornerShape(17.dp)
-                Box(
+                val painter = painterResource(bayRes)
+                val nativeSize = painter.intrinsicSize
+                val ratio = if (nativeSize.width > 1f && nativeSize.height > 1f) {
+                    nativeSize.width / nativeSize.height
+                } else 3.0f
+                val stacked = androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f ||
+                    word.didYouKnow.length > 135
+
+                Column(
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .fillMaxWidth()
-                        .heightIn(min = 154.dp)
                         .background(cardBg, shape)
                         .border(1.dp, border, shape),
                 ) {
-                    Image(
-                        painter = painterResource(bayRes),
-                        contentDescription = null,
-                        contentScale = ContentScale.Fit,
-                        alignment = Alignment.BottomEnd,
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .fillMaxWidth()
-                            .height(154.dp),
-                    )
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth(0.65f)
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                            Icon(Icons.Outlined.Lightbulb, contentDescription = null, tint = accent, modifier = Modifier.size(18.dp))
-                            Text("Did You Know?", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 17.sp))
+                    if (stacked) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Text("Did You Know?", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 18.sp))
+                            Text(word.didYouKnow, color = fg, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 13.sp, lineHeight = 19.sp))
                         }
-                        Text(
-                            word.didYouKnow,
-                            color = fg.copy(alpha = 0.90f),
-                            style = TextStyle(fontFamily = BodyFontFamily, fontSize = 12.sp, lineHeight = 18.sp),
+                    }
+                    Box(modifier = Modifier.fillMaxWidth().aspectRatio(ratio)) {
+                        Image(
+                            painter = painter,
+                            contentDescription = null,
+                            contentScale = ContentScale.Fit,
+                            alignment = Alignment.BottomEnd,
+                            modifier = Modifier.fillMaxSize(),
                         )
+                        if (!stacked) {
+                            Column(
+                                modifier = Modifier
+                                    .align(Alignment.CenterStart)
+                                    .fillMaxWidth(0.62f)
+                                    .padding(start = 12.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                            ) {
+                                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Outlined.Lightbulb, contentDescription = null, tint = accent, modifier = Modifier.size(16.dp))
+                                    Text("Did You Know?", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 15.sp))
+                                }
+                                Text(
+                                    word.didYouKnow,
+                                    color = fg.copy(alpha = 0.90f),
+                                    style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.5.sp, lineHeight = 16.sp),
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
+
     }
 }
 
