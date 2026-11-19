@@ -11,6 +11,17 @@ struct HomeScreen: View {
     @State private var libraryOpen = false
     @State private var articleToRead: Article? = nil
 
+    // A fixed editorial fixture makes pixel comparisons reproducible.
+    // Real readers continue receiving the daily rotating featured word.
+    private var displayedHomeWord: WordEntry {
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-lexiconSnapshotSyncDir") {
+            return LexiconData.wordOfTheDay
+        }
+        #endif
+        return LexiconData.featuredWord()
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: 11) {
@@ -19,7 +30,7 @@ struct HomeScreen: View {
                 TrendingTagRow(tags: LexiconData.trendingTags)
                     .padding(.horizontal, 16)
 
-                WordOfTheDayCard(word: LexiconData.featuredWord())
+                WordOfTheDayCard(word: displayedHomeWord)
                     .padding(.horizontal, 16)
 
                 // All 4 Category cards in an equal-width 4-column HStack — zero clipping on "Science"!
