@@ -1,4 +1,4 @@
-name: Lexora template watercolor restoration preview
+name: Lexora template paper alpha repair
 
 on:
   push:
@@ -19,9 +19,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install lightweight image restoration dependencies
         run: python3 -m pip install --quiet pillow numpy opencv-python-headless
-      - name: Prepare exact localized badge-free painting previews
+      - name: Preview transparent-hole correction over light/dark book paper
         run: python3 scripts/restore_template_watercolors.py
-      - name: Apply reviewed local repairs to both native asset catalogs
+      - name: Restore original-paper opacity to paired native asset catalogs
         run: python3 scripts/restore_template_watercolors.py --apply
       - name: Commit ONLY the 16 repaired template PNGs to this isolated branch
         env:
@@ -36,11 +36,11 @@ jobs:
             echo "::error::Expected 8 light/dark template images on each platform; got $changed"
             exit 1
           fi
-          git commit -m "Remove embedded star disks from native template paintings without altering subjects"
+          git commit -m "Repair transparent paper holes in template artwork without changing RGB"
           git push origin "HEAD:refs/heads/$TARGET_BRANCH"
       - uses: actions/upload-artifact@v4
         with:
-          name: lexora-template-watercolor-original-vs-restored
-          path: qa-template-restoration
+          name: lexora-template-paper-before-after
+          path: qa-template-paper-repair
           retention-days: 3
           if-no-files-found: error

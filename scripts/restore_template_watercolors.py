@@ -1,95 +1,95 @@
 #!/usr/bin/env python3
-"""Remove baked-in star badges from Lexora's ORIGINAL template paintings.
+"""Repair the *transparent holes* left by prior template-star removal.
 
-Only the flat UI badge area is reconstructed using adjacent in-image paper
-pixels. All painted books, flowers, quills, and travel objects retain their
-original per-pixel RGBA values. Preview is the default; --apply requires the
-matching original Android and iOS files to have identical bytes.
+All eight original template watercolors have already had their flattened UI star
+RGB painted out. However, that earlier operation accidentally left an alpha=0
+circular hole. On actual screens, the hole becomes a bright or dark circle.
+
+Fix only alpha in the empty badge/paper region. Never redraw a flower, book,
+quill or travel object; original RGB bytes and alpha outside the small paper
+region remain exact. Preview by default; --apply updates both native catalogs.
 """
 from __future__ import annotations
 
 import argparse
-from hashlib import sha256
 from pathlib import Path
-
-import cv2
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parents[1]
 ANDROID = ROOT / "native/android/app/src/main/res/drawable-nodpi"
 IOS = ROOT / "native/ios/Lexicon/Assets.xcassets"
 NAMES = ("ill_tpl_daily", "ill_tpl_exam", "ill_tpl_write", "ill_tpl_travel")
 SOURCE_SIZE = (370, 152)
-# The round native-action badge was flattened into all four source PNGs.
-# These are the badge coordinates, not the actual watercolor subject.
 CENTER = (338, 31)
-RADIUS = 27
+# The original badge's semitransparent fringe extends beyond its 27px core.
+# This 39px region is blank surrounding paper, not painted subjects.
+PAPER_RADIUS = 39
 
 
-def repair(original: Image.Image) -> tuple[Image.Image, int]:
-    src = np.asarray(original.convert("RGBA"), dtype=np.uint8).copy()
-    if original.size != SOURCE_SIZE:
-        raise ValueError(f"Unexpected source dimensions: {original.size}")
-    mask = np.zeros((src.shape[0], src.shape[1]), dtype=np.uint8)
-    cv2.circle(mask, CENTER, RADIUS, 255, thickness=-1)
-    # Restore only inside the tiny badge disk, borrowing the neighboring
-    # original paper texture; no paint is erased or replaced elsewhere.
-    restored = cv2.inpaint(src[:, :, :3], mask, 4, cv2.INPAINT_TELEA)
-    out = src.copy()
-    out[:, :, :3] = np.where(mask[:, :, None] > 0, restored, src[:, :, :3])
-    if not np.array_equal(out[mask == 0], src[mask == 0]):
-        raise AssertionError("Image changed outside the explicitly targeted badge")
-    if not np.array_equal(out[:, :, 3], src[:, :, 3]):
-        raise AssertionError("Restoration altered original alpha")
-    count = np.count_nonzero(np.any(out[:, :, :3] != src[:, :, :3], axis=2))
-    if count < 500 or count > 2600:
-        raise AssertionError(f"Unexpected number of repaired pixels: {count}")
-    return Image.fromarray(out, "RGBA"), int(count)
+def repair(source: Image.Image) -> tuple[Image.Image, int]:
+    if source.size != SOURCE_SIZE:
+        raise ValueError(f"Unexpected original size: {source.size}")
+    rgba = np.asarray(source.convert("RGBA"), dtype=np.uint8)
+    if int(rgba[CENTER[1], CENTER[0], 3]) > 16:
+        raise ValueError("Expected alpha hole is absent; refusing repeat edit")
+    y, x = np.ogrid[:rgba.shape[0], :rgba.shape[1]]
+    region = ((x - CENTER[0]) ** 2 + (y - CENTER[1]) ** 2) <= PAPER_RADIUS ** 2
+    fix = region & (rgba[:, :, 3] < 255)
+    if np.count_nonzero(fix) < 2700 or np.count_nonzero(fix) > 2900:
+        raise AssertionError("Unexpected badge alpha-damage geometry")
+    target = rgba.copy()
+    # Existing RGB is source-paper color, reconstructed previously from
+    # adjacent ORIGINAL paper. Restore full paper opacity only.
+    target[:, :, 3][fix] = 255
+    if not np.array_equal(target[:, :, :3], rgba[:, :, :3]):
+        raise AssertionError("Color or watercolor subject was modified")
+    if not np.array_equal(target[~region], rgba[~region]):
+        raise AssertionError("Pixels outside localized paper region changed")
+    if int(target[CENTER[1], CENTER[0], 3]) != 255:
+        raise AssertionError("Transparent center remains")
+    return Image.fromarray(target, "RGBA"), int(np.count_nonzero(fix))
+
+
+def composite(image: Image.Image, dark: bool) -> Image.Image:
+    paper = Image.new("RGBA", image.size,
+                      "#0E131B" if dark else "#F3EBDD")
+    return Image.alpha_composite(paper, image.convert("RGBA")).convert("RGB")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--output", type=Path, default=ROOT / "qa-template-restoration")
+    parser.add_argument("--output", type=Path, default=ROOT / "qa-template-paper-repair")
     parser.add_argument("--apply", action="store_true")
     args = parser.parse_args()
-    preview_dir = args.output
-    (preview_dir / "original").mkdir(parents=True, exist_ok=True)
-    (preview_dir / "restored").mkdir(parents=True, exist_ok=True)
-    contact = Image.new("RGB", (2 * SOURCE_SIZE[0], 8 * (SOURCE_SIZE[1] + 28)), "#F3EBDD")
-    draw = ImageDraw.Draw(contact)
-
-    for index, base in enumerate(NAMES):
-        for suffix in ("", "_dark"):
-            name = base + suffix
-            android = ANDROID / f"{name}.png"
-            ios_name = name.replace("_", "-")
+    (args.output / "before").mkdir(parents=True, exist_ok=True)
+    (args.output / "after").mkdir(parents=True, exist_ok=True)
+    comparison = Image.new("RGB", (740, 8 * 174), "#F3EBDD")
+    draw = ImageDraw.Draw(comparison)
+    for i, name in enumerate(NAMES):
+        for k, suffix in enumerate(("", "_dark")):
+            key = name + suffix
+            android = ANDROID / f"{key}.png"
+            ios_name = key.replace("_", "-")
             ios = IOS / f"{ios_name}.imageset" / f"{ios_name}.png"
-            if not android.is_file() or not ios.is_file():
-                raise FileNotFoundError(f"Native source pair missing for {name}")
-            # Do not replace a distinct iOS painting with an Android image.
             if android.read_bytes() != ios.read_bytes():
-                raise RuntimeError(f"Original Android/iOS paintings differ: {name}")
+                raise RuntimeError(f"Native source pair does not match: {key}")
             original = Image.open(android).convert("RGBA")
-            original.save(preview_dir / "original" / f"{name}.png")
-            candidate, changed = repair(original)
-            out_path = preview_dir / "restored" / f"{name}.png"
-            candidate.save(out_path, optimize=True)
-
-            y = (index * 2 + (1 if suffix else 0)) * (SOURCE_SIZE[1] + 28)
-            draw.text((8, y + 7), f"{name} — ORIGINAL", fill="#31462F")
-            draw.text((SOURCE_SIZE[0] + 8, y + 7), "CANDIDATE", fill="#31462F")
-            contact.paste(original.convert("RGB"), (0, y + 28))
-            contact.paste(candidate.convert("RGB"), (SOURCE_SIZE[0], y + 28))
+            fixed, pixels = repair(original)
+            original.save(args.output / "before" / f"{key}.png")
+            target = args.output / "after" / f"{key}.png"
+            fixed.save(target, optimize=True)
+            y = (i * 2 + k) * 174
+            draw.text((3, y + 2), key + " — alpha before / after", fill="#233F33")
+            comparison.paste(composite(original, bool(suffix)), (0, y + 20))
+            comparison.paste(composite(fixed, bool(suffix)), (370, y + 20))
             if args.apply:
-                if sha256(android.read_bytes()).digest() == sha256(out_path.read_bytes()).digest():
-                    raise RuntimeError(f"Source already appears restored: {name}")
-                android.write_bytes(out_path.read_bytes())
-                ios.write_bytes(out_path.read_bytes())
+                android.write_bytes(target.read_bytes())
+                ios.write_bytes(target.read_bytes())
                 assert android.read_bytes() == ios.read_bytes()
-            print(f"{name}: restored {changed} original UI-badge pixels; scene preserved")
-    contact.save(preview_dir / "comparison.png")
-    print("Completed eight light/dark source candidates without redrawing watercolor.")
+            print(f"{key}: repaired {pixels} paper-alpha pixels; RGB intact")
+    comparison.save(args.output / "comparison.png")
+    print("Eight watercolor paper regions restored. No subjects repainted.")
 
 
 if __name__ == "__main__":
