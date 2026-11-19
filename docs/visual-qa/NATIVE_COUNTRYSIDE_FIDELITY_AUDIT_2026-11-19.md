@@ -1,0 +1,38 @@
+# Lexicon native countryside fidelity — implementation audit
+Date: 2026-11-19
+Target: **pure native** Jetpack Compose + SwiftUI applications with the shared C++17 engine. Next.js files are not a product target.
+
+## Visual source of truth
+The owner's supplied images: day and nocturnal Home, Word of the Day / Word Detail, Dictionary and Search states, Notes, Study Lists, Quick Templates, color boards, and original illustrated scene studies. Rendered reference screenshots are more authoritative than the earlier mockup's legacy brand label **Lexora**. Production brand is **Lexicon**.
+
+**Core rule:** The app must behave like a usable, accessible native reader while retaining an old English Cotswolds book's atmosphere. Warm parchment, imperfect watercolor edges, honey-stone villages, meadow daisies, ink-green typography, and a quiet lantern-lit night. Never replace organic painting with generic opaque cards, modern gradients, gradients over text, arbitrary crops, raster-wrapped "SVG", or fake interactive controls.
+
+**Reference palettes:** light #F3EBDD / #657D5A / #31462F / #7C9297 / #C98267 / #A58A61. Night #0F1622 / #1D2A3A / #1A1F28 / #334A5E / #D4A45A / #F0D89A. Use semantic contrast for real text and controls, not exact palette samples as a substitute for accessibility.
+
+## Findings — source inspected at main c9a6c31ddb524f1c104eb0d32c03642c7a1ec213
+
+1. **P1 — Loss of watercolor edges in Collections empty state.** Android `native/android/app/src/main/java/com/lexicon/ui/screens/CollectionsScreen.kt` used `ContentScale.Crop` plus a radial alpha/DstIn mask and an opaque circular bookmark disc. SwiftUI `native/ios/Lexicon/Screens/CollectionsScreen.swift` used `scaledToFill`, clip, and an opaque circle. This is a confirmed artwork-preservation bug, not a subjective taste issue. **Fix in this branch:** use `Fit` / `scaledToFit`, preserve transparent silhouette, remove opaque badge underlay.
+2. **P1 — Tiny interactive bookmarks in note cards.** `CountrysideScreens.kt` made note bookmark gestures 14dp; SwiftUI `CountrysideScreens.swift` used an 11.5pt glyph with no explicit hit size. **Fix in this branch:** transparent 44dp/pt buttons with labels. The Android note card also gains enough height for 2-line titles and 3-line body previews.
+3. **P1 — Device-rendered parity is not proved.** The QA workflow captures screenshots and checks blankness, screen diversity, texture/font geometry, and some home regions. It does not have a source-to-rendered comparison against every supplied approved screenshot at normalized viewport sizes. **Still open:** collect reference pixels in repository-controlled QA fixtures, compare subject framing, region bounds, glyph wraps, colors, and crop at multiple densities, and have a human inspect contact sheets before calling a visual match approved.
+4. **P2 — Header sizing needs window-based review.** `native/ios/Lexicon/Components/CountrysideComponents.swift` uses `UIScreen.main.bounds` to select responsive hero height, which can differ from the actual SwiftUI scene width in split view, Stage Manager, and resizeable iPad layouts. Compose uses `LocalConfiguration`; verify actual container constraints for landscape, 320pt compact phones, 390pt default phones, accessibility sizes, and tablets.
+5. **P2 — Banner scaling and bottom nav safety need visual evidence.** `CountrysideQuoteBanner` uses `Fit` but fixed or computed heights. This avoids cropping, but doesn't establish full painted scene use on all aspect ratios. Scroll screens generally reserve 160pt / 162dp below floating nav; verify overlays, interactive bottom rows, and safe-area insets against captured screenshot evidence.
+6. **P1 — Feature completeness is separate from visual polish.** `docs/LEXICON_PHASE_1_4_IMPLEMENTATION.md` explicitly says full 36-language packs, camera OCR, microphone STT, connected writing workflows, verified real audio, advanced spaced repetition, and full accessibility UI tests were not completed. Keep unimplemented affordances discoverable only if they lead to honest permission/unsupported states, not fake success. Audit C++ engine data semantics and persistence for each route.
+7. **P2 — Painting editability and fidelity are different.** Existing cottage, bridge, notes, thumbnails, category and banner artwork in Android `drawable-nodpi` and iOS `Assets.xcassets` remains raster. The newly added `artwork/vector/cotswolds-village-parchment.svg` and `-midnight.svg` are path/circle/ellipse-based draft *source* scenes; they have not replaced the original watercolor screenshots, nor have they been native-rendered or visually approved.
+8. **P2 — Brand-label cleanup.** Multiple comments, strings, and design contracts still say `Lexora`; the project's current desired production name is `Lexicon`. Change **user-visible** labels in a separate parity-controlled pass and verify accessibility, package naming, and release metadata rather than doing a blind global find/replace.
+9. **P2 — Repository hygiene.** Root `.env` is tracked despite `.gitignore` ignoring it. Audit it privately for credentials; do not put secret values into QA logs, issues, or pull requests.
+
+## Native acceptance matrix — strict, not ceremonial
+
+For every route and both themes: capture actual Android emulator and iOS simulator frames, include home/dictionary/search/word/collections/notes/study/templates/reader, and check:
+- **Illustration:** source alpha and organic edges, full cottages, bridges, daisies and books; no square crops, color-matched cream patches, haloes or text covering key painted subjects. `Fit` by itself is not proof of suitable composition.
+- **Typography:** registered Playfair/Lora/Inter faces, intended hierarchy, readable definitions, dynamic type, long words, phonetic text, wrapping, and multi-line translations.
+- **Layout:** phone width 320–432dp/pt, landscape, tablets, magnified content, bottom pill/search seal clearances, status and navigation bars, keyboard, drag/scroll gestures, full-screen back navigation.
+- **Interaction:** each displayed filter changes results, note CRUD persists, bookmarks and favorites persist across launches, search history is real, list progress matches actual data, no shortcut implies a nonexistent feature.
+- **Architecture:** native Compose/SwiftUI source, C++ engine tests, reliable CI compile and screenshot artifacts. Never claim compilation certifies pixels or behavior.
+- **Accessibility:** 44x44pt minimum iOS and comparable Android targets wherever practical, roles/labels, VoiceOver/TalkBack ordering, contrast and motion sensitivity.
+
+## Verification status
+
+This branch contains targeted source fixes and original editable vector draft sources. A pull-request-triggered native screenshot workflow is proposed so future iterations can be tested **before merge**. **Current status: unverified visually and not certified 100%.** Source inspection is not an emulator capture. C++ and Android/iOS test results must be taken from the specific GitHub Actions run for this branch; do not imply a pass without those results.
+
+**Never publish/re-sign an APK or merge unverified native changes just because a source edit was committed.** Owner-approved visual fidelity is the release gate.
