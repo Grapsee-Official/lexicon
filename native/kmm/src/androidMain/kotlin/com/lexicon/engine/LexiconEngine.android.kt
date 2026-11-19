@@ -27,6 +27,7 @@ actual class LexiconEngine actual constructor() : MemoryPressureListener {
     private external fun nativeLoad(handle: Long, dbDir: String): Boolean
     private external fun nativeLookup(handle: Long, word: String): Long // pointer to LexiconWordEntry
     private external fun nativeFuzzySearch(handle: Long, query: String, maxDist: Int, limit: Int): Long
+    private external fun nativePrefixSearch(handle: Long, prefix: String, limit: Int): Array<String>
     private external fun nativeFreeEntry(entryPtr: Long)
     private external fun nativeFreeResults(resultsPtr: Long)
     private external fun nativeEnableDawg(handle: Long, enabled: Boolean)
@@ -81,8 +82,8 @@ actual class LexiconEngine actual constructor() : MemoryPressureListener {
     }
 
     actual fun prefixSearch(prefix: String, limit: Int): List<String> {
-        // Not directly exposed via C ABI — use fuzzy search with distance 0
-        return fuzzySearch(prefix, 0, limit).map { it.entry.word }
+        if (handle == 0L || prefix.isBlank() || limit <= 0) return emptyList()
+        return nativePrefixSearch(handle, prefix.trim(), limit).toList()
     }
 
     actual fun getWordById(id: String): WordEntry? {
