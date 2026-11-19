@@ -600,6 +600,8 @@ struct SearchResultsScreen: View {
                     subtitle: "Look up any word and explore its full meaning.",
                     illustrationBase: "ill-hero-cottage",
                     onHistoryClick: { vm.navigate(to: .searchDiscovery) },
+                    actionKind: "back",
+                    actionLabel: "Back to Search",
                     onLogoToggleTheme: { theme.toggle() },
                     heroHeight: 146
                 )
@@ -870,6 +872,8 @@ struct ExpandedExplorationScreen: View {
                     subtitle: "Look up any word, anytime.",
                     illustrationBase: "ill-hero-cottage",
                     onHistoryClick: { vm.navigate(to: .searchDiscovery) },
+                    actionKind: "back",
+                    actionLabel: "Back to Search",
                     onLogoToggleTheme: { theme.toggle() },
                     heroHeight: 140
                 )
