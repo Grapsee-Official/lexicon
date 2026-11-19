@@ -39,6 +39,15 @@ def main() -> None:
             assert not good and "OS modal" in details, (overlay.name, details)
             print(f"PASS {overlay.name}: modal screenshot correctly rejected")
 
+        # Regression for a successful simctl launch that screenshots SpringBoard.
+        # This synthetic fixture contains the saturated iOS blue wallpaper;
+        # actual app watercolor skies are muted rather than system-blue.
+        launcher = folder / "ios-launcher.png"
+        Image.new("RGB", (1080, 2400), "#228DE0").save(launcher)
+        good, details = inspect(launcher)
+        assert not good and "launcher" in details, (launcher.name, details)
+        print("PASS iOS launcher wallpaper correctly rejected")
+
         blank = folder / "blank-white.png"
         Image.new("RGB", (1080, 2400), "#FFFFFF").save(blank)
         good, details = inspect(blank)

@@ -49,6 +49,17 @@ def inspect(path: Path) -> tuple[bool, str]:
             f"dimmed background={upper_brightness:.0f})"
         )
 
+    # A simulator can return the iOS SpringBoard (blue launcher wallpaper)
+    # after simctl launch reports success. Reject it here so capture retries
+    # foreground the app instead of treating a launcher as valid artwork.
+    # This targets saturated system-blue, not Lexora's muted watercolor sky.
+    launcher_blue = sum(
+        blue > 125 and blue > red * 1.25 and blue > green * 1.08
+        for red, green, blue in pixels
+    ) / len(pixels)
+    if launcher_blue > .45:
+        return False, f"iOS launcher/system-blue wallpaper visible ({launcher_blue:.1%})"
+
     n = len(pixels)
     white = sum(min(rgb) >= 247 for rgb in pixels) / n
     colored = sum(max(rgb) - min(rgb) > 6 for rgb in pixels) / n
