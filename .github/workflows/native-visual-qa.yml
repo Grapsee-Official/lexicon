@@ -12,6 +12,8 @@ on:
       - 'scripts/check_editable_botanical_svg.py'
       - 'scripts/check_bundled_fonts.py'
       - 'scripts/check_home_bookplate_geometry.py'
+      - 'scripts/check_native_material_parity.py'
+      - 'artwork/vector/countryside-*-material.svg'
       - 'artwork/vector/lexora-*.svg'
       - 'docs/visual-qa/lexora-home-reference-contract.md'
   workflow_dispatch:
@@ -47,6 +49,7 @@ jobs:
           python3 scripts/check_countryside_art.py
           python3 scripts/check_editable_botanical_svg.py
           python3 scripts/check_bundled_fonts.py
+          python3 scripts/check_native_material_parity.py
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -111,6 +114,7 @@ jobs:
           python3 scripts/check_countryside_art.py
           python3 scripts/check_editable_botanical_svg.py
           python3 scripts/check_bundled_fonts.py
+          python3 scripts/check_native_material_parity.py
       - name: Build C++17 for Apple simulator
         run: |
           SDK="$(xcrun --sdk iphonesimulator --show-sdk-path)"
