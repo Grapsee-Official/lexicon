@@ -64,10 +64,10 @@ fun Hero(
         expanded && largeText -> 410.dp
         expanded -> 350.dp
         largeText -> 310.dp
-        compact -> 270.dp
-        else -> 258.dp
+        compact -> 246.dp
+        else -> 215.dp
     }
-    val textWidth = if (compact || largeText) 0.60f else 0.53f
+    val textWidth = if (compact || largeText) 0.60f else 0.52f
 
     Box(
         modifier = modifier
@@ -148,7 +148,7 @@ fun Hero(
                 text = "A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.",
                 color = subtextColor,
                 style = LexiconTextStyles.HeroParagraph,
-                modifier = Modifier.fillMaxWidth(0.82f),
+                modifier = Modifier.fillMaxWidth(0.88f),
                 maxLines = if (largeText) 8 else 7,
             )
         }
@@ -158,7 +158,7 @@ fun Hero(
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .padding(start = 16.dp, bottom = 2.dp)
-                .fillMaxWidth(if (compact) 0.92f else 0.82f),
+                .fillMaxWidth(if (compact) 0.90f else 0.75f),
         )
     }
 }
