@@ -113,8 +113,8 @@ struct CollectionsHubScreen: View {
                                 HStack(spacing: 10) {
                                     Image(countrysideImageName(thumb, isDark: isDark))
                                         .resizable()
-                                        .scaledToFill()
-                                        .frame(width: 56, height: 42)
+                                        .scaledToFit()
+                                         .frame(width: 56, height: 42)
                                         .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
 
                                     Button { vm.openWord(entry) } label: {
@@ -580,8 +580,8 @@ struct StudyListsScreen: View {
                             HStack(spacing: 10) {
                                 Image(countrysideImageName(sl.thumbnail, isDark: isDark))
                                     .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 56, height: 42)
+                                    .scaledToFit()
+                                         .frame(width: 56, height: 42)
                                     .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
 
                                 Button {

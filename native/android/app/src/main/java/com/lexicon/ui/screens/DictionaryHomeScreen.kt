@@ -205,7 +205,7 @@ fun DictionaryHomeScreen(viewModel: LexiconViewModel) {
         item {
             Image(
                 painter = painterResource(resolveCountrysideDrawable("ill_banner_bridge", dark)),
-                contentDescription = null, contentScale = ContentScale.Crop,
+                contentDescription = null, contentScale = ContentScale.Fit,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
                     .height(76.dp).clip(RoundedCornerShape(15.dp)),
             )

@@ -316,7 +316,7 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
                             Image(
                                 painter = painterResource(thumbRes),
                                 contentDescription = null,
-                                contentScale = ContentScale.Crop,
+                                contentScale = ContentScale.Fit,
                                 modifier = Modifier
                                     .width(56.dp)
                                     .height(42.dp)
@@ -900,7 +900,7 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                                 Image(
                                     painter = painterResource(thumbRes),
                                     contentDescription = null,
-                                    contentScale = ContentScale.Crop,
+                                    contentScale = ContentScale.Fit,
                                     modifier = Modifier
                                         .width(56.dp)
                                         .height(42.dp)

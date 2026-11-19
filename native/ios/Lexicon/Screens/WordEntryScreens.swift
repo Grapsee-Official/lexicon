@@ -168,8 +168,8 @@ struct WordOfTheDayScreen: View {
                         HStack(spacing: 10) {
                             Image(countrysideImageName("ill-open-book-meadow", isDark: isDark))
                                 .resizable()
-                                .scaledToFill()
-                                .frame(width: 112, height: 84)
+                                .scaledToFit()
+                                 .frame(width: 112, height: 84)
                                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                             Text(word.etymology)
                                 .font(.lexiconLong(11.5))
@@ -1053,7 +1053,7 @@ struct ExpandedExplorationScreen: View {
 
                 Image(countrysideImageName("ill-banner-church", isDark: isDark))
                     .resizable()
-                    .scaledToFill()
+                    .scaledToFit()
                     .frame(height: 72)
                     .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
                     .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous).stroke(p.border, lineWidth: 1))
