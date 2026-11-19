@@ -1746,28 +1746,48 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
                     QuadFilterSpec(Icons.Outlined.BarChart, "Difficulty", state.filterDifficulty, "difficulty"),
                     QuadFilterSpec(Icons.Outlined.StarOutline, "Sort By", state.filterSort, "sort"),
                 )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState())
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(7.dp),
+                // Both columns are visible on a phone. Four filter choices
+                // should never be hidden behind the floating search seal or
+                // require an undiscoverable sideways gesture.
+                BoxWithConstraints(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 ) {
-                    filters.forEach { f ->
-                        Column(
-                            modifier = Modifier
-                                .width(112.dp)
-                                .clip(RoundedCornerShape(13.dp))
-                                .background(cardBg)
-                                .border(1.dp, border, RoundedCornerShape(13.dp))
-                                .clickable(role = Role.Button) { viewModel.cycleSearchFilter(f.key) }
-                                .padding(vertical = 9.dp, horizontal = 4.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(3.dp),
-                        ) {
-                            Icon(f.icon, contentDescription = null, tint = if (isDark) DarkAccent else BrandGreen, modifier = Modifier.size(16.dp))
-                            Text(f.title, color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 10.5.sp), maxLines = 1)
-                            Text("${f.value} ⌄", color = fg, style = TextStyle(fontFamily = BodyFontFamily, fontWeight = FontWeight.Medium, fontSize = 10.5.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    val columns = if (maxWidth < 560.dp) 2 else 4
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        filters.chunked(columns).forEach { line ->
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                line.forEach { f ->
+                                    Column(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .clip(RoundedCornerShape(13.dp))
+                                            .background(cardBg)
+                                            .border(1.dp, border, RoundedCornerShape(13.dp))
+                                            .clickable(role = Role.Button, onClickLabel = "Change ${f.title} filter") {
+                                                viewModel.cycleSearchFilter(f.key)
+                                            }
+                                            .padding(vertical = 12.dp, horizontal = 6.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                                    ) {
+                                        Icon(
+                                            f.icon,
+                                            contentDescription = null,
+                                            tint = if (isDark) DarkAccent else BrandGreen,
+                                            modifier = Modifier.size(19.dp),
+                                        )
+                                        Text(f.title, color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.sp))
+                                        Text(
+                                            "${f.value} ⌄",
+                                            color = fg,
+                                            style = TextStyle(fontFamily = BodyFontFamily, fontWeight = FontWeight.Medium, fontSize = 11.sp),
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis,
+                                        )
+                                    }
+                                }
+                                repeat(columns - line.size) { Spacer(Modifier.weight(1f)) }
+                            }
                         }
                     }
                 }
