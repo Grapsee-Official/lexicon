@@ -129,6 +129,41 @@ LexiconSearchResults* lexicon_engine_fuzzy_search(
     return out;
 }
 
+LexiconStringResults* lexicon_engine_prefix_search(
+    LexiconEngineHandle* handle, const char* prefix, uint32_t limit
+) {
+    if (!handle || !prefix || !limit) return nullptr;
+    const auto matches = handle->engine.prefix_search(prefix, limit);
+    if (matches.empty()) return nullptr;
+
+    auto* result = static_cast<LexiconStringResults*>(std::calloc(1, sizeof(LexiconStringResults)));
+    if (!result) return nullptr;
+    result->count = static_cast<uint32_t>(matches.size());
+    result->words = static_cast<const char**>(std::calloc(matches.size(), sizeof(char*)));
+    if (!result->words) {
+        std::free(result);
+        return nullptr;
+    }
+
+    for (size_t i = 0; i < matches.size(); ++i) {
+        result->words[i] = dup_string(matches[i]);
+        if (!result->words[i]) {
+            lexicon_engine_free_string_results(result);
+            return nullptr;
+        }
+    }
+    return result;
+}
+
+void lexicon_engine_free_string_results(LexiconStringResults* results) {
+    if (!results) return;
+    for (uint32_t i = 0; i < results->count; ++i) {
+        std::free(const_cast<char*>(results->words[i]));
+    }
+    std::free(results->words);
+    std::free(results);
+}
+
 void lexicon_engine_free_entry(LexiconWordEntry* entry) {
     if (!entry) return;
     destroy_entry_fields(entry);
