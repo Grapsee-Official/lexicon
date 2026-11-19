@@ -92,8 +92,16 @@ private fun HomeFeed(viewModel: LexiconViewModel) {
     val isCapture = BuildConfig.DEBUG &&
         ((context as? android.app.Activity)?.intent?.hasExtra("lexicon_screen") == true)
     val homeWord = if (isCapture) LexiconData.wordOfTheDay else LexiconData.featuredWord()
-    var libraryOpen by remember { mutableStateOf(false) }
-    var articleToRead by remember { mutableStateOf<Article?>(null) }
+    val libraryFixture = if (isCapture) (context as? android.app.Activity)
+        ?.intent?.getStringExtra("lexicon_screen") else null
+    var libraryOpen by remember(libraryFixture) {
+        mutableStateOf(libraryFixture == "library" || libraryFixture == "library_article")
+    }
+    var articleToRead by remember(libraryFixture) {
+        mutableStateOf<Article?>(
+            if (libraryFixture == "library_article") LexiconData.articles.firstOrNull() else null
+        )
+    }
     val ink = if (state.isDark) DarkForeground else DeepForest
     val secondaryInk = if (state.isDark) DarkMutedForeground else WarmGrey
     LazyColumn(
