@@ -95,6 +95,45 @@ for base in ("hero-light", "hero-dark", "wotd-bg-light", "wotd-bg-dark"):
     if not (ios_dir / (base + ".imageset") / "Contents.json").is_file():
         missing.add("iOS " + base)
 
+# An epigraph is a reading invitation, not a permanently repeated
+# footer. The quote now belongs to the Library index only, on both platforms.
+library_placements = {
+    root / "native/android/app/src/main/java/com/lexicon/ui/screens/LibraryReaderSheet.kt": 1,
+    root / "native/ios/Lexicon/Screens/HomeScreen.swift": 1,
+}
+for path, wanted in library_placements.items():
+    actual = path.read_text(encoding="utf-8").count("CountrysideQuoteBanner(")
+    if actual != wanted:
+        missing.add(f"{path.relative_to(root)}: expected {wanted} Library epigraph, saw {actual}")
+for path in android_screens + ios_screens + [
+    root / "native/android/app/src/main/java/com/lexicon/ui/screens/DictionaryHomeScreen.kt",
+    root / "native/ios/Lexicon/Screens/DictionaryHomeScreen.swift",
+]:
+    if "CountrysideQuoteBanner(" in path.read_text(encoding="utf-8"):
+        missing.add(f"{path.relative_to(root)}: duplicated epigraph in a functional screen")
+
+# The source watercolor is not a stock thumbnail to crop. Keep transparent
+# petals and loose wash intact in the Library cards and reading sheet.
+for path, cropped in (
+    (root / "native/android/app/src/main/java/com/lexicon/ui/components/ArticleCard.kt", "ContentScale.Crop"),
+    (root / "native/ios/Lexicon/Components/ArticleCard.swift", ".scaledToFill()"),
+    (root / "native/android/app/src/main/java/com/lexicon/ui/screens/LibraryReaderSheet.kt", "ContentScale.Crop"),
+):
+    if cropped in path.read_text(encoding="utf-8"):
+        missing.add(f"{path.relative_to(root)}: cropped source watercolor")
+
+# Responsive native scenes measure the actual viewport and preserve the art.
+android_common = (root / "native/android/app/src/main/java/com/lexicon/ui/components/CountrysideComponents.kt").read_text(encoding="utf-8")
+ios_common = (root / "native/ios/Lexicon/Components/CountrysideComponents.swift").read_text(encoding="utf-8")
+if "BoxWithConstraints(" not in android_common or "fullPaintingHeight" not in android_common:
+    missing.add("Android: countryside hero must use measured width and full artwork height")
+if "completePainting" not in ios_common or "measuredWidth" not in ios_common:
+    missing.add("iOS: countryside hero must use measured width and full artwork height")
+if "maxLines = if (config.fontScale >= 1.3f) 3 else 2" in android_common:
+    missing.add("Android: an epigraph must never be truncated at two lines")
+if ".lineLimit(dynamicTypeSize.isAccessibilitySize ? 3 : 2)" in ios_common[ios_common.find("struct CountrysideQuoteBanner: View"):ios_common.find("/// Responsive night-sky ornament")]:
+    missing.add("iOS: epigraph must wrap naturally, not truncate")
+
 if missing:
     print("Lexicon visual source parity check failed:")
     for entry in sorted(missing):
