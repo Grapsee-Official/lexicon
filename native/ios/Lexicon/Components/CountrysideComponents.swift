@@ -15,6 +15,8 @@ struct CountrysideHeroHeader: View {
     let subtitle: String
     let illustrationBase: String
     let onHistoryClick: () -> Void
+    var actionKind: String = "history"
+    var actionLabel: String = "Search history"
     var onLogoToggleTheme: () -> Void = {}
     var heroHeight: CGFloat = 146
 
@@ -100,7 +102,9 @@ struct CountrysideHeroHeader: View {
                 HStack {
                     Spacer()
                     Button(action: onHistoryClick) {
-                        Image(systemName: "clock.arrow.circlepath")
+                        Image(systemName: actionKind == "back" ? "chevron.left" :
+                            actionKind == "notes" ? "note.text" :
+                            actionKind == "templates" ? "square.stack" : "clock.arrow.circlepath")
                             .font(.system(size: 15, weight: .regular))
                             .foregroundStyle(isDark ? LexiconColors.accentDark : LexiconColors.foreground.opacity(0.78))
                             .frame(width: 44, height: 44)
@@ -108,7 +112,7 @@ struct CountrysideHeroHeader: View {
                             
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("Search history")
+                    .accessibilityLabel(actionLabel)
                 }
                 .padding(.top, 8)
                 .padding(.trailing, 16)
