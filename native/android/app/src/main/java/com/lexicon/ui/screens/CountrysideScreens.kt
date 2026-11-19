@@ -1162,7 +1162,7 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                             modifier = Modifier.padding(12.dp))
                     }
                     (if (showAllTemplates) filtered else filtered.take(4))
-                        .chunked(if (androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp < 390) 1 else 2)
+                        .chunked(if (androidx.compose.ui.platform.LocalConfiguration.current.let { it.screenWidthDp < 390 || it.fontScale >= 1.3f }) 1 else 2)
                         .forEach { rowItems ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -1182,11 +1182,11 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                                             templateForNote = tpl
                                         },
                                 ) {
-                                    Box(modifier = Modifier.fillMaxWidth().height(if (androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f) 90.dp else 62.dp)) {
+                                    Box(modifier = Modifier.fillMaxWidth().height(if (androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f) 106.dp else 82.dp)) {
                                         Image(
                                             painter = painterResource(artRes),
                                             contentDescription = null,
-                                            contentScale = ContentScale.Crop,
+                                            contentScale = ContentScale.Fit,
                                             modifier = Modifier.fillMaxSize(),
                                         )
                                         Box(
