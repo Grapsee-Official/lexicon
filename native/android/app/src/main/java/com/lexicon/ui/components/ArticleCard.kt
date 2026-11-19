@@ -103,7 +103,8 @@ fun ArticleCard(
                 painter = painterResource(resId),
                 contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop,
+                // Preserve the original illustration's soft painted edges.
+                        contentScale = ContentScale.Fit,
             )
         }
 
