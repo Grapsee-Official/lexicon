@@ -182,76 +182,23 @@ private fun HomeFeed(viewModel: LexiconViewModel) {
         }
     }
 
-    // The library is a reader sheet, not a new navigation page.
+    // A native illustrated reading sheet replaces the generic Material dialog.
+    // Bookmarks persist through the shared view model, and scrollable prose
+    // remains accessible on compact phones, large text, and tablets.
     if (libraryOpen) {
-        val selected = articleToRead
-        AlertDialog(
-            onDismissRequest = { libraryOpen = false },
-            title = {
-                Text(
-                    selected?.title ?: "From the Library",
-                    color = ink,
-                    style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 21.sp),
-                )
+        LibraryReaderSheet(
+            selectedArticle = articleToRead,
+            articles = LexiconData.articles,
+            bookmarkedArticleIds = state.bookmarkedArticleIds,
+            isDark = state.isDark,
+            onSelect = { articleToRead = it },
+            onBack = { articleToRead = null },
+            onToggleBookmark = { viewModel.toggleArticleBookmark(it) },
+            onDismiss = {
+                libraryOpen = false
+                articleToRead = null
             },
-            text = {
-                Column(
-                    Modifier.heightIn(max = 450.dp).verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(13.dp),
-                ) {
-                    if (selected == null) {
-                        Text(
-                            "Three little journeys through language and time.",
-                            color = secondaryInk,
-                            style = TextStyle(fontFamily = BodyFontFamily, fontSize = 13.sp),
-                        )
-                        LexiconData.articles.forEach { article ->
-                            Column(
-                                Modifier.fillMaxWidth().clickable(role = Role.Button) {
-                                    articleToRead = article
-                                }.padding(vertical = 8.dp),
-                                verticalArrangement = Arrangement.spacedBy(4.dp),
-                            ) {
-                                Text(article.title, color = ink,
-                                    style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 17.sp))
-                                Text(article.excerpt, color = secondaryInk,
-                                    style = TextStyle(fontFamily = BodyFontFamily, fontSize = 12.sp))
-                            }
-                        }
-                    } else {
-                        Text(
-                            selected.excerpt,
-                            color = secondaryInk,
-                            style = TextStyle(fontFamily = BodyFontFamily, fontSize = 14.sp),
-                        )
-                        LexiconData.articleReading(selected.id).forEach { paragraph ->
-                            Text(
-                                paragraph,
-                                color = ink,
-                                style = TextStyle(
-                                    fontFamily = BodyFontFamily,
-                                    fontSize = 14.sp,
-                                    lineHeight = 23.sp,
-                                ),
-                            )
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { libraryOpen = false }) { Text("Close") }
-            },
-            dismissButton = {
-                if (selected != null) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                        TextButton(onClick = { viewModel.toggleArticleBookmark(selected.id) }) {
-                            Text(if (selected.id in state.bookmarkedArticleIds) "Saved" else "Save story")
-                        }
-                        TextButton(onClick = { articleToRead = null }) { Text("All articles") }
-                    }
-                }
-            },
-            containerColor = if (state.isDark) DarkCard else CardSurface,
         )
     }
+
 }
