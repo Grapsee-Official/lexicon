@@ -29,6 +29,17 @@ def main() -> None:
             good, details = inspect(path)
             assert good, (path.name, details)
 
+            # Only native debug builds paint the fuchsia provenance square.
+            # Passing the basic nonblank gate is insufficient.
+            good, details = inspect(path, require_marker=True)
+            assert not good and "marker missing" in details, (path.name, details)
+            marked = image.copy()
+            ImageDraw.Draw(marked).rectangle((12, 2300, 36, 2324), fill="#FF00C2")
+            marked_path = folder / f"{'dark' if dark else 'light'}-native-marker.png"
+            marked.save(marked_path)
+            good, details = inspect(marked_path, require_marker=True)
+            assert good, (marked_path.name, details)
+
             dimmed = Image.blend(image, Image.new("RGB", image.size, "#08090C"), .58)
             draw = ImageDraw.Draw(dimmed)
             draw.rounded_rectangle((76, 935, 1004, 1390), radius=50,
