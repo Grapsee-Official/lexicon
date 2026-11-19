@@ -20,17 +20,17 @@ struct CountrysideHeroHeader: View {
 
     @Environment(\.colorScheme) private var scheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @State private var measuredWidth: CGFloat = 390
+
     private var isDark: Bool { scheme == .dark }
     private var responsiveHeight: CGFloat {
-        let screen = UIScreen.main.bounds
-        if screen.width >= 600 {
-            // The Cotswolds painting must not shrink into a tablet corner.
-            // Preserve its complete aspect ratio with a taller native header.
-            return min(300, max(heroHeight + 64, screen.width * 0.34))
+        // Use the actual container width, never the physical device's bounds.
+        // On iPad split view the scene can be much narrower than UIScreen.
+        if measuredWidth >= 600 {
+            return min(300, max(heroHeight + 64, measuredWidth * 0.34))
         }
         if dynamicTypeSize.isAccessibilitySize { return heroHeight + 64 }
-        let phoneSize = screen.height < 940
-        return phoneSize ? heroHeight + 12 : heroHeight
+        return heroHeight + 12
     }
 
     var body: some View {
@@ -74,8 +74,11 @@ struct CountrysideHeroHeader: View {
                         Button(action: onLogoToggleTheme) {
                             BotanicalSprig(color: isDark ? LexiconColors.accentDark : LexiconColors.primary)
                                 .frame(width: 25, height: 25)
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel("Toggle appearance")
 
                         Text(title)
                             .font(.lexiconDisplay(w < 390 || title.count > 14 ? 24 : 28, weight: .regular))
@@ -100,16 +103,25 @@ struct CountrysideHeroHeader: View {
                         Image(systemName: "clock.arrow.circlepath")
                             .font(.system(size: 15, weight: .regular))
                             .foregroundStyle(isDark ? LexiconColors.accentDark : LexiconColors.foreground.opacity(0.78))
-                            .frame(width: 34, height: 34)
+                            .frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
                             
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel("Search history")
                 }
                 .padding(.top, 8)
                 .padding(.trailing, 16)
             }
         }
         .frame(height: responsiveHeight)
+        .background {
+            GeometryReader { measurement in
+                Color.clear
+                    .onAppear { measuredWidth = measurement.size.width }
+                    .onChange(of: measurement.size.width) { measuredWidth = $0 }
+            }
+        }
     }
 }
 
