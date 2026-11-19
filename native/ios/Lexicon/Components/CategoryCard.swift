@@ -25,7 +25,7 @@ struct CategoryCard: View {
                     .resizable()
                     .scaledToFit()
                     .frame(maxWidth: .infinity)
-                    .frame(height: largeText ? 84 : 67)
+                    .frame(height: largeText ? 84 : 63)
                     .accessibilityHidden(true)
 
                 Spacer(minLength: 2)
@@ -48,7 +48,7 @@ struct CategoryCard: View {
             .padding(.horizontal, 6)
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity)
-            .frame(height: largeText ? 144 : 112)
+            .frame(height: largeText ? 144 : 105)
             .background(p.card)
             .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
             .overlay(
