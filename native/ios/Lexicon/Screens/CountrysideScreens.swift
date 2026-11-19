@@ -241,6 +241,8 @@ struct MyNotesScreen: View {
                     subtitle: "Capture thoughts, meanings and your language journey.",
                     illustrationBase: "ill-hero-notes",
                     onHistoryClick: { vm.navigate(to: .collections) },
+                    actionKind: "back",
+                    actionLabel: "Back to Collections",
                     onLogoToggleTheme: { theme.toggle() },
                     heroHeight: 142
                 )
@@ -490,6 +492,8 @@ struct StudyListsScreen: View {
                     subtitle: "Learn, practice and grow one word at a time.",
                     illustrationBase: "ill-hero-cottage",
                     onHistoryClick: { vm.navigate(to: .quickTemplates) },
+                    actionKind: "templates",
+                    actionLabel: "Open Quick Templates",
                     onLogoToggleTheme: { theme.toggle() },
                     heroHeight: 140
                 )
@@ -838,6 +842,8 @@ struct QuickTemplatesScreen: View {
                     subtitle: "Start with a template, or create your own.",
                     illustrationBase: "ill-hero-cottage",
                     onHistoryClick: { vm.navigate(to: .myNotes) },
+                    actionKind: "notes",
+                    actionLabel: "Open Notes",
                     onLogoToggleTheme: { theme.toggle() },
                     heroHeight: 140
                 )
@@ -1073,6 +1079,8 @@ struct SearchDiscoveryScreen: View {
                     subtitle: "Find any word, explore its meaning, and discover more.",
                     illustrationBase: "ill-hero-cottage",
                     onHistoryClick: { vm.navigate(to: .dictionaryHome) },
+                    actionKind: "back",
+                    actionLabel: "Back to Dictionary",
                     onLogoToggleTheme: { theme.toggle() },
                     heroHeight: 140
                 )
