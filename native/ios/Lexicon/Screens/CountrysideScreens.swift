@@ -316,9 +316,11 @@ struct MyNotesScreen: View {
                                         Text(note.body)
                                             .font(.lexiconBody(11.5))
                                             .foregroundStyle(p.foreground.opacity(0.8))
-                                            .lineLimit(3)
+                                            .lineLimit(dynamicTypeSize.isAccessibilitySize ? 4 : 2)
                                     }
-                                    .frame(width: card.size.width * 0.44, alignment: .leading)
+                                    // Text must stay readable even in the two-column
+                                    // phone grid. Artwork remains transparent at right.
+                                    .frame(width: card.size.width * 0.60, alignment: .leading)
                                     Spacer(minLength: 4)
                                     HStack {
                                         HStack(spacing: 4) {
@@ -345,11 +347,17 @@ struct MyNotesScreen: View {
                                 .padding(11)
                                 }
                             }
-                            .frame(height: dynamicTypeSize.isAccessibilitySize ? 218 : 148)
+                            .frame(height: dynamicTypeSize.isAccessibilitySize ? 248 : 170)
                             .background(p.card)
                             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                             .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(p.border, lineWidth: 1))
                             .onTapGesture {
+                                editorTitle = note.title
+                                editorBody = note.body
+                                editingNote = note
+                            }
+                            .accessibilityElement(children: .contain)
+                            .accessibilityAction(named: Text("Edit note: \(note.title)")) {
                                 editorTitle = note.title
                                 editorBody = note.body
                                 editingNote = note
