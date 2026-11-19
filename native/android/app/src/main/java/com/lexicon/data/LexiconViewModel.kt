@@ -127,7 +127,8 @@ class LexiconViewModel : ViewModel() {
             s.copy(
                 activeTab = nextTab,
                 route = to,
-                routeHistory = (s.routeHistory + s.route).takeLast(12),
+                routeHistory = if (to == s.route) s.routeHistory
+                    else (s.routeHistory + s.route).takeLast(12),
                 detailWord = resolvedWord,
                 detailExpanded36 = expand36,
                 recentlyViewedIds = nextViewed,
@@ -251,7 +252,8 @@ class LexiconViewModel : ViewModel() {
                 // only after the reader explicitly selects an entry.
                 selectedWord = null,
                 route = ScreenRoute.SEARCH_RESULTS,
-                routeHistory = (current.routeHistory + current.route).takeLast(12),
+                routeHistory = if (current.route == ScreenRoute.SEARCH_RESULTS) current.routeHistory
+                    else (current.routeHistory + current.route).takeLast(12),
                 activeTab = TabKey.DICTIONARY,
             )
         }
