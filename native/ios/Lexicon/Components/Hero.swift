@@ -71,13 +71,13 @@ struct Hero: View {
                 LinearGradient(
                     stops: [
                         .init(color: (isDark ? LexiconColors.backgroundDark : LexiconColors.background).opacity(0.99), location: 0),
-                        .init(color: (isDark ? LexiconColors.backgroundDark : LexiconColors.background).opacity(0.94), location: 0.55),
+                        .init(color: (isDark ? LexiconColors.backgroundDark : LexiconColors.background).opacity(0.92), location: 0.42),
                         .init(color: .clear, location: 1)
                     ],
                     startPoint: .leading,
                     endPoint: .trailing
                 )
-                .frame(width: totalWidth * 0.70, height: heroHeight)
+                .frame(width: totalWidth * 0.60, height: heroHeight)
                 .allowsHitTesting(false)
                 .accessibilityHidden(true)
 
