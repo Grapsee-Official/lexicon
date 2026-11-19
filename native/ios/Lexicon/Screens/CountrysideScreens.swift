@@ -151,12 +151,6 @@ struct CollectionsHubScreen: View {
                     .padding(.horizontal, 16)
                 }
 
-                CountrysideQuoteBanner(
-                    quote: "A collection of words is a collection of worlds.",
-                    attribution: "Lexora",
-                    illustrationBase: "ill-banner-bridge"
-                )
-                .padding(.horizontal, 16)
             }
             .padding(.bottom, 160)
         }
@@ -418,12 +412,6 @@ struct MyNotesScreen: View {
                     .padding(.horizontal, 16)
                 }
 
-                CountrysideQuoteBanner(
-                    quote: "A well-written note is a small step towards wisdom.",
-                    attribution: "Lexora",
-                    illustrationBase: "ill-banner-bridge"
-                )
-                .padding(.horizontal, 16)
             }
             .padding(.bottom, 160)
         }
@@ -673,12 +661,6 @@ struct StudyListsScreen: View {
                     .padding(.horizontal, 16)
                 }
 
-                CountrysideQuoteBanner(
-                    quote: "Knowledge is a journey, not a destination.",
-                    attribution: "Lexora",
-                    illustrationBase: "ill-banner-bridge"
-                )
-                .padding(.horizontal, 16)
             }
             .padding(.bottom, 160)
         }
@@ -984,12 +966,6 @@ struct QuickTemplatesScreen: View {
                     .padding(.horizontal, 16)
                 }
 
-                CountrysideQuoteBanner(
-                    quote: "Better words. A brighter mind.",
-                    attribution: "Lexora",
-                    illustrationBase: "ill-banner-bridge"
-                )
-                .padding(.horizontal, 16)
             }
             .padding(.bottom, 160)
         }
@@ -1247,12 +1223,6 @@ struct SearchDiscoveryScreen: View {
                     }
                 }
 
-                CountrysideQuoteBanner(
-                    quote: "A word is a doorway to a bigger world.",
-                    attribution: "Lexora",
-                    illustrationBase: "ill-banner-bridge"
-                )
-                .padding(.horizontal, 16)
             }
             .padding(.bottom, 160)
         }
