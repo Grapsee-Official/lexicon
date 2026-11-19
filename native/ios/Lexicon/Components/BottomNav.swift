@@ -93,7 +93,7 @@ struct BottomNav: View {
                     .foregroundStyle(active ? activeColor : inactiveColor)
 
                 Text(label)
-                    .font(.lexiconBody(10.5, weight: active ? .medium : .regular))
+                    .font(.lexiconBody(9.5, weight: active ? .medium : .regular))
                     .foregroundStyle(active ? activeColor : inactiveColor)
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
