@@ -1,0 +1,35 @@
+name: Lexora watercolor restoration preview
+
+on:
+  push:
+    branches:
+      - lexora/watercolor-asset-recovery
+    paths:
+      - .github/workflows/lexora-art-recovery.yml
+      - scripts/restore_native_watercolors.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  original-artwork:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Collect unmodified watercolor assets for source-level inspection
+        run: |
+          mkdir -p recovery-preview/original
+          cp native/android/app/src/main/res/drawable-nodpi/ill_col_*.png recovery-preview/original/
+          cp native/android/app/src/main/res/drawable-nodpi/ill_hero_*.png recovery-preview/original/
+          cp native/android/app/src/main/res/drawable-nodpi/ill_banner_*.png recovery-preview/original/
+          cp native/android/app/src/main/res/drawable-nodpi/ill_note_flowers*.png recovery-preview/original/
+          cp native/android/app/src/main/res/drawable-nodpi/wotd_bg_*.png recovery-preview/original/
+          cp native/android/app/src/main/res/drawable-nodpi/hero_*.png recovery-preview/original/
+          ls -lh recovery-preview/original
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lexora-unmodified-painting-sources
+          path: recovery-preview/original/*.png
+          retention-days: 3
+          if-no-files-found: error
