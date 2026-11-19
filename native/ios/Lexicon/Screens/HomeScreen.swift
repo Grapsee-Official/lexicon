@@ -85,8 +85,10 @@ struct HomeScreen: View {
             .padding(.bottom, 76)
         }
         .background(lexiconPalette(scheme).background)
-        .onAppear {
-            // Only native debug screenshot sessions request an initial sheet.
+        .task {
+            // Present only after the first mounted frame. Setting sheet state
+            // synchronously in onAppear can be lost on a cold simulator launch,
+            // leaving both Library QA routes on the same Home screenshot.
             #if DEBUG
             let args = ProcessInfo.processInfo.arguments
             if args.contains("-lexoraVisualQa"),
@@ -94,6 +96,8 @@ struct HomeScreen: View {
                index + 1 < args.count {
                 let screen = args[index + 1]
                 if screen == "library" || screen == "library_article" {
+                    try? await Task.sleep(nanoseconds: 450_000_000)
+                    guard !Task.isCancelled else { return }
                     articleToRead = screen == "library_article"
                         ? LexiconData.articles.first : nil
                     libraryOpen = true
