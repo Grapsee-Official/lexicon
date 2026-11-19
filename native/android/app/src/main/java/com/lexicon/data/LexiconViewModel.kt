@@ -100,22 +100,25 @@ class LexiconViewModel : ViewModel() {
         }
     }
 
+    /** Map nested reading destinations to their parent navigation tab. */
+    private fun tabForRoute(route: ScreenRoute): TabKey = when (route) {
+        ScreenRoute.HOME -> TabKey.HOME
+        ScreenRoute.DICTIONARY_HOME,
+        ScreenRoute.WORD_OF_THE_DAY,
+        ScreenRoute.WORD_DETAIL,
+        ScreenRoute.SEARCH_RESULTS,
+        ScreenRoute.EXPANDED_EXPLORATION -> TabKey.DICTIONARY
+        ScreenRoute.SEARCH_DISCOVERY -> TabKey.SEARCH
+        ScreenRoute.COLLECTIONS,
+        ScreenRoute.MY_NOTES,
+        ScreenRoute.STUDY_LISTS,
+        ScreenRoute.QUICK_TEMPLATES -> TabKey.COLLECTIONS
+        ScreenRoute.MORE -> TabKey.MORE
+    }
+
     fun navigate(to: ScreenRoute, word: WordEntry? = null, expand36: Boolean = false) {
         _uiState.update { s ->
-            val nextTab = when (to) {
-                ScreenRoute.HOME -> TabKey.HOME
-                ScreenRoute.DICTIONARY_HOME,
-                ScreenRoute.WORD_OF_THE_DAY,
-                ScreenRoute.WORD_DETAIL,
-                ScreenRoute.SEARCH_RESULTS,
-                ScreenRoute.EXPANDED_EXPLORATION -> TabKey.DICTIONARY
-                ScreenRoute.SEARCH_DISCOVERY -> TabKey.SEARCH
-                ScreenRoute.COLLECTIONS,
-                ScreenRoute.MY_NOTES,
-                ScreenRoute.STUDY_LISTS,
-                ScreenRoute.QUICK_TEMPLATES -> TabKey.COLLECTIONS
-                ScreenRoute.MORE -> TabKey.MORE
-            }
+            val nextTab = tabForRoute(to)
             val resolvedWord = word ?: s.detailWord
             val nextViewed = if (word != null) {
                 (listOf(word.id) + s.recentlyViewedIds.filter { it != word.id }).take(8)
@@ -138,6 +141,7 @@ class LexiconViewModel : ViewModel() {
             val prev = s.routeHistory.lastOrNull() ?: ScreenRoute.HOME
             s.copy(
                 route = prev,
+                activeTab = tabForRoute(prev),
                 routeHistory = s.routeHistory.dropLast(1),
             )
         }
@@ -242,7 +246,9 @@ class LexiconViewModel : ViewModel() {
             current.copy(
                 searchQuery = trimmed,
                 detailWord = topMatch ?: current.detailWord,
-                selectedWord = topMatch,
+                // Keep the full results page visible; open the detail sheet
+                // only after the reader explicitly selects an entry.
+                selectedWord = null,
                 route = ScreenRoute.SEARCH_RESULTS,
                 routeHistory = (current.routeHistory + current.route).takeLast(12),
                 activeTab = TabKey.DICTIONARY,
