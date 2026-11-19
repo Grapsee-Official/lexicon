@@ -344,9 +344,14 @@ struct CountrysideQuoteBanner: View {
     private var stacked: Bool {
         dynamicTypeSize.isAccessibilitySize || availableWidth < 340
     }
+    private var naturalArtHeight: CGFloat {
+        let name = countrysideImageName(illustrationBase, isDark: isDark)
+        let dimensions = UIImage(named: name)?.size ?? CGSize(width: 3, height: 1)
+        let ratio = max(1, dimensions.width / max(dimensions.height, 1))
+        return availableWidth / ratio
+    }
     private var bannerHeight: CGFloat {
-        stacked ? min(330, max(250, availableWidth * 0.64))
-            : min(246, max(158, availableWidth * 0.34))
+        stacked ? naturalArtHeight + 110 : naturalArtHeight
     }
 
     private var words: some View {
@@ -378,15 +383,15 @@ struct CountrysideQuoteBanner: View {
                         .resizable()
                         .scaledToFit()
                         .frame(maxWidth: .infinity)
-                        .frame(height: 140, alignment: .bottomTrailing)
+                        .frame(height: naturalArtHeight, alignment: .bottomTrailing)
                         .accessibilityHidden(true)
                 }
             } else {
                 Image(countrysideImageName(illustrationBase, isDark: isDark))
                     .resizable()
                     .scaledToFit()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity,
-                           alignment: .bottomTrailing)
+                    .frame(maxWidth: .infinity, alignment: .bottomTrailing)
+                    .frame(height: naturalArtHeight, alignment: .bottomTrailing)
                     .accessibilityHidden(true)
 
                 words
