@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+"""Regression tests: native QA must reject Android ANR and blank iOS frames."""
+from __future__ import annotations
+
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from PIL import Image, ImageDraw
+
+from check_capture_quality import inspect
+
+
+def fixture(dark: bool = False) -> Image.Image:
+    paper = "#07121C" if dark else "#FBF5EB"
+    image = Image.new("RGB", (1080, 2400), paper)
+    paint = ImageDraw.Draw(image)
+    paint.rounded_rectangle((40, 955, 438, 1250), radius=25, fill="#657D5A")
+    paint.rectangle((470, 955, 1010, 1250), fill="#7C9297")
+    return image
+
+
+def main() -> None:
+    with TemporaryDirectory() as directory:
+        folder = Path(directory)
+
+        for dark in (False, True):
+            image = fixture(dark)
+            path = folder / f"{'dark' if dark else 'light'}-valid.png"
+            image.save(path)
+            good, details = inspect(path)
+            assert good, (path.name, details)
+
+            dimmed = Image.blend(image, Image.new("RGB", image.size, "#08090C"), .58)
+            draw = ImageDraw.Draw(dimmed)
+            draw.rounded_rectangle((76, 935, 1004, 1390), radius=50,
+                                   fill=(241, 241, 245))
+            overlay = folder / f"{'dark' if dark else 'light'}-system-modal.png"
+            dimmed.save(overlay)
+            good, details = inspect(overlay)
+            assert not good and "OS modal" in details, (overlay.name, details)
+            print(f"PASS {overlay.name}: modal screenshot correctly rejected")
+
+        blank = folder / "blank-white.png"
+        Image.new("RGB", (1080, 2400), "#FFFFFF").save(blank)
+        good, details = inspect(blank)
+        assert not good, details
+        print("PASS blank iOS backing canvas correctly rejected")
+
+    print("All native screenshot-quality regression fixtures passed")
+
+
+if __name__ == "__main__":
+    main()
