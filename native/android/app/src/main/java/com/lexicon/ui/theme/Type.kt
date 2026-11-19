@@ -115,15 +115,15 @@ object LexiconTextStyles {
     val HeroHeadline = TextStyle(
         fontFamily = DisplayFontFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 29.sp,
-        lineHeight = 33.sp,
+        fontSize = 27.sp,
+        lineHeight = 31.sp,
         letterSpacing = (-0.3).sp,
     )
     val HeroParagraph = TextStyle(
         fontFamily = BodyFontFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 11.sp,
-        lineHeight = 16.sp,
+        fontSize = 11.5.sp,
+        lineHeight = 16.5.sp,
     )
     val SearchPlaceholder = TextStyle(
         fontFamily = BodyFontFamily,
@@ -196,8 +196,8 @@ object LexiconTextStyles {
     val SectionTitle = TextStyle(
         fontFamily = DisplayFontFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 18.sp,
-        lineHeight = 23.sp,
+        fontSize = 16.5.sp,
+        lineHeight = 21.sp,
         letterSpacing = (-0.2).sp,
     )
     val SectionAction = TextStyle(
