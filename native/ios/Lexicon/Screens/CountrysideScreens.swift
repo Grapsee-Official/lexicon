@@ -1041,6 +1041,7 @@ struct SearchDiscoveryScreen: View {
     @EnvironmentObject private var vm: LexiconViewModel
     @EnvironmentObject private var theme: LexiconThemeState
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     @State private var draft: String = ""
     @State private var openingWidth: CGFloat = 390
@@ -1259,18 +1260,25 @@ struct SearchDiscoveryScreen: View {
                     }
                 }
 
-                // 4 Search Filters
+                // All four filter tools are discoverable without sideways
+                // scrolling, and adapt to phone, tablet and enlarged type.
                 VStack(spacing: 8) {
                     BotanicalSectionTitle(title: "Search Filters", actionLabel: nil)
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 7) {
+                    LazyVGrid(
+                        columns: [
+                            GridItem(
+                                .adaptive(minimum: dynamicTypeSize.isAccessibilitySize ? 230 : 145),
+                                spacing: 8
+                            )
+                        ],
+                        spacing: 8
+                    ) {
                         filterTile("globe", "Language", vm.filterLanguage, key: "language", p: p)
                         filterTile("book", "Part of Speech", vm.filterPos, key: "pos", p: p)
                         filterTile("chart.bar", "Difficulty", vm.filterDifficulty, key: "difficulty", p: p)
                         filterTile("star", "Sort By", vm.filterSort, key: "sort", p: p)
                     }
-                        .padding(.horizontal, 16)
-                    }
+                    .padding(.horizontal, 16)
                 }
 
             }
@@ -1298,7 +1306,8 @@ struct SearchDiscoveryScreen: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
             }
-            .frame(width: 112)
+            .frame(maxWidth: .infinity)
+            .frame(minHeight: 76)
             .padding(.vertical, 9)
             .background(p.card)
             .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
