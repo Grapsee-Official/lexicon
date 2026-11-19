@@ -2,6 +2,7 @@
 #include <atomic>
 // test_engine.cpp — Google Test for LexiconEngine (end-to-end)
 #include "lexicon/engine.hpp"
+#include "lexicon/c_api.h"
 #include <gtest/gtest.h>
 #include <filesystem>
 #include <fstream>
@@ -94,4 +95,27 @@ TEST_F(EngineTest, EmbeddedStarterLexiconLookupFuzzyAndPrefix) {
     engine.enable_dawg(true);
     EXPECT_TRUE(engine.is_dawg_enabled());
     EXPECT_FALSE(engine.prefix_search("ephem", 5).empty());
+}
+
+
+// Verify the *mobile-facing* ABI, not merely the internal C++ method.
+TEST(EngineCAbiTest, PrefixSearchReturnsActualStartsWithWordsAndFreesMemory) {
+    LexiconEngineHandle* handle = lexicon_engine_create();
+    ASSERT_TRUE(handle != nullptr);
+    ASSERT_EQ(0, lexicon_engine_load(handle, ":embedded:"));
+
+    LexiconStringResults* suggestions = lexicon_engine_prefix_search(handle, "seren", 10);
+    ASSERT_TRUE(suggestions != nullptr);
+    ASSERT_TRUE(suggestions->count > 0);
+    ASSERT_TRUE(suggestions->words != nullptr);
+    EXPECT_EQ(std::string("serendipity"), std::string(suggestions->words[0]));
+    lexicon_engine_free_string_results(suggestions);
+
+    // Unknown prefixes never manufacture a plausible word.
+    auto* absent = lexicon_engine_prefix_search(handle, "zzz_no_such_prefix_9482", 10);
+    EXPECT_TRUE(absent == nullptr);
+
+    EXPECT_TRUE(lexicon_engine_prefix_search(handle, "s", 0) == nullptr);
+    lexicon_engine_free_string_results(nullptr);
+    lexicon_engine_close(handle);
 }
