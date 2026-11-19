@@ -125,6 +125,28 @@ PNG files. This document is **not** a declaration of 100% visual fidelity.
 - [ ] Recheck all Notes artwork, text and bookmark controls in light/dark,
       phone, 1.3×-text tablet, and iOS dynamic text screenshots.
 
+## Template watercolor source-art restoration
+
+- **Confirmed source defect:** the original eight 370×152 template
+  illustrations (Daily Vocabulary, Exam Preparation, Writing Assistant,
+  Travel & Nature, light/dark) had an opaque round star button baked into the
+  upper-right paper, even though Android/iOS render their own native star.
+  This repeated the unwanted cream-disk artifact seen in the screenshots.
+- **Restored both platforms at source:** removed only the 27px-radius
+  flattened badge area using adjacent original paper tones. For all eight
+  images, a pixel-level comparison confirms **zero altered pixels outside**
+  the explicit circle (centre x338, y31); no existing book, foliage, quill
+  or luggage painting was repainted. Android and iOS PNG bytes match.
+- **Precise limitation:** unavailable pixels originally hidden under the
+  flattened badge cannot be losslessly recovered. The localized background
+  repair is not a new watercolor scene or an assertion of exact master art.
+- **Evidence:** restoration preview run
+  https://github.com/Grapsee-Official/lexicon/actions/runs/44558802095
+  and isolated asset commit
+  https://github.com/Grapsee-Official/lexicon/commit/1585c4d8633bd36c5b968900875834be08e97102
+- [ ] Approve native Quick Templates light/dark screenshot renders on compact,
+      standard and enlarged-text tablet, and iOS, before closing this item.
+
 ## Verification and completion rule
 
 Native Android, iOS and C++ must build/test on the merged source commit.
