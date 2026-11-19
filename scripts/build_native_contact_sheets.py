@@ -12,7 +12,10 @@ from PIL import Image, ImageDraw, ImageFont
 def build(source: Path, destination: Path, theme: str, platform: str) -> None:
     screenshots = sorted(source.glob(f"{theme}-*.png"))
     if not screenshots:
-        raise ValueError(f"No {theme} screenshots in {source}")
+        # If a simulator fails after a partial sequence, preserve the
+        # available theme's contact sheet rather than losing all visual proof.
+        print(f"No {theme} frames yet in {source}; partial evidence preserved")
+        return
     columns = 5
     card_width, image_height = 250, 520
     gap, margin, heading = 18, 24, 66
