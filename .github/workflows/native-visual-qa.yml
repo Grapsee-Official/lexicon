@@ -18,15 +18,18 @@ on:
       - 'artwork/vector/lexora-*.svg'
       - 'docs/visual-qa/lexora-home-reference-contract.md'
   workflow_dispatch:
+  # Autonomous debug-only visual QA; scheduling can be delayed by GitHub.
+  schedule:
+    - cron: '17 2 * * *'
 permissions:
   contents: read
 concurrency:
   group: lexicon-visual-qa
-  cancel-in-progress: false
+  # Collapse rapid commits into a single verification of the newest main.
+  cancel-in-progress: true
 
 jobs:
   cpp-engine:
-    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[visual-qa]')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -40,7 +43,6 @@ jobs:
           ctest --test-dir native/cpp/build --output-on-failure
 
   android-screens:
-    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[visual-qa]')
     runs-on: ubuntu-latest
     timeout-minutes: 55
     steps:
@@ -108,7 +110,6 @@ jobs:
           retention-days: 7
 
   ios-screens:
-    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[visual-qa]')
     runs-on: macos-15-intel
     timeout-minutes: 55
     steps:
