@@ -474,140 +474,133 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
         verticalArrangement = Arrangement.spacedBy(11.dp),
     ) {
         item(key = "detail_hero") {
-            // A full-page watercolor, not a 266dp picture locked on the right.
-            // Height follows the real viewport width so the bridge and meadow
-            // retain their painted proportions in split-screen and rotation.
-            Box(
+            // A journal page: ink first, then an uninterrupted painted scene.
+            // No right-hand clipping box, forced hero height or copy trapped
+            // in a 58% strip when a word becomes longer in translation.
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .windowInsetsPadding(WindowInsets.statusBars)
-                    // Wide literary page, not a tall blank art frame.
-                    // Accessibility type is allowed a taller page.
-                    .aspectRatio(
-                        if (androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f)
-                            1.0f else 1.30f
-                    ),
+                    .windowInsetsPadding(WindowInsets.statusBars),
+                verticalArrangement = Arrangement.spacedBy(7.dp),
             ) {
-                Image(
-                    painter = painterResource(bridgeRes),
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit,
-                    alignment = Alignment.BottomEnd,
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .fillMaxSize(),
-                
-                )
-
-                if (isDark) {
-                    NocturneAtmosphere(Modifier.fillMaxSize())
-                }
-
-                Column(
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                        .padding(start = 12.dp, end = 12.dp, top = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Spacer(Modifier.height(6.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = "Back",
-                            tint = fg,
-                            modifier = Modifier
-                                .size(44.dp)
-                                .clickable(role = Role.Button, onClickLabel = "Back") {
-                                    viewModel.navigateBack()
-                                }
-                                .padding(10.dp),
-                        )
-                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Icon(
-                                imageVector = if (saved) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
-                                contentDescription = "Bookmark",
-                                tint = if (saved) accent else fg,
-                                modifier = Modifier
-                                    .size(44.dp)
-                                    .clickable(role = Role.Button, onClickLabel = if (saved) "Remove bookmark" else "Save word") {
-                                        viewModel.toggleSave(word.id)
-                                    }
-                                    .padding(11.dp),
-                            )
-                            Icon(
-                                imageVector = Icons.Outlined.Share,
-                                contentDescription = "Share word",
-                                tint = fg,
-                                modifier = Modifier
-                                    .size(44.dp)
-                                    .clickable(role = Role.Button, onClickLabel = "Share word") {
-                                        val message = "${word.word} — ${word.definitions.firstOrNull().orEmpty()}"
-                                        val intent = Intent(Intent.ACTION_SEND)
-                                            .setType("text/plain")
-                                            .putExtra(Intent.EXTRA_TEXT, message)
-                                        context.startActivity(Intent.createChooser(intent, "Share word"))
-                                    }
-                                    .padding(11.dp),
-                            )
-                        }
-                    }
-
-                    Row(
+                    Icon(
+                        Icons.AutoMirrored.Outlined.ArrowBack,
+                        contentDescription = "Back",
+                        tint = fg,
                         modifier = Modifier
-                            .clip(CircleShape)
-                            .background(cardBg)
-                            .border(1.dp, border, CircleShape)
-                            .padding(horizontal = 10.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        LeafSprig(color = accent, modifier = Modifier.size(11.dp))
-                        Text("Word Journal", color = fg, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 10.sp))
-                    }
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Text(
-                            text = word.word,
-                            color = fg,
-                            style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 31.sp),
-                        )
-                        Icon(
-                            Icons.AutoMirrored.Outlined.VolumeUp,
-                            contentDescription = "Pronounce word",
-                            tint = muted,
-                            modifier = Modifier.size(24.dp)
-                                .clickable { viewModel.pronounce(word.word) },
-                        )
-                    }
-
-                    Text(
-                        text = word.phonetic,
-                        color = muted,
-                        style = TextStyle(fontFamily = LongFontFamily, fontStyle = FontStyle.Italic, fontSize = 13.5.sp),
+                            .size(44.dp)
+                            .clickable(role = Role.Button, onClickLabel = "Back") { viewModel.navigateBack() }
+                            .padding(10.dp),
                     )
-
-                    Box(
+                    Spacer(Modifier.weight(1f))
+                    Icon(
+                        if (saved) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
+                        contentDescription = if (saved) "Remove bookmark" else "Save word",
+                        tint = if (saved) accent else fg,
                         modifier = Modifier
-                            .clip(CircleShape)
-                            .background(accent.copy(alpha = 0.20f))
-                            .padding(horizontal = 12.dp, vertical = 4.dp),
-                    ) {
-                        Text(word.partOfSpeech.label(), color = fg, style = TextStyle(fontFamily = LongFontFamily, fontStyle = FontStyle.Italic, fontSize = 11.5.sp))
-                    }
-
+                            .size(44.dp)
+                            .clickable(role = Role.Button) { viewModel.toggleSave(word.id) }
+                            .padding(11.dp),
+                    )
+                    Icon(
+                        Icons.Outlined.Share,
+                        contentDescription = "Share word",
+                        tint = fg,
+                        modifier = Modifier
+                            .size(44.dp)
+                            .clickable(role = Role.Button) {
+                                val message = "${word.word} — ${word.definitions.firstOrNull().orEmpty()}"
+                                val intent = Intent(Intent.ACTION_SEND)
+                                    .setType("text/plain")
+                                    .putExtra(Intent.EXTRA_TEXT, message)
+                                context.startActivity(Intent.createChooser(intent, "Share word"))
+                            }
+                            .padding(11.dp),
+                    )
+                }
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 18.dp)
+                        .background(cardBg, CircleShape)
+                        .border(1.dp, border, CircleShape)
+                        .padding(horizontal = 10.dp, vertical = 5.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                ) {
+                    LeafSprig(color = accent, modifier = Modifier.size(12.dp))
+                    Text("Word Journal", color = fg, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.sp))
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 18.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     Text(
-                        text = word.definitions.firstOrNull().orEmpty(),
+                        word.word,
                         color = fg,
-                        style = TextStyle(fontFamily = LongFontFamily, fontSize = 13.sp, lineHeight = 18.sp),
-                        modifier = Modifier.fillMaxWidth(0.64f),
+                        style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 34.sp, lineHeight = 39.sp),
+                        modifier = Modifier.weight(1f, fill = false),
+                        softWrap = true,
                     )
+                    Icon(
+                        Icons.AutoMirrored.Outlined.VolumeUp,
+                        contentDescription = "Pronounce word",
+                        tint = muted,
+                        modifier = Modifier
+                            .size(44.dp)
+                            .clickable(role = Role.Button) { viewModel.pronounce(word.word) }
+                            .padding(10.dp),
+                    )
+                }
+                Text(
+                    word.phonetic,
+                    color = muted,
+                    style = TextStyle(fontFamily = LongFontFamily, fontStyle = FontStyle.Italic, fontSize = 14.sp),
+                    modifier = Modifier.padding(horizontal = 18.dp),
+                )
+                Box(
+                    modifier = Modifier
+                        .padding(horizontal = 18.dp)
+                        .background(accent.copy(alpha = 0.18f), CircleShape)
+                        .padding(horizontal = 12.dp, vertical = 5.dp),
+                ) {
+                    Text(word.partOfSpeech.label(), color = fg, style = TextStyle(fontFamily = LongFontFamily, fontStyle = FontStyle.Italic, fontSize = 12.sp))
+                }
+                Text(
+                    word.definitions.firstOrNull().orEmpty(),
+                    color = fg,
+                    style = TextStyle(fontFamily = LongFontFamily, fontSize = 16.sp, lineHeight = 23.sp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp),
+                )
+                val painting = painterResource(bridgeRes)
+                val naturalSize = painting.intrinsicSize
+                val paintingRatio = if (naturalSize.width > 1f && naturalSize.height > 1f) {
+                    naturalSize.width / naturalSize.height
+                } else 1.45f
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.BottomCenter,
+                ) {
+                    Image(
+                        painter = painting,
+                        contentDescription = null,
+                        contentScale = ContentScale.Fit,
+                        // The painter decides its own proportion; no crop or
+                        // arbitrary 266dp edge that traps a cottage at right.
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(paintingRatio),
+                    )
+                    if (isDark) {
+                        NocturneAtmosphere(Modifier.matchParentSize())
+                    }
                 }
             }
         }
