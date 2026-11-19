@@ -76,7 +76,7 @@ struct WordOfTheDayCard: View {
 
                         HStack(spacing: 4) {
                             Text(word.word)
-                                .font(.lexiconDisplay(totalW < 395 ? 16.5 : 19.5, weight: .regular))
+                                .font(.lexiconDisplay(totalW < 350 ? 18.5 : 21.5, weight: .regular))
                                 .foregroundStyle(wordColor)
                                 .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
                                 .minimumScaleFactor(0.70)
