@@ -112,6 +112,19 @@ PNG files. This document is **not** a declaration of 100% visual fidelity.
       for each banner after the current native CI completes. No 100% fidelity
       claim is made from source edits alone.
 
+## Readable ink and free watercolor inside note cards
+
+- **Confirmed from run 44552228803 tablet evidence:** after fixing
+  the two-column layout, My Notes text runs across the illustrated books,
+  flowers and quill, obscuring both content and original artwork.
+- **Android note cards:** reserve the left half for words and the right for
+  the full uncropped watercolor scene. No painted region is covered by
+  a cream text plate.
+- **iOS note cards:** measure each card and allocate separate text and painting
+  widths, with multi-line titles and full-fit paintings on compact devices.
+- [ ] Recheck all Notes artwork, text and bookmark controls in light/dark,
+      phone, 1.3×-text tablet, and iOS dynamic text screenshots.
+
 ## Verification and completion rule
 
 Native Android, iOS and C++ must build/test on the merged source commit.

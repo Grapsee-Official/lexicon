@@ -540,7 +540,9 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                             modifier = Modifier
                                                 .align(Alignment.BottomEnd)
                                                 .fillMaxHeight(0.94f)
-                                                .fillMaxWidth(0.68f),
+                                                // Preserve the complete original watercolor in
+                                                // its own right-hand zone, without a cream mask.
+                                                .fillMaxWidth(0.46f),
                                         )
                                         Column(
                                             modifier = Modifier
@@ -564,7 +566,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                                 Icon(Icons.Outlined.MoreHoriz, contentDescription = null, tint = muted, modifier = Modifier.size(16.dp))
                                             }
                                             Column(
-                                                modifier = Modifier.fillMaxWidth(0.76f),
+                                                modifier = Modifier.fillMaxWidth(0.50f),
                                                 verticalArrangement = Arrangement.spacedBy(2.dp),
                                             ) {
                                                 Text(note.title, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 14.sp), maxLines = if (androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f) 2 else 1, overflow = TextOverflow.Ellipsis)

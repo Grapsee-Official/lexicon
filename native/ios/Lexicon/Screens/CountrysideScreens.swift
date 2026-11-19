@@ -281,11 +281,14 @@ struct MyNotesScreen: View {
                                 .padding(12)
                         }
                         ForEach(showAllNotes ? filtered : Array(filtered.prefix(4))) { note in
-                            ZStack(alignment: .bottomTrailing) {
+                            GeometryReader { card in
+                                ZStack(alignment: .bottomTrailing) {
                                 Image(countrysideImageName(note.illustration ?? "ill-note-flowers", isDark: isDark))
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(width: 110, height: 114, alignment: .bottomTrailing)
+                                    .frame(width: card.size.width * 0.46,
+                                           height: card.size.height * 0.90,
+                                           alignment: .bottomTrailing)
 
                                 VStack(alignment: .leading, spacing: 0) {
                                     HStack {
@@ -302,15 +305,20 @@ struct MyNotesScreen: View {
                                             .foregroundStyle(p.mutedForeground)
                                     }
                                     Spacer(minLength: 4)
-                                    Text(note.title)
-                                        .font(.lexiconDisplay(16))
-                                        .foregroundStyle(p.foreground)
-                                        .lineLimit(1)
-                                    Text(note.body)
-                                        .font(.lexiconBody(11.5))
-                                        .foregroundStyle(p.foreground.opacity(0.8))
-                                        .lineLimit(2)
-                                        .padding(.trailing, 32)
+                                    // The ink and watercolor each have room to breathe.
+                                    // Keep all paint visible without adding an opaque patch.
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(note.title)
+                                            .font(.lexiconDisplay(16))
+                                            .foregroundStyle(p.foreground)
+                                            .lineLimit(2)
+                                            .minimumScaleFactor(0.85)
+                                        Text(note.body)
+                                            .font(.lexiconBody(11.5))
+                                            .foregroundStyle(p.foreground.opacity(0.8))
+                                            .lineLimit(3)
+                                    }
+                                    .frame(width: card.size.width * 0.44, alignment: .leading)
                                     Spacer(minLength: 4)
                                     HStack {
                                         HStack(spacing: 4) {
@@ -331,8 +339,9 @@ struct MyNotesScreen: View {
                                     }
                                 }
                                 .padding(11)
+                                }
                             }
-                            .frame(minHeight: dynamicTypeSize.isAccessibilitySize ? 218 : 128)
+                            .frame(height: dynamicTypeSize.isAccessibilitySize ? 218 : 148)
                             .background(p.card)
                             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                             .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(p.border, lineWidth: 1))
