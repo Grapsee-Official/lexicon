@@ -409,8 +409,13 @@ struct WordDetailProfileScreen: View {
                     let artName = countrysideImageName("ill-banner-bay", isDark: isDark)
                     let natural = UIImage(named: artName)?.size ?? CGSize(width: 3, height: 1)
                     let artRatio = max(1, natural.width / max(1, natural.height))
-                    let artHeight = (heroWidth - 32) / artRatio
-                    let stacked = dynamicTypeSize.isAccessibilitySize || word.didYouKnow.count > 135
+                    // The watercolor fills only the right half of this
+                    // bookplate. Natural rendered height defines the card,
+                    // rather than using the entire banner width as art width.
+                    let artWidth = (heroWidth - 32) * 0.49
+                    let artHeight = artWidth / artRatio
+                    let stacked = dynamicTypeSize.isAccessibilitySize
+                        || heroWidth < 345 || word.didYouKnow.count > 135
 
                     VStack(alignment: .leading, spacing: 0) {
                         if stacked {
@@ -430,8 +435,9 @@ struct WordDetailProfileScreen: View {
                             Image(artName)
                                 .resizable()
                                 .scaledToFit()
-                                .frame(maxWidth: .infinity)
-                                .frame(height: artHeight, alignment: .bottomTrailing)
+                                .frame(width: artWidth, height: artHeight,
+                                       alignment: .bottomTrailing)
+                                .frame(maxWidth: .infinity, alignment: .trailing)
                                 .accessibilityHidden(true)
 
                             if !stacked {
@@ -443,11 +449,11 @@ struct WordDetailProfileScreen: View {
                                             .font(.lexiconDisplay(15))
                                     }
                                     Text(word.didYouKnow)
-                                        .font(.lexiconBody(11.5))
+                                        .font(.lexiconBody(11))
                                         .fixedSize(horizontal: false, vertical: true)
                                 }
                                 .foregroundStyle(p.foreground)
-                                .frame(width: (heroWidth - 32) * 0.62, alignment: .leading)
+                                .frame(width: (heroWidth - 32) * 0.61, alignment: .leading)
                                 .padding(.leading, 12)
                             }
                         }
