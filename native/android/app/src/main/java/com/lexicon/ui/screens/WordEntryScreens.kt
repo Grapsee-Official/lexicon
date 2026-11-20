@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
@@ -453,13 +454,22 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
     val booksRes = resolveCountrysideDrawable("ill_books_daisies", isDark)
     val bayRes = resolveCountrysideDrawable("ill_banner_bay", isDark)
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(bg),
-        contentPadding = PaddingValues(bottom = 162.dp),
-        verticalArrangement = Arrangement.spacedBy(if (compactReading) 8.dp else 12.dp),
+    // On larger screens a countryside dictionary remains a readable book
+    // leaf, not a stretched dashboard. Center the same canonical phone
+    // composition on the paper without changing its content hierarchy.
+    Box(
+        modifier = Modifier.fillMaxSize().background(bg),
+        contentAlignment = Alignment.TopCenter,
     ) {
+        LazyColumn(
+            modifier = Modifier
+                .widthIn(max = 560.dp)
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .background(bg),
+            contentPadding = PaddingValues(bottom = 162.dp),
+            verticalArrangement = Arrangement.spacedBy(if (compactReading) 8.dp else 12.dp),
+        ) {
         item(key = "detail_hero") {
             // Preserve the owner's composition: watercolor occupies the whole
             // hero behind the parchment typography, not a separate picture.
@@ -926,7 +936,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                 }
             }
         }
-
+        }
     }
 }
 
