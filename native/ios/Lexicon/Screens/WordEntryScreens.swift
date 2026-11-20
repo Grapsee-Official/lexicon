@@ -459,15 +459,16 @@ struct WordDetailProfileScreen: View {
                                 .padding(.leading, 12)
                             }
                         }
+                        // Artwork owns the framed panel's height and aspect.
                         .frame(height: artHeight)
+                        .background(p.card, in: RoundedRectangle(cornerRadius: 17, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: 17, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 17, style: .continuous)
+                                .stroke(p.border, lineWidth: 1)
+                        )
                     }
                     .frame(maxWidth: .infinity)
-                    .background(p.card)
-                    .clipShape(RoundedRectangle(cornerRadius: 17, style: .continuous))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 17, style: .continuous)
-                            .stroke(p.border, lineWidth: 1)
-                    )
                     .padding(.horizontal, 16)
                 }
             }
