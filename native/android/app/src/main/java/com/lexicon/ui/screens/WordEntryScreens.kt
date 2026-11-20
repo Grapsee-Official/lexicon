@@ -472,10 +472,13 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                         // Source alpha is preserved. The artwork can spread
                         // beneath the first translucent tiles instead of
                         // becoming a tiny right-edge thumbnail.
+                        // Source painting is 418×670 (portrait). It needs
+                        // full *vertical* space to achieve the reference's
+                        // generous bridge/cottage width. Do not crop it.
                         Modifier.align(Alignment.TopEnd)
-                            .width(maxWidth * 1.14f)
-                            .height((maxWidth * .77f).coerceIn(235.dp, 370.dp))
-                            .offset(y = (-22).dp)
+                            .width(maxWidth * .70f)
+                            .height(maxWidth * 1.12f)
+                            .offset(y = (-60).dp)
                     } else {
                         Modifier.matchParentSize().offset(y = (-10).dp)
                     },
