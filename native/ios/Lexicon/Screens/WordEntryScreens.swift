@@ -239,13 +239,13 @@ struct WordDetailProfileScreen: View {
 
         ScrollView {
             VStack(spacing: 11) {
-                // An open journal page, not an illustration in a right-hand
-                // cell. Words remain readable before the full painted landscape.
-                VStack(alignment: .leading, spacing: 7) {
-                    HStack {
+                // Exact approved composition: the transparent watercolor
+                // lives behind the text as one scene, not beneath the entry.
+                VStack(alignment: .leading, spacing: 5) {
+                    HStack(spacing: 0) {
                         Button { vm.navigateBack() } label: {
                             Image(systemName: "arrow.left")
-                                .font(.system(size: 17, weight: .medium))
+                                .font(.system(size: 19))
                                 .foregroundStyle(p.foreground)
                                 .frame(width: 44, height: 44)
                                 .contentShape(Rectangle())
@@ -255,7 +255,7 @@ struct WordDetailProfileScreen: View {
                         Spacer()
                         Button { vm.toggleSave(word.id) } label: {
                             Image(systemName: saved ? "bookmark.fill" : "bookmark")
-                                .font(.system(size: 18))
+                                .font(.system(size: 19))
                                 .foregroundStyle(saved ? p.highlight : p.foreground)
                                 .frame(width: 44, height: 44)
                                 .contentShape(Rectangle())
@@ -264,69 +264,81 @@ struct WordDetailProfileScreen: View {
                         .accessibilityLabel(saved ? "Remove bookmark" : "Save word")
                         ShareLink(item: "\(word.word) — \(word.definitions.first ?? "")") {
                             Image(systemName: "square.and.arrow.up")
-                                .font(.system(size: 17))
+                                .font(.system(size: 19))
                                 .foregroundStyle(p.foreground)
                                 .frame(width: 44, height: 44)
                                 .contentShape(Rectangle())
                         }
                         .accessibilityLabel("Share word")
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.top, 6)
+                    .padding(.horizontal, 10)
 
-                    HStack(spacing: 5) {
+                    HStack(spacing: 6) {
                         BotanicalSprig(color: p.highlight)
-                            .frame(width: 12, height: 12)
-                        Text("Word Journal")
-                            .font(.lexiconBody(11))
+                            .frame(width: 13, height: 13)
+                        Text("Word of the Day")
+                            .font(.lexiconDisplay(14))
                             .foregroundStyle(p.foreground)
                     }
                     .padding(.horizontal, 12)
                     .padding(.vertical, 5)
-                    .background(p.card, in: Capsule())
+                    .background(p.highlight.opacity(0.14), in: Capsule())
                     .overlay(Capsule().stroke(p.border, lineWidth: 1))
-                    .padding(.horizontal, 18)
+                    .padding(.leading, 20)
 
-                    HStack(alignment: .center, spacing: 8) {
-                        Text(word.word)
-                            .font(.lexiconDisplay(34))
+                    HStack(alignment: .center, spacing: 3) {
+                        Text(word.word.capitalized)
+                            .font(.lexiconDisplay(32))
                             .foregroundStyle(p.foreground)
                             .fixedSize(horizontal: false, vertical: true)
                         Button { vm.pronounce(word.word) } label: {
                             Image(systemName: "speaker.wave.2")
                                 .font(.system(size: 18))
-                                .foregroundStyle(p.mutedForeground)
+                                .foregroundStyle(p.foreground)
                                 .frame(width: 44, height: 44)
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel("Pronounce word")
                     }
-                    .padding(.horizontal, 18)
+                    .frame(width: heroWidth * 0.74, alignment: .leading)
+                    .padding(.leading, 20)
 
                     Text(word.phonetic)
-                        .font(.lexiconLong(14).italic())
+                        .font(.lexiconLong(15).italic())
                         .foregroundStyle(p.mutedForeground)
-                        .padding(.horizontal, 18)
+                        .padding(.leading, 20)
 
-                    Text(word.partOfSpeech.displayValue)
-                        .font(.lexiconLong(12).italic())
-                        .foregroundStyle(p.foreground)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 5)
-                        .background(p.highlight.opacity(0.18), in: Capsule())
-                        .padding(.horizontal, 18)
+                    HStack(spacing: 8) {
+                        Text(word.partOfSpeech.displayValue)
+                            .font(.lexiconLong(13).italic())
+                            .foregroundStyle(p.foreground)
+                            .padding(.horizontal, 13)
+                            .padding(.vertical, 5)
+                            .background(p.highlight.opacity(0.17), in: Capsule())
+                            .overlay(Capsule().stroke(p.border, lineWidth: 1))
+                        BotanicalSprig(color: p.highlight)
+                            .frame(width: 15, height: 15)
+                    }
+                    .padding(.leading, 20)
 
                     Text(word.definitions.first ?? "")
-                        .font(.lexiconLong(16))
+                        .font(.lexiconLong(17))
                         .foregroundStyle(p.foreground)
                         .fixedSize(horizontal: false, vertical: true)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 18)
-
+                        .frame(width: heroWidth * 0.62, alignment: .leading)
+                        .padding(.leading, 20)
+                }
+                .padding(.bottom, 9)
+                .frame(minHeight: max(225, min(355, heroWidth * 0.55)),
+                       alignment: .topLeading)
+                .background(alignment: .topTrailing) {
                     Image(countrysideImageName("ill-hero-bridge", isDark: isDark))
                         .resizable()
                         .scaledToFit()
-                        .frame(maxWidth: .infinity)
+                        .frame(width: heroWidth,
+                               height: max(225, min(355, heroWidth * 0.63)),
+                               alignment: .topTrailing)
+                        .offset(y: -10)
                         .accessibilityHidden(true)
                 }
 
