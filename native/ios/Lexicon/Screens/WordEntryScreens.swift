@@ -341,10 +341,10 @@ struct WordDetailProfileScreen: View {
                         // watercolor (418×670), not a landscape PNG. Give it
                         // its true natural aspect instead of shrinking it to
                         // a 0.78-width-height panel at the far right.
-                        .frame(width: heroWidth * 0.70,
-                               height: heroWidth * 1.12,
+                        .frame(width: heroWidth,
+                               height: heroWidth * (670.0 / 418.0),
                                alignment: .topTrailing)
-                        .offset(x: heroWidth * 0.016, y: -60)
+                        .offset(y: -60)
                         .accessibilityHidden(true)
                 }
                 .padding(.top, dynamicTypeSize.isAccessibilitySize ? 0 : -16)
