@@ -506,20 +506,19 @@ struct WordDetailProfileScreen: View {
                     .foregroundStyle(p.foreground.opacity(0.88))
                     .fixedSize(horizontal: false, vertical: true)
 
-                Image(countrysideImageName("ill-books-daisies", isDark: isDark))
-                    .resizable()
-                    .scaledToFit()
-                    // SwiftUI uses the painter's natural aspect: a manuscript
-                    // footpiece rather than a small fixed square illustration.
-                    .frame(maxWidth: .infinity, alignment: .bottom)
-                    .accessibilityHidden(true)
             }
-            .padding(.top, 16)
-            .padding(.horizontal, 16)
-            .padding(.bottom, 4)
+            .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(p.card, in: shape)
             .overlay(shape.stroke(p.border, lineWidth: 1))
+
+            // Botanical watercolor lives on the paper, not imprisoned inside
+            // the bordered etymology card or an arbitrary image-height box.
+            Image(countrysideImageName("ill-books-daisies", isDark: isDark))
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: .infinity, alignment: .center)
+                .accessibilityHidden(true)
 
             if !examples.isEmpty {
                 VStack(alignment: .leading, spacing: 10) {
