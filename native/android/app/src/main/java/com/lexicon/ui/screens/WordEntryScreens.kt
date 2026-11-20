@@ -1,6 +1,7 @@
 package com.lexicon.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -63,9 +64,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -74,6 +77,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.platform.LocalContext
 import android.content.Intent
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lexicon.data.LexiconData
@@ -440,6 +445,11 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
     val context = LocalContext.current
     val compactReading = androidx.compose.ui.platform.LocalConfiguration.current.fontScale < 1.25f
     val bridgeRes = resolveCountrysideDrawable("ill_hero_bridge", isDark)
+    // The reference artwork is a tall transparent watercolor. Drawing it
+    // on the manuscript canvas (rather than measuring it as a LazyColumn
+    // child) lets the cottage and bridge run behind the tiles without
+    // giving the hero an extra 400dp of empty layout height.
+    val bridgeBitmap = ImageBitmap.imageResource(id = bridgeRes)
     val booksRes = resolveCountrysideDrawable("ill_books_daisies", isDark)
     val bayRes = resolveCountrysideDrawable("ill_banner_bay", isDark)
 
@@ -463,26 +473,26 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                 } else {
                     (maxWidth * 0.55f).coerceIn(215.dp, 355.dp)
                 }
-                Image(
-                    painter = painterResource(bridgeRes),
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit,
-                    alignment = Alignment.TopEnd,
-                    modifier = if (compactReading) {
-                        // Source alpha is preserved. The artwork can spread
-                        // beneath the first translucent tiles instead of
-                        // becoming a tiny right-edge thumbnail.
-                        // Source painting is 418×670 (portrait). It needs
-                        // full *vertical* space to achieve the reference's
-                        // generous bridge/cottage width. Do not crop it.
-                        Modifier.align(Alignment.TopEnd)
-                            .width(maxWidth * .70f)
-                            .height(maxWidth * 1.12f)
-                            .offset(y = (-60).dp)
-                    } else {
-                        Modifier.matchParentSize().offset(y = (-10).dp)
-                    },
-                )
+                Canvas(Modifier.matchParentSize()) {
+                    // Paint at intrinsic aspect, independently of the hero's
+                    // measured text height; absolutely no Crop or thumbnail
+                    // slot. The complete artwork may extend into the
+                    // transparent tops of the four information cards.
+                    val paintedWidth = size.width * 0.70f
+                    val paintedHeight = paintedWidth *
+                        bridgeBitmap.height.toFloat() / bridgeBitmap.width.toFloat()
+                    drawImage(
+                        image = bridgeBitmap,
+                        dstOffset = IntOffset(
+                            x = (size.width - paintedWidth).toInt(),
+                            y = (-60.dp).toPx().toInt(),
+                        ),
+                        dstSize = IntSize(
+                            width = paintedWidth.toInt().coerceAtLeast(1),
+                            height = paintedHeight.toInt().coerceAtLeast(1),
+                        ),
+                    )
+                }
                 if (isDark) NocturneAtmosphere(Modifier.matchParentSize())
                 Column(
                     modifier = Modifier.fillMaxWidth()
@@ -850,8 +860,8 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                     // Reference banner: complete watercolor fills its right
                     // half; its natural *rendered* height sets the whole card.
                     // Never use the entire card width to determine PNG height.
-                    val paintedWidth = maxWidth * 0.49f
-                    val paintedHeight = paintedWidth / artRatio
+                    val paintedHeight = (maxWidth * .228f).coerceIn(88.dp, 110.dp)
+                    val paintedWidth = paintedHeight * artRatio
                     val stacked = maxWidth < 345.dp || typeScale >= 1.3f ||
                         word.didYouKnow.length > 135
                     Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
