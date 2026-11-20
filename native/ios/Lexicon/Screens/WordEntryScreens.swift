@@ -334,7 +334,9 @@ struct WordDetailProfileScreen: View {
                 .background(alignment: .topTrailing) {
                     // Preserve the full transparency of the owner-approved
                     // watercolor while enlarging the scene behind the tiles.
-                    Image(countrysideImageName("ill-hero-bridge", isDark: isDark))
+                    let heroAsset = countrysideImageName("ill-hero-bridge", isDark: isDark)
+                    let heroSize = UIImage(named: heroAsset)?.size ?? CGSize(width: 418, height: 670)
+                    Image(heroAsset)
                         .resizable()
                         .scaledToFit()
                         // The approved bridge illustration is a portrait
@@ -342,7 +344,7 @@ struct WordDetailProfileScreen: View {
                         // its true natural aspect instead of shrinking it to
                         // a 0.78-width-height panel at the far right.
                         .frame(width: heroWidth,
-                               height: heroWidth * (670.0 / 418.0),
+                               height: heroWidth * heroSize.height / max(heroSize.width, 1),
                                alignment: .topTrailing)
                         .offset(y: -60)
                         .accessibilityHidden(true)
