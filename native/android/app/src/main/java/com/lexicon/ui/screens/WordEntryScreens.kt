@@ -723,7 +723,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
             // Botanicals fade into the right edge of Etymology, never sitting
             // in a detached full-width image strip below the card.
             val shape = RoundedCornerShape(17.dp)
-            val inkStyle = TextStyle(fontFamily = LongFontFamily, fontSize = 11.5.sp, lineHeight = 16.sp)
+            val inkStyle = TextStyle(fontFamily = LongFontFamily, fontSize = 11.sp, lineHeight = 14.5.sp)
             val examples = word.examples.filter { it.isNotBlank() }.distinct().let { all ->
                     (if (word.id == "serendipity") all.drop(2) else all).take(2)
                 }
@@ -732,7 +732,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             ) {
                 val stacked = maxWidth < 335.dp || fontScale >= 1.35f
-                val itemHeight = if (stacked) 142.dp else 168.dp
+                val itemHeight = if (stacked) 142.dp else 132.dp
 
                 @Composable
                 fun EtymologyCard(modifier: Modifier) {
