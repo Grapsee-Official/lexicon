@@ -357,10 +357,10 @@ struct WordDetailProfileScreen: View {
                     metaTile("leaf", "Level", word.level, p: p)
                 }
                 .padding(.horizontal, 16)
-                .padding(.top, dynamicTypeSize.isAccessibilitySize ? 0 : -19)
+                .padding(.top, dynamicTypeSize.isAccessibilitySize ? 0 : -32)
 
                 // Meanings Card
-                VStack(alignment: .leading, spacing: 7) {
+                VStack(alignment: .leading, spacing: 5) {
                     HStack(spacing: 6) {
                         BotanicalSprig(color: p.highlight).frame(width: 14, height: 14)
                         Text("Meanings")
@@ -388,7 +388,8 @@ struct WordDetailProfileScreen: View {
                         }
                     }
                 }
-                .padding(12)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(p.card)
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
@@ -416,8 +417,11 @@ struct WordDetailProfileScreen: View {
                     // The watercolor fills only the right half of this
                     // bookplate. Natural rendered height defines the card,
                     // rather than using the entire banner width as art width.
-                    let artWidth = (heroWidth - 32) * 0.49
-                    let artHeight = artWidth / artRatio
+                    // Preserve the asset's aspect ratio; choose a bookplate
+                    // height proportionate to the *reference* and derive its
+                    // image width instead of letterboxing inside a taller card.
+                    let artHeight = min(110, max(88, heroWidth * 0.228))
+                    let artWidth = artHeight * artRatio
                     let stacked = dynamicTypeSize.isAccessibilitySize
                         || heroWidth < 345 || word.didYouKnow.count > 135
 
@@ -474,6 +478,9 @@ struct WordDetailProfileScreen: View {
                     .padding(.horizontal, 16)
                 }
             }
+            // The reference starts its illustrated header beneath the
+            // status-bar ink rather than beneath a second empty safe-area.
+            .padding(.top, dynamicTypeSize.isAccessibilitySize ? 64 : 28)
             .padding(.bottom, 160)
             .background {
                 // Actual content width, not UIScreen: split view and iPad
@@ -486,6 +493,7 @@ struct WordDetailProfileScreen: View {
             }
         }
         .background(p.background)
+        .ignoresSafeArea(.container, edges: .top)
     }
 
 
@@ -534,7 +542,7 @@ struct WordDetailProfileScreen: View {
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(12)
-        .frame(maxWidth: .infinity, minHeight: stacked ? 142 : 122,
+        .frame(maxWidth: .infinity, minHeight: stacked ? 142 : 114,
                alignment: .topLeading)
         .background(p.card, in: shape)
         .overlay(alignment: .bottomTrailing) {
@@ -575,7 +583,7 @@ struct WordDetailProfileScreen: View {
             }
         }
         .padding(12)
-        .frame(maxWidth: .infinity, minHeight: stacked ? 142 : 122,
+        .frame(maxWidth: .infinity, minHeight: stacked ? 142 : 114,
                alignment: .topLeading)
         .background(p.card, in: shape)
         .overlay(shape.stroke(p.border, lineWidth: 1))
@@ -603,7 +611,7 @@ struct WordDetailProfileScreen: View {
     }
 
     private func pillCard(title: String, items: [String], p: LexiconPalette) -> some View {
-        VStack(alignment: .leading, spacing: 7) {
+        VStack(alignment: .leading, spacing: 5) {
             HStack(spacing: 6) {
                 BotanicalSprig(color: p.highlight).frame(width: 14, height: 14)
                 Text(title).font(.lexiconDisplay(15)).foregroundStyle(p.foreground)
@@ -624,7 +632,8 @@ struct WordDetailProfileScreen: View {
                 }
             }
         }
-        .padding(10)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(p.card)
         .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
