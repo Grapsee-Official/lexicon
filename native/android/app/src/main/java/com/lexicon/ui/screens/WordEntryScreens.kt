@@ -719,76 +719,85 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
         // No truncated etymology, dead vertical space, or pinned 96dp artwork.
         // Height follows text and the watercolor's own transparent silhouette.
         item(key = "etym_usage") {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+            // The approved reference has two manuscript cards side by side.
+            // Botanicals fade into the right edge of Etymology, never sitting
+            // in a detached full-width image strip below the card.
+            val shape = RoundedCornerShape(17.dp)
+            val inkStyle = TextStyle(fontFamily = LongFontFamily, fontSize = 11.5.sp, lineHeight = 16.sp)
+            val examples = word.examples.filter { it.isNotBlank() }.distinct().take(2)
+            val fontScale = androidx.compose.ui.platform.LocalConfiguration.current.fontScale
+            BoxWithConstraints(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             ) {
-                val shape = RoundedCornerShape(17.dp)
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(cardBg, shape)
-                        .border(1.dp, border, shape)
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                        LeafSprig(color = accent, modifier = Modifier.size(17.dp))
-                        Text("Etymology", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 18.sp))
-                    }
-                    Text(
-                        word.etymology,
-                        color = fg.copy(alpha = 0.88f),
-                        style = TextStyle(fontFamily = LongFontFamily, fontSize = 14.sp, lineHeight = 21.sp),
-                    )
-                }
-                // An unframed botanical illustration is free to follow the
-                // manuscript text onto the parchment itself. It isn't locked
-                // within the etymology panel or cropped into a picture well.
-                val bookPainter = painterResource(booksRes)
-                val bookSize = bookPainter.intrinsicSize
-                val bookRatio = if (bookSize.width > 1f && bookSize.height > 1f) {
-                    bookSize.width / bookSize.height
-                } else 1.5f
-                Image(
-                    painter = bookPainter,
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(bookRatio),
-                )
-                val examples = word.examples.filter { it.isNotBlank() }.distinct().take(2)
-                if (examples.isNotEmpty()) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(cardBg, shape)
-                            .border(1.dp, border, shape)
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                val stacked = maxWidth < 335.dp || fontScale >= 1.35f
+                val itemHeight = if (stacked) 142.dp else 168.dp
+
+                @Composable
+                fun EtymologyCard(modifier: Modifier) {
+                    Box(
+                        modifier = modifier.heightIn(min = itemHeight)
+                            .background(cardBg, shape).border(1.dp, border, shape),
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                            LeafSprig(color = accent, modifier = Modifier.size(17.dp))
-                            Text("Usage Examples", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 18.sp))
+                        Image(
+                            painter = painterResource(booksRes),
+                            contentDescription = null,
+                            contentScale = ContentScale.Fit,
+                            alignment = Alignment.BottomEnd,
+                            modifier = Modifier.align(Alignment.BottomEnd)
+                                .fillMaxWidth(if (stacked) .35f else .66f)
+                                .height(if (stacked) 100.dp else 95.dp),
+                        )
+                        Column(
+                            modifier = Modifier.fillMaxWidth(if (stacked) .70f else .87f)
+                                .padding(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(7.dp),
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                LeafSprig(color = accent, modifier = Modifier.size(15.dp))
+                                Text("Etymology", color = fg,
+                                    style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 16.sp))
+                            }
+                            Text(word.etymology, color = fg.copy(alpha = .9f),
+                                style = inkStyle)
+                        }
+                    }
+                }
+
+                @Composable
+                fun UsageCard(modifier: Modifier) {
+                    Column(
+                        modifier = modifier.heightIn(min = itemHeight)
+                            .background(cardBg, shape).border(1.dp, border, shape)
+                            .padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(9.dp),
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            LeafSprig(color = accent, modifier = Modifier.size(15.dp))
+                            Text("Usage Examples", color = fg,
+                                style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 16.sp))
                         }
                         examples.forEachIndexed { index, example ->
                             if (index > 0) {
                                 Box(Modifier.fillMaxWidth().height(1.dp).background(border))
                             }
-                            Text(
-                                "“$example”",
-                                color = fg.copy(alpha = 0.88f),
-                                style = TextStyle(
-                                    fontFamily = LongFontFamily,
-                                    fontStyle = FontStyle.Italic,
-                                    fontSize = 14.sp,
-                                    lineHeight = 21.sp,
-                                ),
-                            )
+                            Text("“$example”", color = fg.copy(alpha = .89f),
+                                style = TextStyle(fontFamily = LongFontFamily,
+                                    fontStyle = FontStyle.Italic, fontSize = 12.sp, lineHeight = 17.sp))
                         }
+                    }
+                }
+
+                if (stacked) {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        EtymologyCard(Modifier.fillMaxWidth())
+                        if (examples.isNotEmpty()) UsageCard(Modifier.fillMaxWidth())
+                    }
+                } else {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        EtymologyCard(Modifier.weight(1f))
+                        if (examples.isNotEmpty()) UsageCard(Modifier.weight(1f))
                     }
                 }
             }
