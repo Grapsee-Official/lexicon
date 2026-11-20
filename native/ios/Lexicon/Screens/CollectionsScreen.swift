@@ -122,9 +122,9 @@ private struct EmptyCollectionState: View {
                 // Illustration (cat-literature) with rounded corners + fade edges
                 Image(scheme == .dark ? "cat-literature-dark" : "cat-literature")
                     .resizable()
-                    .scaledToFill()
+                    // The natural painting edges remain visible, with no cropping.
+                    .scaledToFit()
                     .frame(width: 160, height: 160)
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                     .opacity(scheme == .dark ? 0.60 : 0.85)
                     .accessibilityHidden(true)
 
@@ -133,12 +133,10 @@ private struct EmptyCollectionState: View {
                     .font(.system(size: 18, weight: .regular))
                     .foregroundStyle(lexiconPalette(scheme).highlight)
                     .frame(width: 44, height: 44)
-                    .background(lexiconPalette(scheme).card)
-                    .clipShape(Circle())
+                    // Transparent badge avoids a cream patch on the leaves.
                     .overlay(
                         Circle().stroke(lexiconPalette(scheme).border, lineWidth: 1)
                     )
-                    .shadow(color: Color.black.opacity(0.08), radius: 4, x: 0, y: 2)
                     .offset(x: 8, y: 8)
             }
             .frame(width: 180, height: 180)

@@ -15,22 +15,23 @@ struct CountrysideHeroHeader: View {
     let subtitle: String
     let illustrationBase: String
     let onHistoryClick: () -> Void
+    var actionKind: String = "history"
+    var actionLabel: String = "Search history"
     var onLogoToggleTheme: () -> Void = {}
     var heroHeight: CGFloat = 146
 
     @Environment(\.colorScheme) private var scheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @State private var measuredWidth: CGFloat = 390
+
     private var isDark: Bool { scheme == .dark }
     private var responsiveHeight: CGFloat {
-        let screen = UIScreen.main.bounds
-        if screen.width >= 600 {
-            // The Cotswolds painting must not shrink into a tablet corner.
-            // Preserve its complete aspect ratio with a taller native header.
-            return min(300, max(heroHeight + 64, screen.width * 0.34))
-        }
-        if dynamicTypeSize.isAccessibilitySize { return heroHeight + 64 }
-        let phoneSize = screen.height < 940
-        return phoneSize ? heroHeight + 12 : heroHeight
+        // Give the full 508x345 painted vignette its natural space.
+        // A narrow iPad window uses its real container width, not UIScreen.
+        let completePainting = min(540, max(218, measuredWidth * 0.68))
+        let textAllowance = dynamicTypeSize.isAccessibilitySize
+            ? heroHeight + 106 : heroHeight + 18
+        return max(completePainting, textAllowance)
     }
 
     var body: some View {
@@ -42,22 +43,29 @@ struct CountrysideHeroHeader: View {
                     Image(countrysideImageName(illustrationBase, isDark: isDark))
                         .resizable()
                         .scaledToFit()
-                        .frame(width: w * 0.90, height: responsiveHeight, alignment: .bottomTrailing)
+                        // The watercolor receives the complete page width;
+                        // alpha edges belong to the painter, not a picture box.
+                        .frame(width: w, height: responsiveHeight, alignment: .bottomTrailing)
+                        // The transparent lower watercolor may overlap the
+                        // next search capsule; it is not chopped at the header.
+                        .offset(y: 24)
                         .accessibilityHidden(true)
                 }
                 .frame(width: w, height: responsiveHeight)
 
+                // Blend only the reading margin. The right-hand cottages
+                // and flowers keep their original watercolor colors.
                 LinearGradient(
                     stops: [
-                        .init(color: isDark ? LexiconColors.backgroundDark.opacity(0.70)
-                            : LexiconColors.background.opacity(0.65), location: 0),
-                        .init(color: isDark ? LexiconColors.backgroundDark.opacity(0.32)
-                            : LexiconColors.background.opacity(0.27), location: 0.38),
-                        .init(color: .clear, location: 0.78),
+                        .init(color: isDark ? LexiconColors.backgroundDark.opacity(0.72)
+                            : LexiconColors.background.opacity(0.72), location: 0),
+                        .init(color: isDark ? LexiconColors.backgroundDark.opacity(0.24)
+                            : LexiconColors.background.opacity(0.24), location: 0.55),
+                        .init(color: .clear, location: 1.0),
                     ],
                     startPoint: .leading, endPoint: .trailing
                 )
-                .frame(width: w, height: responsiveHeight)
+                .frame(width: w * 0.68, height: responsiveHeight)
                 .allowsHitTesting(false)
 
                 if isDark {
@@ -74,8 +82,11 @@ struct CountrysideHeroHeader: View {
                         Button(action: onLogoToggleTheme) {
                             BotanicalSprig(color: isDark ? LexiconColors.accentDark : LexiconColors.primary)
                                 .frame(width: 25, height: 25)
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel("Toggle appearance")
 
                         Text(title)
                             .font(.lexiconDisplay(w < 390 || title.count > 14 ? 24 : 28, weight: .regular))
@@ -97,19 +108,30 @@ struct CountrysideHeroHeader: View {
                 HStack {
                     Spacer()
                     Button(action: onHistoryClick) {
-                        Image(systemName: "clock.arrow.circlepath")
+                        Image(systemName: actionKind == "back" ? "chevron.left" :
+                            actionKind == "notes" ? "note.text" :
+                            actionKind == "templates" ? "square.stack" : "clock.arrow.circlepath")
                             .font(.system(size: 15, weight: .regular))
                             .foregroundStyle(isDark ? LexiconColors.accentDark : LexiconColors.foreground.opacity(0.78))
-                            .frame(width: 34, height: 34)
+                            .frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
                             
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel(actionLabel)
                 }
                 .padding(.top, 8)
                 .padding(.trailing, 16)
             }
         }
         .frame(height: responsiveHeight)
+        .background {
+            GeometryReader { measurement in
+                Color.clear
+                    .onAppear { measuredWidth = measurement.size.width }
+                    .onChange(of: measurement.size.width) { measuredWidth = $0 }
+            }
+        }
     }
 }
 
@@ -151,17 +173,23 @@ struct CountrysideSearchPill: View {
                         .frame(width: 19, height: 19)
                         .background(lexiconPalette(scheme).border)
                         .clipShape(Circle())
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Clear search")
             }
 
             if showCameraMic {
+                // Decorative until OCR and native speech permissions are wired.
                 Image(systemName: "camera")
                     .font(.system(size: 14.5))
                     .foregroundStyle(iconTint)
+                    .accessibilityHidden(true)
                 Image(systemName: "mic")
                     .font(.system(size: 14.5))
                     .foregroundStyle(iconTint)
+                    .accessibilityHidden(true)
             } else if showMicOnly {
                 Button {
                     searchFocused = true
@@ -169,10 +197,11 @@ struct CountrysideSearchPill: View {
                     Image(systemName: "mic")
                         .font(.system(size: 16))
                         .foregroundStyle(iconTint)
-                        .frame(width: 26, height: 28)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Open keyboard for voice dictation")
+                .accessibilityLabel("Focus search; keyboard dictation may be available")
             }
 
             if showFilter {
@@ -183,8 +212,11 @@ struct CountrysideSearchPill: View {
                     Image(systemName: "slider.horizontal.3")
                         .font(.system(size: 14.5))
                         .foregroundStyle(iconTint)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Change search filters")
             }
         }
         .padding(.horizontal, 15)
@@ -297,65 +329,81 @@ struct BotanicalSectionTitle: View {
     }
 }
 
+/// A considered literary epigraph in the Library, not a repeated footer.
+/// The source painting is never cropped, and the words are never ellipsized.
 struct CountrysideQuoteBanner: View {
     let quote: String
-    var attribution: String = "Lexora"
+    var attribution: String = "Lexicon"
     var illustrationBase: String = "ill-banner-bridge"
 
     @Environment(\.colorScheme) private var scheme
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @State private var measuredWidth: CGFloat = 390
+
     private var isDark: Bool { scheme == .dark }
+    private var naturalArtHeight: CGFloat {
+        let asset = countrysideImageName(illustrationBase, isDark: isDark)
+        let size = UIImage(named: asset)?.size ?? CGSize(width: 3, height: 1)
+        // The painted vignette occupies the RIGHT half of the banner.
+        return measuredWidth * 0.52 / max(0.01, size.width / max(1, size.height))
+    }
+    private var expandedInk: Bool {
+        dynamicTypeSize.isAccessibilitySize || measuredWidth < 350 || quote.count > 70
+    }
+    private var epigraph: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text("“\(quote)”")
+                .font(.lexiconDisplay(16).italic())
+                .foregroundStyle(lexiconPalette(scheme).foreground)
+                .fixedSize(horizontal: false, vertical: true)
+            Text("— \(attribution) —")
+                .font(.lexiconBody(11))
+                .tracking(0.3)
+                .foregroundStyle(lexiconPalette(scheme).highlight)
+        }
+        .padding(.leading, 18)
+        .padding(.trailing, 14)
+        .padding(.vertical, 6)
+    }
 
     var body: some View {
-        let cardBg = lexiconPalette(scheme).card
-        // Regular-width layouts deserve a broader watercolor bookplate.
-        // Keep the painting intact instead of asking scaledToFill to crop it.
-        let bannerHeight: CGFloat = horizontalSizeClass == .regular ? 156
-            : (dynamicTypeSize.isAccessibilitySize ? 120 : 92)
-        GeometryReader { geo in
-            let w = geo.size.width
+        let p = lexiconPalette(scheme)
+        // The bordered watercolor's vertical dimension is dictated only by
+        // the source artwork. Long and accessible copy lives on parchment
+        // before the bookplate rather than stretching its image container.
+        VStack(alignment: .leading, spacing: expandedInk ? 5 : 0) {
+            if expandedInk {
+                epigraph
+            }
             ZStack(alignment: .leading) {
-                cardBg
+                p.card
+                Image(countrysideImageName(illustrationBase, isDark: isDark))
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: measuredWidth * 0.52,
+                           height: naturalArtHeight, alignment: .bottomTrailing)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .accessibilityHidden(true)
 
-                HStack(spacing: 0) {
-                    Spacer(minLength: 0)
-                    Image(countrysideImageName(illustrationBase, isDark: isDark))
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: w, height: bannerHeight, alignment: .bottomTrailing)
+                if !expandedInk {
+                    epigraph
+                        .frame(width: measuredWidth * 0.57, alignment: .leading)
                 }
-
-                LinearGradient(
-                    stops: [
-                        .init(color: cardBg.opacity(0.22), location: 0.0),
-                        .init(color: cardBg.opacity(0.14), location: 0.33),
-                        .init(color: .clear, location: 0.74),
-                    ],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("“\(quote)”")
-                        .font(.lexiconDisplay(13, weight: .regular).italic())
-                        .foregroundStyle(lexiconPalette(scheme).foreground)
-                        .lineLimit(dynamicTypeSize.isAccessibilitySize ? 3 : 2)
-                    Text("— \(attribution) —")
-                        .font(.lexiconBody(10))
-                        .tracking(0.5)
-                        .foregroundStyle(lexiconPalette(scheme).highlight)
-                }
-                .frame(width: w * 0.58, alignment: .leading)
-                .padding(.leading, 16)
+            }
+            .frame(height: naturalArtHeight)
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .stroke(p.border, lineWidth: 1)
+            )
+        }
+        .background {
+            GeometryReader { measured in
+                Color.clear
+                    .onAppear { measuredWidth = measured.size.width }
+                    .onChange(of: measured.size.width) { measuredWidth = $0 }
             }
         }
-        .frame(height: bannerHeight)
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(lexiconPalette(scheme).border, lineWidth: 1)
-        )
     }
 }
 
@@ -488,6 +536,89 @@ struct CottageWindowGlow: View {
                         with: .color(pigment.opacity(alpha))
                     )
                 }
+            }
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+}
+
+/// Underpainting for Search's original Cotswolds countryside vignette.
+/// Normalised editable native paths keep the hills, sky, and wildflowers
+/// responsive; the approved hand-painted cottage sits above these washes.
+struct SearchDreamscapeWash: View {
+    let isDark: Bool
+
+    var body: some View {
+        Canvas { context, size in
+            let w = size.width
+            let h = size.height
+            let sky = Color(hex: isDark ? "334A5E" : "7C9297")
+            let meadow = Color(hex: "657D5A")
+            let light = Color(hex: isDark ? "F0D89A" : "F3EBDD")
+
+            func pigment(_ color: Color, _ opacity: Double,
+                         x: CGFloat, y: CGFloat, radius: CGFloat) {
+                let wash = Path(ellipseIn: CGRect(
+                    x: x - radius, y: y - radius,
+                    width: radius * 2, height: radius * 2
+                ))
+                context.fill(wash, with: .color(color.opacity(opacity)))
+            }
+
+            pigment(sky, isDark ? 0.18 : 0.10,
+                    x: w * 0.69, y: h * 0.13, radius: w * 0.36)
+            pigment(sky, isDark ? 0.12 : 0.065,
+                    x: w * 0.40, y: h * 0.22, radius: w * 0.27)
+            pigment(light, isDark ? 0.055 : 0.32,
+                    x: w * 0.76, y: h * 0.15, radius: w * 0.18)
+            pigment(sky, 0.07,
+                    x: w * 0.92, y: h * 0.36, radius: w * 0.22)
+
+            var farHills = Path()
+            farHills.move(to: CGPoint(x: -w * 0.08, y: h * 0.69))
+            farHills.addCurve(to: CGPoint(x: w * 0.51, y: h * 0.70),
+                              control1: CGPoint(x: w * 0.17, y: h * 0.58),
+                              control2: CGPoint(x: w * 0.34, y: h * 0.62))
+            farHills.addCurve(to: CGPoint(x: w * 1.08, y: h * 0.63),
+                              control1: CGPoint(x: w * 0.72, y: h * 0.54),
+                              control2: CGPoint(x: w * 0.91, y: h * 0.61))
+            farHills.addLine(to: CGPoint(x: w * 1.08, y: h))
+            farHills.addLine(to: CGPoint(x: -w * 0.08, y: h))
+            farHills.closeSubpath()
+            context.fill(farHills, with: .color(meadow.opacity(isDark ? 0.14 : 0.085)))
+
+            var nearHills = Path()
+            nearHills.move(to: CGPoint(x: -w * 0.08, y: h * 0.83))
+            nearHills.addCurve(to: CGPoint(x: w * 0.58, y: h * 0.87),
+                               control1: CGPoint(x: w * 0.20, y: h * 0.71),
+                               control2: CGPoint(x: w * 0.43, y: h * 0.84))
+            nearHills.addCurve(to: CGPoint(x: w * 1.08, y: h * 0.83),
+                               control1: CGPoint(x: w * 0.78, y: h * 0.73),
+                               control2: CGPoint(x: w * 0.94, y: h * 0.77))
+            nearHills.addLine(to: CGPoint(x: w * 1.08, y: h))
+            nearHills.addLine(to: CGPoint(x: -w * 0.08, y: h))
+            nearHills.closeSubpath()
+            context.fill(nearHills, with: .color(meadow.opacity(isDark ? 0.12 : 0.07)))
+
+            let petals = Color(hex: isDark ? "F0D89A" : "FFF8E9")
+            let pollen = Color(hex: isDark ? "D4A45A" : "A58A61")
+            let flowers: [(CGFloat, CGFloat)] = [
+                (0.09, 0.88), (0.16, 0.95), (0.28, 0.90),
+                (0.76, 0.93), (0.88, 0.86), (0.95, 0.95)
+            ]
+            for (index, p) in flowers.enumerated() {
+                let center = CGPoint(x: w * p.0, y: h * p.1)
+                let radius: CGFloat = index.isMultiple(of: 2) ? 1.5 : 1.1
+                for petal in 0..<5 {
+                    let angle = Double(petal) * 2 * Double.pi / 5
+                    let x = center.x + CGFloat(cos(angle)) * radius * 1.6
+                    let y = center.y + CGFloat(sin(angle)) * radius * 1.6
+                    let oval = Path(ellipseIn: CGRect(x: x - radius, y: y - radius,
+                                                       width: radius * 2, height: radius * 2))
+                    context.fill(oval, with: .color(petals.opacity(isDark ? 0.40 : 0.55)))
+                }
+                pigment(pollen, 0.48, x: center.x, y: center.y, radius: radius * 0.67)
             }
         }
         .allowsHitTesting(false)

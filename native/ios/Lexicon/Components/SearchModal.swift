@@ -163,33 +163,20 @@ struct SearchModal: View {
                         }
                     }
 
-                // Mic icon — 28×28 visual, 44×44 hit area.
-                Button {
-                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                } label: {
-                    Image(systemName: "mic")
-                        .font(.system(size: 14, weight: .regular))
-                        .foregroundStyle(palette.foreground.opacity(0.5))
-                        .frame(width: 28, height: 28)
-                        .lexiconMinTouchTarget()
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(Text(LexiconAccessibilityLabels.voiceSearch))
-                .accessibilityAddTraits(.isButton)
+                // The watercolor reference contains these tiny motifs,
+                // but camera OCR and speech recognition are not implemented.
+                // Decorative icons are honest; inert buttons are not.
+                Image(systemName: "mic")
+                    .font(.system(size: 14, weight: .regular))
+                    .foregroundStyle(palette.foreground.opacity(0.5))
+                    .frame(width: 28, height: 28)
+                    .accessibilityHidden(true)
 
-                // Camera icon — 28×28 visual, 44×44 hit area.
-                Button {
-                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                } label: {
-                    Image(systemName: "camera")
-                        .font(.system(size: 14, weight: .regular))
-                        .foregroundStyle(palette.foreground.opacity(0.5))
-                        .frame(width: 28, height: 28)
-                        .lexiconMinTouchTarget()
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(Text(LexiconAccessibilityLabels.imageSearch))
-                .accessibilityAddTraits(.isButton)
+                Image(systemName: "camera")
+                    .font(.system(size: 14, weight: .regular))
+                    .foregroundStyle(palette.foreground.opacity(0.5))
+                    .frame(width: 28, height: 28)
+                    .accessibilityHidden(true)
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 10)

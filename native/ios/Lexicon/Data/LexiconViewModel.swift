@@ -179,22 +179,26 @@ final class LexiconViewModel: ObservableObject {
         libraryArticleId = nil
     }
 
+    /// The selected bottom tab follows the current nested reading route.
+    private func tab(for route: ScreenRoute) -> LexiconTab {
+        switch route {
+        case .home: return .home
+        case .dictionaryHome, .wordOfTheDay, .wordDetail, .searchResults, .expandedExploration:
+            return .dictionary
+        case .searchDiscovery: return .search
+        case .collections, .myNotes, .studyLists, .quickTemplates: return .collections
+        case .more: return .more
+        }
+    }
+
     func navigate(to target: ScreenRoute, word: WordEntry? = nil, expand36: Bool = false) {
         closeLibrary()
-        let nextTab: LexiconTab
-        switch target {
-        case .home:
-            nextTab = .home
-        case .dictionaryHome, .wordOfTheDay, .wordDetail, .searchResults, .expandedExploration:
-            nextTab = .dictionary
-        case .searchDiscovery:
-            nextTab = .search
-        case .collections, .myNotes, .studyLists, .quickTemplates:
-            nextTab = .collections
-        case .more:
-            nextTab = .more
+        let nextTab = tab(for: target)
+        // Reopening the current destination with a new word or query must
+        // not put a duplicate page in the native back stack.
+        if route != target {
+            routeHistory = Array((routeHistory + [route]).suffix(12))
         }
-        routeHistory = Array((routeHistory + [route]).suffix(12))
         if let w = word {
             detailWord = w
             recentlyViewedIds = Array(([w.id] + recentlyViewedIds.filter { $0 != w.id }).prefix(8))
@@ -218,6 +222,7 @@ final class LexiconViewModel: ObservableObject {
         let prev = routeHistory.last ?? .home
         if !routeHistory.isEmpty { routeHistory.removeLast() }
         route = prev
+        activeTab = tab(for: prev)
     }
 
     func setActiveTab(_ tab: LexiconTab) {
@@ -289,7 +294,9 @@ final class LexiconViewModel: ObservableObject {
         addRecentSearch(trimmed)
         searchQuery = trimmed
         let top = searchWords(trimmed, limit: 1).first
-        selectedWord = top
+        // A search reveals its results page first, never a blocking modal.
+        // The word sheet is reserved for an explicit selection.
+        selectedWord = nil
         navigate(to: .searchResults, word: top)
     }
 
@@ -357,7 +364,7 @@ final class LexiconViewModel: ObservableObject {
         case .idea: art = "ill-note-lantern"
         }
         let item = NoteItem(
-            id: "note_\(Int(Date().timeIntervalSince1970 * 1000))",
+            id: "note_\(UUID().uuidString)",
             category: category,
             title: cleanTitle.isEmpty ? "Untitled Note" : cleanTitle,
             body: cleanBody.isEmpty ? "Captured during countryside study." : cleanBody,
@@ -450,7 +457,7 @@ final class LexiconViewModel: ObservableObject {
 
     func createCustomTemplate(title: String, subtitle: String, category: TemplateCategory) {
         let tpl = VocabTemplate(
-            id: "tpl_\(Int(Date().timeIntervalSince1970 * 1000))",
+            id: "tpl_\(UUID().uuidString)",
             title: title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Countryside Journal" : title,
             subtitle: subtitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Custom literary word study." : subtitle,
             category: category,
@@ -517,10 +524,15 @@ final class LexiconViewModel: ObservableObject {
                 results.append(entry)
             }
         }
-        if searchScopeTab == "Examples" {
-            for entry in LexiconData.dictionary
-                where entry.examples.contains(where: { $0.localizedCaseInsensitiveContains(q) }) {
-                if !seen.contains(entry.id) {
+        // Query meanings and example sentences across the actual curated
+        // lexicon; filtering fuzzy headword hits alone loses valid results.
+        if ["All", "Meanings", "Examples"].contains(searchScopeTab) {
+            for entry in LexiconData.dictionary {
+                let meaningMatch = searchScopeTab != "Examples" &&
+                    entry.definitions.contains(where: { $0.localizedCaseInsensitiveContains(q) })
+                let exampleMatch = searchScopeTab != "Meanings" &&
+                    entry.examples.contains(where: { $0.localizedCaseInsensitiveContains(q) })
+                if (meaningMatch || exampleMatch) && !seen.contains(entry.id) {
                     seen.insert(entry.id)
                     results.append(entry)
                 }

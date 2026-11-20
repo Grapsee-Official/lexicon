@@ -40,6 +40,13 @@ typedef struct {
     uint32_t count;
 } LexiconSearchResults;
 
+// Owned array of UTF-8 prefix matches. Free it with
+// lexicon_engine_free_string_results, never free individual strings directly.
+typedef struct {
+    const char** words;
+    uint32_t count;
+} LexiconStringResults;
+
 // Lifecycle
 LexiconEngineHandle* lexicon_engine_create(void);
 int lexicon_engine_load(LexiconEngineHandle* handle, const char* db_dir);
@@ -48,10 +55,12 @@ void lexicon_engine_close(LexiconEngineHandle* handle);
 // Lookup
 LexiconWordEntry* lexicon_engine_lookup(LexiconEngineHandle* handle, const char* word);
 LexiconSearchResults* lexicon_engine_fuzzy_search(LexiconEngineHandle* handle, const char* query, int max_distance, uint32_t limit);
+LexiconStringResults* lexicon_engine_prefix_search(LexiconEngineHandle* handle, const char* prefix, uint32_t limit);
 
 // Memory management
 void lexicon_engine_free_entry(LexiconWordEntry* entry);
 void lexicon_engine_free_results(LexiconSearchResults* results);
+void lexicon_engine_free_string_results(LexiconStringResults* results);
 
 // DAWG control (for RAM pressure)
 void lexicon_engine_enable_dawg(LexiconEngineHandle* handle, int enabled);

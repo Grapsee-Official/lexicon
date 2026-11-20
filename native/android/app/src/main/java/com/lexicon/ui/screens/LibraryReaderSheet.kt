@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lexicon.data.Article
 import com.lexicon.data.LexiconData
+import com.lexicon.ui.components.CountrysideQuoteBanner
 import com.lexicon.ui.theme.BrandGreen
 import com.lexicon.ui.theme.CardSurface
 import com.lexicon.ui.theme.DarkAccent
@@ -126,6 +127,13 @@ fun LibraryReaderSheet(
                     color = secondary,
                     style = TextStyle(fontFamily = BodyFontFamily, fontSize = 14.sp),
                 )
+                // The Library alone opens with a generous painted bookplate.
+                // Tool pages stay focused on their content and interactions.
+                CountrysideQuoteBanner(
+                    quote = "A collection of words is a collection of worlds.",
+                    illustrationBase = "ill_banner_bridge",
+                    isDark = isDark,
+                )
                 articles.forEach { article ->
                     val shape = RoundedCornerShape(15.dp)
                     Row(
@@ -148,7 +156,8 @@ fun LibraryReaderSheet(
                                 painter = painterResource(id),
                                 contentDescription = null,
                                 modifier = Modifier.size(76.dp).clip(RoundedCornerShape(10.dp)),
-                                contentScale = ContentScale.Crop,
+                                // Watercolor transparent borders are part of the painting.
+                                contentScale = ContentScale.Fit,
                             )
                         }
                         Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {

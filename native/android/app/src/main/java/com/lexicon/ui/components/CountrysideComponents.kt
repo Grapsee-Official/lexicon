@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -30,6 +32,9 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Style
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.DeleteOutline
@@ -47,6 +52,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -106,6 +112,8 @@ fun CountrysideHeroHeader(
     illustrationBase: String,
     isDark: Boolean,
     onHistoryClick: () -> Unit,
+    actionKind: String = "history",
+    actionLabel: String = "Search history",
     onLogoToggleTheme: () -> Unit = {},
     heroHeight: Dp = 146.dp,
 ) {
@@ -113,31 +121,37 @@ fun CountrysideHeroHeader(
     val subColor = if (isDark) DarkMutedForeground else DeepForest.copy(alpha = 0.78f)
     val sprigColor = if (isDark) DarkAccent else BrandGreen
     val resId = resolveCountrysideDrawable(illustrationBase, isDark)
-    val config = androidx.compose.ui.platform.LocalConfiguration.current
-    val compact = config.screenWidthDp < 390
-    val accessibilityText = config.fontScale >= 1.3f
-    // On phone-sized windows, free space for the watercolor quotation below.
-    // Retain increased height for larger system fonts and full artwork on tablets.
-    val phoneHeight = config.screenWidthDp < 600 && config.screenHeightDp < 940
-    val responsiveHeight = when {
-        // The original painting is portrait-ish (~508x345). On an 800dp
-        // tablet a 146dp hero leaves it a tiny corner vignette; give the
-        // whole scene real page space without cropping a single brushstroke.
-        config.screenWidthDp >= 600 ->
-            maxOf(heroHeight + 64.dp, (config.screenWidthDp * 0.34f).dp)
-                .coerceAtMost(300.dp)
-        accessibilityText -> heroHeight + 62.dp
-        phoneHeight -> heroHeight + 12.dp
-        else -> heroHeight
+    // Match the rendered icon and spoken label to the true destination.
+    val actionImage: ImageVector = when (actionKind) {
+        "back" -> Icons.AutoMirrored.Outlined.ArrowBack
+        "notes" -> Icons.Outlined.Description
+        "templates" -> Icons.Outlined.Style
+        else -> Icons.Outlined.History
     }
-    val titleWidth = if (compact || accessibilityText) 0.76f else 0.58f
+    val accessibilityText =
+        androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f
 
-    Box(
+    // Width comes from the real Compose viewport, including split-screen and
+    // freeform windows. Do not squeeze a 508x345 watercolor into 142dp.
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxWidth()
-            .windowInsetsPadding(WindowInsets.statusBars)
-            .height(responsiveHeight),
+            .windowInsetsPadding(WindowInsets.statusBars),
     ) {
+        val compact = maxWidth < 390.dp
+        val fullPaintingHeight = (maxWidth * 0.68f).coerceIn(218.dp, 540.dp)
+        val responsiveHeight = maxOf(
+            heroHeight + 18.dp,
+            fullPaintingHeight,
+            if (accessibilityText) heroHeight + 106.dp else 0.dp,
+        )
+        val titleWidth = if (compact || accessibilityText) 0.76f else 0.58f
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(responsiveHeight),
+        ) {
         Image(
             painter = painterResource(resId),
             contentDescription = null,
@@ -145,22 +159,28 @@ fun CountrysideHeroHeader(
             alignment = Alignment.BottomEnd,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .fillMaxWidth(0.90f)
-                .height(responsiveHeight),
+                // No arbitrary 90%-width picture box. Give the source PNG
+                // the whole literary page; its own alpha defines the edges.
+                .fillMaxWidth()
+                .height(responsiveHeight)
+                // Watercolor may flow under the search pill rather than
+                // ending at an artificial horizontal picture boundary.
+                .offset(y = 24.dp),
         )
 
-        // A responsive painted-paper wash protects legibility
-        // without removing the watercolor landscape.
+        // Keep ink legible over the left margin without bleaching the
+        // cottage, flowers and sky on the right side of the painting.
         Box(
-            modifier = Modifier.fillMaxSize().background(
-                Brush.horizontalGradient(
-                    0.0f to (if (isDark) Color(0xFF0E131B).copy(alpha = 0.70f)
-                        else Color(0xFFF3EBDD).copy(alpha = 0.65f)),
-                    0.38f to (if (isDark) Color(0xFF0E131B).copy(alpha = 0.32f)
-                        else Color(0xFFF3EBDD).copy(alpha = 0.27f)),
-                    0.78f to Color.Transparent,
-                )
-            ),
+            modifier = Modifier
+                .fillMaxWidth(0.68f)
+                .fillMaxHeight()
+                .background(
+                    Brush.horizontalGradient(
+                        0.0f to (if (isDark) Color(0xFF0E131B) else Color(0xFFF3EBDD)).copy(alpha = 0.72f),
+                        0.55f to (if (isDark) Color(0xFF0E131B) else Color(0xFFF3EBDD)).copy(alpha = 0.24f),
+                        1.0f to Color.Transparent,
+                    ),
+                ),
         )
         if (isDark) {
             NocturneAtmosphere(Modifier.fillMaxSize())
@@ -180,12 +200,18 @@ fun CountrysideHeroHeader(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                LeafSprig(
-                    color = sprigColor,
+                // Keep the painted ornament 26dp, but let the tap target
+                // breathe at 44dp without an opaque background.
+                Box(
                     modifier = Modifier
-                        .size(26.dp)
-                        .clickable(role = Role.Button) { onLogoToggleTheme() },
-                )
+                        .size(44.dp)
+                        .clickable(role = Role.Button, onClickLabel = "Toggle appearance") {
+                            onLogoToggleTheme()
+                        },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    LeafSprig(color = sprigColor, modifier = Modifier.size(26.dp))
+                }
                 Text(
                     text = title,
                     color = titleColor,
@@ -214,16 +240,19 @@ fun CountrysideHeroHeader(
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(top = 10.dp, end = 16.dp)
-                .size(34.dp)
-                .clickable(role = Role.Button) { onHistoryClick() },
+                .size(44.dp)
+                .clickable(role = Role.Button, onClickLabel = actionLabel) {
+                    onHistoryClick()
+                },
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                imageVector = Icons.Outlined.History,
-                contentDescription = "Search history",
+                imageVector = actionImage,
+                contentDescription = actionLabel,
                 tint = if (isDark) DarkAccent else DeepForest.copy(alpha = 0.78f),
                 modifier = Modifier.size(18.dp),
             )
+        }
         }
     }
 }
@@ -307,17 +336,21 @@ fun CountrysideSearchPill(
         if (value.isNotEmpty()) {
             Box(
                 modifier = Modifier
-                    .size(20.dp)
-                    .clip(CircleShape)
-                    .background(if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.12f))
-                    .clickable(role = Role.Button) { onValueChange("") },
+                    .size(44.dp)
+                    .clickable(role = Role.Button, onClickLabel = "Clear search") {
+                        onValueChange("")
+                    },
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Close,
                     contentDescription = "Clear",
                     tint = textColor,
-                    modifier = Modifier.size(12.dp),
+                    modifier = Modifier
+                        .size(20.dp)
+                        .clip(CircleShape)
+                        .background(if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.12f))
+                        .padding(4.dp),
                 )
             }
         }
@@ -328,12 +361,12 @@ fun CountrysideSearchPill(
         } else if (showMicOnly) {
             Icon(
                 Icons.Outlined.Mic,
-                contentDescription = "Open keyboard for voice dictation",
+                contentDescription = "Focus search; keyboard dictation may be available",
                 tint = iconTint,
-                modifier = Modifier.size(26.dp).clickable(role = Role.Button) {
+                modifier = Modifier.size(44.dp).clickable(role = Role.Button) {
                     focusRequester.requestFocus()
                     keyboard?.show()
-                },
+                }.padding(10.dp),
             )
         }
 
@@ -346,11 +379,12 @@ fun CountrysideSearchPill(
             )
             Icon(
                 imageVector = Icons.Outlined.Tune,
-                contentDescription = "Filter",
+                contentDescription = "Change search filters",
                 tint = iconTint,
                 modifier = Modifier
-                    .size(18.dp)
-                    .clickable(role = Role.Button) { onFilterClick() },
+                    .size(44.dp)
+                    .clickable(role = Role.Button) { onFilterClick() }
+                    .padding(12.dp),
             )
         }
     }
@@ -485,89 +519,88 @@ fun BotanicalSectionTitle(
 }
 
 /**
- * CountrysideQuoteBanner — Panoramic English village / stone bridge / stacked books quote banner
- * with unified "— Lexora —" literary attribution.
+ * A single literary epigraph for the Library entrance, not an automatic
+ * footer on every functional screen. Original painted edge transparency
+ * stays intact in both themes and at every window width.
  */
 @Composable
 fun CountrysideQuoteBanner(
     quote: String,
-    attribution: String = "Lexora",
+    attribution: String = "Lexicon",
     illustrationBase: String = "ill_banner_bridge",
     isDark: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val cardBg = if (isDark) DarkCard else CardSurface
+    val paper = if (isDark) DarkCard else CardSurface
     val border = if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.11f)
-    val quoteColor = if (isDark) DarkForeground else DeepForest
-    val attrColor = if (isDark) DarkAccent else OldWoodGold
-    val resId = resolveCountrysideDrawable(illustrationBase, isDark)
-    val shape = RoundedCornerShape(16.dp)
-    val config = androidx.compose.ui.platform.LocalConfiguration.current
-    // The 94dp phone banner is too shallow for an 800dp tablet: the
-    // complete watercolor becomes a tiny isolated thumbnail. Scale its
-    // bookplate height with usable width, but never crop the original art.
-    val scaledHeight = ((config.screenWidthDp - 32).coerceAtLeast(0) * 0.20f)
-        .dp.coerceIn(94.dp, 164.dp)
-    val bannerHeight = if (config.fontScale >= 1.3f) maxOf(scaledHeight, 120.dp) else scaledHeight
+    val ink = if (isDark) DarkForeground else DeepForest
+    val signature = if (isDark) DarkAccent else OldWoodGold
+    val painter = painterResource(resolveCountrysideDrawable(illustrationBase, isDark))
+    val imageSize = painter.intrinsicSize
+    val imageRatio = if (imageSize.width > 1f && imageSize.height > 1f) {
+        imageSize.width / imageSize.height
+    } else 3.0f
+    val fontScale = androidx.compose.ui.platform.LocalConfiguration.current.fontScale
+    val shape = RoundedCornerShape(18.dp)
 
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(bannerHeight)
-            .clip(shape)
-            .background(cardBg)
-            .border(1.dp, border, shape),
-    ) {
-        Image(
-            painter = painterResource(resId),
-            contentDescription = null,
-            contentScale = ContentScale.Fit,
-            alignment = Alignment.CenterEnd,
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .fillMaxSize(),
-        )
+    BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
+        val expandedInk = fontScale >= 1.3f || maxWidth < 350.dp || quote.length > 70
+        // The artwork is a right-half illustration, not a full banner
+        // background. Its intrinsic ratio sets the *whole* bookplate height.
+        val paintedWidth = maxWidth * .52f
+        val paintedHeight = paintedWidth / imageRatio
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.horizontalGradient(
-                        0.0f to cardBg.copy(alpha = 0.22f),
-                        0.33f to cardBg.copy(alpha = 0.14f),
-                        0.72f to Color.Transparent,
-                    )
-                ),
-        )
+        @Composable
+        fun Epigraph() {
+            Column(
+                modifier = Modifier.padding(start = 18.dp, end = 14.dp, top = 6.dp, bottom = 6.dp),
+                verticalArrangement = Arrangement.spacedBy(5.dp),
+            ) {
+                Text(
+                    text = "“$quote”",
+                    color = ink,
+                    style = TextStyle(
+                        fontFamily = DisplayFontFamily,
+                        fontStyle = FontStyle.Italic,
+                        fontSize = 16.sp,
+                        lineHeight = 21.sp,
+                    ),
+                )
+                Text(
+                    text = "— $attribution —",
+                    color = signature,
+                    style = TextStyle(
+                        fontFamily = BodyFontFamily,
+                        fontSize = 11.sp,
+                        letterSpacing = 0.3.sp,
+                    ),
+                )
+            }
+        }
 
-        Column(
-            modifier = Modifier
-                .align(Alignment.CenterStart)
-                .fillMaxWidth(0.58f)
-                .padding(start = 16.dp, end = 6.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            Text(
-                text = "“$quote”",
-                color = quoteColor,
-                style = TextStyle(
-                    fontFamily = DisplayFontFamily,
-                    fontStyle = FontStyle.Italic,
-                    fontSize = 13.sp,
-                    lineHeight = 17.sp,
-                ),
-                maxLines = if (config.fontScale >= 1.3f) 3 else 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Text(
-                text = "— $attribution —",
-                color = attrColor,
-                style = TextStyle(
-                    fontFamily = BodyFontFamily,
-                    fontSize = 10.sp,
-                    letterSpacing = 0.5.sp,
-                ),
-            )
+        Column(verticalArrangement = Arrangement.spacedBy(if (expandedInk) 5.dp else 0.dp)) {
+            if (expandedInk) Epigraph()
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(paintedHeight)
+                    .clip(shape)
+                    .background(paper)
+                    .border(1.dp, border, shape),
+                contentAlignment = Alignment.CenterStart,
+            ) {
+                Image(
+                    painter = painter,
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    alignment = Alignment.BottomEnd,
+                    modifier = Modifier.align(Alignment.BottomEnd)
+                        .width(paintedWidth).height(paintedHeight),
+                )
+                if (!expandedInk) {
+                    Box(modifier = Modifier.fillMaxWidth(0.58f)) { Epigraph() }
+                }
+            }
         }
     }
 }
@@ -695,3 +728,68 @@ fun CottageWindowGlow(modifier: Modifier = Modifier) {
         }
     }
 }
+
+/**
+ * The Search page's Cotswolds dawn and moonlit-mist watercolor underpainting.
+ * Shape coordinates are normalized so the composition remains a continuous
+ * landscape on real phone windows, split-screen, and tablets. The curated
+ * painted cottage remains above this transparent original native-vector layer.
+ */
+@Composable
+fun SearchDreamscapeWash(isDark: Boolean, modifier: Modifier = Modifier) {
+    Canvas(modifier = modifier) {
+        val w = size.width
+        val h = size.height
+        val sky = if (isDark) Color(0xFF334A5E) else Color(0xFF7C9297)
+        val meadow = if (isDark) Color(0xFF657D5A) else Color(0xFF657D5A)
+        val light = if (isDark) Color(0xFFF0D89A) else Color(0xFFF3EBDD)
+
+        // Soft overlapping pigment, never a hard rectangular photograph.
+        drawCircle(sky.copy(alpha = if (isDark) .18f else .10f), w * .36f, Offset(w * .69f, h * .13f))
+        drawCircle(sky.copy(alpha = if (isDark) .12f else .065f), w * .27f, Offset(w * .40f, h * .22f))
+        drawCircle(light.copy(alpha = if (isDark) .055f else .32f), w * .18f, Offset(w * .76f, h * .15f))
+        drawCircle(sky.copy(alpha = .07f), w * .22f, Offset(w * .92f, h * .36f))
+
+        val distantHill = Path().apply {
+            moveTo(-w * .08f, h * .69f)
+            cubicTo(w * .17f, h * .58f, w * .34f, h * .62f, w * .51f, h * .70f)
+            cubicTo(w * .72f, h * .54f, w * .91f, h * .61f, w * 1.08f, h * .63f)
+            lineTo(w * 1.08f, h)
+            lineTo(-w * .08f, h)
+            close()
+        }
+        drawPath(distantHill, meadow.copy(alpha = if (isDark) .14f else .085f))
+        val nearHill = Path().apply {
+            moveTo(-w * .08f, h * .83f)
+            cubicTo(w * .20f, h * .71f, w * .43f, h * .84f, w * .58f, h * .87f)
+            cubicTo(w * .78f, h * .73f, w * .94f, h * .77f, w * 1.08f, h * .83f)
+            lineTo(w * 1.08f, h)
+            lineTo(-w * .08f, h)
+            close()
+        }
+        drawPath(nearHill, meadow.copy(alpha = if (isDark) .12f else .07f))
+
+        // Delicate flowers and distant fireflies; never interactive elements.
+        val petals = if (isDark) Color(0xFFF0D89A) else Color(0xFFFFF8E9)
+        val pollen = if (isDark) Color(0xFFD4A45A) else Color(0xFFA58A61)
+        val flowers = listOf(
+            Offset(.09f, .88f), Offset(.16f, .95f), Offset(.28f, .90f),
+            Offset(.76f, .93f), Offset(.88f, .86f), Offset(.95f, .95f),
+        )
+        for ((index, p) in flowers.withIndex()) {
+            val c = Offset(w * p.x, h * p.y)
+            val r = (if (index % 2 == 0) 1.5f else 1.1f).dp.toPx()
+            for (j in 0..4) {
+                val angle = j * 1.256637f
+                drawCircle(
+                    petals.copy(alpha = if (isDark) .40f else .55f),
+                    radius = r,
+                    center = Offset(c.x + kotlin.math.cos(angle) * r * 1.6f,
+                                    c.y + kotlin.math.sin(angle) * r * 1.6f),
+                )
+            }
+            drawCircle(pollen.copy(alpha = .48f), radius = r * .67f, center = c)
+        }
+    }
+}
+

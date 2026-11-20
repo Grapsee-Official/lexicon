@@ -39,7 +39,10 @@ fun RootScreen(viewModel: LexiconViewModel) {
     val route = state.route
     val bg = if (state.isDark) DarkBackground else WarmCream
 
-    BackHandler(enabled = state.routeHistory.isNotEmpty()) {
+    // After direct tab switching the back stack is deliberately empty.
+    // Still intercept system Back outside Home, so readers return to Home
+    // rather than unexpectedly leaving the native book.
+    BackHandler(enabled = state.routeHistory.isNotEmpty() || route != ScreenRoute.HOME) {
         viewModel.navigateBack()
     }
 
@@ -58,7 +61,8 @@ fun RootScreen(viewModel: LexiconViewModel) {
             when (currentRoute) {
                 ScreenRoute.HOME -> HomeScreen(viewModel = viewModel)
                 ScreenRoute.DICTIONARY_HOME -> DictionaryHomeScreen(viewModel = viewModel)
-                ScreenRoute.WORD_OF_THE_DAY -> WordOfTheDayScreen(viewModel = viewModel)
+                // One owner-approved word-entry composition for both routes.
+                ScreenRoute.WORD_OF_THE_DAY -> WordDetailProfileScreen(viewModel = viewModel)
                 ScreenRoute.WORD_DETAIL -> WordDetailProfileScreen(viewModel = viewModel)
                 ScreenRoute.COLLECTIONS -> CollectionsHubScreen(viewModel = viewModel)
                 ScreenRoute.MY_NOTES -> MyNotesScreen(viewModel = viewModel)

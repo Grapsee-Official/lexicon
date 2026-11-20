@@ -16,6 +16,23 @@ import java.util.Locale
 
 enum class TabKey { HOME, DICTIONARY, SEARCH, COLLECTIONS, MORE }
 
+/** Map nested reading destinations to their parent navigation tab. */
+internal fun tabForRoute(route: ScreenRoute): TabKey = when (route) {
+    ScreenRoute.HOME -> TabKey.HOME
+    ScreenRoute.DICTIONARY_HOME,
+    ScreenRoute.WORD_OF_THE_DAY,
+    ScreenRoute.WORD_DETAIL,
+    ScreenRoute.SEARCH_RESULTS,
+    ScreenRoute.EXPANDED_EXPLORATION -> TabKey.DICTIONARY
+    ScreenRoute.SEARCH_DISCOVERY -> TabKey.SEARCH
+    ScreenRoute.COLLECTIONS,
+    ScreenRoute.MY_NOTES,
+    ScreenRoute.STUDY_LISTS,
+    ScreenRoute.QUICK_TEMPLATES -> TabKey.COLLECTIONS
+    ScreenRoute.MORE -> TabKey.MORE
+}
+
+
 data class LexiconUiState(
     val activeTab: TabKey = TabKey.HOME,
     val route: ScreenRoute = ScreenRoute.HOME,
@@ -102,20 +119,7 @@ class LexiconViewModel : ViewModel() {
 
     fun navigate(to: ScreenRoute, word: WordEntry? = null, expand36: Boolean = false) {
         _uiState.update { s ->
-            val nextTab = when (to) {
-                ScreenRoute.HOME -> TabKey.HOME
-                ScreenRoute.DICTIONARY_HOME,
-                ScreenRoute.WORD_OF_THE_DAY,
-                ScreenRoute.WORD_DETAIL,
-                ScreenRoute.SEARCH_RESULTS,
-                ScreenRoute.EXPANDED_EXPLORATION -> TabKey.DICTIONARY
-                ScreenRoute.SEARCH_DISCOVERY -> TabKey.SEARCH
-                ScreenRoute.COLLECTIONS,
-                ScreenRoute.MY_NOTES,
-                ScreenRoute.STUDY_LISTS,
-                ScreenRoute.QUICK_TEMPLATES -> TabKey.COLLECTIONS
-                ScreenRoute.MORE -> TabKey.MORE
-            }
+            val nextTab = tabForRoute(to)
             val resolvedWord = word ?: s.detailWord
             val nextViewed = if (word != null) {
                 (listOf(word.id) + s.recentlyViewedIds.filter { it != word.id }).take(8)
@@ -123,7 +127,8 @@ class LexiconViewModel : ViewModel() {
             s.copy(
                 activeTab = nextTab,
                 route = to,
-                routeHistory = (s.routeHistory + s.route).takeLast(12),
+                routeHistory = if (to == s.route) s.routeHistory
+                    else (s.routeHistory + s.route).takeLast(12),
                 detailWord = resolvedWord,
                 detailExpanded36 = expand36,
                 recentlyViewedIds = nextViewed,
@@ -138,6 +143,7 @@ class LexiconViewModel : ViewModel() {
             val prev = s.routeHistory.lastOrNull() ?: ScreenRoute.HOME
             s.copy(
                 route = prev,
+                activeTab = tabForRoute(prev),
                 routeHistory = s.routeHistory.dropLast(1),
             )
         }
@@ -242,9 +248,12 @@ class LexiconViewModel : ViewModel() {
             current.copy(
                 searchQuery = trimmed,
                 detailWord = topMatch ?: current.detailWord,
-                selectedWord = topMatch,
+                // Keep the full results page visible; open the detail sheet
+                // only after the reader explicitly selects an entry.
+                selectedWord = null,
                 route = ScreenRoute.SEARCH_RESULTS,
-                routeHistory = (current.routeHistory + current.route).takeLast(12),
+                routeHistory = if (current.route == ScreenRoute.SEARCH_RESULTS) current.routeHistory
+                    else (current.routeHistory + current.route).takeLast(12),
                 activeTab = TabKey.DICTIONARY,
             )
         }
@@ -315,7 +324,7 @@ class LexiconViewModel : ViewModel() {
         val cleanBody = body.trim().ifEmpty { "Captured during countryside study." }
         val today = SimpleDateFormat("MMM d, yyyy", Locale.US).format(Date())
         val item = NoteItem(
-            id = "note_${System.currentTimeMillis()}",
+            id = "note_" + java.util.UUID.randomUUID().toString(),
             category = category,
             title = cleanTitle,
             body = cleanBody,
@@ -411,7 +420,7 @@ class LexiconViewModel : ViewModel() {
 
     fun createCustomTemplate(title: String, subtitle: String, category: TemplateCategory) {
         val tpl = VocabTemplate(
-            id = "tpl_${System.currentTimeMillis()}",
+            id = "tpl_" + java.util.UUID.randomUUID().toString(),
             title = title.trim().ifEmpty { "Countryside Journal" },
             subtitle = subtitle.trim().ifEmpty { "Custom literary word study." },
             category = category,
@@ -487,10 +496,17 @@ class LexiconViewModel : ViewModel() {
         LexiconData.searchWords(q, limit = limit).forEach { w ->
             out.putIfAbsent(w.id, w)
         }
-        if (s.searchScopeTab == "Examples") {
-            LexiconData.dictionary.filter { w ->
-                w.examples.any { it.contains(q, ignoreCase = true) }
-            }.forEach { out.putIfAbsent(it.id, it) }
+        // Meanings and Examples search the actual dictionary corpus,
+        // not merely the handful of already matched headwords.
+        // All combines those with the engine's exact/prefix/fuzzy results.
+        if (s.searchScopeTab in setOf("All", "Meanings", "Examples")) {
+            LexiconData.dictionary.forEach { w ->
+                val meaningMatch = s.searchScopeTab != "Examples" &&
+                    w.definitions.any { it.contains(q, ignoreCase = true) }
+                val exampleMatch = s.searchScopeTab != "Meanings" &&
+                    w.examples.any { it.contains(q, ignoreCase = true) }
+                if (meaningMatch || exampleMatch) out.putIfAbsent(w.id, w)
+            }
         }
 
         var list = out.values.toList()

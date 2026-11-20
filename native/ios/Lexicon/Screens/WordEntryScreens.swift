@@ -29,132 +29,123 @@ struct WordOfTheDayScreen: View {
 
         ScrollView {
             VStack(spacing: 12) {
-                ZStack(alignment: .topTrailing) {
-                    Image(countrysideImageName("ill-hero-bridge", isDark: isDark))
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 282, height: 288, alignment: .topTrailing)
-                         .offset(y: 18)
-                        .allowsHitTesting(false)
-
-                    if isDark {
-                        NocturneAtmosphere()
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 256)
-                    }
-
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack {
-                            HStack(spacing: 8) {
-                                Button { theme.toggle() } label: {
-                                    BotanicalSprig(color: isDark ? LexiconColors.accentDark : LexiconColors.primary)
-                                        .frame(width: 24, height: 24)
-                                }
-                                .buttonStyle(.plain)
-                                VStack(alignment: .leading, spacing: 1) {
-                                    Text("Word of the Day")
-                                        .font(.lexiconDisplay(23))
-                                        .foregroundStyle(p.foreground)
-                                    Text("A new word, a wider world.")
-                                        .font(.lexiconLong(11))
-                                        .foregroundStyle(p.mutedForeground)
-                                }
-                            }
-                            Spacer()
-                            Button {
-                                dayIdx = (dayIdx + 1) % featured.count
-                            } label: {
-                                Image(systemName: "clock.arrow.circlepath")
-                                    .font(.system(size: 15))
-                                    .foregroundStyle(p.foreground)
-                                    .frame(width: 34, height: 34)
-                                    .background(p.card.opacity(0.85))
-                                    .clipShape(Circle())
-                                    .overlay(Circle().stroke(p.border, lineWidth: 1))
-                            }
-                            .buttonStyle(.plain)
-                        }
-
-                        HStack(spacing: 6) {
-                            Image(systemName: "calendar")
-                                .font(.system(size: 11))
-                                .foregroundStyle(p.highlight)
-                            Text(Date.now, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day().year())
-                                .font(.lexiconBody(11))
-                                .foregroundStyle(p.foreground.opacity(0.85))
-                        }
-                        .padding(.horizontal, 11)
-                        .padding(.vertical, 5)
-                        .background(p.card)
-                        .clipShape(Capsule())
-                        .overlay(Capsule().stroke(p.border, lineWidth: 1))
-
-                        Button { vm.openWord(word) } label: {
-                            VStack(alignment: .leading, spacing: 8) {
-                                HStack(spacing: 8) {
-                                    Text(word.word)
-                                        .font(.lexiconDisplay(29))
-                                        .foregroundStyle(p.foreground)
-                                    Image(systemName: "speaker.wave.2")
-                                        .font(.system(size: 15))
-                                        .foregroundStyle(p.mutedForeground)
-                                }
-                                Text(word.partOfSpeech.displayValue)
-                                    .font(.lexiconLong(13).italic())
-                                    .foregroundStyle(p.mutedForeground)
-                                Text(word.phonetic)
-                                    .font(.lexiconBody(12))
-                                    .foregroundStyle(p.mutedForeground)
-
-                                HStack(spacing: 8) {
-                                    Rectangle().fill(p.border).frame(width: 64, height: 1)
-                                    BotanicalSprig(color: p.highlight).frame(width: 13, height: 13)
-                                    Rectangle().fill(p.border).frame(width: 64, height: 1)
-                                }
-
-                                Text(word.definitions.first ?? "")
-                                    .font(.lexiconLong(13))
-                                    .foregroundStyle(p.foreground)
-                                    .multilineTextAlignment(.leading)
-                                    .frame(maxWidth: 215, alignment: .leading)
-
-                                HStack(alignment: .top, spacing: 8) {
-                                    Image(systemName: "quote.opening")
-                                        .font(.system(size: 13))
-                                        .foregroundStyle(p.highlight)
-                                    Text("“\(word.examples.first ?? "")”")
-                                        .font(.lexiconLong(11.5).italic())
-                                        .foregroundStyle(p.foreground.opacity(0.86))
-                                        .multilineTextAlignment(.leading)
-                                }
-                                .padding(11)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(p.background.opacity(0.65))
-                                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(p.border, lineWidth: 1))
-                            }
-                            .padding(16)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(p.card)
-                            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(p.border, lineWidth: 1))
+                // Words and landscape belong to the same journal page.
+                // No arbitrary height, trapped right-side art, or giant
+                // transparent card taller than its own watercolour.
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 8) {
+                        Button { theme.toggle() } label: {
+                            BotanicalSprig(color: isDark ? LexiconColors.accentDark : LexiconColors.primary)
+                                .frame(width: 26, height: 26)
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
-
-                        HStack(spacing: 6) {
-                            ForEach(0..<featured.count, id: \.self) { i in
-                                Circle()
-                                    .fill(i == dayIdx ? p.primary : p.border)
-                                    .frame(width: i == dayIdx ? 7 : 5, height: i == dayIdx ? 7 : 5)
-                                    .onTapGesture { dayIdx = i }
-                            }
+                        .accessibilityLabel("Toggle appearance")
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Word of the Day")
+                                .font(.lexiconDisplay(24))
+                                .foregroundStyle(p.foreground)
+                            Text("A new word, a wider world.")
+                                .font(.lexiconLong(12))
+                                .foregroundStyle(p.mutedForeground)
                         }
-                        .frame(maxWidth: .infinity)
+                        Spacer(minLength: 0)
+                        Button {
+                            dayIdx = (dayIdx + 1) % featured.count
+                        } label: {
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 19))
+                                .foregroundStyle(p.foreground)
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Next featured word")
                     }
                     .padding(.horizontal, 16)
                     .padding(.top, 8)
 
+                    HStack(spacing: 6) {
+                        Image(systemName: "calendar")
+                            .font(.system(size: 13))
+                            .foregroundStyle(p.highlight)
+                        Text(Date.now, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day().year())
+                            .font(.lexiconBody(12))
+                            .foregroundStyle(p.foreground)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(p.card, in: Capsule())
+                    .overlay(Capsule().stroke(p.border, lineWidth: 1))
+                    .padding(.horizontal, 18)
 
+                    VStack(alignment: .leading, spacing: 9) {
+                        HStack(spacing: 7) {
+                            Button { vm.openWord(word) } label: {
+                                Text(word.word)
+                                    .font(.lexiconDisplay(31))
+                                    .foregroundStyle(p.foreground)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                            .buttonStyle(.plain)
+                            Button { vm.pronounce(word.word) } label: {
+                                Image(systemName: "speaker.wave.2")
+                                    .font(.system(size: 18))
+                                    .foregroundStyle(p.mutedForeground)
+                                    .frame(width: 44, height: 44)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Pronounce word")
+                            Spacer(minLength: 0)
+                        }
+                        Text("\(word.partOfSpeech.displayValue) · \(word.phonetic)")
+                            .font(.lexiconLong(14).italic())
+                            .foregroundStyle(p.mutedForeground)
+                        Text(word.definitions.first ?? "")
+                            .font(.lexiconLong(15))
+                            .foregroundStyle(p.foreground)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .fixedSize(horizontal: false, vertical: true)
+                        if let example = word.examples.first, !example.isEmpty {
+                            Text("“\(example)”")
+                                .font(.lexiconLong(13).italic())
+                                .foregroundStyle(p.foreground.opacity(0.85))
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        Button { vm.openWord(word) } label: {
+                            Label("Read the full entry", systemImage: "arrow.right")
+                                .font(.lexiconBody(12))
+                                .foregroundStyle(p.primary)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    .padding(17)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(p.card, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(p.border, lineWidth: 1))
+                    .padding(.horizontal, 16)
+
+                    Image(countrysideImageName("ill-hero-bridge", isDark: isDark))
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxWidth: .infinity)
+                        .accessibilityHidden(true)
+
+                    HStack(spacing: 0) {
+                        ForEach(featured.indices, id: \.self) { index in
+                            Button { dayIdx = index } label: {
+                                Circle()
+                                    .fill(index == dayIdx ? p.primary : p.border)
+                                    .frame(width: index == dayIdx ? 8 : 5, height: index == dayIdx ? 8 : 5)
+                                    .frame(width: 44, height: 44)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Featured word \(index + 1)")
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
                 }
 
                 // About the Word
@@ -172,7 +163,7 @@ struct WordOfTheDayScreen: View {
                                  .frame(width: 112, height: 84)
                                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                             Text(word.etymology)
-                                .font(.lexiconLong(11.5))
+                                .font(.lexiconLong(11))
                                 .foregroundStyle(p.foreground.opacity(0.88))
                                 .lineLimit(5)
                                 .multilineTextAlignment(.leading)
@@ -226,12 +217,6 @@ struct WordOfTheDayScreen: View {
                     .padding(.horizontal, 16)
                 }
 
-                CountrysideQuoteBanner(
-                    quote: "Words are bridges between minds.",
-                    attribution: "Lexora",
-                    illustrationBase: "ill-banner-bridge"
-                )
-                .padding(.horizontal, 16)
             }
             .padding(.bottom, 160)
         }
@@ -244,6 +229,7 @@ struct WordDetailProfileScreen: View {
     @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @State private var heroWidth: CGFloat = 390
     private var isDark: Bool { scheme == .dark }
 
     var body: some View {
@@ -252,89 +238,118 @@ struct WordDetailProfileScreen: View {
         let saved = vm.isSaved(word.id)
 
         ScrollView {
-            VStack(spacing: 11) {
-                ZStack(alignment: .topTrailing) {
-                    Image(countrysideImageName("ill-hero-bridge", isDark: isDark))
+            VStack(spacing: dynamicTypeSize.isAccessibilitySize ? 12 : 8) {
+                // Exact approved composition: the transparent watercolor
+                // lives behind the text as one scene, not beneath the entry.
+                VStack(alignment: .leading, spacing: dynamicTypeSize.isAccessibilitySize ? 7 : 2) {
+                    HStack(spacing: 0) {
+                        Button { vm.navigateBack() } label: {
+                            Image(systemName: "arrow.left")
+                                .font(.system(size: 19))
+                                .foregroundStyle(p.foreground)
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Back")
+                        Spacer()
+                        Button { vm.toggleSave(word.id) } label: {
+                            Image(systemName: saved ? "bookmark.fill" : "bookmark")
+                                .font(.system(size: 19))
+                                .foregroundStyle(saved ? p.highlight : p.foreground)
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(saved ? "Remove bookmark" : "Save word")
+                        ShareLink(item: "\(word.word) — \(word.definitions.first ?? "")") {
+                            Image(systemName: "square.and.arrow.up")
+                                .font(.system(size: 19))
+                                .foregroundStyle(p.foreground)
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
+                        }
+                        .accessibilityLabel("Share word")
+                    }
+                    .padding(.horizontal, 10)
+
+                    HStack(spacing: 6) {
+                        BotanicalSprig(color: p.highlight)
+                            .frame(width: 13, height: 13)
+                        Text("Word of the Day")
+                            .font(.lexiconDisplay(14))
+                            .foregroundStyle(p.foreground)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 4)
+                    .background(p.highlight.opacity(0.14), in: Capsule())
+                    .overlay(Capsule().stroke(p.border, lineWidth: 1))
+                    .padding(.leading, 20)
+
+                    HStack(alignment: .center, spacing: 3) {
+                        Text(word.word.capitalized)
+                            .font(.lexiconDisplay(32))
+                            .foregroundStyle(p.foreground)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Button { vm.pronounce(word.word) } label: {
+                            Image(systemName: "speaker.wave.2")
+                                .font(.system(size: 18))
+                                .foregroundStyle(p.foreground)
+                                .frame(width: 44, height: 44)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Pronounce word")
+                    }
+                    .frame(width: heroWidth * 0.74, alignment: .leading)
+                    .padding(.leading, 20)
+
+                    Text(word.phonetic)
+                        .font(.lexiconLong(15).italic())
+                        .foregroundStyle(p.mutedForeground)
+                        .padding(.leading, 20)
+
+                    HStack(spacing: 8) {
+                        Text(word.partOfSpeech.displayValue)
+                            .font(.lexiconLong(13).italic())
+                            .foregroundStyle(p.foreground)
+                            .padding(.horizontal, 13)
+                            .padding(.vertical, 4)
+                            .background(p.highlight.opacity(0.17), in: Capsule())
+                            .overlay(Capsule().stroke(p.border, lineWidth: 1))
+                        BotanicalSprig(color: p.highlight)
+                            .frame(width: 15, height: 15)
+                    }
+                    .padding(.leading, 20)
+
+                    Text(word.definitions.first ?? "")
+                        .font(.lexiconLong(16))
+                        .foregroundStyle(p.foreground)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(width: heroWidth * 0.62, alignment: .leading)
+                        .padding(.leading, 20)
+                }
+                .padding(.bottom, 3)
+                .frame(minHeight: max(185, min(300, heroWidth * 0.49)),
+                       alignment: .topLeading)
+                .background(alignment: .topTrailing) {
+                    // Preserve the full transparency of the owner-approved
+                    // watercolor while enlarging the scene behind the tiles.
+                    let heroAsset = countrysideImageName("ill-hero-bridge", isDark: isDark)
+                    let heroSize = UIImage(named: heroAsset)?.size ?? CGSize(width: 418, height: 670)
+                    Image(heroAsset)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 282, height: 264, alignment: .topTrailing)
-                         .offset(y: 16)
-                        .allowsHitTesting(false)
-
-                    if isDark {
-                        NocturneAtmosphere()
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 264)
-                    }
-
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack {
-                            Button { vm.navigateBack() } label: {
-                                Image(systemName: "arrow.left")
-                                    .font(.system(size: 17, weight: .medium))
-                                    .foregroundStyle(p.foreground)
-                            }
-                            .buttonStyle(.plain)
-                            Spacer()
-                            HStack(spacing: 12) {
-                                Button { vm.toggleSave(word.id) } label: {
-                                    Image(systemName: saved ? "bookmark.fill" : "bookmark")
-                                        .font(.system(size: 17))
-                                        .foregroundStyle(saved ? p.highlight : p.foreground)
-                                }
-                                .buttonStyle(.plain)
-                                Image(systemName: "square.and.arrow.up")
-                                    .font(.system(size: 16))
-                                    .foregroundStyle(p.foreground)
-                            }
-                        }
-                        .padding(.top, 6)
-
-                        HStack(spacing: 4) {
-                            BotanicalSprig(color: p.highlight).frame(width: 11, height: 11)
-                            Text("Word of the Day")
-                                .font(.lexiconBody(10))
-                                .foregroundStyle(p.foreground)
-                        }
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 4)
-                        .background(p.card)
-                        .clipShape(Capsule())
-                        .overlay(Capsule().stroke(p.border, lineWidth: 1))
-
-                        HStack(spacing: 8) {
-                            Text(word.word)
-                                .font(.lexiconDisplay(30))
-                                .foregroundStyle(p.foreground)
-                            Button { vm.pronounce(word.word) } label: {
-                                Image(systemName: "speaker.wave.2")
-                                    .font(.system(size: 17))
-                                    .foregroundStyle(p.mutedForeground)
-                                    .frame(width: 34, height: 34)
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel("Pronounce word")
-                        }
-
-                        Text(word.phonetic)
-                            .font(.lexiconLong(13.5).italic())
-                            .foregroundStyle(p.mutedForeground)
-
-                        Text(word.partOfSpeech.displayValue)
-                            .font(.lexiconLong(11.5).italic())
-                            .foregroundStyle(p.foreground)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 4)
-                            .background(p.highlight.opacity(0.20))
-                            .clipShape(Capsule())
-
-                        Text(word.definitions.first ?? "")
-                            .font(.lexiconLong(13))
-                            .foregroundStyle(p.foreground)
-                            .frame(maxWidth: 215, alignment: .leading)
-                    }
-                    .padding(.horizontal, 16)
+                        // The approved bridge illustration is a portrait
+                        // watercolor (418×670), not a landscape PNG. Give it
+                        // its true natural aspect instead of shrinking it to
+                        // a 0.78-width-height panel at the far right.
+                        .frame(width: heroWidth,
+                               height: heroWidth * heroSize.height / max(heroSize.width, 1),
+                               alignment: .topTrailing)
+                        .offset(y: -60)
+                        .accessibilityHidden(true)
                 }
+                .padding(.top, dynamicTypeSize.isAccessibilitySize ? 0 : -16)
 
                 // 4 Metadata Cards
                 HStack(spacing: 7) {
@@ -344,16 +359,17 @@ struct WordDetailProfileScreen: View {
                     metaTile("leaf", "Level", word.level, p: p)
                 }
                 .padding(.horizontal, 16)
+                .padding(.top, dynamicTypeSize.isAccessibilitySize ? 0 : -32)
 
                 // Meanings Card
-                VStack(alignment: .leading, spacing: 9) {
+                VStack(alignment: .leading, spacing: 5) {
                     HStack(spacing: 6) {
                         BotanicalSprig(color: p.highlight).frame(width: 14, height: 14)
                         Text("Meanings")
                             .font(.lexiconDisplay(16))
                             .foregroundStyle(p.foreground)
                     }
-                    ForEach(Array(word.definitions.prefix(2).enumerated()), id: \.offset) { idx, def in
+                    ForEach(Array((word.id == "serendipity" ? Array(word.definitions.dropFirst()) : word.definitions).prefix(2).enumerated()), id: \.offset) { idx, def in
                         HStack(alignment: .top, spacing: 9) {
                             Text("\(idx + 1)")
                                 .font(.lexiconBody(10, weight: .medium))
@@ -374,7 +390,8 @@ struct WordDetailProfileScreen: View {
                         }
                     }
                 }
-                .padding(14)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(p.card)
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
@@ -392,144 +409,196 @@ struct WordDetailProfileScreen: View {
 
                 etymologyUsageCards(word: word, p: p)
 
-                // Progressive Expansion to Page 10 (36 Languages)
-                Button {
-                    vm.openWordExpanded(word)
-                } label: {
-                    HStack {
-                        Image(systemName: "globe")
-                            .foregroundStyle(p.primary)
-                        Text("Explore Translations Across 36 Languages")
-                            .font(.lexiconBody(12, weight: .medium))
-                            .foregroundStyle(p.foreground)
-                        Spacer()
-                        Image(systemName: "arrow.right")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundStyle(p.highlight)
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
-                    .background(p.card)
-                    .clipShape(Capsule())
-                    .overlay(Capsule().stroke(p.border, lineWidth: 1))
-                }
-                .buttonStyle(.plain)
-                .padding(.horizontal, 16)
-
                 if !word.didYouKnow.isEmpty {
-                    GeometryReader { geo in
-                        let w = geo.size.width
-                        ZStack(alignment: .leading) {
-                            p.card
-                            HStack(spacing: 0) {
-                                Spacer(minLength: 0)
-                                Image(countrysideImageName("ill-banner-bay", isDark: isDark))
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: w, height: 94, alignment: .bottomTrailing)
-                            }
-                            LinearGradient(
-                                stops: [
-                                    .init(color: p.card.opacity(0.22), location: 0.0),
-                                    .init(color: p.card.opacity(0.14), location: 0.33),
-                                    .init(color: .clear, location: 0.72),
-                                ],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                            VStack(alignment: .leading, spacing: 4) {
-                                HStack(spacing: 5) {
-                                    Image(systemName: "lightbulb")
-                                        .font(.system(size: 12))
-                                        .foregroundStyle(p.highlight)
-                                    Text("Did You Know?")
-                                        .font(.lexiconDisplay(14))
-                                        .foregroundStyle(p.foreground)
-                                }
+                    // The bookplate height follows its own watercolor ratio;
+                    // large type moves copy above it rather than stretching or
+                    // cropping the original art.
+                    let artName = countrysideImageName("ill-banner-bay", isDark: isDark)
+                    let natural = UIImage(named: artName)?.size ?? CGSize(width: 3, height: 1)
+                    let artRatio = max(1, natural.width / max(1, natural.height))
+                    // The watercolor fills only the right half of this
+                    // bookplate. Natural rendered height defines the card,
+                    // rather than using the entire banner width as art width.
+                    // Preserve the asset's aspect ratio; choose a bookplate
+                    // height proportionate to the *reference* and derive its
+                    // image width instead of letterboxing inside a taller card.
+                    let artHeight = min(110, max(88, heroWidth * 0.228))
+                    let artWidth = artHeight * artRatio
+                    let stacked = dynamicTypeSize.isAccessibilitySize
+                        || heroWidth < 345 || word.didYouKnow.count > 135
+
+                    VStack(alignment: .leading, spacing: 0) {
+                        if stacked {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Did You Know?")
+                                    .font(.lexiconDisplay(18))
+                                    .foregroundStyle(p.foreground)
                                 Text(word.didYouKnow)
-                                    .font(.lexiconBody(10))
-                                    .foregroundStyle(p.foreground.opacity(0.86))
-                                    .lineLimit(3)
+                                    .font(.lexiconBody(13))
+                                    .foregroundStyle(p.foreground.opacity(0.9))
+                                    .fixedSize(horizontal: false, vertical: true)
                             }
-                            .frame(width: w * 0.63, alignment: .leading)
-                            .padding(.leading, 13)
+                            .padding(16)
                         }
+
+                        ZStack(alignment: .leading) {
+                            Image(artName)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: artWidth, height: artHeight,
+                                       alignment: .bottomTrailing)
+                                .frame(maxWidth: .infinity, alignment: .trailing)
+                                .accessibilityHidden(true)
+
+                            if !stacked {
+                                VStack(alignment: .leading, spacing: 5) {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "lightbulb")
+                                            .foregroundStyle(p.highlight)
+                                        Text("Did You Know?")
+                                            .font(.lexiconDisplay(15))
+                                    }
+                                    Text(word.didYouKnow)
+                                        .font(.lexiconBody(11))
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                                .foregroundStyle(p.foreground)
+                                .frame(width: (heroWidth - 32) * 0.61, alignment: .leading)
+                                .padding(.leading, 12)
+                            }
+                        }
+                        // Artwork owns the framed panel's height and aspect.
+                        .frame(height: artHeight)
+                        .background(p.card, in: RoundedRectangle(cornerRadius: 17, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: 17, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 17, style: .continuous)
+                                .stroke(p.border, lineWidth: 1)
+                        )
                     }
-                    .frame(height: 94)
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                    .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(p.border, lineWidth: 1))
+                    .frame(maxWidth: .infinity)
                     .padding(.horizontal, 16)
                 }
             }
+            // The reference starts its illustrated header beneath the
+            // status-bar ink rather than beneath a second empty safe-area.
+            .padding(.top, dynamicTypeSize.isAccessibilitySize ? 64 : 28)
             .padding(.bottom, 160)
+            .frame(maxWidth: 560)
+            .background {
+                // Measure the reading page itself, not the surrounding iPad
+                // window; original artwork stays phone-sized on split view.
+                // Actual content width, not UIScreen: split view and iPad
+                // resizing keep the Did You Know art proportional.
+                GeometryReader { bounds in
+                    Color.clear
+                        .onAppear { heroWidth = bounds.size.width }
+                        .onChange(of: bounds.size.width) { heroWidth = $0 }
+                }
+            }
+            .frame(maxWidth: .infinity)
         }
         .background(p.background)
+        .ignoresSafeArea(.container, edges: .top)
     }
 
 
-    // A separate view expression keeps the large word-detail body tractable
-    // for Swift's type checker. Reserve space for the complete watercolor
-    // below the etymology copy rather than cutting the painting or text.
+    // Reference composition: two balanced cards on normal phone widths,
+    // with the botanical footpiece fading into Etymology's lower-right.
+    // Only accessibility-sized type / narrow split view uses a vertical pair.
     private func etymologyUsageCards(word: WordEntry, p: LexiconPalette) -> some View {
-        let detailCardHeight: CGFloat = dynamicTypeSize.isAccessibilitySize ? 262 : 216
-        return HStack(spacing: 8) {
-            ZStack(alignment: .bottomTrailing) {
-                VStack(alignment: .leading, spacing: 5) {
-                    HStack(spacing: 5) {
-                        BotanicalSprig(color: p.highlight)
-                            .frame(width: 13, height: 13)
-                        Text("Etymology")
-                            .font(.lexiconDisplay(14))
-                            .foregroundStyle(p.foreground)
+        let allExamples = word.examples.filter { !$0.isEmpty }
+        let examples = Array((word.id == "serendipity" ? Array(allExamples.dropFirst(2)) : allExamples).prefix(2))
+        let stacked = dynamicTypeSize.isAccessibilitySize || heroWidth < 335
+        return Group {
+            if stacked {
+                VStack(spacing: 10) {
+                    referenceEtymologyCard(word: word, p: p, stacked: true)
+                    if !examples.isEmpty {
+                        referenceUsageCard(examples: examples, p: p, stacked: true)
                     }
-                    Text(word.etymology)
-                        .font(.lexiconLong(10))
-                        .foregroundStyle(p.foreground.opacity(0.86))
-                        .lineLimit(6)
-                    Spacer(minLength: 0)
                 }
-                .padding(11)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            } else {
+                HStack(alignment: .top, spacing: 8) {
+                    referenceEtymologyCard(word: word, p: p, stacked: false)
+                    if !examples.isEmpty {
+                        referenceUsageCard(examples: examples, p: p, stacked: false)
+                    }
+                }
+            }
+        }
+        .padding(.horizontal, 16)
+    }
 
+    private func referenceEtymologyCard(
+        word: WordEntry, p: LexiconPalette, stacked: Bool
+    ) -> some View {
+        let shape = RoundedRectangle(cornerRadius: 17, style: .continuous)
+        return VStack(alignment: .leading, spacing: 7) {
+            HStack(spacing: 6) {
+                BotanicalSprig(color: p.highlight)
+                    .frame(width: 15, height: 15)
+                Text("Etymology")
+                    .font(.lexiconDisplay(16))
+                    .foregroundStyle(p.foreground)
+            }
+            Text(word.etymology)
+                .font(.lexiconLong(11))
+                .foregroundStyle(p.foreground.opacity(0.9))
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, minHeight: stacked ? 142 : 114,
+               alignment: .topLeading)
+        .background {
+            // The source watercolor belongs *within* the same parchment
+            // leaf, behind legible ink. It must not overlay and erase
+            // the final etymology lines.
+            ZStack(alignment: .bottomTrailing) {
+                p.card
                 Image(countrysideImageName("ill-books-daisies", isDark: isDark))
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 96, height: 96)
+                    .frame(width: stacked ? 145 : 112, height: 95,
+                           alignment: .bottomTrailing)
+                    .allowsHitTesting(false)
                     .accessibilityHidden(true)
             }
-            .frame(maxWidth: .infinity)
-            .frame(height: detailCardHeight)
-            .background(p.card)
-            .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous).stroke(p.border, lineWidth: 1))
-
-            VStack(alignment: .leading, spacing: 6) {
-                HStack(spacing: 5) {
-                    BotanicalSprig(color: p.highlight)
-                        .frame(width: 13, height: 13)
-                    Text("Usage Examples")
-                        .font(.lexiconDisplay(14))
-                        .foregroundStyle(p.foreground)
-                }
-                Text("“\(word.examples.first ?? "")”")
-                    .font(.lexiconLong(10.5).italic())
-                    .foregroundStyle(p.foreground.opacity(0.88))
-                    .lineLimit(3)
-                Rectangle().fill(p.border).frame(height: 1)
-                Text("“\(word.examples.last ?? "")”")
-                    .font(.lexiconLong(10.5).italic())
-                    .foregroundStyle(p.foreground.opacity(0.88))
-                    .lineLimit(2)
-                Spacer(minLength: 0)
-            }
-            .padding(11)
-            .frame(maxWidth: .infinity)
-            .frame(height: detailCardHeight)
-            .background(p.card)
-            .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous).stroke(p.border, lineWidth: 1))
+            .clipShape(shape)
         }
-        .padding(.horizontal, 16)
+        .overlay(shape.stroke(p.border, lineWidth: 1))
+    }
+
+    private func referenceUsageCard(
+        examples: [String], p: LexiconPalette, stacked: Bool
+    ) -> some View {
+        let shape = RoundedRectangle(cornerRadius: 17, style: .continuous)
+        return VStack(alignment: .leading, spacing: 9) {
+            HStack(spacing: 6) {
+                BotanicalSprig(color: p.highlight)
+                    .frame(width: 15, height: 15)
+                Text("Usage Examples")
+                    .font(.lexiconDisplay(16))
+                    .foregroundStyle(p.foreground)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            ForEach(Array(examples.enumerated()), id: \.offset) { index, example in
+                if index > 0 {
+                    Rectangle()
+                        .fill(p.border)
+                        .frame(height: 1)
+                }
+                Text("“\(example)”")
+                    .font(.lexiconLong(12).italic())
+                    .foregroundStyle(p.foreground.opacity(0.89))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, minHeight: stacked ? 142 : 114,
+               alignment: .topLeading)
+        .background(p.card, in: shape)
+        .overlay(shape.stroke(p.border, lineWidth: 1))
     }
 
     private func metaTile(_ icon: String, _ label: String, _ value: String, p: LexiconPalette) -> some View {
@@ -554,32 +623,44 @@ struct WordDetailProfileScreen: View {
     }
 
     private func pillCard(title: String, items: [String], p: LexiconPalette) -> some View {
-        VStack(alignment: .leading, spacing: 7) {
+        VStack(alignment: .leading, spacing: 5) {
             HStack(spacing: 6) {
                 BotanicalSprig(color: p.highlight).frame(width: 14, height: 14)
                 Text(title).font(.lexiconDisplay(15)).foregroundStyle(p.foreground)
             }
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 6) {
+            // The reference shows every synonym/antonym pill at once.
+            // Never hide the last label in a horizontal scroll viewport.
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 5) {
                     ForEach(items, id: \.self) { item in
-                        Text(item)
-                            .font(.lexiconBody(11))
-                            .foregroundStyle(p.foreground)
-                            .padding(.horizontal, 11)
-                            .padding(.vertical, 4.5)
-                            .background(p.background.opacity(0.7))
-                            .clipShape(Capsule())
-                            .overlay(Capsule().stroke(p.border, lineWidth: 1))
+                        referencePill(item, palette: p)
+                            .fixedSize(horizontal: true, vertical: false)
+                    }
+                }
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 105), spacing: 6)], spacing: 6) {
+                    ForEach(items, id: \.self) { item in
+                        referencePill(item, palette: p)
                     }
                 }
             }
         }
-        .padding(12)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(p.card)
         .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous).stroke(p.border, lineWidth: 1))
     }
+    private func referencePill(_ item: String, palette p: LexiconPalette) -> some View {
+        Text(item)
+            .font(.lexiconBody(11))
+            .foregroundStyle(p.foreground)
+            .padding(.horizontal, 9)
+            .padding(.vertical, 4.5)
+            .background(p.background.opacity(0.7), in: Capsule())
+            .overlay(Capsule().stroke(p.border, lineWidth: 1))
+    }
+
 }
 
 // MARK: - Page 9: Search Results ("Dictionary Search")
@@ -600,6 +681,8 @@ struct SearchResultsScreen: View {
                     subtitle: "Look up any word and explore its full meaning.",
                     illustrationBase: "ill-hero-cottage",
                     onHistoryClick: { vm.navigate(to: .searchDiscovery) },
+                    actionKind: "back",
+                    actionLabel: "Back to Search",
                     onLogoToggleTheme: { theme.toggle() },
                     heroHeight: 146
                 )
@@ -804,12 +887,6 @@ struct SearchResultsScreen: View {
                     .padding(.horizontal, 16)
                 }
 
-                CountrysideQuoteBanner(
-                    quote: "Discover the beauty in every word.",
-                    attribution: "Lexora",
-                    illustrationBase: "ill-banner-bridge"
-                )
-                .padding(.horizontal, 16)
             }
             .padding(.bottom, 160)
         }
@@ -849,12 +926,10 @@ struct ExpandedExplorationScreen: View {
     private var isDark: Bool { scheme == .dark }
 
     var body: some View {
-        if vm.detailExpanded36 {
-            translationsDirectory
-        } else {
-            // The reference depicts a complete word-entry reading page.
-            WordDetailProfileScreen()
-        }
+        // Expanded Exploration is a distinct, working native dictionary
+        // destination. The canonical Word of the Day detail belongs only
+        // to its own two routes; do not silently alias this page to it.
+        translationsDirectory
     }
 
     private var translationsDirectory: some View {
@@ -870,6 +945,8 @@ struct ExpandedExplorationScreen: View {
                     subtitle: "Look up any word, anytime.",
                     illustrationBase: "ill-hero-cottage",
                     onHistoryClick: { vm.navigate(to: .searchDiscovery) },
+                    actionKind: "back",
+                    actionLabel: "Back to Search",
                     onLogoToggleTheme: { theme.toggle() },
                     heroHeight: 140
                 )
@@ -916,12 +993,6 @@ struct ExpandedExplorationScreen: View {
                     }
                 }
 
-                CountrysideQuoteBanner(
-                    quote: "Words are doors to new worlds.",
-                    attribution: "Lexora",
-                    illustrationBase: "ill-books-daisies"
-                )
-                .padding(.horizontal, 16)
 
                 // Progressively Expandable 36-Language Word Exploration Card
                 VStack(alignment: .leading, spacing: 8) {
@@ -965,7 +1036,7 @@ struct ExpandedExplorationScreen: View {
                                 Text(tr.translated)
                                     .font(.lexiconDisplay(12))
                                     .foregroundStyle(p.foreground)
-                                    .lineLimit(1)
+                                    .fixedSize(horizontal: false, vertical: true)
                             }
                             .padding(.horizontal, 9)
                             .padding(.vertical, 6)
@@ -990,8 +1061,8 @@ struct ExpandedExplorationScreen: View {
                         onAction: { vm.navigate(to: .searchDiscovery) }
                     )
                     VStack(spacing: 7) {
-                        ForEach(["serendipity", "nostalgia", "eloquence"], id: \.self) { id in
-                            if let entry = LexiconData.getWordById(id) {
+                        ForEach(Array(vm.recentSearches.prefix(6)), id: \.self) { query in
+                            if let entry = LexiconData.getWordById(query) {
                                 Button { vm.openWord(entry) } label: {
                                     HStack(spacing: 12) {
                                         Image(systemName: "clock.arrow.circlepath")
@@ -1071,9 +1142,10 @@ struct ExpandedExplorationScreen: View {
                 Image(countrysideImageName("ill-banner-church", isDark: isDark))
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 72)
-                    .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
-                    .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous).stroke(p.border, lineWidth: 1))
+                    // No narrow banner frame that shrinks the church and
+                    // wildflower watercolor into a flat strip.
+                    .frame(maxWidth: .infinity)
+                    .accessibilityHidden(true)
                     .padding(.horizontal, 16)
             }
             .padding(.bottom, 160)

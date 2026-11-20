@@ -38,10 +38,14 @@ struct ContentView: View {
                 .ignoresSafeArea()
                 .zIndex(1)
 
-            BottomNav()
-                .environmentObject(vm)
-                .environmentObject(theme)
-                .zIndex(2)
+            // The Library is a reading destination. Do not lay a floating
+            // five-tab control across its paragraphs and illustrated bookplates.
+            if !vm.libraryOpen {
+                BottomNav()
+                    .environmentObject(vm)
+                    .environmentObject(theme)
+                    .zIndex(2)
+            }
 
             if vm.searchOpen {
                 SearchModal()
@@ -74,6 +78,19 @@ struct ContentView: View {
                 }
                 .zIndex(20)
                 .allowsHitTesting(false)
+            }
+        }
+        .overlay(alignment: .bottomLeading) {
+            // Simulator capture provenance. A SpringBoard screenshot used to
+            // pass the nonblank test even when Lexicon wasn't foregrounded.
+            // This sentinel is invisible outside explicitly requested QA runs.
+            if ProcessInfo.processInfo.arguments.contains("-lexoraVisualQa") {
+                Color(red: 1, green: 0, blue: 0.76)
+                    .frame(width: 8, height: 8)
+                    .padding(.leading, 4)
+                    .padding(.bottom, 4)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
             }
         }
         .background(lexiconPalette(scheme).background)
@@ -163,7 +180,8 @@ struct ContentView: View {
         case .dictionaryHome:
             DictionaryHomeScreen()
         case .wordOfTheDay:
-            WordOfTheDayScreen()
+            // Use the approved word-detail composition for the daily word too.
+            WordDetailProfileScreen()
         case .wordDetail:
             WordDetailProfileScreen()
         case .collections:

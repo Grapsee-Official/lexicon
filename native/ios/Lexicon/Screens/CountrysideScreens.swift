@@ -151,12 +151,6 @@ struct CollectionsHubScreen: View {
                     .padding(.horizontal, 16)
                 }
 
-                CountrysideQuoteBanner(
-                    quote: "A collection of words is a collection of worlds.",
-                    attribution: "Lexora",
-                    illustrationBase: "ill-banner-bridge"
-                )
-                .padding(.horizontal, 16)
             }
             .padding(.bottom, 160)
         }
@@ -241,6 +235,8 @@ struct MyNotesScreen: View {
                     subtitle: "Capture thoughts, meanings and your language journey.",
                     illustrationBase: "ill-hero-notes",
                     onHistoryClick: { vm.navigate(to: .collections) },
+                    actionKind: "back",
+                    actionLabel: "Back to Collections",
                     onLogoToggleTheme: { theme.toggle() },
                     heroHeight: 142
                 )
@@ -316,9 +312,11 @@ struct MyNotesScreen: View {
                                         Text(note.body)
                                             .font(.lexiconBody(11.5))
                                             .foregroundStyle(p.foreground.opacity(0.8))
-                                            .lineLimit(3)
+                                            .lineLimit(dynamicTypeSize.isAccessibilitySize ? 4 : 2)
                                     }
-                                    .frame(width: card.size.width * 0.44, alignment: .leading)
+                                    // Text must stay readable even in the two-column
+                                    // phone grid. Artwork remains transparent at right.
+                                    .frame(width: card.size.width * 0.60, alignment: .leading)
                                     Spacer(minLength: 4)
                                     HStack {
                                         HStack(spacing: 4) {
@@ -332,20 +330,30 @@ struct MyNotesScreen: View {
                                         Spacer()
                                         Button { vm.toggleNoteBookmark(note.id) } label: {
                                             Image(systemName: note.bookmarked ? "bookmark.fill" : "bookmark")
-                                                .font(.system(size: 11.5))
+                                                .font(.system(size: 14))
                                                 .foregroundStyle(note.bookmarked ? p.highlight : p.mutedForeground)
+                                                // Transparent tap area: no cream patch in the painting.
+                                                .frame(width: 44, height: 44)
+                                                .contentShape(Rectangle())
                                         }
                                         .buttonStyle(.plain)
+                                        .accessibilityLabel(note.bookmarked ? "Remove note bookmark" : "Bookmark note")
                                     }
                                 }
                                 .padding(11)
                                 }
                             }
-                            .frame(height: dynamicTypeSize.isAccessibilitySize ? 218 : 148)
+                            .frame(height: dynamicTypeSize.isAccessibilitySize ? 248 : 170)
                             .background(p.card)
                             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                             .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(p.border, lineWidth: 1))
                             .onTapGesture {
+                                editorTitle = note.title
+                                editorBody = note.body
+                                editingNote = note
+                            }
+                            .accessibilityElement(children: .contain)
+                            .accessibilityAction(named: Text("Edit note: \(note.title)")) {
                                 editorTitle = note.title
                                 editorBody = note.body
                                 editingNote = note
@@ -404,12 +412,6 @@ struct MyNotesScreen: View {
                     .padding(.horizontal, 16)
                 }
 
-                CountrysideQuoteBanner(
-                    quote: "A well-written note is a small step towards wisdom.",
-                    attribution: "Lexora",
-                    illustrationBase: "ill-banner-bridge"
-                )
-                .padding(.horizontal, 16)
             }
             .padding(.bottom, 160)
         }
@@ -478,6 +480,8 @@ struct StudyListsScreen: View {
                     subtitle: "Learn, practice and grow one word at a time.",
                     illustrationBase: "ill-hero-cottage",
                     onHistoryClick: { vm.navigate(to: .quickTemplates) },
+                    actionKind: "templates",
+                    actionLabel: "Open Quick Templates",
                     onLogoToggleTheme: { theme.toggle() },
                     heroHeight: 140
                 )
@@ -657,12 +661,6 @@ struct StudyListsScreen: View {
                     .padding(.horizontal, 16)
                 }
 
-                CountrysideQuoteBanner(
-                    quote: "Knowledge is a journey, not a destination.",
-                    attribution: "Lexora",
-                    illustrationBase: "ill-banner-bridge"
-                )
-                .padding(.horizontal, 16)
             }
             .padding(.bottom, 160)
         }
@@ -826,6 +824,8 @@ struct QuickTemplatesScreen: View {
                     subtitle: "Start with a template, or create your own.",
                     illustrationBase: "ill-hero-cottage",
                     onHistoryClick: { vm.navigate(to: .myNotes) },
+                    actionKind: "notes",
+                    actionLabel: "Open Notes",
                     onLogoToggleTheme: { theme.toggle() },
                     heroHeight: 140
                 )
@@ -966,12 +966,6 @@ struct QuickTemplatesScreen: View {
                     .padding(.horizontal, 16)
                 }
 
-                CountrysideQuoteBanner(
-                    quote: "Better words. A brighter mind.",
-                    attribution: "Lexora",
-                    illustrationBase: "ill-banner-bridge"
-                )
-                .padding(.horizontal, 16)
             }
             .padding(.bottom, 160)
         }
@@ -1047,8 +1041,80 @@ struct SearchDiscoveryScreen: View {
     @EnvironmentObject private var vm: LexiconViewModel
     @EnvironmentObject private var theme: LexiconThemeState
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     @State private var draft: String = ""
+    @State private var openingWidth: CGFloat = 390
+
+    /// A dedicated reading entrance: quiet ink above a fully visible village,
+    /// not a cropped right-hand decoration behind the heading.
+    private var countrysideSearchOpening: some View {
+        let p = lexiconPalette(scheme)
+        let isDark = scheme == .dark
+        let paintingHeight = min(420, max(220, openingWidth * 0.68))
+        return VStack(alignment: .leading, spacing: 3) {
+            HStack(spacing: 4) {
+                Button { theme.toggle() } label: {
+                    BotanicalSprig(color: p.primary)
+                        .frame(width: 26, height: 26)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Toggle appearance")
+
+                Text("Search")
+                    .font(.lexiconDisplay(30))
+                    .foregroundStyle(p.foreground)
+                Spacer(minLength: 0)
+                Button { vm.navigate(to: .dictionaryHome) } label: {
+                    Image(systemName: "arrow.left")
+                        .font(.system(size: 20))
+                        .foregroundStyle(p.foreground)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Back to Dictionary")
+            }
+            .padding(.leading, 10)
+            .padding(.trailing, 16)
+            .padding(.top, 12)
+
+            Text("Find any word, explore its meaning, and discover more.")
+                .font(.lexiconLong(13))
+                .foregroundStyle(p.mutedForeground)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 22)
+
+            Image(countrysideImageName("ill-hero-cottage", isDark: isDark))
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: .infinity)
+                .frame(height: paintingHeight, alignment: .bottom)
+                .background {
+                    SearchDreamscapeWash(isDark: isDark)
+                }
+                .offset(y: 10)
+                .overlay {
+                    if isDark {
+                        ZStack {
+                            NocturneAtmosphere()
+                            CottageWindowGlow()
+                        }
+                        .allowsHitTesting(false)
+                    }
+                }
+                .accessibilityHidden(true)
+        }
+        .background {
+            GeometryReader { geometry in
+                Color.clear
+                    .onAppear { openingWidth = geometry.size.width }
+                    .onChange(of: geometry.size.width) { openingWidth = $0 }
+            }
+        }
+    }
 
     var body: some View {
         let p = lexiconPalette(scheme)
@@ -1056,19 +1122,18 @@ struct SearchDiscoveryScreen: View {
 
         ScrollView {
             VStack(spacing: 11) {
-                CountrysideHeroHeader(
-                    title: "Search",
-                    subtitle: "Find any word, explore its meaning, and discover more.",
-                    illustrationBase: "ill-hero-cottage",
-                    onHistoryClick: { vm.navigate(to: .dictionaryHome) },
-                    onLogoToggleTheme: { theme.toggle() },
-                    heroHeight: 140
-                )
+                countrysideSearchOpening
 
                 CountrysideSearchPill(
                     text: $draft,
                     placeholder: "Search for a word...",
-                    onSubmit: { if !trimmed.isEmpty { vm.submitSearch(trimmed) } },
+                    onSubmit: {
+                        // The idiom catalog is presented inline, not in the
+                        // ordinary headword-results screen.
+                        if !trimmed.isEmpty && vm.searchScopeTab != "Idioms" {
+                            vm.submitSearch(trimmed)
+                        }
+                    },
                     showMicOnly: true
                 )
                 .padding(.horizontal, 16)
@@ -1213,26 +1278,27 @@ struct SearchDiscoveryScreen: View {
                     }
                 }
 
-                // 4 Search Filters
+                // All four filter tools are discoverable without sideways
+                // scrolling, and adapt to phone, tablet and enlarged type.
                 VStack(spacing: 8) {
                     BotanicalSectionTitle(title: "Search Filters", actionLabel: nil)
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 7) {
+                    LazyVGrid(
+                        columns: [
+                            GridItem(
+                                .adaptive(minimum: dynamicTypeSize.isAccessibilitySize ? 230 : 145),
+                                spacing: 8
+                            )
+                        ],
+                        spacing: 8
+                    ) {
                         filterTile("globe", "Language", vm.filterLanguage, key: "language", p: p)
                         filterTile("book", "Part of Speech", vm.filterPos, key: "pos", p: p)
                         filterTile("chart.bar", "Difficulty", vm.filterDifficulty, key: "difficulty", p: p)
                         filterTile("star", "Sort By", vm.filterSort, key: "sort", p: p)
                     }
-                        .padding(.horizontal, 16)
-                    }
+                    .padding(.horizontal, 16)
                 }
 
-                CountrysideQuoteBanner(
-                    quote: "A word is a doorway to a bigger world.",
-                    attribution: "Lexora",
-                    illustrationBase: "ill-banner-bridge"
-                )
-                .padding(.horizontal, 16)
             }
             .padding(.bottom, 160)
         }
@@ -1258,7 +1324,8 @@ struct SearchDiscoveryScreen: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
             }
-            .frame(width: 112)
+            .frame(maxWidth: .infinity)
+            .frame(minHeight: 76)
             .padding(.vertical, 9)
             .background(p.card)
             .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))

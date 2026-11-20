@@ -354,38 +354,21 @@ private fun SearchTopBar(
                 )
             }
 
-            Box(
-                modifier = Modifier
-                    .size(28.dp)
-                    .clip(CircleShape)
-                    .iconButton(AccessibilityAudit.Descriptions.Mic)
-                    .enforceTouchTarget()
-                    .clickable(role = Role.Button) { /* TODO: voice search */ },
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Mic,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
-                    modifier = Modifier.size(16.dp),
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .size(28.dp)
-                    .clip(CircleShape)
-                    .iconButton(AccessibilityAudit.Descriptions.Camera)
-                    .enforceTouchTarget()
-                    .clickable(role = Role.Button) { /* TODO: image search */ },
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.CameraAlt,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
-                    modifier = Modifier.size(16.dp),
-                )
-            }
+            // The icons are visual ornaments from the approved reference.
+            // Until permissioned speech recognition and camera OCR exist,
+            // never announce these as working actions or expose dead taps.
+            Icon(
+                imageVector = Icons.Outlined.Mic,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                modifier = Modifier.size(28.dp).padding(6.dp),
+            )
+            Icon(
+                imageVector = Icons.Outlined.CameraAlt,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                modifier = Modifier.size(28.dp).padding(6.dp),
+            )
         }
     }
 }

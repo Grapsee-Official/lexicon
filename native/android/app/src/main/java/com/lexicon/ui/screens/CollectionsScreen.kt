@@ -149,30 +149,9 @@ private fun EmptyCollectionState() {
                         contentDescription = null,
                         modifier = Modifier
                             .size(160.dp)
-                            .clip(RoundedCornerShape(16.dp))
-                            .graphicsLayer {
-                                this.alpha = if (isDark) 0.6f else 0.8f
-                                this.compositingStrategy = CompositingStrategy.Offscreen
-                            }
-                            .drawWithContent {
-                                drawContent()
-                                drawRect(
-                                    brush = Brush.radialGradient(
-                                        colorStops = arrayOf(
-                                            0.0f to Color.Black,
-                                            0.55f to Color.Black,
-                                            1.0f to Color.Transparent,
-                                        ),
-                                        center = Offset(
-                                            size.width / 2f,
-                                            size.height / 2f,
-                                        ),
-                                        radius = size.maxDimension / 2f,
-                                    ),
-                                    blendMode = BlendMode.DstIn,
-                                )
-                            },
-                        contentScale = ContentScale.Crop,
+                            // Preserve the watercolor's original transparent silhouette.
+                            .graphicsLayer { alpha = if (isDark) 0.6f else 0.8f },
+                        contentScale = ContentScale.Fit,
                         alignment = Alignment.Center,
                     )
 
@@ -182,14 +161,8 @@ private fun EmptyCollectionState() {
                             .align(Alignment.BottomEnd)
                             .offset(x = 8.dp, y = 8.dp)
                             .size(48.dp)
-                            .shadow(2.dp, CircleShape, clip = false)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.surface)
-                            .border(
-                                1.dp,
-                                MaterialTheme.colorScheme.outline,
-                                CircleShape,
-                            ),
+                            // No opaque cream disc over the painting.
+                            .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape),
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(

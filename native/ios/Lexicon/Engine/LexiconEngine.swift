@@ -96,9 +96,21 @@ public class LexiconEngine {
         return results
     }
 
-    /// Prefix search via DAWG.
+    /// Prefix search via the shared C++ DAWG. The returned C array is
+    /// transferred to Swift strings before its native storage is released.
     func prefixSearch(prefix: String, limit: Int = 50) -> [String] {
-        return fuzzySearch(query: prefix, maxDistance: 0, limit: limit).map { $0.entry.word }
+        guard let handle = handle, limit > 0 else { return [] }
+        let clean = prefix.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !clean.isEmpty else { return [] }
+        guard let result = lexicon_engine_prefix_search(handle, clean, UInt32(limit)) else {
+            return []
+        }
+        defer { lexicon_engine_free_string_results(result) }
+        guard let words = result.pointee.words else { return [] }
+        return (0..<Int(result.pointee.count)).compactMap { i in
+            guard let word = words[i] else { return nil }
+            return String(cString: word)
+        }
     }
 
     /// Get word by ID.

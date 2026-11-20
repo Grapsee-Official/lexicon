@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Catch stale/duplicate simulator frames even when every PNG is nonblank.
 
-Expanded Exploration intentionally reuses the same word-detail presentation;
-all other named screens must render distinguishable content. This detects
-wrong-route captures, not reference-image design parity.
+Word of the Day and Word Detail intentionally use the owner's
+canonical reading-page composition. Expanded Exploration is a distinct
+dictionary destination and MUST NOT be treated as an identical alias.
+This detects wrong-route captures, not reference-image design parity.
 """
 from pathlib import Path
 from PIL import Image, ImageChops, ImageStat
@@ -11,7 +12,13 @@ import argparse
 import itertools
 import sys
 
-ALLOWED_IDENTICAL = {frozenset(("expanded_exploration", "word_detail"))}
+# These routes are intentional aliases of the canonical reference entry.
+# Do not exempt unrelated screens: a stale screenshot must still fail.
+WORD_ENTRY_ALIASES = ("word_detail", "word_of_the_day")
+ALLOWED_IDENTICAL = {
+    frozenset((a, b))
+    for a, b in itertools.combinations(WORD_ENTRY_ALIASES, 2)
+}
 
 
 def thumbnail(path: Path) -> Image.Image:

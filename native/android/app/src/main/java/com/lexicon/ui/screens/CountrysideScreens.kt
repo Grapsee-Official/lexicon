@@ -10,6 +10,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -18,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -26,6 +31,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.filled.Bookmark
@@ -89,6 +95,9 @@ import com.lexicon.ui.components.CountrysideHeroHeader
 import com.lexicon.ui.components.CountrysideQuoteBanner
 import com.lexicon.ui.components.CountrysideSearchPill
 import com.lexicon.ui.components.LeafSprig
+import com.lexicon.ui.components.NocturneAtmosphere
+import com.lexicon.ui.components.SearchDreamscapeWash
+import com.lexicon.ui.components.CottageWindowGlow
 import com.lexicon.ui.components.resolveCountrysideDrawable
 import com.lexicon.ui.theme.BodyFontFamily
 import com.lexicon.ui.theme.BrandGreen
@@ -377,15 +386,6 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
             }
         }
 
-        item(key = "quote") {
-            CountrysideQuoteBanner(
-                quote = "A collection of words is a collection of worlds.",
-                attribution = "Lexora",
-                illustrationBase = "ill_banner_bridge",
-                isDark = isDark,
-                modifier = Modifier.padding(horizontal = 16.dp),
-            )
-        }
     }
 }
 
@@ -442,6 +442,8 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                 illustrationBase = "ill_hero_notes",
                 isDark = isDark,
                 onHistoryClick = { viewModel.navigate(ScreenRoute.COLLECTIONS) },
+                actionKind = "back",
+                actionLabel = "Back to Collections",
                 onLogoToggleTheme = { viewModel.toggleTheme() },
                 heroHeight = 144.dp,
             )
@@ -523,11 +525,11 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                     Box(
                                         modifier = Modifier
                                             .weight(1f)
-                                            .height(if (androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f) 218.dp else 128.dp)
+                                            .height(if (config.fontScale >= 1.3f) 248.dp else 170.dp)
                                             .clip(RoundedCornerShape(16.dp))
                                             .background(cardBg)
                                             .border(1.dp, border, RoundedCornerShape(16.dp))
-                                            .clickable {
+                                            .clickable(role = Role.Button, onClickLabel = "Edit note: ${note.title}") {
                                                 editorTitle = note.title
                                                 editorBody = note.body
                                                 editingNote = note
@@ -567,11 +569,13 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                                 Icon(Icons.Outlined.MoreHoriz, contentDescription = null, tint = muted, modifier = Modifier.size(16.dp))
                                             }
                                             Column(
-                                                modifier = Modifier.fillMaxWidth(0.50f),
+                                                // Narrow two-column cards need legible copy as well as
+                                                // freely positioned botanical artwork at the edge.
+                                                modifier = Modifier.fillMaxWidth(0.60f),
                                                 verticalArrangement = Arrangement.spacedBy(2.dp),
                                             ) {
-                                                Text(note.title, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 14.sp), maxLines = if (androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f) 2 else 1, overflow = TextOverflow.Ellipsis)
-                                                Text(note.body, color = fg.copy(alpha = 0.8f), style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.5.sp, lineHeight = 15.sp), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                                Text(note.title, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 14.sp), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                                Text(note.body, color = fg.copy(alpha = 0.8f), style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.5.sp, lineHeight = 15.sp), maxLines = if (config.fontScale >= 1.3f) 4 else 2, overflow = TextOverflow.Ellipsis)
                                             }
                                             Row(
                                                 modifier = Modifier.fillMaxWidth(),
@@ -582,14 +586,23 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                                     Icon(Icons.Outlined.CalendarToday, contentDescription = null, tint = muted, modifier = Modifier.size(10.dp))
                                                     Text(note.dateLabel, color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 8.5.sp))
                                                 }
-                                                Icon(
-                                                    imageVector = if (note.bookmarked) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
-                                                    contentDescription = null,
-                                                    tint = if (note.bookmarked) accent else muted,
+                                                // Touchable 44dp seal, with transparent
+                                                // background so the watercolor is unharmed.
+                                                Box(
                                                     modifier = Modifier
-                                                        .size(14.dp)
-                                                        .clickable { viewModel.toggleNoteBookmark(note.id) },
-                                                )
+                                                        .size(44.dp)
+                                                        .clickable(role = Role.Button) {
+                                                            viewModel.toggleNoteBookmark(note.id)
+                                                        },
+                                                    contentAlignment = Alignment.Center,
+                                                ) {
+                                                    Icon(
+                                                        imageVector = if (note.bookmarked) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
+                                                        contentDescription = if (note.bookmarked) "Remove note bookmark" else "Bookmark note",
+                                                        tint = if (note.bookmarked) accent else muted,
+                                                        modifier = Modifier.size(16.dp),
+                                                    )
+                                                }
                                             }
                                         }
                                     }
@@ -662,15 +675,6 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
             }
         }
 
-        item(key = "quote") {
-            CountrysideQuoteBanner(
-                quote = "A well-written note is a small step towards wisdom.",
-                attribution = "Lexora",
-                illustrationBase = "ill_banner_bridge",
-                isDark = isDark,
-                modifier = Modifier.padding(horizontal = 16.dp),
-            )
-        }
     }
     editingNote?.let { note ->
         AlertDialog(
@@ -758,6 +762,8 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                 illustrationBase = "ill_hero_cottage",
                 isDark = isDark,
                 onHistoryClick = { viewModel.navigate(ScreenRoute.QUICK_TEMPLATES) },
+                actionKind = "templates",
+                actionLabel = "Open Quick Templates",
                 onLogoToggleTheme = { viewModel.toggleTheme() },
                 heroHeight = 142.dp,
             )
@@ -1001,15 +1007,6 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
             }
         }
 
-        item(key = "quote") {
-            CountrysideQuoteBanner(
-                quote = "Knowledge is a journey, not a destination.",
-                attribution = "Lexora",
-                illustrationBase = "ill_banner_bridge",
-                isDark = isDark,
-                modifier = Modifier.padding(horizontal = 16.dp),
-            )
-        }
     }
     if (showCreateList) {
         AlertDialog(
@@ -1148,6 +1145,8 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                 illustrationBase = "ill_hero_cottage",
                 isDark = isDark,
                 onHistoryClick = { viewModel.navigate(ScreenRoute.MY_NOTES) },
+                actionKind = "notes",
+                actionLabel = "Open Notes",
                 onLogoToggleTheme = { viewModel.toggleTheme() },
                 heroHeight = 142.dp,
             )
@@ -1347,15 +1346,6 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
             }
         }
 
-        item(key = "quote") {
-            CountrysideQuoteBanner(
-                quote = "Better words. A brighter mind.",
-                attribution = "Lexora",
-                illustrationBase = "ill_banner_bridge",
-                isDark = isDark,
-                modifier = Modifier.padding(horizontal = 16.dp),
-            )
-        }
     }
     if (showCreateTemplate) {
         AlertDialog(
@@ -1454,6 +1444,96 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
 /**
  * Page 8: Search & Discovery — Search suggestions, recent searches, filters, language selection & search history.
  */
+/**
+ * Search's own illustrated opening. The title occupies readable parchment;
+ * the entire cottage painting follows naturally, with its alpha edges free.
+ * We never crop the picture into a right-hand panel or put words over roofs.
+ */
+@Composable
+private fun SearchCountrysideHeader(
+    isDark: Boolean,
+    onBack: () -> Unit,
+    onToggleTheme: () -> Unit,
+) {
+    val resId = resolveCountrysideDrawable("ill_hero_cottage", isDark)
+    val ink = if (isDark) DarkForeground else DeepForest
+    val mutedInk = if (isDark) DarkMutedForeground else DeepForest.copy(alpha = 0.78f)
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxWidth()
+            .windowInsetsPadding(WindowInsets.statusBars),
+    ) {
+        val sceneHeight = (maxWidth * 0.68f).coerceIn(220.dp, 420.dp)
+        Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 10.dp, end = 16.dp, top = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clickable(role = Role.Button, onClickLabel = "Toggle appearance") { onToggleTheme() },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    LeafSprig(color = if (isDark) DarkAccent else BrandGreen, modifier = Modifier.size(26.dp))
+                }
+                Text(
+                    "Search",
+                    color = ink,
+                    style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 30.sp),
+                    modifier = Modifier.weight(1f).padding(start = 4.dp),
+                )
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clickable(role = Role.Button, onClickLabel = "Back to Dictionary") { onBack() },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        Icons.AutoMirrored.Outlined.ArrowBack,
+                        contentDescription = null,
+                        tint = ink,
+                        modifier = Modifier.size(22.dp),
+                    )
+                }
+            }
+            Text(
+                "Find any word, explore its meaning, and discover more.",
+                color = mutedInk,
+                style = TextStyle(fontFamily = LongFontFamily, fontSize = 13.sp, lineHeight = 19.sp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 22.dp),
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(sceneHeight),
+                contentAlignment = Alignment.BottomCenter,
+            ) {
+                SearchDreamscapeWash(isDark, Modifier.matchParentSize())
+                Image(
+                    painter = painterResource(resId),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    alignment = Alignment.BottomCenter,
+                    // The vignette has a full-width canvas and may extend
+                    // its fading lower wash beneath the search capsule.
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .offset(y = 10.dp),
+                )
+                if (isDark) {
+                    // Starlight is genuine native vector geometry, not a
+                    // cropped bitmap or animated visual distraction.
+                    NocturneAtmosphere(Modifier.matchParentSize())
+                    CottageWindowGlow(Modifier.matchParentSize())
+                }
+            }
+        }
+    }
+}
+
 @Composable
 fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -1474,14 +1554,12 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item(key = "hero") {
-            CountrysideHeroHeader(
-                title = "Search",
-                subtitle = "Find any word, explore its meaning, and discover more.",
-                illustrationBase = "ill_hero_cottage",
+            // Search deserves its own opening scene, not a generic header
+            // squeezing the cottage over the title and status bar.
+            SearchCountrysideHeader(
                 isDark = isDark,
-                onHistoryClick = { viewModel.navigate(ScreenRoute.DICTIONARY_HOME) },
-                onLogoToggleTheme = { viewModel.toggleTheme() },
-                heroHeight = 142.dp,
+                onBack = { viewModel.navigate(ScreenRoute.DICTIONARY_HOME) },
+                onToggleTheme = { viewModel.toggleTheme() },
             )
         }
 
@@ -1493,7 +1571,11 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
                 isDark = isDark,
                 showMicOnly = true,
                 onSubmit = {
-                    if (draft.isNotBlank()) viewModel.submitSearch(draft)
+                    // Idiom results live on this screen; don't navigate to a
+                    // word-only results route that would be empty for idioms.
+                    if (draft.isNotBlank() && state.searchScopeTab != "Idioms") {
+                        viewModel.submitSearch(draft)
+                    }
                 },
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
@@ -1679,43 +1761,54 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
                     QuadFilterSpec(Icons.Outlined.BarChart, "Difficulty", state.filterDifficulty, "difficulty"),
                     QuadFilterSpec(Icons.Outlined.StarOutline, "Sort By", state.filterSort, "sort"),
                 )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState())
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(7.dp),
+                // Both columns are visible on a phone. Four filter choices
+                // should never be hidden behind the floating search seal or
+                // require an undiscoverable sideways gesture.
+                BoxWithConstraints(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 ) {
-                    filters.forEach { f ->
-                        Column(
-                            modifier = Modifier
-                                .width(112.dp)
-                                .clip(RoundedCornerShape(13.dp))
-                                .background(cardBg)
-                                .border(1.dp, border, RoundedCornerShape(13.dp))
-                                .clickable(role = Role.Button) { viewModel.cycleSearchFilter(f.key) }
-                                .padding(vertical = 9.dp, horizontal = 4.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(3.dp),
-                        ) {
-                            Icon(f.icon, contentDescription = null, tint = if (isDark) DarkAccent else BrandGreen, modifier = Modifier.size(16.dp))
-                            Text(f.title, color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 10.5.sp), maxLines = 1)
-                            Text("${f.value} ⌄", color = fg, style = TextStyle(fontFamily = BodyFontFamily, fontWeight = FontWeight.Medium, fontSize = 10.5.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    val columns = if (maxWidth < 560.dp) 2 else 4
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        filters.chunked(columns).forEach { line ->
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                line.forEach { f ->
+                                    Column(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .clip(RoundedCornerShape(13.dp))
+                                            .background(cardBg)
+                                            .border(1.dp, border, RoundedCornerShape(13.dp))
+                                            .clickable(role = Role.Button, onClickLabel = "Change ${f.title} filter") {
+                                                viewModel.cycleSearchFilter(f.key)
+                                            }
+                                            .padding(vertical = 12.dp, horizontal = 6.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                                    ) {
+                                        Icon(
+                                            f.icon,
+                                            contentDescription = null,
+                                            tint = if (isDark) DarkAccent else BrandGreen,
+                                            modifier = Modifier.size(19.dp),
+                                        )
+                                        Text(f.title, color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.sp))
+                                        Text(
+                                            "${f.value} ⌄",
+                                            color = fg,
+                                            style = TextStyle(fontFamily = BodyFontFamily, fontWeight = FontWeight.Medium, fontSize = 11.sp),
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis,
+                                        )
+                                    }
+                                }
+                                repeat(columns - line.size) { Spacer(Modifier.weight(1f)) }
+                            }
                         }
                     }
                 }
             }
         }
 
-        item(key = "quote") {
-            CountrysideQuoteBanner(
-                quote = "A word is a doorway to a bigger world.",
-                attribution = "Lexora",
-                illustrationBase = "ill_banner_bridge",
-                isDark = isDark,
-                modifier = Modifier.padding(horizontal = 16.dp),
-            )
-        }
     }
 }
 

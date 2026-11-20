@@ -20,6 +20,14 @@ on:
       - 'artwork/vector/countryside-*-material.svg'
       - 'artwork/vector/lexora-*.svg'
       - 'docs/visual-qa/lexora-home-reference-contract.md'
+  # Run simulator screenshot QA on review branches, not only after merge.
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/native-visual-qa.yml'
+      - 'native/**'
+      - 'scripts/**'
+      - 'artwork/vector/**'
   workflow_dispatch:
   # Autonomous debug-only visual QA; scheduling can be delayed by GitHub.
   schedule:
@@ -27,13 +35,13 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: lexicon-visual-qa
-  # Collapse rapid commits into a single verification of the newest main.
+  group: lexicon-visual-qa-${{ github.event.pull_request.number || github.ref }}
+  # Avoid PR runs canceling verification of main, or vice versa.
   cancel-in-progress: true
 
 jobs:
   cpp-engine:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -46,7 +54,7 @@ jobs:
           ctest --test-dir native/cpp/build --output-on-failure
 
   android-screens:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 55
     steps:
       - uses: actions/checkout@v4
@@ -211,7 +219,7 @@ jobs:
                 for attempt in 1 2 3 4; do
                   sleep 2
                   xcrun simctl io "$DEVICE" screenshot "qa-captures/ios/$mode-$screen.png"
-                  if "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py "qa-captures/ios/$mode-$screen.png"; then
+                  if "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py "qa-captures/ios/$mode-$screen.png" --require-lexicon-marker; then
                     valid=1
                     break
                   fi
@@ -231,7 +239,7 @@ jobs:
             done
           done
           test "$(find qa-captures/ios -type f -name '*.png' | wc -l)" -eq 30
-          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/ios --expected-count 30
+          "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/ios --expected-count 30 --require-lexicon-marker
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_home_bookplate_geometry.py qa-captures/ios/light-home.png
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_screen_diversity.py qa-captures/ios
           find qa-captures/ios -type f -name '*.png' | sort

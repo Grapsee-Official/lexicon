@@ -29,7 +29,8 @@ struct ArticleCard: View {
             HStack(spacing: 0) {
                 Image(thumbName)
                     .resizable()
-                    .scaledToFill()
+                    // Do not trim the illustrated village or botanical silhouettes.
+                    .scaledToFit()
                     .frame(width: 54, height: 80)
                     .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
                     .padding(5)

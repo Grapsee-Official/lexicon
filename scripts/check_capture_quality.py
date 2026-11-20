@@ -15,7 +15,7 @@ except ImportError as error:
     raise SystemExit("Pillow is required: python -m pip install Pillow") from error
 
 
-def inspect(path: Path) -> tuple[bool, str]:
+def inspect(path: Path, require_marker: bool = False) -> tuple[bool, str]:
     try:
         with Image.open(path) as image:
             image.verify()
@@ -36,8 +36,18 @@ def inspect(path: Path) -> tuple[bool, str]:
             upper = image.crop((int(width * .05), int(height * .12),
                                 int(width * .30), int(height * .28)))
             upper_pixels = list(upper.resize((30, 20), Image.Resampling.BILINEAR).getdata())
+            # Only the actual SwiftUI ContentView emits this QA-only marker.
+            marker_region = image.crop((0, int(height * .72),
+                                        int(width * .12), height))
+            marker_count = sum(
+                red >= 235 and green <= 18 and 160 <= blue <= 215
+                for red, green, blue in marker_region.getdata()
+            ) if require_marker else 0
     except (OSError, UnidentifiedImageError) as error:
         return False, f"unreadable PNG: {error}"
+
+    if require_marker and marker_count < 20:
+        return False, "Lexicon QA foreground marker missing; launcher or wrong app captured"
 
     modal_fraction = sum(
         min(rgb) > 210 and max(rgb) - min(rgb) < 20 for rgb in center_pixels
@@ -63,10 +73,21 @@ def inspect(path: Path) -> tuple[bool, str]:
         and red > green * 1.18 and blue > red * .86
         for red, green, blue in pixels
     ) / len(pixels)
-    if launcher_blue > .45 or launcher_violet > .45:
+    # The current iPhone simulator's SpringBoard uses a pink / blush /
+    # violet wave. Its pink field does not satisfy the saturated-blue or
+    # violet-only test above, and was falsely accepted as a valid Lexicon
+    # light-dictionary_home screenshot in a successful CI run.
+    launcher_pink = sum(
+        red > 125 and blue > 100
+        and red > green * 1.22 and blue > green * 1.14
+        and red > blue * .8
+        for red, green, blue in pixels
+    ) / len(pixels)
+    if launcher_blue > .45 or launcher_violet > .45 or launcher_pink > .23:
         return False, (
             "iOS launcher/system wallpaper visible "
-            f"(blue={launcher_blue:.1%}, violet={launcher_violet:.1%})"
+            f"(blue={launcher_blue:.1%}, violet={launcher_violet:.1%}, "
+            f"pink={launcher_pink:.1%})"
         )
 
     n = len(pixels)
@@ -85,6 +106,8 @@ def main() -> int:
     parser.add_argument("paths", nargs="+", type=Path,
                         help="Screenshot PNG files or folders")
     parser.add_argument("--expected-count", type=int, default=None)
+    parser.add_argument("--require-lexicon-marker", action="store_true",
+                        help="Require native SwiftUI QA-only foreground marker")
     args = parser.parse_args()
     paths = sorted({image for candidate in args.paths
                     for image in (candidate.glob("*.png") if candidate.is_dir() else [candidate])})
@@ -96,7 +119,7 @@ def main() -> int:
         return 1
     failures = []
     for path in paths:
-        good, reason = inspect(path)
+        good, reason = inspect(path, require_marker=args.require_lexicon_marker)
         print(f"{'PASS' if good else 'FAIL'} {path}: {reason}")
         if not good:
             failures.append(path)
