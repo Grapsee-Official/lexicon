@@ -338,26 +338,21 @@ struct CountrysideQuoteBanner: View {
 
     @Environment(\.colorScheme) private var scheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @State private var availableWidth: CGFloat = 390
+    @State private var measuredWidth: CGFloat = 390
 
     private var isDark: Bool { scheme == .dark }
-    private var stacked: Bool {
-        dynamicTypeSize.isAccessibilitySize || availableWidth < 340
-    }
     private var naturalArtHeight: CGFloat {
-        let name = countrysideImageName(illustrationBase, isDark: isDark)
-        let dimensions = UIImage(named: name)?.size ?? CGSize(width: 3, height: 1)
-        let ratio = max(1, dimensions.width / max(dimensions.height, 1))
-        return availableWidth / ratio
+        let asset = countrysideImageName(illustrationBase, isDark: isDark)
+        let size = UIImage(named: asset)?.size ?? CGSize(width: 3, height: 1)
+        return measuredWidth / max(0.01, size.width / max(1, size.height))
     }
-    private var bannerHeight: CGFloat {
-        stacked ? naturalArtHeight + 110 : naturalArtHeight
+    private var expandedInk: Bool {
+        dynamicTypeSize.isAccessibilitySize || measuredWidth < 380 || quote.count > 82
     }
-
-    private var words: some View {
-        VStack(alignment: .leading, spacing: 7) {
+    private var epigraph: some View {
+        VStack(alignment: .leading, spacing: 5) {
             Text("“\(quote)”")
-                .font(.lexiconDisplay(16, weight: .regular).italic())
+                .font(.lexiconDisplay(16).italic())
                 .foregroundStyle(lexiconPalette(scheme).foreground)
                 .fixedSize(horizontal: false, vertical: true)
             Text("— \(attribution) —")
@@ -365,53 +360,46 @@ struct CountrysideQuoteBanner: View {
                 .tracking(0.3)
                 .foregroundStyle(lexiconPalette(scheme).highlight)
         }
+        .padding(.leading, 18)
+        .padding(.trailing, 14)
+        .padding(.vertical, 6)
     }
 
     var body: some View {
         let p = lexiconPalette(scheme)
-        ZStack(alignment: .leading) {
-            p.card
-
-            if stacked {
-                VStack(alignment: .leading, spacing: 0) {
-                    words
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 18)
-                        .padding(.top, 20)
-                    Spacer(minLength: 8)
-                    Image(countrysideImageName(illustrationBase, isDark: isDark))
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxWidth: .infinity)
-                        .frame(height: naturalArtHeight, alignment: .bottomTrailing)
-                        .accessibilityHidden(true)
-                }
-            } else {
+        // The bordered watercolor's vertical dimension is dictated only by
+        // the source artwork. Long and accessible copy lives on parchment
+        // before the bookplate rather than stretching its image container.
+        VStack(alignment: .leading, spacing: expandedInk ? 5 : 0) {
+            if expandedInk {
+                epigraph
+            }
+            ZStack(alignment: .leading) {
+                p.card
                 Image(countrysideImageName(illustrationBase, isDark: isDark))
                     .resizable()
                     .scaledToFit()
-                    .frame(maxWidth: .infinity, alignment: .bottomTrailing)
+                    .frame(maxWidth: .infinity)
                     .frame(height: naturalArtHeight, alignment: .bottomTrailing)
                     .accessibilityHidden(true)
 
-                words
-                    .frame(width: availableWidth * 0.54, alignment: .leading)
-                    .padding(.leading, 18)
+                if !expandedInk {
+                    epigraph
+                        .frame(width: measuredWidth * 0.57, alignment: .leading)
+                }
             }
+            .frame(height: naturalArtHeight)
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .stroke(p.border, lineWidth: 1)
+            )
         }
-        // A minimum height, not a lid: accessibility-size quotes may
-        // expand above the entire, naturally sized painting.
-        .frame(minHeight: bannerHeight)
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(p.border, lineWidth: 1)
-        )
         .background {
-            GeometryReader { measurement in
+            GeometryReader { measured in
                 Color.clear
-                    .onAppear { availableWidth = measurement.size.width }
-                    .onChange(of: measurement.size.width) { availableWidth = $0 }
+                    .onAppear { measuredWidth = measured.size.width }
+                    .onChange(of: measured.size.width) { measuredWidth = $0 }
             }
         }
     }
