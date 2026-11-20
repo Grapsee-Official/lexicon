@@ -522,7 +522,6 @@ struct WordDetailProfileScreen: View {
         .padding(12)
         .frame(maxWidth: .infinity, minHeight: stacked ? 142 : 168,
                alignment: .topLeading)
-        .background(p.card, in: shape)
         .background(alignment: .bottomTrailing) {
             Image(countrysideImageName("ill-books-daisies", isDark: isDark))
                 .resizable()
@@ -531,6 +530,7 @@ struct WordDetailProfileScreen: View {
                        alignment: .bottomTrailing)
                 .accessibilityHidden(true)
         }
+        .background(p.card, in: shape)
         .overlay(shape.stroke(p.border, lineWidth: 1))
     }
 
