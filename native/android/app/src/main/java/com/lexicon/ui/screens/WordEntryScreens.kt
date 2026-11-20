@@ -142,193 +142,169 @@ fun WordOfTheDayScreen(viewModel: LexiconViewModel) {
         contentPadding = PaddingValues(bottom = 162.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        // Top Header + Cottage Stone Bridge Hero Card
+        // Every piece is part of the reading page, not overlapping strata
+        // that force a tall banner around a smaller picture.
         item(key = "wotd_hero_card") {
-            Box(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .windowInsetsPadding(WindowInsets.statusBars),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                // Right-anchored Cottage & Stone Bridge Watercolour Vignette
-                Image(
-                    painter = painterResource(bridgeRes),
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit,
-                    alignment = Alignment.BottomEnd,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        // No right-hand image prison. The full painted scene
-                        // scales naturally with the viewport's width.
-                        .fillMaxWidth()
-                        .aspectRatio(1.08f)
-                        .offset(y = 16.dp),
-                )
-
-                if (isDark) {
-                    NocturneAtmosphere(Modifier.fillMaxWidth().aspectRatio(1.08f))
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp)
+                            .clickable(role = Role.Button, onClickLabel = "Toggle appearance") {
+                                viewModel.toggleTheme()
+                            },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        LeafSprig(
+                            color = if (isDark) DarkAccent else BrandGreen,
+                            modifier = Modifier.size(26.dp),
+                        )
+                    }
+                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Text(
+                            "Word of the Day",
+                            color = fg,
+                            style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 24.sp),
+                        )
+                        Text(
+                            "A new word, a wider world.",
+                            color = muted,
+                            style = TextStyle(fontFamily = LongFontFamily, fontSize = 12.sp),
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp)
+                            .clip(CircleShape)
+                            .border(1.dp, border, CircleShape)
+                            .clickable(role = Role.Button, onClickLabel = "Next featured word") {
+                                dayIdx = (dayIdx + 1) % featuredWords.size
+                            },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Outlined.ArrowForward,
+                            contentDescription = null,
+                            tint = fg,
+                            modifier = Modifier.size(21.dp),
+                        )
+                    }
                 }
-
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 18.dp)
+                        .background(cardBg, CircleShape)
+                        .border(1.dp, border, CircleShape)
+                        .padding(horizontal = 12.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Icon(Icons.Outlined.CalendarToday, contentDescription = null, tint = accent, modifier = Modifier.size(14.dp))
+                    Text(
+                        java.text.SimpleDateFormat("EEE, MMM d, yyyy", java.util.Locale.ENGLISH)
+                            .format(java.util.Date()),
+                        color = fg,
+                        style = TextStyle(fontFamily = BodyFontFamily, fontSize = 12.sp),
+                    )
+                }
+                // A flexible manuscript leaf; no truncated description and no
+                // empty fixed-height region beneath its words.
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
+                        .padding(horizontal = 16.dp)
+                        .background(cardBg, RoundedCornerShape(18.dp))
+                        .border(1.dp, border, RoundedCornerShape(18.dp))
+                        .clickable(role = Role.Button, onClickLabel = "Read ${word.word}") {
+                            viewModel.openWord(word)
+                        }
+                        .padding(17.dp),
+                    verticalArrangement = Arrangement.spacedBy(9.dp),
                 ) {
-                    Spacer(Modifier.height(10.dp))
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            LeafSprig(
-                                color = if (isDark) DarkAccent else BrandGreen,
-                                modifier = Modifier
-                                    .size(25.dp)
-                                    .clickable { viewModel.toggleTheme() },
-                            )
-                            Column {
-                                Text(
-                                    text = "Word of the Day",
-                                    color = fg,
-                                    style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 24.sp),
-                                )
-                                Text(
-                                    text = "A new word, a wider world.",
-                                    color = muted,
-                                    style = TextStyle(fontFamily = LongFontFamily, fontSize = 11.sp),
-                                )
-                            }
-                        }
-
-                        Box(
-                            modifier = Modifier
-                                .size(44.dp)
-                                .clip(CircleShape)
-                                .background(cardBg.copy(alpha = 0.8f))
-                                .border(1.dp, border, CircleShape)
-                                .clickable(role = Role.Button, onClickLabel = "Next featured word") {
-                                    dayIdx = (dayIdx + 1) % featuredWords.size
-                                },
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Icon(Icons.AutoMirrored.Outlined.ArrowForward, contentDescription = null, tint = fg, modifier = Modifier.size(19.dp))
-                        }
-                    }
-
-                    Spacer(Modifier.height(10.dp))
-
-                    // Date pill
-                    Row(
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .background(cardBg)
-                            .border(1.dp, border, CircleShape)
-                            .padding(horizontal = 11.dp, vertical = 5.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
-                        Icon(Icons.Outlined.CalendarToday, contentDescription = null, tint = accent, modifier = Modifier.size(12.dp))
                         Text(
-                            text = java.text.SimpleDateFormat("EEE, MMM d, yyyy", java.util.Locale.ENGLISH).format(java.util.Date()),
-                            color = fg.copy(alpha = 0.85f),
-                            style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.sp),
-                        )
-                    }
-
-                    Spacer(Modifier.height(10.dp))
-
-                    // Featured Word Card
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(18.dp))
-                            .background(cardBg)
-                            .border(1.dp, border, RoundedCornerShape(18.dp))
-                            .clickable { viewModel.openWord(word) }
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            Text(
-                                text = word.word,
-                                color = fg,
-                                style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 30.sp),
-                            )
-                            Icon(Icons.AutoMirrored.Outlined.VolumeUp, contentDescription = "Pronounce", tint = muted, modifier = Modifier.size(18.dp))
-                        }
-                        Text(
-                            text = word.partOfSpeech.label(),
-                            color = muted,
-                            style = TextStyle(fontFamily = LongFontFamily, fontStyle = FontStyle.Italic, fontSize = 13.sp),
-                        )
-                        Text(
-                            text = word.phonetic,
-                            color = muted,
-                            style = TextStyle(fontFamily = BodyFontFamily, fontSize = 12.sp),
-                        )
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(0.54f),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            Box(Modifier.weight(1f).height(1.dp).background(border))
-                            LeafSprig(color = accent, modifier = Modifier.size(13.dp))
-                            Box(Modifier.weight(1f).height(1.dp).background(border))
-                        }
-
-                        Text(
-                            text = word.definitions.firstOrNull().orEmpty(),
+                            word.word,
+                            modifier = Modifier.weight(1f, fill = false),
                             color = fg,
-                            style = TextStyle(fontFamily = LongFontFamily, fontSize = 13.5.sp, lineHeight = 19.sp),
-                            modifier = Modifier.fillMaxWidth(0.62f),
+                            style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 31.sp),
                         )
-
-                        Row(
+                        // The audio control is not a dead icon.
+                        Icon(
+                            Icons.AutoMirrored.Outlined.VolumeUp,
+                            contentDescription = "Pronounce ${word.word}",
+                            tint = muted,
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(bg.copy(alpha = 0.65f))
-                                .border(1.dp, border, RoundedCornerShape(12.dp))
-                                .padding(horizontal = 12.dp, vertical = 10.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            Icon(Icons.Outlined.FormatQuote, contentDescription = null, tint = accent, modifier = Modifier.size(16.dp))
-                            Text(
-                                text = "“${word.examples.firstOrNull().orEmpty()}”",
-                                color = fg.copy(alpha = 0.85f),
-                                style = TextStyle(fontFamily = LongFontFamily, fontStyle = FontStyle.Italic, fontSize = 12.sp, lineHeight = 17.sp),
-                            )
-                        }
+                                .size(44.dp)
+                                .clickable(role = Role.Button) { viewModel.pronounce(word.word) }
+                                .padding(11.dp),
+                        )
                     }
-
-                    // Carousel dots
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp),
-                        horizontalArrangement = Arrangement.Center,
-                    ) {
-                        featuredWords.indices.forEach { i ->
+                    Text(
+                        "${word.partOfSpeech.label()}  ·  ${word.phonetic}",
+                        color = muted,
+                        style = TextStyle(fontFamily = LongFontFamily, fontStyle = FontStyle.Italic, fontSize = 14.sp),
+                    )
+                    Text(
+                        word.definitions.firstOrNull().orEmpty(),
+                        color = fg,
+                        style = TextStyle(fontFamily = LongFontFamily, fontSize = 15.sp, lineHeight = 22.sp),
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    word.examples.firstOrNull()?.takeIf { it.isNotBlank() }?.let { example ->
+                        Text(
+                            "“$example”",
+                            color = fg.copy(alpha = 0.85f),
+                            style = TextStyle(fontFamily = LongFontFamily, fontStyle = FontStyle.Italic, fontSize = 13.sp, lineHeight = 19.sp),
+                        )
+                    }
+                }
+                // The watercolor occupies exactly its own natural proportions,
+                // unrestricted by the information card above.
+                val watercolor = painterResource(bridgeRes)
+                val dims = watercolor.intrinsicSize
+                val ratio = if (dims.width > 1f && dims.height > 1f) dims.width / dims.height else 1.45f
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    Image(
+                        painter = watercolor,
+                        contentDescription = null,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier.fillMaxWidth().aspectRatio(ratio),
+                    )
+                    if (isDark) NocturneAtmosphere(Modifier.matchParentSize())
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    featuredWords.indices.forEach { index ->
+                        Box(
+                            modifier = Modifier
+                                .size(44.dp)
+                                .clickable(role = Role.Button, onClickLabel = "Featured word ${index + 1}") {
+                                    dayIdx = index
+                                },
+                            contentAlignment = Alignment.Center,
+                        ) {
                             Box(
                                 modifier = Modifier
-                                    .padding(horizontal = 3.dp)
-                                    .size(if (i == dayIdx) 7.dp else 5.dp)
-                                    .clip(CircleShape)
-                                    .background(if (i == dayIdx) (if (isDark) DarkAccent else BrandGreen) else border)
-                                    .clickable { dayIdx = i },
+                                    .size(if (index == dayIdx) 8.dp else 5.dp)
+                                    .background(if (index == dayIdx) (if (isDark) DarkAccent else BrandGreen) else border, CircleShape)
                             )
                         }
                     }
                 }
-
-
             }
         }
 
