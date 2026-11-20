@@ -1092,6 +1092,9 @@ struct SearchDiscoveryScreen: View {
                 .scaledToFit()
                 .frame(maxWidth: .infinity)
                 .frame(height: paintingHeight, alignment: .bottom)
+                .background {
+                    SearchDreamscapeWash(isDark: isDark)
+                }
                 .offset(y: 10)
                 .overlay {
                     if isDark {
