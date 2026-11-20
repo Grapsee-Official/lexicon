@@ -18,7 +18,7 @@
 import SwiftUI
 
 private enum MoreReadingDestination: String, Identifiable {
-    case about, privacy, licenses
+    case about, privacy, licenses, journey
     var id: String { rawValue }
 }
 
@@ -92,6 +92,15 @@ struct MoreScreen: View {
                         label: "Clear cache",
                         value: "Temporary files",
                         action: { infoKey = "cache" }
+                    ),
+                ])
+
+                SettingsGroup(title: "Your Library", rows: [
+                    SettingsRowSpec(
+                        icon: "books.vertical",
+                        label: "Reading journey",
+                        value: "\(vm.recentSearches.count) recent · \(vm.savedWordIds.count) saved",
+                        action: { readingPage = .journey }
                     ),
                 ])
 
@@ -385,12 +394,14 @@ private struct MoreReadingPage: View {
     let page: MoreReadingDestination
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var scheme
+    @EnvironmentObject private var vm: LexiconViewModel
 
     private var title: String {
         switch page {
         case .about: return "About Lexicon"
         case .privacy: return "Privacy & storage"
         case .licenses: return "Open-source notices"
+        case .journey: return "Reading Journey"
         }
     }
 
@@ -414,6 +425,8 @@ private struct MoreReadingPage: View {
                 "Lexicon uses SwiftUI, SQLite and the shared C++17 dictionary engine. Software libraries retain their respective licences.",
                 "Consult the dependency distributions and the Grapsee-Official/lexicon repository for applicable upstream licence texts. This overview is not a replacement for complete legal notices."
             ]
+        case .journey:
+            return []
         }
     }
 
@@ -422,11 +435,84 @@ private struct MoreReadingPage: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    ForEach(Array(paragraphs.enumerated()), id: \.offset) { index, paragraph in
-                        Text(paragraph)
-                            .font(index == 0 ? .lexiconDisplay(24) : .lexiconLong(16))
+                    if page == .journey {
+                        // Actual saved and searched words from the same local
+                        // model used by Dictionary and Collections.
+                        Text("Words gathered along the way")
+                            .font(.lexiconLong(16))
+                            .foregroundStyle(palette.mutedForeground)
+                        Text("Recently explored")
+                            .font(.lexiconDisplay(23))
                             .foregroundStyle(palette.foreground)
-                            .fixedSize(horizontal: false, vertical: true)
+                        if vm.recentSearches.isEmpty {
+                            Text("Your discoveries will appear here after you search for a word.")
+                                .font(.lexiconLong(14))
+                                .foregroundStyle(palette.mutedForeground)
+                        }
+                        ForEach(Array(vm.recentSearches.enumerated()), id: \.offset) { _, query in
+                            Button {
+                                dismiss()
+                                if let word = LexiconData.getWordById(query.lowercased()) {
+                                    vm.openWord(word)
+                                } else {
+                                    vm.submitSearch(query)
+                                }
+                            } label: {
+                                HStack {
+                                    Image(systemName: "clock.arrow.circlepath").foregroundStyle(palette.primary)
+                                    Text(query).font(.lexiconDisplay(18)).foregroundStyle(palette.foreground)
+                                    Spacer()
+                                    Image(systemName: "chevron.right").foregroundStyle(palette.mutedForeground)
+                                }
+                                .padding(15)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(palette.card, in: RoundedRectangle(cornerRadius: 14))
+                                .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.border, lineWidth: 1))
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        Text("Words kept close")
+                            .font(.lexiconDisplay(23))
+                            .foregroundStyle(palette.foreground)
+                        if vm.savedWordIds.isEmpty {
+                            Text("Bookmark a word to gather it in your personal library.")
+                                .font(.lexiconLong(14))
+                                .foregroundStyle(palette.mutedForeground)
+                        }
+                        ForEach(Array(vm.savedWordIds.enumerated()), id: \.offset) { _, wordId in
+                            if let entry = LexiconData.getWordById(wordId) {
+                                Button {
+                                    dismiss()
+                                    vm.openWord(entry)
+                                } label: {
+                                    HStack {
+                                        Image(systemName: "bookmark.fill").foregroundStyle(palette.primary)
+                                        VStack(alignment: .leading, spacing: 3) {
+                                            Text(entry.word)
+                                                .font(.lexiconDisplay(18))
+                                                .foregroundStyle(palette.foreground)
+                                            Text(entry.phonetic)
+                                                .font(.lexiconBody(11))
+                                                .foregroundStyle(palette.mutedForeground)
+                                        }
+                                        Spacer()
+                                        Image(systemName: "chevron.right").foregroundStyle(palette.mutedForeground)
+                                    }
+                                    .padding(15)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .background(palette.card, in: RoundedRectangle(cornerRadius: 14))
+                                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(palette.border, lineWidth: 1))
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    } else {
+                        ForEach(Array(paragraphs.enumerated()), id: \.offset) { index, paragraph in
+                            Text(paragraph)
+                                .font(index == 0 ? .lexiconDisplay(24) : .lexiconLong(16))
+                                .foregroundStyle(palette.foreground)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
                     }
                 }
                 .frame(maxWidth: 620, alignment: .leading)
