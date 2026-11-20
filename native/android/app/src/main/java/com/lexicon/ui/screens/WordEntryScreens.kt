@@ -488,7 +488,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                     // measured text height; absolutely no Crop or thumbnail
                     // slot. The complete artwork may extend into the
                     // transparent tops of the four information cards.
-                    val paintedWidth = size.width * 0.70f
+                    val paintedWidth = size.width // Use the complete watercolor canvas, not a narrow art slot
                     val paintedHeight = paintedWidth *
                         bridgeBitmap.height.toFloat() / bridgeBitmap.width.toFloat()
                     drawImage(
