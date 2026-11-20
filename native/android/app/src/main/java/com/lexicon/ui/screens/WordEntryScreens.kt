@@ -626,7 +626,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                     LeafSprig(color = accent, modifier = Modifier.size(15.dp))
                     Text("Meanings", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 16.sp))
                 }
-                word.definitions.take(2).forEachIndexed { i, def ->
+                (if (word.id == "serendipity") word.definitions.drop(1) else word.definitions).take(2).forEachIndexed { i, def ->
                     Row(horizontalArrangement = Arrangement.spacedBy(9.dp), verticalAlignment = Alignment.Top) {
                         Box(
                             modifier = Modifier
@@ -724,7 +724,9 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
             // in a detached full-width image strip below the card.
             val shape = RoundedCornerShape(17.dp)
             val inkStyle = TextStyle(fontFamily = LongFontFamily, fontSize = 11.5.sp, lineHeight = 16.sp)
-            val examples = word.examples.filter { it.isNotBlank() }.distinct().take(2)
+            val examples = word.examples.filter { it.isNotBlank() }.distinct().let { all ->
+                    (if (word.id == "serendipity") all.drop(2) else all).take(2)
+                }
             val fontScale = androidx.compose.ui.platform.LocalConfiguration.current.fontScale
             BoxWithConstraints(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -800,32 +802,6 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                         if (examples.isNotEmpty()) UsageCard(Modifier.weight(1f))
                     }
                 }
-            }
-        }
-
-        // Progressive Link to Page 10 (36-Language Expanded Word Exploration)
-        item(key = "expand_36_btn") {
-            Row(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(50))
-                    .background(cardBg)
-                    .border(1.dp, border, RoundedCornerShape(50))
-                    .clickable(role = Role.Button) { viewModel.openWordExpanded(word) }
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Outlined.Language, contentDescription = null, tint = if (isDark) DarkAccent else BrandGreen, modifier = Modifier.size(17.dp))
-                    Text(
-                        text = "Explore ${LexiconData.translationsFor(word).size} Available Translations",
-                        color = fg,
-                        style = TextStyle(fontFamily = BodyFontFamily, fontWeight = FontWeight.Medium, fontSize = 12.sp),
-                    )
-                }
-                Icon(Icons.AutoMirrored.Outlined.ArrowForward, contentDescription = null, tint = accent, modifier = Modifier.size(15.dp))
             }
         }
 
