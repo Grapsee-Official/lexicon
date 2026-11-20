@@ -96,6 +96,7 @@ import com.lexicon.ui.components.CountrysideQuoteBanner
 import com.lexicon.ui.components.CountrysideSearchPill
 import com.lexicon.ui.components.LeafSprig
 import com.lexicon.ui.components.NocturneAtmosphere
+import com.lexicon.ui.components.SearchDreamscapeWash
 import com.lexicon.ui.components.CottageWindowGlow
 import com.lexicon.ui.components.resolveCountrysideDrawable
 import com.lexicon.ui.theme.BodyFontFamily
@@ -1510,6 +1511,7 @@ private fun SearchCountrysideHeader(
                     .height(sceneHeight),
                 contentAlignment = Alignment.BottomCenter,
             ) {
+                SearchDreamscapeWash(isDark, Modifier.matchParentSize())
                 Image(
                     painter = painterResource(resId),
                     contentDescription = null,
