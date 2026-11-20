@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Four panes represent the four sections of More; pointed arch evokes English heritage windows. -->
+  <path d="M4.5,20.2 L4.5,9.2 Q4.5,5,12,3.5 Q19.5,5,19.5,9.2 L19.5,20.2 Z"/>
+  <path d="M12,4 L12,20.2"/>
+  <path d="M4.5,12.4 L19.5,12.4"/>
+  <path d="M3.4,21.1 L20.6,21.1"/>
+</svg>

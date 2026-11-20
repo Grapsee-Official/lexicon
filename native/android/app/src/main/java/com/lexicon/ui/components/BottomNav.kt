@@ -16,14 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.MenuBook
-import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.outlined.BookmarkBorder
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.MoreHoriz
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,7 +25,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
+import com.lexicon.R
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
@@ -59,7 +52,7 @@ import com.lexicon.ui.theme.PrimaryForeground
 import com.lexicon.ui.theme.WarmGrey
 
 /**
- * BottomNav — Floating capsule navigation bar matching Light & Dark PNGs 1:1:
+ * BottomNav — Floating capsule navigation bar with custom heritage vector icons:
  *   - Light Mode: elevated warm cream capsule, BrandGreen active state + solid
  *     BrandGreen center Search circle with white magnifier.
  *   - Dark Mode: sleek nocturnal capsule (#141B25) with 1dp border, antique gold
@@ -111,8 +104,7 @@ fun BottomNav(
             BottomNavItem(
                 label = "Home",
                 modifier = Modifier.weight(1f),
-                outlinedIcon = Icons.Outlined.Home,
-                filledIcon = Icons.Filled.Home,
+                iconRes = R.drawable.heritage_nav_home,
                 isActive = activeTab == TabKey.HOME,
                 activeColor = activeColor,
                 inactiveColor = inactiveColor,
@@ -125,8 +117,7 @@ fun BottomNav(
             BottomNavItem(
                 label = "Dictionary",
                 modifier = Modifier.weight(1f),
-                outlinedIcon = Icons.AutoMirrored.Outlined.MenuBook,
-                filledIcon = Icons.AutoMirrored.Outlined.MenuBook,
+                iconRes = R.drawable.heritage_nav_dictionary,
                 isActive = activeTab == TabKey.DICTIONARY,
                 activeColor = activeColor,
                 inactiveColor = inactiveColor,
@@ -143,8 +134,7 @@ fun BottomNav(
             BottomNavItem(
                 label = "Collections",
                 modifier = Modifier.weight(1f),
-                outlinedIcon = Icons.Outlined.BookmarkBorder,
-                filledIcon = Icons.Filled.Bookmark,
+                iconRes = R.drawable.heritage_nav_collections,
                 isActive = activeTab == TabKey.COLLECTIONS,
                 activeColor = activeColor,
                 inactiveColor = inactiveColor,
@@ -157,8 +147,7 @@ fun BottomNav(
             BottomNavItem(
                 label = "More",
                 modifier = Modifier.weight(1f),
-                outlinedIcon = Icons.Outlined.MoreHoriz,
-                filledIcon = Icons.Outlined.MoreHoriz,
+                iconRes = R.drawable.heritage_nav_more,
                 isActive = activeTab == TabKey.MORE,
                 activeColor = activeColor,
                 inactiveColor = inactiveColor,
@@ -196,7 +185,7 @@ fun BottomNav(
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                imageVector = Icons.Outlined.Search,
+                painter = painterResource(R.drawable.heritage_nav_search),
                 contentDescription = null,
                 tint = if (isDark) DarkHighlight else PrimaryForeground,
                 modifier = Modifier.size(24.dp),
@@ -209,8 +198,7 @@ fun BottomNav(
 private fun BottomNavItem(
     label: String,
     modifier: Modifier = Modifier,
-    outlinedIcon: ImageVector,
-    filledIcon: ImageVector,
+    iconRes: Int,
     isActive: Boolean,
     activeColor: Color,
     inactiveColor: Color,
@@ -227,7 +215,7 @@ private fun BottomNavItem(
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         Icon(
-            imageVector = if (isActive) filledIcon else outlinedIcon,
+            painter = painterResource(iconRes),
             contentDescription = null,
             tint = if (isActive) activeColor else inactiveColor,
             modifier = Modifier.size(19.dp),

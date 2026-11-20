@@ -1,9 +1,47 @@
 "use client";
 
-import { Home, BookOpen, Bookmark, MoreHorizontal, Search } from "lucide-react";
 import { useHaptics } from "@/hooks/use-haptics";
 import { cn } from "@/lib/utils";
 import { useAppStore, type TabKey } from "@/lib/app-store";
+
+/** Shared silhouettes: web masks use the same 24×24 SVG masters as Android/iOS. */
+const heritageIconFiles = {
+  home: "/icons/heritage/home.svg",
+  dictionary: "/icons/heritage/dictionary.svg",
+  search: "/icons/heritage/search.svg",
+  collections: "/icons/heritage/collections.svg",
+  more: "/icons/heritage/more.svg",
+} as const;
+
+type HeritageIconName = keyof typeof heritageIconFiles;
+
+function HeritageNavIcon({
+  name,
+  className,
+}: {
+  name: HeritageIconName;
+  className?: string;
+}) {
+  const icon = `url("${heritageIconFiles[name]}")`;
+  return (
+    <span
+      aria-hidden="true"
+      className={cn("inline-block shrink-0", className)}
+      style={{
+        backgroundColor: "currentColor",
+        WebkitMaskImage: icon,
+        maskImage: icon,
+        WebkitMaskSize: "contain",
+        maskSize: "contain",
+        WebkitMaskPosition: "center",
+        maskPosition: "center",
+        WebkitMaskRepeat: "no-repeat",
+        maskRepeat: "no-repeat",
+      }}
+    />
+  );
+}
+
 
 export function BottomNav({ className }: { className?: string }) {
   const active = useAppStore((s) => s.activeTab);
@@ -14,13 +52,13 @@ export function BottomNav({ className }: { className?: string }) {
   const items: {
     key: TabKey;
     label: string;
-    icon: typeof Home;
+    icon: HeritageIconName;
   }[] = [
-    { key: "home", label: "Home", icon: Home },
-    { key: "dictionary", label: "Dictionary", icon: BookOpen },
-    { key: "search", label: "", icon: Search },
-    { key: "collections", label: "Collections", icon: Bookmark },
-    { key: "more", label: "More", icon: MoreHorizontal },
+    { key: "home", label: "Home", icon: "home" },
+    { key: "dictionary", label: "Dictionary", icon: "dictionary" },
+    { key: "search", label: "", icon: "search" },
+    { key: "collections", label: "Collections", icon: "collections" },
+    { key: "more", label: "More", icon: "more" },
   ];
 
   return (
@@ -48,13 +86,12 @@ export function BottomNav({ className }: { className?: string }) {
                       }}
                       className="w-[46px] h-[46px] grid place-items-center rounded-full bg-[#657D5A] dark:bg-[#101620] text-[#F9F4EA] dark:text-[#F0D89A] border border-transparent dark:border-[#D4A45A]/55 shadow-card active:scale-95 transition-transform"
                     >
-                      <Search className="w-5 h-5" strokeWidth={1.8} />
+                      <HeritageNavIcon name="search" className="w-5 h-5" />
                     </button>
                   </li>
                 );
               }
 
-              const Icon = item.icon;
               return (
                 <li key={item.key} className="flex-1">
                   <button
@@ -64,15 +101,14 @@ export function BottomNav({ className }: { className?: string }) {
                     }}
                     className="w-full py-1 flex flex-col items-center gap-1 active:scale-95 transition-transform"
                   >
-                    <Icon
+                    <HeritageNavIcon
+                      name={item.icon}
                       className={cn(
                         "w-[19px] h-[19px]",
                         isActive
                           ? "text-[#657D5A] dark:text-[#D4A45A]"
                           : "text-[#666052] dark:text-[#D4A45A]/78"
                       )}
-                      strokeWidth={isActive ? 2 : 1.6}
-                      fill={isActive && item.key !== "more" && item.key !== "dictionary" ? "currentColor" : "none"}
                     />
                     <span
                       className={cn(
