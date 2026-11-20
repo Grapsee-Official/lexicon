@@ -38,7 +38,7 @@ extension Color {
 
 enum LexiconColors {
     // MARK: - Light Palette ("Cotswolds Scholarly")
-    static let background        = Color(hex: "FBF5EB")
+    static let background        = Color(hex: "FBF1E5") // Antique parchment from reference
     static let primary           = Color(hex: "657D5A")
     static let foreground        = Color(hex: "252926")
     static let secondary         = Color(hex: "7C9297")
