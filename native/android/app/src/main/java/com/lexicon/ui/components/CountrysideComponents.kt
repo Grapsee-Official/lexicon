@@ -530,87 +530,74 @@ fun CountrysideQuoteBanner(
     isDark: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val cardBg = if (isDark) DarkCard else CardSurface
+    val paper = if (isDark) DarkCard else CardSurface
     val border = if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.11f)
-    val quoteColor = if (isDark) DarkForeground else DeepForest
-    val attrColor = if (isDark) DarkAccent else OldWoodGold
-    val resId = resolveCountrysideDrawable(illustrationBase, isDark)
-    val painter = painterResource(resId)
-    val measuredArt = painter.intrinsicSize
-    val artRatio = if (measuredArt.width > 1f && measuredArt.height > 1f) {
-        measuredArt.width / measuredArt.height
+    val ink = if (isDark) DarkForeground else DeepForest
+    val signature = if (isDark) DarkAccent else OldWoodGold
+    val painter = painterResource(resolveCountrysideDrawable(illustrationBase, isDark))
+    val imageSize = painter.intrinsicSize
+    val imageRatio = if (imageSize.width > 1f && imageSize.height > 1f) {
+        imageSize.width / imageSize.height
     } else 3.0f
     val fontScale = androidx.compose.ui.platform.LocalConfiguration.current.fontScale
     val shape = RoundedCornerShape(18.dp)
 
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
-        val stacked = fontScale >= 1.3f || maxWidth < 340.dp
-        // The former 94dp banner truncated both the italic quote and the art.
-        // Use the real available width; a wide split-screen is still a phone
-        // column for sizing purposes, not the device's physical width.
-        val naturalArtHeight = maxWidth / artRatio
-        val bannerHeight = if (stacked) {
-            // One readable text leaf above a painting shown at full aspect.
-            naturalArtHeight + 110.dp
-        } else {
-            // No card taller than its watercolor source by default.
-            naturalArtHeight
-        }
+        val expandedInk = fontScale >= 1.3f || maxWidth < 380.dp || quote.length > 82
+        // This is the essential bookplate rule: the bordered picture has the
+        // source image's *exact* aspect. Never grow a painting to accommodate
+        // words; let the words sit before it on a separate manuscript line.
+        val paintedHeight = maxWidth / imageRatio
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                // Text and the painting may demand more room at larger
-                // accessibility font scales; minimum, never forced height.
-                .heightIn(min = bannerHeight)
-                .clip(shape)
-                .background(cardBg)
-                .border(1.dp, border, shape),
-        ) {
-            Image(
-                painter = painter,
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
-                alignment = Alignment.BottomEnd,
-                modifier = if (stacked) {
-                    Modifier.align(Alignment.BottomEnd).fillMaxWidth().height(naturalArtHeight)
-                } else {
-                    Modifier.fillMaxSize()
-                },
-            )
-
+        @Composable
+        fun Epigraph() {
             Column(
-                modifier = Modifier
-                    .align(if (stacked) Alignment.TopStart else Alignment.CenterStart)
-                    .then(if (stacked) Modifier.fillMaxWidth() else Modifier.fillMaxWidth(0.56f))
-                    .padding(
-                        start = 18.dp,
-                        end = 8.dp,
-                        top = if (stacked) 20.dp else 0.dp,
-                        bottom = if (stacked) naturalArtHeight + 8.dp else 0.dp,
-                    ),
-                verticalArrangement = Arrangement.spacedBy(7.dp),
+                modifier = Modifier.padding(start = 18.dp, end = 14.dp, top = 6.dp, bottom = 6.dp),
+                verticalArrangement = Arrangement.spacedBy(5.dp),
             ) {
                 Text(
                     text = "“$quote”",
-                    color = quoteColor,
+                    color = ink,
                     style = TextStyle(
                         fontFamily = DisplayFontFamily,
                         fontStyle = FontStyle.Italic,
                         fontSize = 16.sp,
                         lineHeight = 21.sp,
                     ),
-                    // No two-line truncation of an epigraph.
                 )
                 Text(
                     text = "— $attribution —",
-                    color = attrColor,
+                    color = signature,
                     style = TextStyle(
                         fontFamily = BodyFontFamily,
                         fontSize = 11.sp,
                         letterSpacing = 0.3.sp,
                     ),
                 )
+            }
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(if (expandedInk) 5.dp else 0.dp)) {
+            if (expandedInk) Epigraph()
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(paintedHeight)
+                    .clip(shape)
+                    .background(paper)
+                    .border(1.dp, border, shape),
+                contentAlignment = Alignment.CenterStart,
+            ) {
+                Image(
+                    painter = painter,
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    alignment = Alignment.BottomEnd,
+                    modifier = Modifier.fillMaxSize(),
+                )
+                if (!expandedInk) {
+                    Box(modifier = Modifier.fillMaxWidth(0.57f)) { Epigraph() }
+                }
             }
         }
     }
