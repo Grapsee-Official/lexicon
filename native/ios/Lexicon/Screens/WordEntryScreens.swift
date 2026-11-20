@@ -18,7 +18,6 @@ struct WordOfTheDayScreen: View {
     @Environment(\.colorScheme) private var scheme
 
     @State private var dayIdx: Int = 0
-    @State private var artworkWidth: CGFloat = 390
     private var isDark: Bool { scheme == .dark }
     private var featured: [WordEntry] {
         [LexiconData.serendipityEntry, LexiconData.solitudeEntry, LexiconData.wordOfTheDay, LexiconData.dictionary[3]]
@@ -30,142 +29,123 @@ struct WordOfTheDayScreen: View {
 
         ScrollView {
             VStack(spacing: 12) {
-                ZStack(alignment: .topTrailing) {
-                    // The watercolor spans the available native page instead
-                    // of being confined to a fixed 282pt right-hand box.
-                    Image(countrysideImageName("ill-hero-bridge", isDark: isDark))
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: artworkWidth,
-                               height: max(300, min(470, artworkWidth / 1.08)),
-                               alignment: .bottomTrailing)
-                        .offset(y: 16)
-                        .allowsHitTesting(false)
-
-                    if isDark {
-                        NocturneAtmosphere()
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 256)
-                    }
-
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack {
-                            HStack(spacing: 8) {
-                                Button { theme.toggle() } label: {
-                                    BotanicalSprig(color: isDark ? LexiconColors.accentDark : LexiconColors.primary)
-                                        .frame(width: 24, height: 24)
-                                }
-                                .buttonStyle(.plain)
-                                VStack(alignment: .leading, spacing: 1) {
-                                    Text("Word of the Day")
-                                        .font(.lexiconDisplay(23))
-                                        .foregroundStyle(p.foreground)
-                                    Text("A new word, a wider world.")
-                                        .font(.lexiconLong(11))
-                                        .foregroundStyle(p.mutedForeground)
-                                }
-                            }
-                            Spacer()
-                            Button {
-                                dayIdx = (dayIdx + 1) % featured.count
-                            } label: {
-                                Image(systemName: "arrow.right")
-                                    .font(.system(size: 15))
-                                    .foregroundStyle(p.foreground)
-                                    .frame(width: 44, height: 44)
-                                    .background(p.card.opacity(0.85))
-                                    .clipShape(Circle())
-                                    .overlay(Circle().stroke(p.border, lineWidth: 1))
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel("Next featured word")
-                        }
-
-                        HStack(spacing: 6) {
-                            Image(systemName: "calendar")
-                                .font(.system(size: 11))
-                                .foregroundStyle(p.highlight)
-                            Text(Date.now, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day().year())
-                                .font(.lexiconBody(11))
-                                .foregroundStyle(p.foreground.opacity(0.85))
-                        }
-                        .padding(.horizontal, 11)
-                        .padding(.vertical, 5)
-                        .background(p.card)
-                        .clipShape(Capsule())
-                        .overlay(Capsule().stroke(p.border, lineWidth: 1))
-
-                        Button { vm.openWord(word) } label: {
-                            VStack(alignment: .leading, spacing: 8) {
-                                HStack(spacing: 8) {
-                                    Text(word.word)
-                                        .font(.lexiconDisplay(29))
-                                        .foregroundStyle(p.foreground)
-                                    Image(systemName: "speaker.wave.2")
-                                        .font(.system(size: 15))
-                                        .foregroundStyle(p.mutedForeground)
-                                }
-                                Text(word.partOfSpeech.displayValue)
-                                    .font(.lexiconLong(13).italic())
-                                    .foregroundStyle(p.mutedForeground)
-                                Text(word.phonetic)
-                                    .font(.lexiconBody(12))
-                                    .foregroundStyle(p.mutedForeground)
-
-                                HStack(spacing: 8) {
-                                    Rectangle().fill(p.border).frame(width: 64, height: 1)
-                                    BotanicalSprig(color: p.highlight).frame(width: 13, height: 13)
-                                    Rectangle().fill(p.border).frame(width: 64, height: 1)
-                                }
-
-                                Text(word.definitions.first ?? "")
-                                    .font(.lexiconLong(13))
-                                    .foregroundStyle(p.foreground)
-                                    .multilineTextAlignment(.leading)
-                                    .frame(maxWidth: 215, alignment: .leading)
-
-                                HStack(alignment: .top, spacing: 8) {
-                                    Image(systemName: "quote.opening")
-                                        .font(.system(size: 13))
-                                        .foregroundStyle(p.highlight)
-                                    Text("“\(word.examples.first ?? "")”")
-                                        .font(.lexiconLong(11.5).italic())
-                                        .foregroundStyle(p.foreground.opacity(0.86))
-                                        .multilineTextAlignment(.leading)
-                                }
-                                .padding(11)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(p.background.opacity(0.65))
-                                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(p.border, lineWidth: 1))
-                            }
-                            .padding(16)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(p.card)
-                            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(p.border, lineWidth: 1))
+                // Words and landscape belong to the same journal page.
+                // No arbitrary height, trapped right-side art, or giant
+                // transparent card taller than its own watercolour.
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 8) {
+                        Button { theme.toggle() } label: {
+                            BotanicalSprig(color: isDark ? LexiconColors.accentDark : LexiconColors.primary)
+                                .frame(width: 26, height: 26)
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
-
-                        HStack(spacing: 6) {
-                            ForEach(0..<featured.count, id: \.self) { i in
-                                Circle()
-                                    .fill(i == dayIdx ? p.primary : p.border)
-                                    .frame(width: i == dayIdx ? 7 : 5, height: i == dayIdx ? 7 : 5)
-                                    .onTapGesture { dayIdx = i }
-                            }
+                        .accessibilityLabel("Toggle appearance")
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Word of the Day")
+                                .font(.lexiconDisplay(24))
+                                .foregroundStyle(p.foreground)
+                            Text("A new word, a wider world.")
+                                .font(.lexiconLong(12))
+                                .foregroundStyle(p.mutedForeground)
                         }
-                        .frame(maxWidth: .infinity)
+                        Spacer(minLength: 0)
+                        Button {
+                            dayIdx = (dayIdx + 1) % featured.count
+                        } label: {
+                            Image(systemName: "arrow.right")
+                                .font(.system(size: 19))
+                                .foregroundStyle(p.foreground)
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Next featured word")
                     }
                     .padding(.horizontal, 16)
                     .padding(.top, 8)
-                }
-                .background {
-                    GeometryReader { scene in
-                        Color.clear
-                            .onAppear { artworkWidth = scene.size.width }
-                            .onChange(of: scene.size.width) { artworkWidth = $0 }
+
+                    HStack(spacing: 6) {
+                        Image(systemName: "calendar")
+                            .font(.system(size: 13))
+                            .foregroundStyle(p.highlight)
+                        Text(Date.now, format: .dateTime.weekday(.abbreviated).month(.abbreviated).day().year())
+                            .font(.lexiconBody(12))
+                            .foregroundStyle(p.foreground)
                     }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(p.card, in: Capsule())
+                    .overlay(Capsule().stroke(p.border, lineWidth: 1))
+                    .padding(.horizontal, 18)
+
+                    VStack(alignment: .leading, spacing: 9) {
+                        HStack(spacing: 7) {
+                            Button { vm.openWord(word) } label: {
+                                Text(word.word)
+                                    .font(.lexiconDisplay(31))
+                                    .foregroundStyle(p.foreground)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                            .buttonStyle(.plain)
+                            Button { vm.pronounce(word.word) } label: {
+                                Image(systemName: "speaker.wave.2")
+                                    .font(.system(size: 18))
+                                    .foregroundStyle(p.mutedForeground)
+                                    .frame(width: 44, height: 44)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Pronounce word")
+                            Spacer(minLength: 0)
+                        }
+                        Text("\(word.partOfSpeech.displayValue) · \(word.phonetic)")
+                            .font(.lexiconLong(14).italic())
+                            .foregroundStyle(p.mutedForeground)
+                        Text(word.definitions.first ?? "")
+                            .font(.lexiconLong(15))
+                            .foregroundStyle(p.foreground)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .fixedSize(horizontal: false, vertical: true)
+                        if let example = word.examples.first, !example.isEmpty {
+                            Text("“\(example)”")
+                                .font(.lexiconLong(13).italic())
+                                .foregroundStyle(p.foreground.opacity(0.85))
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        Button { vm.openWord(word) } label: {
+                            Label("Read the full entry", systemImage: "arrow.right")
+                                .font(.lexiconBody(12))
+                                .foregroundStyle(p.primary)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    .padding(17)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(p.card, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(p.border, lineWidth: 1))
+                    .padding(.horizontal, 16)
+
+                    Image(countrysideImageName("ill-hero-bridge", isDark: isDark))
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxWidth: .infinity)
+                        .accessibilityHidden(true)
+
+                    HStack(spacing: 0) {
+                        ForEach(featured.indices, id: \.self) { index in
+                            Button { dayIdx = index } label: {
+                                Circle()
+                                    .fill(index == dayIdx ? p.primary : p.border)
+                                    .frame(width: index == dayIdx ? 8 : 5, height: index == dayIdx ? 8 : 5)
+                                    .frame(width: 44, height: 44)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Featured word \(index + 1)")
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
                 }
 
                 // About the Word
