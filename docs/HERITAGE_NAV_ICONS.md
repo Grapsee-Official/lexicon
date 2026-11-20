@@ -1,6 +1,6 @@
 # Lexora heritage navigation icon set
 
-Five original, deliberately restrained 24×24 vector marks for Home (English cottage), Dictionary (open folio), Search (brass magnifier with glint), Collections (botanical bookmark), and More (three engraved brass studs).
+Five original, deliberately restrained 24×24 vector marks for Home (English cottage), Dictionary (open folio), Search (brass magnifier with glint), Collections (botanical bookmark), and More (four-pane leaded heritage window).
 
 ## Masters and implementations
 
@@ -8,6 +8,8 @@ Five original, deliberately restrained 24×24 vector marks for Home (English cot
 - Android: matching `res/drawable/heritage_nav_*.xml` VectorDrawables rendered by `painterResource` and tinted with existing theme colors.
 - iOS: matching, resolution-independent SwiftUI `Path` geometry rendered in `BottomNav.swift`, tinted with existing theme colors.
 - Web: use the SVG master as a CSS mask in `bottom-nav.tsx`, retaining existing sizes and active-state colors.
+
+The More motif deliberately replaces an ellipsis with a four-pane, pointed-arch English cottage window: four panes reflect the four settings groups (Appearance, Dictionary, Privacy & Data, About). Retain its explicit **More** label, because decorative metaphors can be ambiguous without text.
 
 ## Contract
 
