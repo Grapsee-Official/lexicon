@@ -438,6 +438,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
     val accent = if (isDark) DarkAccent else OldWoodGold
 
     val context = LocalContext.current
+    val compactReading = androidx.compose.ui.platform.LocalConfiguration.current.fontScale < 1.25f
     val bridgeRes = resolveCountrysideDrawable("ill_hero_bridge", isDark)
     val booksRes = resolveCountrysideDrawable("ill_books_daisies", isDark)
     val bayRes = resolveCountrysideDrawable("ill_banner_bay", isDark)
@@ -447,7 +448,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
             .fillMaxSize()
             .background(bg),
         contentPadding = PaddingValues(bottom = 162.dp),
-        verticalArrangement = Arrangement.spacedBy(11.dp),
+        verticalArrangement = Arrangement.spacedBy(if (compactReading) 8.dp else 12.dp),
     ) {
         item(key = "detail_hero") {
             // Preserve the owner's composition: watercolor occupies the whole
@@ -455,22 +456,36 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
             BoxWithConstraints(
                 modifier = Modifier.fillMaxWidth()
                     .windowInsetsPadding(WindowInsets.statusBars)
-                    .heightIn(min = 225.dp),
+                    .heightIn(min = if (compactReading) 188.dp else 225.dp),
             ) {
-                val sceneHeight = (maxWidth * 0.55f).coerceIn(215.dp, 355.dp)
+                val sceneHeight = if (compactReading) {
+                    (maxWidth * 0.46f).coerceIn(178.dp, 290.dp)
+                } else {
+                    (maxWidth * 0.55f).coerceIn(215.dp, 355.dp)
+                }
                 Image(
                     painter = painterResource(bridgeRes),
                     contentDescription = null,
                     contentScale = ContentScale.Fit,
                     alignment = Alignment.TopEnd,
-                    modifier = Modifier.matchParentSize().offset(y = (-10).dp),
+                    modifier = if (compactReading) {
+                        // Source alpha is preserved. The artwork can spread
+                        // beneath the first translucent tiles instead of
+                        // becoming a tiny right-edge thumbnail.
+                        Modifier.align(Alignment.TopEnd)
+                            .width(maxWidth * 1.14f)
+                            .height((maxWidth * .77f).coerceIn(235.dp, 370.dp))
+                            .offset(y = (-22).dp)
+                    } else {
+                        Modifier.matchParentSize().offset(y = (-10).dp)
+                    },
                 )
                 if (isDark) NocturneAtmosphere(Modifier.matchParentSize())
                 Column(
                     modifier = Modifier.fillMaxWidth()
                         .heightIn(min = sceneHeight)
-                        .padding(bottom = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                        .padding(bottom = if (compactReading) 3.dp else 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(if (compactReading) 2.dp else 5.dp),
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(start = 10.dp, end = 11.dp),
@@ -512,14 +527,15 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                         modifier = Modifier.padding(start = 20.dp)
                             .background(if (isDark) DarkCard else Color(0xFFF0E5D1), CircleShape)
                             .border(1.dp, border, CircleShape)
-                            .padding(horizontal = 12.dp, vertical = 5.dp),
+                            .padding(horizontal = if (compactReading) 9.dp else 12.dp,
+                                vertical = if (compactReading) 3.dp else 5.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
                         LeafSprig(color = accent, modifier = Modifier.size(13.dp))
                         Text(
                             "Word of the Day", color = fg,
-                            style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 14.sp),
+                            style = TextStyle(fontFamily = DisplayFontFamily, fontSize = if (compactReading) 12.sp else 14.sp),
                         )
                     }
                     Row(
@@ -530,7 +546,9 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                         Text(
                             word.word.replaceFirstChar { it.uppercase() },
                             color = fg,
-                            style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 32.sp, lineHeight = 36.sp),
+                            style = TextStyle(fontFamily = DisplayFontFamily,
+                                fontSize = if (compactReading) 30.sp else 32.sp,
+                                lineHeight = if (compactReading) 34.sp else 36.sp),
                             modifier = Modifier.weight(1f, fill = false),
                             softWrap = true,
                         )
@@ -546,7 +564,8 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                     Text(
                         word.phonetic,
                         color = muted,
-                        style = TextStyle(fontFamily = LongFontFamily, fontStyle = FontStyle.Italic, fontSize = 15.sp),
+                        style = TextStyle(fontFamily = LongFontFamily, fontStyle = FontStyle.Italic,
+                            fontSize = if (compactReading) 13.sp else 15.sp),
                         modifier = Modifier.padding(start = 20.dp),
                     )
                     Row(
@@ -557,12 +576,14 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                         Box(
                             modifier = Modifier.background(accent.copy(alpha = .17f), CircleShape)
                                 .border(1.dp, border, CircleShape)
-                                .padding(horizontal = 13.dp, vertical = 5.dp),
+                                .padding(horizontal = if (compactReading) 10.dp else 13.dp,
+                                    vertical = if (compactReading) 3.dp else 5.dp),
                         ) {
                             Text(
                                 word.partOfSpeech.label(), color = fg,
                                 style = TextStyle(fontFamily = LongFontFamily,
-                                    fontStyle = FontStyle.Italic, fontSize = 13.sp),
+                                    fontStyle = FontStyle.Italic,
+                                    fontSize = if (compactReading) 11.sp else 13.sp),
                             )
                         }
                         LeafSprig(color = accent, modifier = Modifier.size(15.dp))
@@ -570,7 +591,9 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                     Text(
                         word.definitions.firstOrNull().orEmpty(),
                         color = fg,
-                        style = TextStyle(fontFamily = LongFontFamily, fontSize = 17.sp, lineHeight = 22.sp),
+                        style = TextStyle(fontFamily = LongFontFamily,
+                            fontSize = if (compactReading) 14.sp else 17.sp,
+                            lineHeight = if (compactReading) 19.sp else 22.sp),
                         modifier = Modifier.fillMaxWidth(.62f).padding(start = 20.dp),
                     )
                 }
@@ -723,7 +746,9 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
             // Botanicals fade into the right edge of Etymology, never sitting
             // in a detached full-width image strip below the card.
             val shape = RoundedCornerShape(17.dp)
-            val inkStyle = TextStyle(fontFamily = LongFontFamily, fontSize = 11.sp, lineHeight = 14.5.sp)
+            val inkStyle = TextStyle(fontFamily = LongFontFamily,
+                fontSize = if (compactReading) 10.5.sp else 11.sp,
+                lineHeight = if (compactReading) 13.5.sp else 14.5.sp)
             val examples = word.examples.filter { it.isNotBlank() }.distinct().let { all ->
                     (if (word.id == "serendipity") all.drop(2) else all).take(2)
                 }
@@ -732,7 +757,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             ) {
                 val stacked = maxWidth < 335.dp || fontScale >= 1.35f
-                val itemHeight = if (stacked) 142.dp else 132.dp
+                val itemHeight = if (stacked) 142.dp else 121.dp
 
                 @Composable
                 fun EtymologyCard(modifier: Modifier) {
@@ -746,11 +771,11 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                             contentScale = ContentScale.Fit,
                             alignment = Alignment.BottomEnd,
                             modifier = Modifier.align(Alignment.BottomEnd)
-                                .fillMaxWidth(if (stacked) .35f else .66f)
+                                .fillMaxWidth(if (stacked) .35f else .56f)
                                 .height(if (stacked) 100.dp else 95.dp),
                         )
                         Column(
-                            modifier = Modifier.fillMaxWidth(if (stacked) .70f else .87f)
+                            modifier = Modifier.fillMaxWidth(if (stacked) .70f else .78f)
                                 .padding(12.dp),
                             verticalArrangement = Arrangement.spacedBy(7.dp),
                         ) {
