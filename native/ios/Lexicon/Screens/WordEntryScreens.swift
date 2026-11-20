@@ -482,7 +482,10 @@ struct WordDetailProfileScreen: View {
             // status-bar ink rather than beneath a second empty safe-area.
             .padding(.top, dynamicTypeSize.isAccessibilitySize ? 64 : 28)
             .padding(.bottom, 160)
+            .frame(maxWidth: 560)
             .background {
+                // Measure the reading page itself, not the surrounding iPad
+                // window; original artwork stays phone-sized on split view.
                 // Actual content width, not UIScreen: split view and iPad
                 // resizing keep the Did You Know art proportional.
                 GeometryReader { bounds in
@@ -491,6 +494,7 @@ struct WordDetailProfileScreen: View {
                         .onChange(of: bounds.size.width) { heroWidth = $0 }
                 }
             }
+            .frame(maxWidth: .infinity)
         }
         .background(p.background)
         .ignoresSafeArea(.container, edges: .top)
