@@ -905,12 +905,10 @@ struct ExpandedExplorationScreen: View {
     private var isDark: Bool { scheme == .dark }
 
     var body: some View {
-        if vm.detailExpanded36 {
-            translationsDirectory
-        } else {
-            // The reference depicts a complete word-entry reading page.
-            WordDetailProfileScreen()
-        }
+        // Expanded Exploration is a distinct, working native dictionary
+        // destination. The canonical Word of the Day detail belongs only
+        // to its own two routes; do not silently alias this page to it.
+        translationsDirectory
     }
 
     private var translationsDirectory: some View {
