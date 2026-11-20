@@ -344,10 +344,11 @@ struct CountrysideQuoteBanner: View {
     private var naturalArtHeight: CGFloat {
         let asset = countrysideImageName(illustrationBase, isDark: isDark)
         let size = UIImage(named: asset)?.size ?? CGSize(width: 3, height: 1)
-        return measuredWidth / max(0.01, size.width / max(1, size.height))
+        // The painted vignette occupies the RIGHT half of the banner.
+        return measuredWidth * 0.52 / max(0.01, size.width / max(1, size.height))
     }
     private var expandedInk: Bool {
-        dynamicTypeSize.isAccessibilitySize || measuredWidth < 380 || quote.count > 82
+        dynamicTypeSize.isAccessibilitySize || measuredWidth < 350 || quote.count > 70
     }
     private var epigraph: some View {
         VStack(alignment: .leading, spacing: 5) {
@@ -379,8 +380,9 @@ struct CountrysideQuoteBanner: View {
                 Image(countrysideImageName(illustrationBase, isDark: isDark))
                     .resizable()
                     .scaledToFit()
-                    .frame(maxWidth: .infinity)
-                    .frame(height: naturalArtHeight, alignment: .bottomTrailing)
+                    .frame(width: measuredWidth * 0.52,
+                           height: naturalArtHeight, alignment: .bottomTrailing)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
                     .accessibilityHidden(true)
 
                 if !expandedInk {
