@@ -337,10 +337,14 @@ struct WordDetailProfileScreen: View {
                     Image(countrysideImageName("ill-hero-bridge", isDark: isDark))
                         .resizable()
                         .scaledToFit()
-                        .frame(width: heroWidth * 1.20,
-                               height: max(230, min(390, heroWidth * 0.78)),
+                        // The approved bridge illustration is a portrait
+                        // watercolor (418×670), not a landscape PNG. Give it
+                        // its true natural aspect instead of shrinking it to
+                        // a 0.78-width-height panel at the far right.
+                        .frame(width: heroWidth * 0.70,
+                               height: heroWidth * 1.12,
                                alignment: .topTrailing)
-                        .offset(x: heroWidth * 0.025, y: -28)
+                        .offset(x: heroWidth * 0.016, y: -60)
                         .accessibilityHidden(true)
                 }
                 .padding(.top, dynamicTypeSize.isAccessibilitySize ? 0 : -16)
