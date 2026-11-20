@@ -238,10 +238,10 @@ struct WordDetailProfileScreen: View {
         let saved = vm.isSaved(word.id)
 
         ScrollView {
-            VStack(spacing: 11) {
+            VStack(spacing: dynamicTypeSize.isAccessibilitySize ? 12 : 8) {
                 // Exact approved composition: the transparent watercolor
                 // lives behind the text as one scene, not beneath the entry.
-                VStack(alignment: .leading, spacing: 5) {
+                VStack(alignment: .leading, spacing: dynamicTypeSize.isAccessibilitySize ? 7 : 2) {
                     HStack(spacing: 0) {
                         Button { vm.navigateBack() } label: {
                             Image(systemName: "arrow.left")
@@ -281,7 +281,7 @@ struct WordDetailProfileScreen: View {
                             .foregroundStyle(p.foreground)
                     }
                     .padding(.horizontal, 12)
-                    .padding(.vertical, 5)
+                    .padding(.vertical, 4)
                     .background(p.highlight.opacity(0.14), in: Capsule())
                     .overlay(Capsule().stroke(p.border, lineWidth: 1))
                     .padding(.leading, 20)
@@ -313,7 +313,7 @@ struct WordDetailProfileScreen: View {
                             .font(.lexiconLong(13).italic())
                             .foregroundStyle(p.foreground)
                             .padding(.horizontal, 13)
-                            .padding(.vertical, 5)
+                            .padding(.vertical, 4)
                             .background(p.highlight.opacity(0.17), in: Capsule())
                             .overlay(Capsule().stroke(p.border, lineWidth: 1))
                         BotanicalSprig(color: p.highlight)
@@ -322,25 +322,28 @@ struct WordDetailProfileScreen: View {
                     .padding(.leading, 20)
 
                     Text(word.definitions.first ?? "")
-                        .font(.lexiconLong(17))
+                        .font(.lexiconLong(16))
                         .foregroundStyle(p.foreground)
                         .fixedSize(horizontal: false, vertical: true)
                         .frame(width: heroWidth * 0.62, alignment: .leading)
                         .padding(.leading, 20)
                 }
-                .padding(.bottom, 9)
-                .frame(minHeight: max(225, min(355, heroWidth * 0.55)),
+                .padding(.bottom, 3)
+                .frame(minHeight: max(185, min(300, heroWidth * 0.49)),
                        alignment: .topLeading)
                 .background(alignment: .topTrailing) {
+                    // Preserve the full transparency of the owner-approved
+                    // watercolor while enlarging the scene behind the tiles.
                     Image(countrysideImageName("ill-hero-bridge", isDark: isDark))
                         .resizable()
                         .scaledToFit()
-                        .frame(width: heroWidth,
-                               height: max(225, min(355, heroWidth * 0.63)),
+                        .frame(width: heroWidth * 1.20,
+                               height: max(230, min(390, heroWidth * 0.78)),
                                alignment: .topTrailing)
-                        .offset(y: -10)
+                        .offset(x: heroWidth * 0.025, y: -28)
                         .accessibilityHidden(true)
                 }
+                .padding(.top, dynamicTypeSize.isAccessibilitySize ? 0 : -16)
 
                 // 4 Metadata Cards
                 HStack(spacing: 7) {
@@ -350,9 +353,10 @@ struct WordDetailProfileScreen: View {
                     metaTile("leaf", "Level", word.level, p: p)
                 }
                 .padding(.horizontal, 16)
+                .padding(.top, dynamicTypeSize.isAccessibilitySize ? 0 : -19)
 
                 // Meanings Card
-                VStack(alignment: .leading, spacing: 9) {
+                VStack(alignment: .leading, spacing: 7) {
                     HStack(spacing: 6) {
                         BotanicalSprig(color: p.highlight).frame(width: 14, height: 14)
                         Text("Meanings")
@@ -380,7 +384,7 @@ struct WordDetailProfileScreen: View {
                         }
                     }
                 }
-                .padding(14)
+                .padding(12)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(p.card)
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
@@ -520,17 +524,18 @@ struct WordDetailProfileScreen: View {
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(12)
-        .frame(maxWidth: .infinity, minHeight: stacked ? 142 : 132,
+        .frame(maxWidth: .infinity, minHeight: stacked ? 142 : 122,
                alignment: .topLeading)
-        .background(alignment: .bottomTrailing) {
+        .background(p.card, in: shape)
+        .overlay(alignment: .bottomTrailing) {
             Image(countrysideImageName("ill-books-daisies", isDark: isDark))
                 .resizable()
                 .scaledToFit()
                 .frame(width: stacked ? 145 : 112, height: 95,
                        alignment: .bottomTrailing)
+                .allowsHitTesting(false)
                 .accessibilityHidden(true)
         }
-        .background(p.card, in: shape)
         .overlay(shape.stroke(p.border, lineWidth: 1))
     }
 
@@ -560,7 +565,7 @@ struct WordDetailProfileScreen: View {
             }
         }
         .padding(12)
-        .frame(maxWidth: .infinity, minHeight: stacked ? 142 : 132,
+        .frame(maxWidth: .infinity, minHeight: stacked ? 142 : 122,
                alignment: .topLeading)
         .background(p.card, in: shape)
         .overlay(shape.stroke(p.border, lineWidth: 1))
@@ -609,7 +614,7 @@ struct WordDetailProfileScreen: View {
                 }
             }
         }
-        .padding(12)
+        .padding(10)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(p.card)
         .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
