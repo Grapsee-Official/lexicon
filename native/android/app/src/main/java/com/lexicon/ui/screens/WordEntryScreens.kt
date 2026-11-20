@@ -815,7 +815,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Outlined.Language, contentDescription = null, tint = if (isDark) DarkAccent else BrandGreen, modifier = Modifier.size(17.dp))
                     Text(
-                        text = "Explore Translations Across 36 Languages",
+                        text = "Explore ${LexiconData.translationsFor(word).size} Available Translations",
                         color = fg,
                         style = TextStyle(fontFamily = BodyFontFamily, fontWeight = FontWeight.Medium, fontSize = 12.sp),
                     )
@@ -1416,7 +1416,7 @@ fun ExpandedExplorationScreen(viewModel: LexiconViewModel) {
                                     .padding(horizontal = 9.dp, vertical = 6.dp),
                             ) {
                                 Text("${tr.language} (${tr.code.uppercase()})", color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 9.sp))
-                                Text(tr.translated, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 12.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                Text(tr.translated, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 12.sp, lineHeight = 16.sp))
                             }
                         }
                     }
@@ -1438,8 +1438,8 @@ fun ExpandedExplorationScreen(viewModel: LexiconViewModel) {
                     modifier = Modifier.padding(horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(7.dp),
                 ) {
-                    listOf("serendipity", "nostalgia", "eloquence").forEach { id ->
-                        val entry = LexiconData.getWordById(id) ?: return@forEach
+                    state.recentSearches.take(6).forEach { term ->
+                        val entry = LexiconData.getWordById(term) ?: return@forEach
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -1514,18 +1514,21 @@ fun ExpandedExplorationScreen(viewModel: LexiconViewModel) {
             }
         }
 
-        // Panoramic English church meadow strip
+        // Panoramic church watercolor retains its *own* source proportions.
+        // A 74dp thumbnail well cropped the grounds, sky and wildflower edge.
         item(key = "church_panorama") {
+            val panorama = painterResource(churchRes)
+            val natural = panorama.intrinsicSize
+            val ratio = if (natural.width > 1f && natural.height > 1f)
+                natural.width / natural.height else 3f
             Image(
-                painter = painterResource(churchRes),
+                painter = panorama,
                 contentDescription = null,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
                     .fillMaxWidth()
-                    .height(74.dp)
-                    .clip(RoundedCornerShape(15.dp))
-                    .border(1.dp, border, RoundedCornerShape(15.dp)),
+                    .aspectRatio(ratio),
             )
         }
     }
