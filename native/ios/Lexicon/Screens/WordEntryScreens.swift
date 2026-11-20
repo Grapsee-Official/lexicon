@@ -163,7 +163,7 @@ struct WordOfTheDayScreen: View {
                                  .frame(width: 112, height: 84)
                                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                             Text(word.etymology)
-                                .font(.lexiconLong(11.5))
+                                .font(.lexiconLong(11))
                                 .foregroundStyle(p.foreground.opacity(0.88))
                                 .lineLimit(5)
                                 .multilineTextAlignment(.leading)
@@ -515,12 +515,12 @@ struct WordDetailProfileScreen: View {
                     .foregroundStyle(p.foreground)
             }
             Text(word.etymology)
-                .font(.lexiconLong(11.5))
+                .font(.lexiconLong(11))
                 .foregroundStyle(p.foreground.opacity(0.9))
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(12)
-        .frame(maxWidth: .infinity, minHeight: stacked ? 142 : 168,
+        .frame(maxWidth: .infinity, minHeight: stacked ? 142 : 132,
                alignment: .topLeading)
         .background(alignment: .bottomTrailing) {
             Image(countrysideImageName("ill-books-daisies", isDark: isDark))
@@ -560,7 +560,7 @@ struct WordDetailProfileScreen: View {
             }
         }
         .padding(12)
-        .frame(maxWidth: .infinity, minHeight: stacked ? 142 : 168,
+        .frame(maxWidth: .infinity, minHeight: stacked ? 142 : 132,
                alignment: .topLeading)
         .background(p.card, in: shape)
         .overlay(shape.stroke(p.border, lineWidth: 1))
