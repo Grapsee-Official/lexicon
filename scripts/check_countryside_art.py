@@ -134,6 +134,68 @@ if "maxLines = if (config.fontScale >= 1.3f) 3 else 2" in android_common:
 if ".lineLimit(dynamicTypeSize.isAccessibilitySize ? 3 : 2)" in ios_common[ios_common.find("struct CountrysideQuoteBanner: View"):ios_common.find("/// Responsive night-sky ornament")]:
     missing.add("iOS: epigraph must wrap naturally, not truncate")
 
+# Word-of-the-Day and dictionary details must not imprison source paintings
+# in fixed right-edge layouts. The bridge/cottage is a full-width editorial
+# illustration, separate from flexible text. Bookplate frames track actual
+# source aspect; accessibility copy sits outside the bordered painting.
+for src, tokens in (
+    (
+        root / "native/android/app/src/main/java/com/lexicon/ui/screens/WordEntryScreens.kt",
+        ["item(key = \"wotd_hero_card\")", ".aspectRatio(ratio)",
+         ".aspectRatio(paintingRatio)", "item(key = \"etym_usage\")",
+         "item(key = \"did_you_know\")", ".aspectRatio(bookRatio)"],
+    ),
+    (
+        root / "native/ios/Lexicon/Screens/WordEntryScreens.swift",
+        ["struct WordOfTheDayScreen: View", "private func etymologyUsageCards",
+         ".scaledToFit()", "let artHeight = (heroWidth - 32) / artRatio"],
+    ),
+    (
+        root / "native/android/app/src/main/java/com/lexicon/ui/components/CountrysideComponents.kt",
+        ["fun SearchDreamscapeWash(", ".height(paintedHeight)"],
+    ),
+    (
+        root / "native/ios/Lexicon/Components/CountrysideComponents.swift",
+        ["struct SearchDreamscapeWash: View", ".frame(height: naturalArtHeight)"],
+    ),
+    (
+        root / "native/android/app/src/main/java/com/lexicon/ui/screens/CountrysideScreens.kt",
+        ["SearchDreamscapeWash(isDark, Modifier.matchParentSize())"],
+    ),
+    (
+        root / "native/ios/Lexicon/Screens/CountrysideScreens.swift",
+        ["SearchDreamscapeWash(isDark: isDark)"],
+    ),
+    (
+        root / "native/android/app/src/main/java/com/lexicon/ui/screens/MoreScreen.kt",
+        ["private fun MoreJourneyPage", "state.savedWordIds", "state.recentSearches"],
+    ),
+    (
+        root / "native/ios/Lexicon/Screens/MoreScreen.swift",
+        ["case about, privacy, licenses, journey", "if page == .journey"],
+    ),
+):
+    source = src.read_text(encoding="utf-8")
+    for required in tokens:
+        if required not in source:
+            missing.add(f"{src.relative_to(root)}: missing native editorial or journey invariant: {required}")
+
+# Both colorways have independently editable geometry, mirroring the native
+# Compose/SwiftUI Search atmosphere; never flatten the source as one bitmap.
+for theme in ("day", "night"):
+    path = root / "artwork/vector" / f"search-cotswolds-dreamscape-{theme}.svg"
+    if not path.is_file():
+        missing.add(f"Missing original Search dreamscape source {path.relative_to(root)}")
+    else:
+        from xml.etree import ElementTree as ET
+        svg = ET.parse(path).getroot()
+        ns = "{http://www.w3.org/2000/svg}"
+        for part in ("distant-hills", "near-hills"):
+            if svg.find(f".//{ns}path[@id='{part}']") is None:
+                missing.add(f"{path.relative_to(root)}: no editable {part}")
+        if len(svg.findall(f".//{ns}g[@id='wildflowers']/{ns}g")) != 6:
+            missing.add(f"{path.relative_to(root)}: the six painted flower clusters differ from native source")
+
 if missing:
     print("Lexicon visual source parity check failed:")
     for entry in sorted(missing):
