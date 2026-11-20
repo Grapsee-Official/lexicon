@@ -249,6 +249,7 @@ struct WordDetailProfileScreen: View {
     @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @State private var heroWidth: CGFloat = 390
     private var isDark: Bool { scheme == .dark }
 
     var body: some View {
@@ -491,6 +492,15 @@ struct WordDetailProfileScreen: View {
                 }
             }
             .padding(.bottom, 160)
+            .background {
+                // Actual content width, not UIScreen: split view and iPad
+                // resizing keep the Did You Know art proportional.
+                GeometryReader { bounds in
+                    Color.clear
+                        .onAppear { heroWidth = bounds.size.width }
+                        .onChange(of: bounds.size.width) { heroWidth = $0 }
+                }
+            }
         }
         .background(p.background)
     }
