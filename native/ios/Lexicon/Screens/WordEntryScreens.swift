@@ -544,15 +544,21 @@ struct WordDetailProfileScreen: View {
         .padding(12)
         .frame(maxWidth: .infinity, minHeight: stacked ? 142 : 114,
                alignment: .topLeading)
-        .background(p.card, in: shape)
-        .overlay(alignment: .bottomTrailing) {
-            Image(countrysideImageName("ill-books-daisies", isDark: isDark))
-                .resizable()
-                .scaledToFit()
-                .frame(width: stacked ? 145 : 112, height: 95,
-                       alignment: .bottomTrailing)
-                .allowsHitTesting(false)
-                .accessibilityHidden(true)
+        .background {
+            // The source watercolor belongs *within* the same parchment
+            // leaf, behind legible ink. It must not overlay and erase
+            // the final etymology lines.
+            ZStack(alignment: .bottomTrailing) {
+                p.card
+                Image(countrysideImageName("ill-books-daisies", isDark: isDark))
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: stacked ? 145 : 112, height: 95,
+                           alignment: .bottomTrailing)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            }
+            .clipShape(shape)
         }
         .overlay(shape.stroke(p.border, lineWidth: 1))
     }
