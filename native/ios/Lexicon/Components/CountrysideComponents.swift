@@ -540,3 +540,86 @@ struct CottageWindowGlow: View {
         .accessibilityHidden(true)
     }
 }
+
+/// Underpainting for Search's original Cotswolds countryside vignette.
+/// Normalised editable native paths keep the hills, sky, and wildflowers
+/// responsive; the approved hand-painted cottage sits above these washes.
+struct SearchDreamscapeWash: View {
+    let isDark: Bool
+
+    var body: some View {
+        Canvas { context, size in
+            let w = size.width
+            let h = size.height
+            let sky = Color(hex: isDark ? "334A5E" : "7C9297")
+            let meadow = Color(hex: "657D5A")
+            let light = Color(hex: isDark ? "F0D89A" : "F3EBDD")
+
+            func pigment(_ color: Color, _ opacity: Double,
+                         x: CGFloat, y: CGFloat, radius: CGFloat) {
+                let wash = Path(ellipseIn: CGRect(
+                    x: x - radius, y: y - radius,
+                    width: radius * 2, height: radius * 2
+                ))
+                context.fill(wash, with: .color(color.opacity(opacity)))
+            }
+
+            pigment(sky, isDark ? 0.18 : 0.10,
+                    x: w * 0.69, y: h * 0.13, radius: w * 0.36)
+            pigment(sky, isDark ? 0.12 : 0.065,
+                    x: w * 0.40, y: h * 0.22, radius: w * 0.27)
+            pigment(light, isDark ? 0.055 : 0.32,
+                    x: w * 0.76, y: h * 0.15, radius: w * 0.18)
+            pigment(sky, 0.07,
+                    x: w * 0.92, y: h * 0.36, radius: w * 0.22)
+
+            var farHills = Path()
+            farHills.move(to: CGPoint(x: -w * 0.08, y: h * 0.69))
+            farHills.addCurve(to: CGPoint(x: w * 0.51, y: h * 0.70),
+                              control1: CGPoint(x: w * 0.17, y: h * 0.58),
+                              control2: CGPoint(x: w * 0.34, y: h * 0.62))
+            farHills.addCurve(to: CGPoint(x: w * 1.08, y: h * 0.63),
+                              control1: CGPoint(x: w * 0.72, y: h * 0.54),
+                              control2: CGPoint(x: w * 0.91, y: h * 0.61))
+            farHills.addLine(to: CGPoint(x: w * 1.08, y: h))
+            farHills.addLine(to: CGPoint(x: -w * 0.08, y: h))
+            farHills.closeSubpath()
+            context.fill(farHills, with: .color(meadow.opacity(isDark ? 0.14 : 0.085)))
+
+            var nearHills = Path()
+            nearHills.move(to: CGPoint(x: -w * 0.08, y: h * 0.83))
+            nearHills.addCurve(to: CGPoint(x: w * 0.58, y: h * 0.87),
+                               control1: CGPoint(x: w * 0.20, y: h * 0.71),
+                               control2: CGPoint(x: w * 0.43, y: h * 0.84))
+            nearHills.addCurve(to: CGPoint(x: w * 1.08, y: h * 0.83),
+                               control1: CGPoint(x: w * 0.78, y: h * 0.73),
+                               control2: CGPoint(x: w * 0.94, y: h * 0.77))
+            nearHills.addLine(to: CGPoint(x: w * 1.08, y: h))
+            nearHills.addLine(to: CGPoint(x: -w * 0.08, y: h))
+            nearHills.closeSubpath()
+            context.fill(nearHills, with: .color(meadow.opacity(isDark ? 0.12 : 0.07)))
+
+            let petals = Color(hex: isDark ? "F0D89A" : "FFF8E9")
+            let pollen = Color(hex: isDark ? "D4A45A" : "A58A61")
+            let flowers: [(CGFloat, CGFloat)] = [
+                (0.09, 0.88), (0.16, 0.95), (0.28, 0.90),
+                (0.76, 0.93), (0.88, 0.86), (0.95, 0.95)
+            ]
+            for (index, p) in flowers.enumerated() {
+                let center = CGPoint(x: w * p.0, y: h * p.1)
+                let radius: CGFloat = index.isMultiple(of: 2) ? 1.5 : 1.1
+                for petal in 0..<5 {
+                    let angle = Double(petal) * 2 * Double.pi / 5
+                    let x = center.x + CGFloat(cos(angle)) * radius * 1.6
+                    let y = center.y + CGFloat(sin(angle)) * radius * 1.6
+                    let oval = Path(ellipseIn: CGRect(x: x - radius, y: y - radius,
+                                                       width: radius * 2, height: radius * 2))
+                    context.fill(oval, with: .color(petals.opacity(isDark ? 0.40 : 0.55)))
+                }
+                pigment(pollen, 0.48, x: center.x, y: center.y, radius: radius * 0.67)
+            }
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+}
