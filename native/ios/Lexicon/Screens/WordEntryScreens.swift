@@ -593,17 +593,18 @@ struct WordDetailProfileScreen: View {
                 BotanicalSprig(color: p.highlight).frame(width: 14, height: 14)
                 Text(title).font(.lexiconDisplay(15)).foregroundStyle(p.foreground)
             }
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 6) {
+            // The reference shows every synonym/antonym pill at once.
+            // Never hide the last label in a horizontal scroll viewport.
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 5) {
                     ForEach(items, id: \.self) { item in
-                        Text(item)
-                            .font(.lexiconBody(11))
-                            .foregroundStyle(p.foreground)
-                            .padding(.horizontal, 11)
-                            .padding(.vertical, 4.5)
-                            .background(p.background.opacity(0.7))
-                            .clipShape(Capsule())
-                            .overlay(Capsule().stroke(p.border, lineWidth: 1))
+                        referencePill(item, palette: p)
+                            .fixedSize(horizontal: true, vertical: false)
+                    }
+                }
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 105), spacing: 6)], spacing: 6) {
+                    ForEach(items, id: \.self) { item in
+                        referencePill(item, palette: p)
                     }
                 }
             }
@@ -614,6 +615,16 @@ struct WordDetailProfileScreen: View {
         .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous).stroke(p.border, lineWidth: 1))
     }
+    private func referencePill(_ item: String, palette p: LexiconPalette) -> some View {
+        Text(item)
+            .font(.lexiconBody(11))
+            .foregroundStyle(p.foreground)
+            .padding(.horizontal, 9)
+            .padding(.vertical, 4.5)
+            .background(p.background.opacity(0.7), in: Capsule())
+            .overlay(Capsule().stroke(p.border, lineWidth: 1))
+    }
+
 }
 
 // MARK: - Page 9: Search Results ("Dictionary Search")
