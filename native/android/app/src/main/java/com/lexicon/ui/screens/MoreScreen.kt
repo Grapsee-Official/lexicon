@@ -104,10 +104,14 @@ fun MoreScreen(viewModel: LexiconViewModel) {
     var infoDialog by remember { mutableStateOf<String?>(null) }
     var readingPage by remember { mutableStateOf<String?>(null) }
     if (readingPage != null) {
-        MoreReaderPage(
-            page = readingPage!!,
-            onBack = { readingPage = null },
-        )
+        if (readingPage == "journey") {
+            MoreJourneyPage(viewModel = viewModel, onBack = { readingPage = null })
+        } else {
+            MoreReaderPage(
+                page = readingPage!!,
+                onBack = { readingPage = null },
+            )
+        }
         return
     }
 
@@ -225,6 +229,20 @@ fun MoreScreen(viewModel: LexiconViewModel) {
             }
         }
 
+        // A real local reading-history destination, never a placeholder.
+        item(key = "journey") {
+            SettingsGroup(title = "Your Library") {
+                SettingsRow(
+                    icon = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+                    iconLabel = "Reading journey",
+                    label = "Reading journey",
+                    value = "${state.recentSearches.size} recent · ${state.savedWordIds.size} saved",
+                    onClick = { readingPage = "journey" },
+                    isLast = true,
+                )
+            }
+        }
+
         // === About ===
         item(key = "about") {
             SettingsGroup(title = "About") {
@@ -311,6 +329,104 @@ fun MoreScreen(viewModel: LexiconViewModel) {
                 }
             },
         )
+    }
+}
+
+
+/**
+ * Local, working reading-journal page. Recent queries and saved word IDs are
+ * sourced from the same persisted state as Dictionary and Collections.
+ * Each row opens its real lexical destination, not a simulated detail card.
+ */
+@Composable
+private fun MoreJourneyPage(viewModel: LexiconViewModel, onBack: () -> Unit) {
+    val state by viewModel.uiState.collectAsState()
+    BackHandler(onBack = onBack)
+    val ink = MaterialTheme.colorScheme.onBackground
+    val surface = MaterialTheme.colorScheme.surface
+    val line = ink.copy(alpha = 0.14f)
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .windowInsetsPadding(WindowInsets.statusBars),
+        contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 170.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        item(key = "journey_header") {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    Icons.AutoMirrored.Outlined.ArrowBack,
+                    contentDescription = "Back to More",
+                    tint = ink,
+                    modifier = Modifier.size(44.dp)
+                        .clickable { onBack() }.padding(10.dp),
+                )
+                Column(Modifier.padding(start = 7.dp)) {
+                    Text("Reading Journey", color = ink, fontFamily = DisplayFontFamily, fontSize = 28.sp)
+                    Text("Words gathered along the way", color = ink.copy(alpha = 0.75f), fontSize = 13.sp)
+                }
+            }
+        }
+        item(key = "journey_recent_title") {
+            Text("Recently explored", color = ink, fontFamily = DisplayFontFamily, fontSize = 22.sp)
+        }
+        if (state.recentSearches.isEmpty()) {
+            item(key = "journey_empty_history") {
+                Text("Your discoveries will appear here after you search for a word.", color = ink.copy(alpha = 0.8f))
+            }
+        }
+        state.recentSearches.forEachIndexed { index, query ->
+            item(key = "journey_recent_${index}_${query}") {
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                        .background(surface, RoundedCornerShape(14.dp))
+                        .border(1.dp, line, RoundedCornerShape(14.dp))
+                        .clickable {
+                            onBack()
+                            val word = LexiconData.getWordById(query.lowercase())
+                            if (word == null) viewModel.submitSearch(query) else viewModel.openWord(word)
+                        }
+                        .padding(horizontal = 15.dp, vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(Icons.Outlined.History, contentDescription = null, tint = BrandGreen, modifier = Modifier.size(20.dp))
+                    Text(query, color = ink, fontFamily = DisplayFontFamily, fontSize = 18.sp,
+                        modifier = Modifier.weight(1f).padding(start = 12.dp))
+                    Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, contentDescription = null, tint = ink, modifier = Modifier.size(20.dp))
+                }
+            }
+        }
+        item(key = "journey_saved_title") {
+            Text("Words kept close", color = ink, fontFamily = DisplayFontFamily, fontSize = 22.sp)
+        }
+        if (state.savedWordIds.isEmpty()) {
+            item(key = "journey_empty_saved") {
+                Text("Bookmark a word to gather it in your personal library.", color = ink.copy(alpha = 0.8f))
+            }
+        }
+        state.savedWordIds.forEachIndexed { index, id ->
+            val entry = LexiconData.getWordById(id)
+            if (entry != null) {
+                item(key = "journey_saved_${index}_${id}") {
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                            .background(surface, RoundedCornerShape(14.dp))
+                            .border(1.dp, line, RoundedCornerShape(14.dp))
+                            .clickable { onBack(); viewModel.openWord(entry) }
+                            .padding(horizontal = 15.dp, vertical = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(Icons.Filled.Bookmark, contentDescription = null, tint = BrandGreen, modifier = Modifier.size(19.dp))
+                        Column(Modifier.weight(1f).padding(start = 12.dp)) {
+                            Text(entry.word, color = ink, fontFamily = DisplayFontFamily, fontSize = 18.sp)
+                            Text(entry.phonetic, color = ink.copy(alpha = 0.68f), fontSize = 11.sp)
+                        }
+                        Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, contentDescription = null, tint = ink, modifier = Modifier.size(20.dp))
+                    }
+                }
+            }
+        }
     }
 }
 
