@@ -52,6 +52,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -726,3 +727,68 @@ fun CottageWindowGlow(modifier: Modifier = Modifier) {
         }
     }
 }
+
+/**
+ * The Search page's Cotswolds dawn and moonlit-mist watercolor underpainting.
+ * Shape coordinates are normalized so the composition remains a continuous
+ * landscape on real phone windows, split-screen, and tablets. The curated
+ * painted cottage remains above this transparent original native-vector layer.
+ */
+@Composable
+fun SearchDreamscapeWash(isDark: Boolean, modifier: Modifier = Modifier) {
+    Canvas(modifier = modifier) {
+        val w = size.width
+        val h = size.height
+        val sky = if (isDark) Color(0xFF334A5E) else Color(0xFF7C9297)
+        val meadow = if (isDark) Color(0xFF657D5A) else Color(0xFF657D5A)
+        val light = if (isDark) Color(0xFFF0D89A) else Color(0xFFF3EBDD)
+
+        // Soft overlapping pigment, never a hard rectangular photograph.
+        drawCircle(sky.copy(alpha = if (isDark) .18f else .10f), w * .36f, Offset(w * .69f, h * .13f))
+        drawCircle(sky.copy(alpha = if (isDark) .12f else .065f), w * .27f, Offset(w * .40f, h * .22f))
+        drawCircle(light.copy(alpha = if (isDark) .055f else .32f), w * .18f, Offset(w * .76f, h * .15f))
+        drawCircle(sky.copy(alpha = .07f), w * .22f, Offset(w * .92f, h * .36f))
+
+        val distantHill = Path().apply {
+            moveTo(-w * .08f, h * .69f)
+            cubicTo(w * .17f, h * .58f, w * .34f, h * .62f, w * .51f, h * .70f)
+            cubicTo(w * .72f, h * .54f, w * .91f, h * .61f, w * 1.08f, h * .63f)
+            lineTo(w * 1.08f, h)
+            lineTo(-w * .08f, h)
+            close()
+        }
+        drawPath(distantHill, meadow.copy(alpha = if (isDark) .14f else .085f))
+        val nearHill = Path().apply {
+            moveTo(-w * .08f, h * .83f)
+            cubicTo(w * .20f, h * .71f, w * .43f, h * .84f, w * .58f, h * .87f)
+            cubicTo(w * .78f, h * .73f, w * .94f, h * .77f, w * 1.08f, h * .83f)
+            lineTo(w * 1.08f, h)
+            lineTo(-w * .08f, h)
+            close()
+        }
+        drawPath(nearHill, meadow.copy(alpha = if (isDark) .12f else .07f))
+
+        // Delicate flowers and distant fireflies; never interactive elements.
+        val petals = if (isDark) Color(0xFFF0D89A) else Color(0xFFFFF8E9)
+        val pollen = if (isDark) Color(0xFFD4A45A) else Color(0xFFA58A61)
+        val flowers = listOf(
+            Offset(.09f, .88f), Offset(.16f, .95f), Offset(.28f, .90f),
+            Offset(.76f, .93f), Offset(.88f, .86f), Offset(.95f, .95f),
+        )
+        for ((index, p) in flowers.withIndex()) {
+            val c = Offset(w * p.x, h * p.y)
+            val r = (if (index % 2 == 0) 1.5f else 1.1f).dp.toPx()
+            for (j in 0..4) {
+                val angle = j * 1.256637f
+                drawCircle(
+                    petals.copy(alpha = if (isDark) .40f else .55f),
+                    radius = r,
+                    center = Offset(c.x + kotlin.math.cos(angle) * r * 1.6f,
+                                    c.y + kotlin.math.sin(angle) * r * 1.6f),
+                )
+            }
+            drawCircle(pollen.copy(alpha = .48f), radius = r * .67f, center = c)
+        }
+    }
+}
+
