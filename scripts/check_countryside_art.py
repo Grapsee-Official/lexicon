@@ -142,7 +142,7 @@ for src, tokens in (
     (
         root / "native/android/app/src/main/java/com/lexicon/ui/screens/WordEntryScreens.kt",
         ["item(key = \"wotd_hero_card\")", ".aspectRatio(ratio)",
-         "item(key = \"detail_hero\")", "Modifier.matchParentSize().offset(y = (-10).dp)",
+         "item(key = \"detail_hero\")", "Canvas(Modifier.matchParentSize())",
          "item(key = \"etym_usage\")", "fun EtymologyCard(",
          "fun UsageCard(", "item(key = \"did_you_know\")"],
     ),
@@ -151,7 +151,7 @@ for src, tokens in (
         ["struct WordOfTheDayScreen: View", "private func etymologyUsageCards",
          "referenceEtymologyCard", "referenceUsageCard",
          ".background(alignment: .topTrailing)", ".scaledToFit()",
-         "let artHeight = artWidth / artRatio"],
+         "let artWidth = artHeight * artRatio"],
     ),
     (
         root / "native/android/app/src/main/java/com/lexicon/ui/components/CountrysideComponents.kt",
@@ -182,6 +182,15 @@ for src, tokens in (
     for required in tokens:
         if required not in source:
             missing.add(f"{src.relative_to(root)}: missing native editorial or journey invariant: {required}")
+
+# The hero painting must be a transparent, unconstrained underpainting,
+# not an Image composable measured as a 400dp-high LazyColumn item.
+android_entry = (root / "native/android/app/src/main/java/com/lexicon/ui/screens/WordEntryScreens.kt").read_text(encoding="utf-8")
+detail_block = android_entry.split('item(key = "detail_hero") {', 1)[1].split('// 4 Metadata Cards:', 1)[0]
+if "Canvas(Modifier.matchParentSize())" not in detail_block or "bridgeBitmap.height.toFloat() / bridgeBitmap.width.toFloat()" not in detail_block:
+    missing.add("Android word detail: watercolor must be drawn at intrinsic aspect in a nonmeasuring canvas")
+if "Modifier.align(Alignment.TopEnd)\n                            .width(maxWidth * .70f)" in detail_block:
+    missing.add("Android word detail: oversize Image child would stretch its LazyColumn item")
 
 # Both colorways have independently editable geometry, mirroring the native
 # Compose/SwiftUI Search atmosphere; never flatten the source as one bitmap.
