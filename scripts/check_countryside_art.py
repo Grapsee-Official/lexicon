@@ -134,21 +134,24 @@ if "maxLines = if (config.fontScale >= 1.3f) 3 else 2" in android_common:
 if ".lineLimit(dynamicTypeSize.isAccessibilitySize ? 3 : 2)" in ios_common[ios_common.find("struct CountrysideQuoteBanner: View"):ios_common.find("/// Responsive night-sky ornament")]:
     missing.add("iOS: epigraph must wrap naturally, not truncate")
 
-# Word-of-the-Day and dictionary details must not imprison source paintings
-# in fixed right-edge layouts. The bridge/cottage is a full-width editorial
-# illustration, separate from flexible text. Bookplate frames track actual
-# source aspect; accessibility copy sits outside the bordered painting.
+# The owner's approved Word Detail reference integrates the watercolor
+# BEHIND the left manuscript column and pairs Etymology with Usage Examples.
+# Never regress to the experimental separated picture / stacked full-width
+# leaves. Artwork remains scaled to fit, not cropped.
 for src, tokens in (
     (
         root / "native/android/app/src/main/java/com/lexicon/ui/screens/WordEntryScreens.kt",
         ["item(key = \"wotd_hero_card\")", ".aspectRatio(ratio)",
-         ".aspectRatio(paintingRatio)", "item(key = \"etym_usage\")",
-         "item(key = \"did_you_know\")", ".aspectRatio(bookRatio)"],
+         "item(key = \"detail_hero\")", "Modifier.matchParentSize().offset(y = (-10).dp)",
+         "item(key = \"etym_usage\")", "fun EtymologyCard(",
+         "fun UsageCard(", "item(key = \"did_you_know\")"],
     ),
     (
         root / "native/ios/Lexicon/Screens/WordEntryScreens.swift",
         ["struct WordOfTheDayScreen: View", "private func etymologyUsageCards",
-         ".scaledToFit()", "let artHeight = (heroWidth - 32) / artRatio"],
+         "referenceEtymologyCard", "referenceUsageCard",
+         ".background(alignment: .topTrailing)", ".scaledToFit()",
+         "let artHeight = (heroWidth - 32) / artRatio"],
     ),
     (
         root / "native/android/app/src/main/java/com/lexicon/ui/components/CountrysideComponents.kt",
