@@ -151,7 +151,7 @@ for src, tokens in (
         ["struct WordOfTheDayScreen: View", "private func etymologyUsageCards",
          "referenceEtymologyCard", "referenceUsageCard",
          ".background(alignment: .topTrailing)", ".scaledToFit()",
-         "let artHeight = (heroWidth - 32) / artRatio"],
+         "let artHeight = artWidth / artRatio"],
     ),
     (
         root / "native/android/app/src/main/java/com/lexicon/ui/components/CountrysideComponents.kt",
