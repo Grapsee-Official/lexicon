@@ -359,7 +359,7 @@ struct WordDetailProfileScreen: View {
                             .font(.lexiconDisplay(16))
                             .foregroundStyle(p.foreground)
                     }
-                    ForEach(Array(word.definitions.prefix(2).enumerated()), id: \.offset) { idx, def in
+                    ForEach(Array((word.id == "serendipity" ? Array(word.definitions.dropFirst()) : word.definitions).prefix(2).enumerated()), id: \.offset) { idx, def in
                         HStack(alignment: .top, spacing: 9) {
                             Text("\(idx + 1)")
                                 .font(.lexiconBody(10, weight: .medium))
@@ -397,30 +397,6 @@ struct WordDetailProfileScreen: View {
                 }
 
                 etymologyUsageCards(word: word, p: p)
-
-                // Progressive Expansion to Page 10 (36 Languages)
-                Button {
-                    vm.openWordExpanded(word)
-                } label: {
-                    HStack {
-                        Image(systemName: "globe")
-                            .foregroundStyle(p.primary)
-                        Text("Explore \(LexiconData.translationsFor(word).count) Available Translations")
-                            .font(.lexiconBody(12, weight: .medium))
-                            .foregroundStyle(p.foreground)
-                        Spacer()
-                        Image(systemName: "arrow.right")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundStyle(p.highlight)
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
-                    .background(p.card)
-                    .clipShape(Capsule())
-                    .overlay(Capsule().stroke(p.border, lineWidth: 1))
-                }
-                .buttonStyle(.plain)
-                .padding(.horizontal, 16)
 
                 if !word.didYouKnow.isEmpty {
                     // The bookplate height follows its own watercolor ratio;
@@ -503,7 +479,8 @@ struct WordDetailProfileScreen: View {
     // with the botanical footpiece fading into Etymology's lower-right.
     // Only accessibility-sized type / narrow split view uses a vertical pair.
     private func etymologyUsageCards(word: WordEntry, p: LexiconPalette) -> some View {
-        let examples = Array(word.examples.filter { !$0.isEmpty }.prefix(2))
+        let allExamples = word.examples.filter { !$0.isEmpty }
+        let examples = Array((word.id == "serendipity" ? Array(allExamples.dropFirst(2)) : allExamples).prefix(2))
         let stacked = dynamicTypeSize.isAccessibilitySize || heroWidth < 335
         return Group {
             if stacked {
