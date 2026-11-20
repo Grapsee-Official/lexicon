@@ -393,7 +393,7 @@ struct WordDetailProfileScreen: View {
                     HStack {
                         Image(systemName: "globe")
                             .foregroundStyle(p.primary)
-                        Text("Explore Translations Across 36 Languages")
+                        Text("Explore \(LexiconData.translationsFor(word).count) Available Translations")
                             .font(.lexiconBody(12, weight: .medium))
                             .foregroundStyle(p.foreground)
                         Spacer()
@@ -976,7 +976,7 @@ struct ExpandedExplorationScreen: View {
                                 Text(tr.translated)
                                     .font(.lexiconDisplay(12))
                                     .foregroundStyle(p.foreground)
-                                    .lineLimit(1)
+                                    .fixedSize(horizontal: false, vertical: true)
                             }
                             .padding(.horizontal, 9)
                             .padding(.vertical, 6)
@@ -1001,8 +1001,8 @@ struct ExpandedExplorationScreen: View {
                         onAction: { vm.navigate(to: .searchDiscovery) }
                     )
                     VStack(spacing: 7) {
-                        ForEach(["serendipity", "nostalgia", "eloquence"], id: \.self) { id in
-                            if let entry = LexiconData.getWordById(id) {
+                        ForEach(Array(vm.recentSearches.prefix(6)), id: \.self) { query in
+                            if let entry = LexiconData.getWordById(query) {
                                 Button { vm.openWord(entry) } label: {
                                     HStack(spacing: 12) {
                                         Image(systemName: "clock.arrow.circlepath")
@@ -1082,9 +1082,10 @@ struct ExpandedExplorationScreen: View {
                 Image(countrysideImageName("ill-banner-church", isDark: isDark))
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 72)
-                    .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
-                    .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous).stroke(p.border, lineWidth: 1))
+                    // No narrow banner frame that shrinks the church and
+                    // wildflower watercolor into a flat strip.
+                    .frame(maxWidth: .infinity)
+                    .accessibilityHidden(true)
                     .padding(.horizontal, 16)
             }
             .padding(.bottom, 160)
