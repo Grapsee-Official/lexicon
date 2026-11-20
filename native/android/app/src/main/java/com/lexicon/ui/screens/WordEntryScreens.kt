@@ -735,7 +735,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                         .fillMaxWidth()
                         .background(cardBg, shape)
                         .border(1.dp, border, shape)
-                        .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 4.dp),
+                        .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
@@ -747,25 +747,23 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                         color = fg.copy(alpha = 0.88f),
                         style = TextStyle(fontFamily = LongFontFamily, fontSize = 14.sp, lineHeight = 21.sp),
                     )
-                    // A full-width botanical footpiece. Artwork is not confined
-                    // to a small right-corner square and is never cropped.
-                    val bookPainter = painterResource(booksRes)
-                    val bookSize = bookPainter.intrinsicSize
-                    val bookRatio = if (bookSize.width > 1f && bookSize.height > 1f) {
-                        bookSize.width / bookSize.height
-                    } else 1.5f
-                    Image(
-                        painter = bookPainter,
-                        contentDescription = null,
-                        contentScale = ContentScale.Fit,
-                        alignment = Alignment.BottomCenter,
-                        // The whole botanical painting fills the page's breadth
-                        // at its real proportion, never a fixed 96/144dp box.
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(bookRatio),
-                    )
                 }
+                // An unframed botanical illustration is free to follow the
+                // manuscript text onto the parchment itself. It isn't locked
+                // within the etymology panel or cropped into a picture well.
+                val bookPainter = painterResource(booksRes)
+                val bookSize = bookPainter.intrinsicSize
+                val bookRatio = if (bookSize.width > 1f && bookSize.height > 1f) {
+                    bookSize.width / bookSize.height
+                } else 1.5f
+                Image(
+                    painter = bookPainter,
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(bookRatio),
+                )
                 val examples = word.examples.filter { it.isNotBlank() }.distinct().take(2)
                 if (examples.isNotEmpty()) {
                     Column(
