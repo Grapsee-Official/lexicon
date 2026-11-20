@@ -1271,13 +1271,8 @@ private fun ResultDetailRow(
 @Composable
 fun ExpandedExplorationScreen(viewModel: LexiconViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    // The approved Expanded Exploration reference is a complete word-detail
-    // reading page, not Dictionary Home. Only the explicit translations route
-    // opens the 36-language directory below.
-    if (!state.detailExpanded36) {
-        WordDetailProfileScreen(viewModel = viewModel)
-        return
-    }
+    // Expanded Exploration has its own search and translation experience.
+    // Do not alias it to Word of the Day: doing so erased an entire route.
     val isDark = state.isDark
     val word = state.detailWord
     val bg = if (isDark) DarkBackground else WarmCream
