@@ -499,68 +499,94 @@ struct WordDetailProfileScreen: View {
     }
 
 
-    // Two flowing manuscript leaves, not equal-height half-width boxes.
-    // Text is never truncated; the botanical painting spans the full leaf.
+    // Reference composition: two balanced cards on normal phone widths,
+    // with the botanical footpiece fading into Etymology's lower-right.
+    // Only accessibility-sized type / narrow split view uses a vertical pair.
     private func etymologyUsageCards(word: WordEntry, p: LexiconPalette) -> some View {
-        let shape = RoundedRectangle(cornerRadius: 17, style: .continuous)
         let examples = Array(word.examples.filter { !$0.isEmpty }.prefix(2))
-
-        return VStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 7) {
-                    BotanicalSprig(color: p.highlight)
-                        .frame(width: 17, height: 17)
-                    Text("Etymology")
-                        .font(.lexiconDisplay(18))
-                        .foregroundStyle(p.foreground)
-                }
-                Text(word.etymology)
-                    .font(.lexiconLong(14))
-                    .foregroundStyle(p.foreground.opacity(0.88))
-                    .fixedSize(horizontal: false, vertical: true)
-
-            }
-            .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(p.card, in: shape)
-            .overlay(shape.stroke(p.border, lineWidth: 1))
-
-            // Botanical watercolor lives on the paper, not imprisoned inside
-            // the bordered etymology card or an arbitrary image-height box.
-            Image(countrysideImageName("ill-books-daisies", isDark: isDark))
-                .resizable()
-                .scaledToFit()
-                .frame(maxWidth: .infinity, alignment: .center)
-                .accessibilityHidden(true)
-
-            if !examples.isEmpty {
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack(spacing: 7) {
-                        BotanicalSprig(color: p.highlight)
-                            .frame(width: 17, height: 17)
-                        Text("Usage Examples")
-                            .font(.lexiconDisplay(18))
-                            .foregroundStyle(p.foreground)
-                    }
-                    ForEach(Array(examples.enumerated()), id: \.offset) { index, example in
-                        if index > 0 {
-                            Rectangle()
-                                .fill(p.border)
-                                .frame(height: 1)
-                        }
-                        Text("“\(example)”")
-                            .font(.lexiconLong(14).italic())
-                            .foregroundStyle(p.foreground.opacity(0.88))
-                            .fixedSize(horizontal: false, vertical: true)
+        let stacked = dynamicTypeSize.isAccessibilitySize || heroWidth < 335
+        return Group {
+            if stacked {
+                VStack(spacing: 10) {
+                    referenceEtymologyCard(word: word, p: p, stacked: true)
+                    if !examples.isEmpty {
+                        referenceUsageCard(examples: examples, p: p, stacked: true)
                     }
                 }
-                .padding(16)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(p.card, in: shape)
-                .overlay(shape.stroke(p.border, lineWidth: 1))
+            } else {
+                HStack(alignment: .top, spacing: 8) {
+                    referenceEtymologyCard(word: word, p: p, stacked: false)
+                    if !examples.isEmpty {
+                        referenceUsageCard(examples: examples, p: p, stacked: false)
+                    }
+                }
             }
         }
         .padding(.horizontal, 16)
+    }
+
+    private func referenceEtymologyCard(
+        word: WordEntry, p: LexiconPalette, stacked: Bool
+    ) -> some View {
+        let shape = RoundedRectangle(cornerRadius: 17, style: .continuous)
+        return VStack(alignment: .leading, spacing: 7) {
+            HStack(spacing: 6) {
+                BotanicalSprig(color: p.highlight)
+                    .frame(width: 15, height: 15)
+                Text("Etymology")
+                    .font(.lexiconDisplay(16))
+                    .foregroundStyle(p.foreground)
+            }
+            Text(word.etymology)
+                .font(.lexiconLong(11.5))
+                .foregroundStyle(p.foreground.opacity(0.9))
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, minHeight: stacked ? 142 : 168,
+               alignment: .topLeading)
+        .background(p.card, in: shape)
+        .background(alignment: .bottomTrailing) {
+            Image(countrysideImageName("ill-books-daisies", isDark: isDark))
+                .resizable()
+                .scaledToFit()
+                .frame(width: stacked ? 145 : 112, height: 95,
+                       alignment: .bottomTrailing)
+                .accessibilityHidden(true)
+        }
+        .overlay(shape.stroke(p.border, lineWidth: 1))
+    }
+
+    private func referenceUsageCard(
+        examples: [String], p: LexiconPalette, stacked: Bool
+    ) -> some View {
+        let shape = RoundedRectangle(cornerRadius: 17, style: .continuous)
+        return VStack(alignment: .leading, spacing: 9) {
+            HStack(spacing: 6) {
+                BotanicalSprig(color: p.highlight)
+                    .frame(width: 15, height: 15)
+                Text("Usage Examples")
+                    .font(.lexiconDisplay(16))
+                    .foregroundStyle(p.foreground)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            ForEach(Array(examples.enumerated()), id: \.offset) { index, example in
+                if index > 0 {
+                    Rectangle()
+                        .fill(p.border)
+                        .frame(height: 1)
+                }
+                Text("“\(example)”")
+                    .font(.lexiconLong(12).italic())
+                    .foregroundStyle(p.foreground.opacity(0.89))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, minHeight: stacked ? 142 : 168,
+               alignment: .topLeading)
+        .background(p.card, in: shape)
+        .overlay(shape.stroke(p.border, lineWidth: 1))
     }
 
     private func metaTile(_ icon: String, _ label: String, _ value: String, p: LexiconPalette) -> some View {
