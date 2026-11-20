@@ -544,11 +544,11 @@ fun CountrysideQuoteBanner(
     val shape = RoundedCornerShape(18.dp)
 
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
-        val expandedInk = fontScale >= 1.3f || maxWidth < 380.dp || quote.length > 82
-        // This is the essential bookplate rule: the bordered picture has the
-        // source image's *exact* aspect. Never grow a painting to accommodate
-        // words; let the words sit before it on a separate manuscript line.
-        val paintedHeight = maxWidth / imageRatio
+        val expandedInk = fontScale >= 1.3f || maxWidth < 350.dp || quote.length > 70
+        // The artwork is a right-half illustration, not a full banner
+        // background. Its intrinsic ratio sets the *whole* bookplate height.
+        val paintedWidth = maxWidth * .52f
+        val paintedHeight = paintedWidth / imageRatio
 
         @Composable
         fun Epigraph() {
@@ -594,10 +594,11 @@ fun CountrysideQuoteBanner(
                     contentDescription = null,
                     contentScale = ContentScale.Fit,
                     alignment = Alignment.BottomEnd,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.align(Alignment.BottomEnd)
+                        .width(paintedWidth).height(paintedHeight),
                 )
                 if (!expandedInk) {
-                    Box(modifier = Modifier.fillMaxWidth(0.57f)) { Epigraph() }
+                    Box(modifier = Modifier.fillMaxWidth(0.58f)) { Epigraph() }
                 }
             }
         }
