@@ -180,7 +180,8 @@ struct ContentView: View {
         case .dictionaryHome:
             DictionaryHomeScreen()
         case .wordOfTheDay:
-            WordOfTheDayScreen()
+            // Use the approved word-detail composition for the daily word too.
+            WordDetailProfileScreen()
         case .wordDetail:
             WordDetailProfileScreen()
         case .collections:
