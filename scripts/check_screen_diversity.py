@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Catch stale/duplicate simulator frames even when every PNG is nonblank.
 
-The three lexical entry routes intentionally use the same owner-approved
-word-detail presentation. All other named screens must remain distinguishable.
+Word of the Day and Word Detail intentionally use the owner's
+canonical reading-page composition. Expanded Exploration is a distinct
+dictionary destination and MUST NOT be treated as an identical alias.
 This detects wrong-route captures, not reference-image design parity.
 """
 from pathlib import Path
@@ -13,7 +14,7 @@ import sys
 
 # These routes are intentional aliases of the canonical reference entry.
 # Do not exempt unrelated screens: a stale screenshot must still fail.
-WORD_ENTRY_ALIASES = ("expanded_exploration", "word_detail", "word_of_the_day")
+WORD_ENTRY_ALIASES = ("word_detail", "word_of_the_day")
 ALLOWED_IDENTICAL = {
     frozenset((a, b))
     for a, b in itertools.combinations(WORD_ENTRY_ALIASES, 2)
