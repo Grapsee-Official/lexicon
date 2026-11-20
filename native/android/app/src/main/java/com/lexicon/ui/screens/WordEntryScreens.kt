@@ -866,7 +866,10 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                         word.didYouKnow.length > 135
                     Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
                         if (stacked) {
-                            Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                            Column(
+                                modifier = Modifier.padding(horizontal = 12.dp),
+                                verticalArrangement = Arrangement.spacedBy(5.dp),
+                            ) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -879,7 +882,6 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                                 Text(word.didYouKnow, color = fg,
                                     style = TextStyle(fontFamily = BodyFontFamily, fontSize = 12.sp, lineHeight = 17.sp))
                             }
-                            .padding(horizontal = 12.dp)
                         }
                         Box(
                             modifier = Modifier.fillMaxWidth()
