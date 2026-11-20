@@ -61,7 +61,8 @@ fun RootScreen(viewModel: LexiconViewModel) {
             when (currentRoute) {
                 ScreenRoute.HOME -> HomeScreen(viewModel = viewModel)
                 ScreenRoute.DICTIONARY_HOME -> DictionaryHomeScreen(viewModel = viewModel)
-                ScreenRoute.WORD_OF_THE_DAY -> WordOfTheDayScreen(viewModel = viewModel)
+                // One owner-approved word-entry composition for both routes.
+                ScreenRoute.WORD_OF_THE_DAY -> WordDetailProfileScreen(viewModel = viewModel)
                 ScreenRoute.WORD_DETAIL -> WordDetailProfileScreen(viewModel = viewModel)
                 ScreenRoute.COLLECTIONS -> CollectionsHubScreen(viewModel = viewModel)
                 ScreenRoute.MY_NOTES -> MyNotesScreen(viewModel = viewModel)
