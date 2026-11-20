@@ -841,9 +841,8 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                 Column(
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
-                        .fillMaxWidth()
-                        .background(cardBg, shape)
-                        .border(1.dp, border, shape),
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(if (stacked) 6.dp else 0.dp),
                 ) {
                     if (stacked) {
                         Column(
@@ -854,7 +853,18 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                             Text(word.didYouKnow, color = fg, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 13.sp, lineHeight = 19.sp))
                         }
                     }
-                    Box(modifier = Modifier.fillMaxWidth().aspectRatio(ratio)) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            // The only bordered portion is precisely the
+                            // watercolour's intrinsic height. Long or enlarged
+                            // text is *above* the painted panel, never padding
+                            // that stretches its container.
+                            .aspectRatio(ratio)
+                            .clip(shape)
+                            .background(cardBg)
+                            .border(1.dp, border, shape),
+                    ) {
                         Image(
                             painter = painter,
                             contentDescription = null,
