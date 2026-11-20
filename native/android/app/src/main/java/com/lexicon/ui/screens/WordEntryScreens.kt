@@ -837,64 +837,74 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
             if (word.didYouKnow.isNotBlank()) {
                 val shape = RoundedCornerShape(17.dp)
                 val painter = painterResource(bayRes)
-                val nativeSize = painter.intrinsicSize
-                val ratio = if (nativeSize.width > 1f && nativeSize.height > 1f) {
-                    nativeSize.width / nativeSize.height
-                } else 3.0f
-                val stacked = androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f ||
-                    word.didYouKnow.length > 135
-
-                Column(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(if (stacked) 6.dp else 0.dp),
+                val dimensions = painter.intrinsicSize
+                val artRatio = if (dimensions.width > 1f && dimensions.height > 1f)
+                    dimensions.width / dimensions.height else 1.94f
+                val typeScale = androidx.compose.ui.platform.LocalConfiguration.current.fontScale
+                BoxWithConstraints(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 ) {
-                    if (stacked) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            Text("Did You Know?", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 18.sp))
-                            Text(word.didYouKnow, color = fg, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 13.sp, lineHeight = 19.sp))
-                        }
-                    }
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            // The only bordered portion is precisely the
-                            // watercolour's intrinsic height. Long or enlarged
-                            // text is *above* the painted panel, never padding
-                            // that stretches its container.
-                            .aspectRatio(ratio)
-                            .clip(shape)
-                            .background(cardBg)
-                            .border(1.dp, border, shape),
-                    ) {
-                        Image(
-                            painter = painter,
-                            contentDescription = null,
-                            contentScale = ContentScale.Fit,
-                            alignment = Alignment.BottomEnd,
-                            modifier = Modifier.fillMaxSize(),
-                        )
-                        if (!stacked) {
-                            Column(
-                                modifier = Modifier
-                                    .align(Alignment.CenterStart)
-                                    .fillMaxWidth(0.62f)
-                                    .padding(start = 12.dp),
-                                verticalArrangement = Arrangement.spacedBy(4.dp),
-                            ) {
-                                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Outlined.Lightbulb, contentDescription = null, tint = accent, modifier = Modifier.size(16.dp))
-                                    Text("Did You Know?", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 15.sp))
+                    // Reference banner: complete watercolor fills its right
+                    // half; its natural *rendered* height sets the whole card.
+                    // Never use the entire card width to determine PNG height.
+                    val paintedWidth = maxWidth * 0.49f
+                    val paintedHeight = paintedWidth / artRatio
+                    val stacked = maxWidth < 345.dp || typeScale >= 1.3f ||
+                        word.didYouKnow.length > 135
+                    Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                        if (stacked) {
+                            Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                ) {
+                                    Icon(Icons.Outlined.Lightbulb, contentDescription = null,
+                                        tint = accent, modifier = Modifier.size(18.dp))
+                                    Text("Did You Know?", color = fg,
+                                        style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 16.sp))
                                 }
-                                Text(
-                                    word.didYouKnow,
-                                    color = fg.copy(alpha = 0.90f),
-                                    style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.5.sp, lineHeight = 16.sp),
-                                )
+                                Text(word.didYouKnow, color = fg,
+                                    style = TextStyle(fontFamily = BodyFontFamily, fontSize = 12.sp, lineHeight = 17.sp))
+                            }
+                            .padding(horizontal = 12.dp)
+                        }
+                        Box(
+                            modifier = Modifier.fillMaxWidth()
+                                .height(paintedHeight)
+                                .clip(shape)
+                                .background(cardBg)
+                                .border(1.dp, border, shape),
+                        ) {
+                            Image(
+                                painter = painter,
+                                contentDescription = null,
+                                contentScale = ContentScale.Fit,
+                                alignment = Alignment.BottomEnd,
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .width(paintedWidth)
+                                    .height(paintedHeight),
+                            )
+                            if (!stacked) {
+                                Column(
+                                    modifier = Modifier.align(Alignment.CenterStart)
+                                        .fillMaxWidth(.61f)
+                                        .padding(start = 12.dp, end = 3.dp),
+                                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                                ) {
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        Icon(Icons.Outlined.Lightbulb, contentDescription = null,
+                                            tint = accent, modifier = Modifier.size(17.dp))
+                                        Text("Did You Know?", color = fg,
+                                            style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 15.sp))
+                                    }
+                                    Text(word.didYouKnow, color = fg.copy(alpha = 0.90f),
+                                        style = TextStyle(fontFamily = BodyFontFamily,
+                                            fontSize = 11.sp, lineHeight = 15.sp))
+                                }
                             }
                         }
                     }
