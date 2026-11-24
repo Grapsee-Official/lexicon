@@ -27,3 +27,7 @@ After installation, build and capture dark and light Home on both native platfor
 ## Continuous night composition
 
 Home uses a single page-sized midnight gradient (`#040E18` → `#08121B` → `#09131C`) behind the transparent header and feed. Android uses an isolated Compose canvas with two alpha masks (`DstIn`); iOS uses two SwiftUI masks. The original source PNG remains byte-identical. The sky/roof are deliberately quieter than the foreground, the outer foliage dissolves, and the search capsule uses the same ink family. Reference screenshot sampling informed the grade; this is not device-rendered sign-off. The reference contains a different original painting composition, so exact pixel equivalence cannot be achieved through positioning alone.
+
+## Rendered review — 2026-11-24
+
+Reviewed the actual Android `dark-home.png` from workflow 45358760917 (commit `0493c9f`). The background is close to the reference, but the last paragraph line touched the search capsule, and the moon and book were too low. The follow-up uses native vertical flow rather than overlaying copy and search at fixed coordinates, a shorter minimum hero, 1.09 viewport-width artwork, an upper moon anchor, and more gradual left reveal. The dark iOS capture was unavailable because that job was canceled; both native layouts were reviewed at source level. New screenshots are required before final sign-off.

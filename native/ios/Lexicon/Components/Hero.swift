@@ -17,7 +17,7 @@ struct Hero: View {
         if expanded && dynamicTypeSize.isAccessibilitySize { return 425 }
         if expanded { return 365 }
         if dynamicTypeSize.isAccessibilitySize { return 330 }
-        return compact ? (isDark ? 258 : 266) : 245
+        return compact ? (isDark ? 250 : 266) : (isDark ? 242 : 245)
     }
 
     private var isDark: Bool { scheme == .dark }
@@ -39,122 +39,13 @@ struct Hero: View {
     }
 
     var body: some View {
-        GeometryReader { geo in
-            let totalWidth = geo.size.width
-            let compact = totalWidth < 360
-            let enlargedText = dynamicTypeSize.isAccessibilitySize
-            let expanded = totalWidth >= 600
-            let heroHeight: CGFloat = expanded ? (enlargedText ? 425 : 365)
-                : (enlargedText ? 330 : (compact ? (isDark ? 258 : 266) : 245))
-            let textWidth = totalWidth * ((compact || enlargedText) ? 0.60 : (isDark ? 0.49 : 0.52))
-
-            ZStack(alignment: .topLeading) {
-                if isDark {
-                    let readingEdge: CGFloat = enlargedText ? 0.61 : (compact ? 0.51 : 0.45)
-                    let artWidth = enlargedText
-                        ? min(totalWidth * 0.91, heroHeight * 1.5)
-                        : min(totalWidth * 1.13, heroHeight * 1.5 * 1.14)
-                    let artHeight = artWidth / 1.5
-                    let artX = max(totalWidth * 0.64 - artWidth * 0.54,
-                                   totalWidth - artWidth * 0.94)
-                    let artY = enlargedText ? heroHeight - artHeight
-                        : heroHeight * 0.15 - artHeight * 0.17
-
-                    // Mask the source's opacity, not the underlying page.
-                    // This keeps the same native night visible through every
-                    // shadow, from the header to the illustrated foreground.
-                    Image("hero-dark")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: artWidth, height: artHeight)
-                        .saturation(0.79)
-                        .colorMultiply(Color(red: 0.92, green: 0.93, blue: 1.0))
-                        .position(x: artX + artWidth / 2, y: artY + artHeight / 2)
-                        .frame(width: totalWidth, height: heroHeight)
-                        .clipped()
-                        .mask {
-                            LinearGradient(
-                                stops: [
-                                    .init(color: .clear, location: 0),
-                                    .init(color: .clear, location: readingEdge - 0.23),
-                                    .init(color: .black.opacity(0.10), location: readingEdge - 0.10),
-                                    .init(color: .black.opacity(0.48), location: readingEdge),
-                                    .init(color: .black.opacity(0.94), location: min(readingEdge + 0.12, 0.83)),
-                                    .init(color: .black, location: 0.82),
-                                    .init(color: .black.opacity(0.78), location: 0.94),
-                                    .init(color: .black.opacity(0.54), location: 1)
-                                ], startPoint: .leading, endPoint: .trailing
-                            )
-                        }
-                        .mask {
-                            LinearGradient(
-                                stops: [
-                                    .init(color: .clear, location: 0),
-                                    .init(color: .black.opacity(0.40), location: 0.06),
-                                    .init(color: .black.opacity(0.60), location: 0.15),
-                                    .init(color: .black.opacity(0.70), location: 0.36),
-                                    .init(color: .black.opacity(0.94), location: 0.59),
-                                    .init(color: .black, location: 0.76),
-                                    .init(color: .black.opacity(0.88), location: 0.90),
-                                    .init(color: .black.opacity(0.28), location: 0.97),
-                                    .init(color: .clear, location: 1)
-                                ], startPoint: .top, endPoint: .bottom
-                            )
-                        }
-                        .allowsHitTesting(false)
-                        .accessibilityHidden(true)
-                } else {
-                    HStack(spacing: 0) {
-                        Spacer(minLength: 0)
-                        Image("hero-light")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: totalWidth * (compact ? 0.82 : 0.88), height: heroHeight, alignment: .bottomTrailing)
-                            .lexiconDecorative()
-                    }
-                    .frame(width: totalWidth, height: heroHeight)
-
-                    LinearGradient(
-                        stops: [
-                            .init(color: LexiconColors.background.opacity(0.94), location: 0),
-                            .init(color: LexiconColors.background.opacity(0.72), location: 0.42),
-                            .init(color: .clear, location: 1)
-                        ],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                    .frame(width: totalWidth * 0.60, height: heroHeight)
-                    .allowsHitTesting(false)
-                    .accessibilityHidden(true)
-                }
-
-                VStack(alignment: .leading, spacing: 6) {
-                    headline
-                    Text("A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.")
-                        .font(.lexiconBody(isDark && compact && !enlargedText ? 10.5 : 11.5))
-                        .frame(maxWidth: textWidth * ((isDark && !enlargedText) ? 0.84 : 0.88), alignment: .leading)
-                        .foregroundStyle(subtextColor)
-                        .lineSpacing(2)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .frame(width: textWidth, alignment: .leading)
-                .padding(.leading, isDark ? 20 : 18)
-                .padding(.top, isDark && !enlargedText ? 18 : 2)
-
-                VStack {
-                    Spacer()
-                    HStack(spacing: 0) {
-                        FloatingSearchBar(sceneIntegrated: isDark)
-                            .frame(width: totalWidth * (isDark ? ((compact || enlargedText) ? 0.85 : 0.73) : (compact ? 0.90 : 0.75)))
-                        Spacer(minLength: 0)
-                    }
-                    .padding(.leading, isDark ? 20 : 16)
-                    .padding(.bottom, isDark ? 4 : 2)
-                }
-                .frame(width: totalWidth, height: heroHeight)
+        Group {
+            if isDark {
+                darkHero
+            } else {
+                lightHero
             }
         }
-        .frame(height: adaptiveHeight)
         .background {
             GeometryReader { measurement in
                 Color.clear
@@ -162,6 +53,158 @@ struct Hero: View {
                     .onChange(of: measurement.size.width) { measuredWidth = $0 }
             }
         }
+    }
+
+    private var darkHero: some View {
+        let enlargedText = dynamicTypeSize.isAccessibilitySize
+        let textWidth = measuredWidth * (enlargedText ? 0.70 : 0.51)
+
+        // Real vertical layout: content can grow without crossing the search bar.
+        return VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 6) {
+                headline
+                Text("A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.")
+                    .font(.lexiconBody(enlargedText ? 11.5 : 10.5))
+                    .foregroundStyle(subtextColor)
+                    .lineSpacing(2)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(width: max(1, textWidth - 20), alignment: .leading)
+            .padding(.leading, 20)
+            .padding(.top, enlargedText ? 8 : 15)
+
+            Spacer(minLength: 10)
+
+            FloatingSearchBar(sceneIntegrated: true)
+                .frame(width: measuredWidth * (enlargedText ? 0.85 : 0.73))
+                .padding(.leading, 20)
+                .padding(.bottom, 4)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(minHeight: adaptiveHeight, alignment: .topLeading)
+        .background {
+            GeometryReader { geo in
+                let totalWidth = geo.size.width
+                let heroHeight = geo.size.height
+                let compact = totalWidth < 360
+                let readingEdge: CGFloat = enlargedText ? 0.61 : (compact ? 0.51 : 0.45)
+                let artWidth = enlargedText
+                    ? min(totalWidth * 0.91, heroHeight * 1.5)
+                    : min(totalWidth * 1.09, heroHeight * 1.5 * 1.14)
+                let artHeight = artWidth / 1.5
+                let artX = max(totalWidth * 0.63 - artWidth * 0.54,
+                               totalWidth - artWidth * 0.94)
+                let artY = enlargedText ? heroHeight - artHeight
+                    : heroHeight * 0.065 - artHeight * 0.17
+
+                // Mask the source's opacity, not the underlying page.
+                // This keeps the same native night visible through every
+                // shadow, from the header to the illustrated foreground.
+                Image("hero-dark")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: artWidth, height: artHeight)
+                    .saturation(0.79)
+                    .colorMultiply(Color(red: 0.92, green: 0.93, blue: 1.0))
+                    .position(x: artX + artWidth / 2, y: artY + artHeight / 2)
+                    .frame(width: totalWidth, height: heroHeight)
+                    .clipped()
+                    .mask {
+                        LinearGradient(
+                            stops: [
+                                .init(color: .clear, location: 0),
+                                .init(color: .clear, location: readingEdge - 0.23),
+                                .init(color: .black.opacity(0.16), location: readingEdge - 0.10),
+                                .init(color: .black.opacity(0.58), location: readingEdge),
+                                .init(color: .black.opacity(0.94), location: min(readingEdge + 0.12, 0.83)),
+                                .init(color: .black, location: 0.82),
+                                .init(color: .black.opacity(0.78), location: 0.94),
+                                .init(color: .black.opacity(0.54), location: 1)
+                            ], startPoint: .leading, endPoint: .trailing
+                        )
+                    }
+                    .mask {
+                        LinearGradient(
+                            stops: [
+                                .init(color: .clear, location: 0),
+                                .init(color: .black.opacity(0.46), location: 0.035),
+                                .init(color: .black.opacity(0.70), location: 0.085),
+                                .init(color: .black.opacity(0.70), location: 0.36),
+                                .init(color: .black.opacity(0.94), location: 0.59),
+                                .init(color: .black, location: 0.76),
+                                .init(color: .black.opacity(0.88), location: 0.90),
+                                .init(color: .black.opacity(0.28), location: 0.97),
+                                .init(color: .clear, location: 1)
+                            ], startPoint: .top, endPoint: .bottom
+                        )
+                    }
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+
+            }
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+        }
+    }
+
+    private var lightHero: some View {
+        GeometryReader { geo in
+            let totalWidth = geo.size.width
+            let compact = totalWidth < 360
+            let enlargedText = dynamicTypeSize.isAccessibilitySize
+            let heroHeight = geo.size.height
+            let textWidth = totalWidth * ((compact || enlargedText) ? 0.60 : 0.52)
+
+            ZStack(alignment: .topLeading) {
+                HStack(spacing: 0) {
+                    Spacer(minLength: 0)
+                    Image("hero-light")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: totalWidth * (compact ? 0.82 : 0.88), height: heroHeight, alignment: .bottomTrailing)
+                        .lexiconDecorative()
+                }
+                .frame(width: totalWidth, height: heroHeight)
+
+                LinearGradient(
+                    stops: [
+                        .init(color: LexiconColors.background.opacity(0.94), location: 0),
+                        .init(color: LexiconColors.background.opacity(0.72), location: 0.42),
+                        .init(color: .clear, location: 1)
+                    ],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+                .frame(width: totalWidth * 0.60, height: heroHeight)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 6) {
+                    headline
+                    Text("A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.")
+                        .font(.lexiconBody(11.5))
+                        .frame(maxWidth: textWidth * 0.88, alignment: .leading)
+                        .foregroundStyle(subtextColor)
+                        .lineSpacing(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .frame(width: textWidth, alignment: .leading)
+                .padding(.leading, 18)
+                .padding(.top, 2)
+
+                VStack {
+                    Spacer()
+                    HStack(spacing: 0) {
+                        FloatingSearchBar()
+                            .frame(width: totalWidth * (compact ? 0.90 : 0.75))
+                        Spacer(minLength: 0)
+                    }
+                    .padding(.leading, 16)
+                    .padding(.bottom, 2)
+                }
+                .frame(width: totalWidth, height: heroHeight)
+            }
+        }
+        .frame(height: adaptiveHeight)
     }
 
     @ViewBuilder
@@ -179,7 +222,7 @@ struct Hero: View {
                     .lexiconDecorative()
             }
         }
-        .font(.lexiconDisplay(measuredWidth >= 600 ? 36 : (isDark && measuredWidth < 360 && !dynamicTypeSize.isAccessibilitySize ? 24 : 27), weight: .regular))
+        .font(.lexiconDisplay(measuredWidth >= 600 ? 36 : (isDark && !dynamicTypeSize.isAccessibilitySize ? (measuredWidth < 360 ? 24 : 25) : 27), weight: .regular))
         .tracking(-0.3)
         .frame(maxWidth: .infinity, alignment: .leading)
         .lexiconCombinedElement()
