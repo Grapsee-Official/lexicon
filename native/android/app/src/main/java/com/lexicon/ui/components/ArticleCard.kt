@@ -77,9 +77,10 @@ fun ArticleCard(
     val metaColor = if (isDark) DarkMutedForeground else WarmGrey
     val iconColor = if (isDark) DarkAccent else OldWoodGold
     val shape = RoundedCornerShape(if (isDark) 10.dp else 13.dp)
-    val largeText = LocalConfiguration.current.fontScale > 1.2f
-    val width = if (isDark && !largeText) 150.dp else if (isDark) 210.dp else 174.dp
-    val height = if (isDark && !largeText) 78.dp else if (isDark) 120.dp else 90.dp
+    val fontScale = LocalConfiguration.current.fontScale
+    val largeText = fontScale >= 1.5f
+    val width = if (isDark && !largeText) 150.dp * fontScale.coerceIn(1f, 1.20f) else if (isDark) 210.dp else 174.dp
+    val height = if (isDark && !largeText) 78.dp * fontScale.coerceIn(1f, 1.25f) else if (isDark) 120.dp * (fontScale / 1.5f).coerceAtLeast(1f) else 90.dp
 
     Box(
         modifier = modifier

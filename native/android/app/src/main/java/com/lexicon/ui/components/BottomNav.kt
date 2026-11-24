@@ -73,7 +73,7 @@ fun BottomNav(
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val compactLabels = LocalConfiguration.current.screenWidthDp < 360
+    val compactLabels = LocalConfiguration.current.screenWidthDp < 400 || LocalConfiguration.current.fontScale >= 1.2f
     val activeTab = state.activeTab
     val isDark = state.isDark
 
@@ -227,7 +227,7 @@ private fun BottomNavItem(
         modifier = modifier
             .semantics { selected = isActive }
             .clickable(role = Role.Tab) { onClick() }
-            .padding(horizontal = 4.dp, vertical = 3.dp),
+            .padding(horizontal = 1.dp, vertical = 3.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
@@ -241,8 +241,8 @@ private fun BottomNavItem(
             text = label,
             color = if (isActive) activeColor else inactiveColor,
             style = if (compact) LexiconTextStyles.NavLabel.copy(fontSize = 8.sp) else LexiconTextStyles.NavLabel,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
+            maxLines = 2,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
         )
         Box(
             modifier = Modifier

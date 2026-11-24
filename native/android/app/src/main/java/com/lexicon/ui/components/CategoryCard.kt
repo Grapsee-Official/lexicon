@@ -29,6 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lexicon.data.Category
@@ -50,13 +51,21 @@ fun CategoryCard(
     category: Category,
     viewModel: LexiconViewModel,
     modifier: Modifier = Modifier,
+    shelfArtworkHeight: Dp? = null,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
-    val largeText = LocalConfiguration.current.fontScale > 1.2f
+    val fontScale = LocalConfiguration.current.fontScale
+    val largeText = fontScale >= 1.5f
+    val artHeight = shelfArtworkHeight ?: if (largeText) 100.dp else 74.dp
     val ctx = LocalContext.current
-    // One original painting for both themes; remove transparent storage margins only.
-    val resId = ctx.resources.getIdentifier(category.illustration, "drawable", ctx.packageName)
+    // Future light bookplates have separate names; keep the current art
+    // as a fallback until the ten new illustrations are supplied.
+    val lightRes = if (!isDark) ctx.resources.getIdentifier(
+        "${category.illustration}_light", "drawable", ctx.packageName
+    ) else 0
+    val resId = if (lightRes != 0) lightRes else
+        ctx.resources.getIdentifier(category.illustration, "drawable", ctx.packageName)
     // Let the underlying page ink show through the bookplate rather than
     // introducing a second opaque rectangle around the original art.
     val surface = if (isDark) Color(0xFF101B23).copy(alpha = 0.46f) else CardSurface
@@ -68,7 +77,7 @@ fun CategoryCard(
 
     Column(
         modifier = modifier
-            .heightIn(min = if (largeText) 190.dp else if (isDark) 112.dp else 130.dp)
+            .heightIn(min = artHeight + (if (largeText) 46.dp else 33.dp) * fontScale.coerceAtMost(2.5f) + 10.dp)
             .clip(shape)
             .background(
                 if (isDark) Brush.verticalGradient(
@@ -82,8 +91,7 @@ fun CategoryCard(
         verticalArrangement = Arrangement.Top,
     ) {
         if (resId != 0) {
-            val painting = rememberPreparedArtwork(resId, ArtworkTreatment.BOOKPLATE)
-            val artHeight = if (largeText) 100.dp else 74.dp
+            val painting = rememberPreparedArtwork(resId, if (isDark) ArtworkTreatment.DARK_BOOKPLATE else ArtworkTreatment.BOOKPLATE)
             Box(Modifier.fillMaxWidth().height(artHeight), contentAlignment = Alignment.Center) {
                 if (isDark) {
                     // A broad, very low-contrast wash seats the motif in the
@@ -91,7 +99,7 @@ fun CategoryCard(
                     Canvas(Modifier.matchParentSize()) {
                         if (size.width > 0f && size.height > 0f) {
                             drawRect(Brush.radialGradient(
-                                colors = listOf(Color(0xFF28343B).copy(alpha = 0.20f), Color.Transparent),
+                                colors = listOf(Color(0xFF20394D).copy(alpha = 0.27f), Color.Transparent),
                                 center = Offset(size.width * 0.5f, size.height * 0.48f),
                                 radius = maxOf(size.width, size.height) * 0.63f,
                             ))
@@ -107,7 +115,7 @@ fun CategoryCard(
                 )
             }
         } else {
-            Spacer(Modifier.height(if (largeText) 100.dp else 74.dp))
+            Spacer(Modifier.height(artHeight))
         }
         Spacer(Modifier.height(if (isDark && !largeText) 0.dp else 5.dp))
         Column(
@@ -118,13 +126,13 @@ fun CategoryCard(
             Text(
                 text = category.title,
                 color = ink,
-                style = LexiconTextStyles.CategoryTitle.copy(fontSize = if (isDark && !largeText) 11.5.sp else 12.sp, lineHeight = 14.sp),
+                style = LexiconTextStyles.CategoryTitle.copy(fontSize = if (shelfArtworkHeight != null) 11.sp else 12.sp, lineHeight = 14.sp),
                 textAlign = TextAlign.Center,
             )
             Text(
                 text = category.subtitle,
                 color = muted,
-                style = LexiconTextStyles.CategorySubtitle.copy(fontSize = if (isDark && !largeText) 8.5.sp else 9.5.sp, lineHeight = if (isDark && !largeText) 11.sp else 12.sp),
+                style = LexiconTextStyles.CategorySubtitle.copy(fontSize = if (shelfArtworkHeight != null) 8.5.sp else 9.5.sp, lineHeight = if (shelfArtworkHeight != null) 11.sp else 12.sp),
                 textAlign = TextAlign.Center,
             )
         }

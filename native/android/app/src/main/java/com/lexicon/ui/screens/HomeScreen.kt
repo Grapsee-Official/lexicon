@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -107,11 +109,10 @@ fun HomeScreen(viewModel: LexiconViewModel) {
     var heroHeightPx by remember { mutableStateOf(0) }
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .clipToBounds()
-            .then(background),
+        modifier = Modifier.fillMaxSize().then(background),
+        contentAlignment = Alignment.TopCenter,
     ) {
+      Box(Modifier.widthIn(max = 640.dp).fillMaxSize().clipToBounds()) {
         // Render the painting once in the PAGE coordinate space. Its upper
         // sky can cross the header/feed boundary; it is not clipped by LazyColumn.
         // Its translation tracks the masthead, while header controls stay fixed.
@@ -128,32 +129,38 @@ fun HomeScreen(viewModel: LexiconViewModel) {
             )
         }
 
+        val scrolled = feedState.firstVisibleItemIndex != 0 || feedState.firstVisibleItemScrollOffset > 0
         Column(modifier = Modifier.fillMaxSize()) {
-            LexiconHeader(
-                viewModel = viewModel,
-                modifier = Modifier.onSizeChanged { headerHeightPx = it.height },
-            )
+            // Keep the artwork below the fixed header once the feed scrolls.
+            Box(Modifier.fillMaxWidth().background(
+                if (state.isDark && !scrolled) Color.Transparent
+                else if (state.isDark) Color(0xFF050F18) else WarmCream
+            )) {
+                LexiconHeader(
+                    viewModel = viewModel,
+                    modifier = Modifier.onSizeChanged { headerHeightPx = it.height },
+                )
+            }
             HomeFeed(
                 viewModel = viewModel,
+                modifier = Modifier.weight(1f).clipToBounds(),
                 feedState = feedState,
                 onMastheadMeasured = { mastheadHeightPx = it },
                 onHeroMeasured = { heroHeightPx = it },
             )
+            // Real reserved space for navigation, including the raised search seal.
+            BottomNav(viewModel = viewModel, modifier = Modifier
+                .background(if (state.isDark) Color(0xFF08111A) else WarmCream)
+                .padding(top = 8.dp))
         }
-
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth(),
-        ) {
-            BottomNav(viewModel = viewModel)
-        }
+      }
     }
 }
 
 @Composable
 private fun HomeFeed(
     viewModel: LexiconViewModel,
+    modifier: Modifier = Modifier,
     feedState: LazyListState,
     onMastheadMeasured: (Int) -> Unit,
     onHeroMeasured: (Int) -> Unit,
@@ -179,8 +186,8 @@ private fun HomeFeed(
     val secondaryInk = if (state.isDark) DarkMutedForeground else WarmGrey
     LazyColumn(
         state = feedState,
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = 160.dp),
+        modifier = modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(bottom = 12.dp),
         verticalArrangement = Arrangement.spacedBy(11.dp),
     ) {
         item(key = "masthead") {
@@ -217,34 +224,24 @@ private fun HomeFeed(
                     modifier = Modifier.padding(horizontal = if (state.isDark) 18.dp else 16.dp),
                     homeEditorial = true,
                 )
-                androidx.compose.foundation.layout.BoxWithConstraints(Modifier.fillMaxWidth()) {
-                    val largeText = LocalConfiguration.current.fontScale > 1.2f
-                    val readableWidth = if (largeText) {
-                        (maxWidth * 0.43f).coerceIn(150.dp, 220.dp)
-                    } else {
-                        if (state.isDark) ((maxWidth - 70.dp) / 4f).coerceIn(72.dp, 112.dp)
-                        else ((maxWidth - 62.dp) / 4f).coerceIn(94.dp, 116.dp)
-                    }
+                BoxWithConstraints(Modifier.fillMaxWidth()) {
+                    val fontScale = LocalConfiguration.current.fontScale
+                    val gap = 8.dp
+                    val inset = 16.dp
+                    val count = homeShelfColumns(maxWidth.value, fontScale)
+                    val width = ((maxWidth - inset * 2 - gap * (count - 1)) / count)
+                        .coerceAtLeast(56.dp)
                     LazyRow(
                         modifier = Modifier.fillMaxWidth(),
-                        contentPadding = PaddingValues(horizontal = if (state.isDark) 18.dp else 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(if (state.isDark) 8.dp else 10.dp),
+                        contentPadding = PaddingValues(horizontal = inset),
+                        horizontalArrangement = Arrangement.spacedBy(gap),
                     ) {
                         items(LexiconData.categories, key = { it.id }) { category ->
                             CategoryCard(
                                 category = category,
                                 viewModel = viewModel,
-                                modifier = Modifier.width(
-                                    if (state.isDark && !largeText) {
-                                        // Keep the opening four bookplates compact; later long
-                                        // labels get width, rather than shrinking the lettering.
-                                        when {
-                                            category.title.length > 15 -> maxOf(readableWidth, 136.dp)
-                                            category.subtitle.length > 18 -> maxOf(readableWidth, 112.dp)
-                                            else -> readableWidth
-                                        }
-                                    } else readableWidth
-                                ),
+                                modifier = Modifier.width(width),
+                                shelfArtworkHeight = (width * 0.82f).coerceIn(50.dp, 96.dp),
                             )
                         }
                     }
@@ -301,4 +298,14 @@ private fun HomeFeed(
         )
     }
 
+}
+
+
+/** Logical window width and text preference, not physical pixels or model. */
+internal fun homeShelfColumns(widthDp: Float, fontScale: Float): Int = when {
+    fontScale >= 1.8f -> if (widthDp >= 560f) 3 else 2
+    fontScale >= 1.5f -> if (widthDp >= 560f) 4 else 3
+    widthDp >= 560f -> 5
+    widthDp < 340f && fontScale >= 1.25f -> 3
+    else -> 4
 }

@@ -71,7 +71,7 @@ fun WordOfTheDayCard(
     val isDark = state.isDark
     val config = LocalConfiguration.current
     val compact = config.screenWidthDp < 360
-    val accessible = config.fontScale > 1.2f
+    val accessible = config.fontScale >= 1.5f
     val definition = word.definitions.firstOrNull().orEmpty()
     val editorial = isDark && !accessible
     val shortDefinition = editorial && definition.length <= 72
@@ -79,11 +79,11 @@ fun WordOfTheDayCard(
     // Give unusually long entries room, while matching the regular card to
     // the reference's proportions at ordinary phone widths.
     val cardHeight = when {
-        accessible -> 186.dp
+        accessible -> (128.dp * config.fontScale).coerceIn(190.dp, 320.dp)
         !isDark -> if (compact) 144.dp else 118.dp
         definition.length > 105 -> 136.dp
-        compact -> 116.dp
-        else -> 112.dp
+        compact -> 116.dp * config.fontScale.coerceIn(1f, 1.3f)
+        else -> 112.dp * config.fontScale.coerceIn(1f, 1.3f)
     }
 
     // Same ink family as the Home night backdrop, not a separate slate tile.
@@ -133,10 +133,10 @@ fun WordOfTheDayCard(
         Row(Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier
-                    .weight(0.39f)
+                    .weight(if (accessible) 0.43f else 0.39f)
                     .fillMaxHeight()
                     .background(leftBg)
-                    .padding(horizontal = 12.dp, vertical = 14.dp),
+                    .padding(horizontal = if (accessible) 8.dp else 10.dp, vertical = if (editorial) 10.dp else 14.dp),
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 Row(
@@ -214,7 +214,7 @@ fun WordOfTheDayCard(
 
             Box(
                 modifier = Modifier
-                    .weight(0.61f)
+                    .weight(if (accessible) 0.57f else 0.61f)
                     .fillMaxHeight()
                     .background(rightBg),
             ) {
@@ -241,7 +241,7 @@ fun WordOfTheDayCard(
                 Column(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .fillMaxWidth(if (isDark && accessible) 0.88f else if (editorial) 0.73f else 0.69f)
+                        .fillMaxWidth(if (isDark && accessible) 1f else if (editorial) 0.79f else 0.69f)
                         .padding(start = 13.dp, top = if (isDark && !accessible) 11.dp else 13.dp, bottom = if (isDark && !accessible) 10.dp else 12.dp, end = 4.dp),
                     verticalArrangement = if (shortDefinition) Arrangement.spacedBy(10.dp, Alignment.CenterVertically)
                         else Arrangement.SpaceBetween,
@@ -300,8 +300,8 @@ private fun WordOfDayNightScene(modifier: Modifier, accessible: Boolean) {
             brush = Brush.linearGradient(
                 0f to Color.Transparent,
                 0.40f to Color.Transparent,
-                0.51f to Color.Black.copy(alpha = if (accessible) 0.03f else 0.12f),
-                0.66f to Color.Black.copy(alpha = if (accessible) 0.13f else 0.42f),
+                0.51f to Color.Black.copy(alpha = if (accessible) 0.03f else 0.17f),
+                0.66f to Color.Black.copy(alpha = if (accessible) 0.13f else 0.58f),
                 0.84f to Color.Black.copy(alpha = if (accessible) 0.48f else 0.95f),
                 1f to Color.Black.copy(alpha = if (accessible) 0.60f else 1f),
                 start = Offset.Zero,
@@ -322,7 +322,7 @@ private fun WordOfDayNightScene(modifier: Modifier, accessible: Boolean) {
         // protects the lettering without dimming the entire right-hand scene.
         drawRect(
             brush = Brush.radialGradient(
-                colors = listOf(Color(0xFF08121A).copy(alpha = 0.56f), Color.Transparent),
+                colors = listOf(Color(0xFF08121A).copy(alpha = 0.34f), Color.Transparent),
                 center = Offset(size.width * 0.62f, size.height * 0.40f),
                 radius = size.width * 0.22f,
             ),

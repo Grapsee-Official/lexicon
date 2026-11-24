@@ -53,7 +53,7 @@ fun FloatingSearchBar(
     val isDark = state.isDark
 
     val integrated = isDark && sceneIntegrated
-    val compactType = integrated && LocalConfiguration.current.fontScale <= 1.2f
+    val compactType = integrated && LocalConfiguration.current.fontScale < 1.5f
     val bg = if (integrated) Color(0xFF0B161C).copy(alpha = 0.97f)
         else if (isDark) DarkSearchPill.copy(alpha = 0.95f) else SearchPillLight
     val borderColor = if (integrated) Color(0xFFB6A486).copy(alpha = 0.19f)
@@ -101,6 +101,8 @@ fun FloatingSearchBar(
                 color = textColor,
                 style = if (compactType) LexiconTextStyles.SearchPlaceholder.copy(fontSize = 11.5.sp)
                     else LexiconTextStyles.SearchPlaceholder,
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                 modifier = Modifier
                     .weight(1f)
                     .clearAndSetSemantics { },

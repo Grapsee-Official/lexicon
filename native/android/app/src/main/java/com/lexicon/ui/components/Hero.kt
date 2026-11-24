@@ -81,32 +81,33 @@ fun Hero(
     val sprigColor = if (isDark) DarkAccent else OldWoodGold
     val subtextColor = if (isDark) Color(0xFFD3C6B2) else DeepForest.copy(alpha = 0.90f)
     val configuration = LocalConfiguration.current
-    val largeText = configuration.fontScale > 1.2f
+    val largeText = configuration.fontScale >= 1.5f
 
     // Use the actual content width, including split-screen and tablet windows.
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         val compact = maxWidth < 360.dp
         val expanded = maxWidth >= 600.dp
         val heroHeight = when {
+            isDark && largeText -> 0.dp
+            isDark -> (maxWidth * 0.60f).coerceIn(195.dp, 350.dp)
             expanded && largeText -> 425.dp
             expanded -> 365.dp
             largeText -> 330.dp
-            isDark -> (maxWidth * 0.60f).coerceIn(210.dp, 290.dp)
             compact -> 290.dp
             else -> 278.dp
         }
         val textWidth = when {
-            isDark && largeText -> 0.70f
+            isDark && largeText -> 1f
             isDark -> 0.51f
             compact || largeText -> 0.60f
             else -> 0.52f
         }
         val headlineStyle = when {
-            expanded -> LexiconTextStyles.HeroHeadline.copy(fontSize = 36.sp, lineHeight = 42.sp)
-            isDark && !largeText -> LexiconTextStyles.HeroHeadline.copy(
-                fontSize = (maxWidth.value * 0.061f).coerceIn(22f, 27f).sp,
-                lineHeight = (maxWidth.value * 0.069f).coerceIn(25f, 30.5f).sp,
+            isDark -> LexiconTextStyles.HeroHeadline.copy(
+                fontSize = (maxWidth.value * 0.058f).coerceIn(19f, 30f).sp,
+                lineHeight = (maxWidth.value * 0.067f).coerceIn(23f, 35f).sp,
             )
+            expanded -> LexiconTextStyles.HeroHeadline.copy(fontSize = 36.sp, lineHeight = 42.sp)
             else -> LexiconTextStyles.HeroHeadline
         }
         val paragraphStyle = if (isDark && !largeText) {
@@ -198,13 +199,14 @@ fun Hero(
                 ) {
                     heroCopy(
                         Modifier.fillMaxWidth(textWidth)
-                            .padding(start = 20.dp, top = if (largeText) 8.dp else 21.dp, bottom = 10.dp),
+                            .padding(start = 20.dp, end = if (largeText) 20.dp else 0.dp, top = if (largeText) 8.dp else 16.dp, bottom = 6.dp),
                     )
+                    if (largeText) Spacer(Modifier.height((maxWidth * 0.48f).coerceIn(135.dp, 210.dp)))
                     FloatingSearchBar(
                         viewModel = viewModel,
                         sceneIntegrated = true,
                         modifier = Modifier.padding(start = 20.dp)
-                            .fillMaxWidth(if (largeText) 0.85f else 0.76f),
+                            .fillMaxWidth(if (largeText) 0.90f else 0.76f),
                     )
                 }
             } else {
@@ -232,7 +234,7 @@ fun HomeNightScene(
     headerInset: Dp = 0.dp,
     measuredHeroHeight: Dp = 0.dp,
 ) {
-    val largeText = LocalConfiguration.current.fontScale > 1.2f
+    val largeText = LocalConfiguration.current.fontScale >= 1.5f
     val painting = rememberPreparedArtwork(R.drawable.hero_dark, ArtworkTreatment.MOONLIT)
     Canvas(modifier.graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }) {
         if (size.width <= 0f || size.height <= 0f) return@Canvas
@@ -245,8 +247,8 @@ fun HomeNightScene(
         // Reference landmarks at 369px: crescent x233/y98, open-book
         // baseline y284, search capsule bottom y299. Compose the painting
         // against the measured hero, not a fixed image container.
-        val artWidth = minOf(size.width * (if (largeText) 0.96f else 0.99f),
-            contentHeight * aspect * 1.08f)
+        val artWidth = minOf(size.width * (if (largeText) 0.85f else 0.99f),
+            if (largeText) 190.dp.toPx() * aspect else contentHeight * aspect * 1.08f)
         val artX = size.width * 0.63f - artWidth * 0.539f
         val moonY = minOf(hero * 0.10f, size.width * 0.055f)
         val bookBaseline = hero - 4.dp.toPx() - size.width * 0.040f
@@ -254,7 +256,7 @@ fun HomeNightScene(
         val artHeight = if (largeText) naturalHeight else
             ((bookBaseline - moonY) / (0.88f - 0.17f))
                 .coerceIn(naturalHeight * 0.88f, naturalHeight * 1.14f)
-        val artY = header + if (largeText) bookBaseline - artHeight * 0.88f
+        val artY = header + if (largeText) bookBaseline - artHeight * 0.97f
             else moonY - artHeight * 0.17f
         clipRect {
             translate(left = artX, top = artY) {
@@ -264,7 +266,7 @@ fun HomeNightScene(
 
         // The source-space grade already dissolves the painted edges.
         // Use only a reading-column shadow and a short bottom fade here.
-        val edge = if (largeText) 0.67f else 0.47f
+        val edge = if (largeText) 0.32f else 0.47f
         drawRect(
             brush = Brush.linearGradient(
                 0f to Color.Transparent,
@@ -300,7 +302,7 @@ fun HomeNightScene(
  * retain the original alpha, with a luminance-dependent shadow dissolve and
  * a highlight-preserving tone curve. No generated/replacement illustration.
  */
-internal enum class ArtworkTreatment { MOONLIT, DAILY_LANDSCAPE, STORY, BOOKPLATE }
+internal enum class ArtworkTreatment { MOONLIT, DAILY_LANDSCAPE, STORY, BOOKPLATE, DARK_BOOKPLATE }
 
 private val preparedArtworkCache = object : LruCache<String, ImageBitmap>(24 * 1024 * 1024) {
     override fun sizeOf(key: String, value: ImageBitmap): Int =
@@ -376,10 +378,11 @@ private fun prepareArtwork(
         ArtworkTreatment.MOONLIT -> 1536
         ArtworkTreatment.DAILY_LANDSCAPE -> 1024
         ArtworkTreatment.STORY -> 512
-        ArtworkTreatment.BOOKPLATE -> 1024
+        ArtworkTreatment.BOOKPLATE, ArtworkTreatment.DARK_BOOKPLATE -> 1024
     }
     var bitmap = decodeBoundedArtwork(resources, resId, decodeLimit) ?: return null
-    if (treatment == ArtworkTreatment.BOOKPLATE) {
+    val bookplate = treatment == ArtworkTreatment.BOOKPLATE || treatment == ArtworkTreatment.DARK_BOOKPLATE
+    if (bookplate) {
         // Bound working memory before examining the transparent perimeter.
         val longest = maxOf(bitmap.width, bitmap.height)
         if (longest > 1280) {
@@ -427,7 +430,7 @@ private fun prepareArtwork(
             bitmap = Bitmap.createBitmap(bitmap, left, top, right - left + 1, bottom - top + 1)
         }
     }
-    val limit = if (treatment == ArtworkTreatment.BOOKPLATE) 640 else 1536
+    val limit = if (bookplate) 640 else 1536
     val longest = maxOf(bitmap.width, bitmap.height)
     if (longest > limit) {
         val scale = limit.toFloat() / longest
@@ -436,6 +439,34 @@ private fun prepareArtwork(
             (bitmap.height * scale).roundToInt().coerceAtLeast(1), true)
     }
     if (treatment == ArtworkTreatment.BOOKPLATE) return bitmap.asImageBitmap()
+    if (treatment == ArtworkTreatment.DARK_BOOKPLATE) {
+        val w = bitmap.width
+        val h = bitmap.height
+        val pixels = IntArray(w * h)
+        bitmap.getPixels(pixels, 0, w, 0, 0, w, h)
+        for (i in pixels.indices) {
+            val p = pixels[i]
+            val a = (p ushr 24) / 255f
+            if (a == 0f) continue
+            val r = ((p ushr 16) and 255) / 255f
+            val g = ((p ushr 8) and 255) / 255f
+            val b = (p and 255) / 255f
+            val l = r * 0.2126f + g * 0.7152f + b * 0.0722f
+            // Navy ambient light in shadows, preserve gold leaf highlights.
+            val shade = 1f - smoothArtworkStep(0.12f, 0.55f, l)
+            val highlight = smoothArtworkStep(0.58f, 0.90f, l)
+            val gain = 0.82f + 0.15f * highlight
+            val ink = 0.42f * shade
+            val edge = (1f - smoothArtworkStep(0.12f, 0.90f, a)) * shade
+            val alpha = a * (1f - 0.30f * edge)
+            fun byte(v: Float) = (v * 255f).roundToInt().coerceIn(0, 255)
+            pixels[i] = (byte(alpha) shl 24) or
+                (byte(r * gain * (1f - ink) + 0.035f * ink) shl 16) or
+                (byte(g * gain * (1f - ink) + 0.085f * ink) shl 8) or
+                byte(b * gain * (1f - ink) + 0.14f * ink)
+        }
+        return Bitmap.createBitmap(pixels, w, h, Bitmap.Config.ARGB_8888).asImageBitmap()
+    }
 
     val w = bitmap.width
     val h = bitmap.height

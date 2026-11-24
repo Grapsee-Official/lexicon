@@ -45,7 +45,7 @@ fun SectionHeader(
 ) {
     val isDark = MaterialTheme.colorScheme.background == DarkBackground
     val editorial = isDark && homeEditorial
-    val compactType = editorial && LocalConfiguration.current.fontScale <= 1.2f
+    val compactType = editorial && LocalConfiguration.current.fontScale < 1.5f
     val accent = if (editorial) Color(0xFFD0AD75) else if (isDark) DarkAccent else BrandGreen
     val lineColor = if (editorial) Color(0xFFB6A486).copy(alpha = 0.13f)
         else if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.12f)
@@ -60,20 +60,18 @@ fun SectionHeader(
             color = MaterialTheme.colorScheme.onBackground,
             style = if (compactType) LexiconTextStyles.SectionTitle.copy(fontSize = 14.5.sp, lineHeight = 18.sp)
                 else LexiconTextStyles.SectionTitle,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.sectionHeading(2),
+            maxLines = 2,
+            modifier = Modifier.weight(1f).sectionHeading(2),
         )
 
         if (divider) {
             Box(
                 modifier = Modifier
-                    .weight(1f)
-                    .height(1.dp)
+                    .size(width = 12.dp, height = 1.dp)
                     .background(lineColor),
             )
         } else {
-            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.size(0.dp))
         }
 
         Row(

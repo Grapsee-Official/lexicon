@@ -52,7 +52,7 @@ fun TrendingTagRow(
     val isDark = state.isDark
 
     val integrated = isDark && sceneIntegrated
-    val compact = integrated && LocalConfiguration.current.fontScale <= 1.2f
+    val compact = integrated && LocalConfiguration.current.fontScale < 1.5f
     val chipBg = if (integrated) Color(0xFF0B151D).copy(alpha = 0.88f)
         else if (isDark) DarkCard else CardSurface.copy(alpha = 0.78f)
     val chipBorder = if (integrated) Color(0xFFB6A486).copy(alpha = 0.12f)
@@ -75,7 +75,7 @@ fun TrendingTagRow(
                     .clickable(role = Role.Button) {
                         LexiconData.getWordById(tag.wordId)?.let { viewModel.openWord(it) }
                     }
-                    .padding(horizontal = if (compact) 10.dp else 12.dp, vertical = if (compact) 6.dp else 8.5.dp),
+                    .padding(horizontal = if (compact) 7.dp else 12.dp, vertical = if (compact) 5.dp else 8.5.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
