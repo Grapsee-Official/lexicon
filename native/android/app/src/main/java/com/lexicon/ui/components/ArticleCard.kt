@@ -28,6 +28,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
@@ -66,17 +71,20 @@ fun ArticleCard(
         .takeIf { it != 0 }
         ?: ctx.resources.getIdentifier(article.thumbnail, "drawable", ctx.packageName)
 
-    val cardBg = if (isDark) Color(0xFF0B141C) else CardSurface
+    val cardBg = if (isDark) Color(0xFF0A131B) else CardSurface
     val borderColor = if (isDark) Color(0xFFB6A486).copy(alpha = 0.14f) else DeepForest.copy(alpha = 0.10f)
     val titleColor = if (isDark) DarkForeground else DeepForest
     val metaColor = if (isDark) DarkMutedForeground else WarmGrey
     val iconColor = if (isDark) DarkAccent else OldWoodGold
-    val shape = RoundedCornerShape(13.dp)
+    val shape = RoundedCornerShape(if (isDark) 10.dp else 13.dp)
+    val largeText = LocalConfiguration.current.fontScale > 1.2f
+    val width = if (isDark && !largeText) 150.dp else if (isDark) 210.dp else 174.dp
+    val height = if (isDark && !largeText) 78.dp else if (isDark) 120.dp else 90.dp
 
-    Row(
+    Box(
         modifier = modifier
-            .width(174.dp)
-            .height(90.dp)
+            .width(width)
+            .height(height)
             .then(
                 if (!isDark) {
                     Modifier.shadow(
@@ -92,38 +100,64 @@ fun ArticleCard(
             .border(1.dp, borderColor, shape)
             .clickable(role = Role.Button) { onOpen() },
     ) {
-        Box(
-            modifier = Modifier
-                .weight(0.33f)
-                .fillMaxHeight()
-                .then(if (isDark) Modifier else Modifier.padding(5.dp).clip(RoundedCornerShape(9.dp))),
-        ) {
-            if (resId != 0) {
-                Image(
-                    painter = painterResource(resId),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop,
-                )
-            }
-            if (isDark) {
-                // The illustration meets the paper through an ink fade, not
-                // through a second rounded thumbnail frame.
-                Box(Modifier.matchParentSize().background(
-                    Brush.horizontalGradient(
-                        0f to cardBg.copy(alpha = 0.06f),
-                        0.64f to Color.Transparent,
-                        1f to cardBg,
-                    )
-                ))
-            }
+        // On dark Home the painting is part of the page spread. It extends
+        // beneath the first letters instead of ending at a thumbnail seam.
+        if (isDark && resId != 0) {
+            Image(
+                painter = rememberPreparedArtwork(resId, ArtworkTreatment.STORY),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.align(Alignment.CenterStart)
+                    .fillMaxHeight().fillMaxWidth(0.53f)
+                    .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                    .drawWithContent {
+                        drawContent()
+                        drawRect(
+                            brush = Brush.horizontalGradient(
+                                0f to Color.Black.copy(alpha = 0.88f),
+                                0.14f to Color.Black,
+                                0.56f to Color.Black,
+                                0.78f to Color.Black.copy(alpha = 0.42f),
+                                1f to Color.Transparent,
+                            ),
+                            blendMode = BlendMode.DstIn,
+                        )
+                        drawRect(
+                            brush = Brush.verticalGradient(
+                                0f to Color.Black.copy(alpha = 0.72f),
+                                0.15f to Color.Black,
+                                0.83f to Color.Black,
+                                1f to Color.Black.copy(alpha = 0.65f),
+                            ),
+                            blendMode = BlendMode.DstIn,
+                        )
+                    },
+            )
         }
+        Row(Modifier.fillMaxSize()) {
+            if (isDark) {
+                Spacer(Modifier.weight(0.34f))
+            } else {
+                Box(
+                    modifier = Modifier.weight(0.33f).fillMaxHeight()
+                        .padding(5.dp).clip(RoundedCornerShape(9.dp)),
+                ) {
+                    if (resId != 0) {
+                        Image(
+                            painter = painterResource(resId),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop,
+                        )
+                    }
+                }
+            }
 
         Column(
             modifier = Modifier
-                .weight(0.67f)
+                .weight(if (isDark) 0.66f else 0.67f)
                 .fillMaxHeight()
-                .padding(start = 5.dp, end = 9.dp, top = 10.dp, bottom = 9.dp),
+                .padding(start = 5.dp, end = if (isDark) 7.dp else 9.dp, top = if (isDark) 8.dp else 10.dp, bottom = if (isDark) 7.dp else 9.dp),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(
@@ -161,6 +195,7 @@ fun ArticleCard(
                     modifier = Modifier.size(12.dp),
                 )
             }
+        }
         }
     }
 }

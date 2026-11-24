@@ -10,6 +10,7 @@ struct ArticleCard: View {
     @EnvironmentObject private var vm: LexiconViewModel
     var onOpen: () -> Void = {}
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     private var isDark: Bool { scheme == .dark }
 
@@ -21,6 +22,10 @@ struct ArticleCard: View {
         isDark ? LexiconColors.accentDark : LexiconColors.highlight
     }
 
+    private var cardWidth: CGFloat { isDark ? (dynamicTypeSize.isAccessibilitySize ? 210 : 150) : 174 }
+    private var cardHeight: CGFloat { isDark ? (dynamicTypeSize.isAccessibilitySize ? 120 : 78) : 90 }
+    private var corner: CGFloat { isDark ? 10 : 13 }
+
     var body: some View {
         Button {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
@@ -28,19 +33,7 @@ struct ArticleCard: View {
         } label: {
             HStack(spacing: 0) {
                 if isDark {
-                    Image(thumbName)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 60, height: 90)
-                        .clipped()
-                        .mask {
-                            LinearGradient(stops: [
-                                .init(color: .black.opacity(0.94), location: 0),
-                                .init(color: .black, location: 0.64),
-                                .init(color: .clear, location: 1)
-                            ], startPoint: .leading, endPoint: .trailing)
-                        }
-                        .lexiconDecorative()
+                    Color.clear.frame(width: cardWidth * 0.34)
                 } else {
                     Image(thumbName)
                         .resizable()
@@ -80,15 +73,42 @@ struct ArticleCard: View {
                     }
                 }
                 .padding(.leading, 5)
-                .padding(.trailing, 10)
+                .padding(.trailing, isDark ? 7 : 10)
                 .padding(.vertical, 8)
-                .frame(width: isDark ? 114 : 110, height: 90, alignment: .topLeading)
+                .frame(width: isDark ? cardWidth * 0.66 : 110, height: cardHeight, alignment: .topLeading)
             }
-            .frame(width: 174, height: 90)
-            .background(isDark ? Color(hex: "0B141C") : lexiconPalette(scheme).card)
-            .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
+            .frame(width: cardWidth, height: cardHeight)
+            .background(alignment: .leading) {
+                if isDark {
+                    PreparedArtworkImage(name: thumbName, treatment: .story)
+                        .scaledToFill()
+                        .frame(width: cardWidth * 0.53, height: cardHeight)
+                        .clipped()
+                        .mask {
+                            LinearGradient(stops: [
+                                .init(color: .black.opacity(0.88), location: 0),
+                                .init(color: .black, location: 0.14),
+                                .init(color: .black, location: 0.56),
+                                .init(color: .black.opacity(0.42), location: 0.78),
+                                .init(color: .clear, location: 1)
+                            ], startPoint: .leading, endPoint: .trailing)
+                        }
+                        .mask {
+                            LinearGradient(stops: [
+                                .init(color: .black.opacity(0.72), location: 0),
+                                .init(color: .black, location: 0.15),
+                                .init(color: .black, location: 0.83),
+                                .init(color: .black.opacity(0.65), location: 1)
+                            ], startPoint: .top, endPoint: .bottom)
+                        }
+                        .allowsHitTesting(false)
+                        .accessibilityHidden(true)
+                }
+            }
+            .background(isDark ? Color(hex: "0A131B") : lexiconPalette(scheme).card)
+            .clipShape(RoundedRectangle(cornerRadius: corner, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 13, style: .continuous)
+                RoundedRectangle(cornerRadius: corner, style: .continuous)
                     .stroke(isDark ? Color(hex: "B6A486").opacity(0.14) : lexiconPalette(scheme).border, lineWidth: 1)
             )
             .shadow(
