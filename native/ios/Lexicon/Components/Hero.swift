@@ -17,7 +17,7 @@ struct Hero: View {
         if expanded && dynamicTypeSize.isAccessibilitySize { return 425 }
         if expanded { return 365 }
         if dynamicTypeSize.isAccessibilitySize { return 330 }
-        return compact ? 266 : 245
+        return compact ? (isDark ? 258 : 266) : 245
     }
 
     private var isDark: Bool { scheme == .dark }
@@ -45,48 +45,54 @@ struct Hero: View {
             let enlargedText = dynamicTypeSize.isAccessibilitySize
             let expanded = totalWidth >= 600
             let heroHeight: CGFloat = expanded ? (enlargedText ? 425 : 365)
-                : (enlargedText ? 330 : (compact ? 266 : 245))
-            let textWidth = totalWidth * ((compact || enlargedText) ? 0.60 : 0.52)
+                : (enlargedText ? 330 : (compact ? (isDark ? 258 : 266) : 245))
+            let textWidth = totalWidth * ((compact || enlargedText) ? 0.60 : (isDark ? 0.49 : 0.52))
 
             ZStack(alignment: .topLeading) {
                 if isDark {
-                    let readingEdge: CGFloat = (compact || enlargedText) ? 0.58 : 0.50
-                    ZStack(alignment: .topTrailing) {
-                        // The illustration supplies its own moonlight, lanterns
-                        // and stars; do not scatter another layer over the scene.
+                    let readingEdge: CGFloat = enlargedText ? 0.60 : (compact ? 0.53 : 0.46)
+                    let artWidth = min(totalWidth * (enlargedText ? 0.90 : 1.06),
+                                       heroHeight * 1.5 * 1.12)
+                    let artHeight = artWidth / 1.5
+                    ZStack(alignment: .topLeading) {
                         RadialGradient(
-                            colors: [LexiconColors.secondaryDark.opacity(0.30), .clear],
-                            center: UnitPoint(x: 0.72, y: 0.42),
+                            colors: [LexiconColors.secondaryDark.opacity(0.18), .clear],
+                            center: UnitPoint(x: 0.78, y: 0.48),
                             startRadius: 0,
-                            endRadius: max(totalWidth, heroHeight) * 0.54
+                            endRadius: max(totalWidth, heroHeight) * 0.68
                         )
 
+                        // Overscan the source's transparent right margin and
+                        // extend its foreground behind the search control.
                         Image("hero-dark")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: totalWidth * ((compact || enlargedText) ? 0.82 : 0.90),
-                                   height: heroHeight - 26, alignment: .trailing)
+                            .frame(width: artWidth, height: artHeight)
+                            .opacity(0.91)
+                            .position(x: totalWidth - artWidth * 0.42,
+                                      y: heroHeight - artHeight / 2 + heroHeight * 0.035)
 
                         LinearGradient(
                             stops: [
                                 .init(color: LexiconColors.backgroundDark, location: 0),
-                                .init(color: LexiconColors.backgroundDark.opacity(0.97), location: 0.28),
-                                .init(color: LexiconColors.backgroundDark.opacity(0.90), location: readingEdge - 0.10),
-                                .init(color: LexiconColors.backgroundDark.opacity(0.65), location: readingEdge),
-                                .init(color: .clear, location: readingEdge + 0.16),
+                                .init(color: LexiconColors.backgroundDark.opacity(0.98), location: 0.25),
+                                .init(color: LexiconColors.backgroundDark.opacity(0.91), location: readingEdge - 0.09),
+                                .init(color: LexiconColors.backgroundDark.opacity(0.62), location: readingEdge),
+                                .init(color: LexiconColors.backgroundDark.opacity(0.18), location: readingEdge + 0.12),
+                                .init(color: .clear, location: readingEdge + 0.22),
                                 .init(color: .clear, location: 1)
                             ],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
 
-                        // Dissolve naturally into the header and the next row.
                         LinearGradient(
                             stops: [
                                 .init(color: LexiconColors.backgroundDark, location: 0),
-                                .init(color: .clear, location: 0.10),
-                                .init(color: .clear, location: 0.88),
-                                .init(color: LexiconColors.backgroundDark.opacity(0.70), location: 0.96),
+                                .init(color: LexiconColors.backgroundDark.opacity(0.35), location: 0.045),
+                                .init(color: .clear, location: 0.13),
+                                .init(color: .clear, location: 0.79),
+                                .init(color: LexiconColors.backgroundDark.opacity(0.20), location: 0.92),
                                 .init(color: LexiconColors.backgroundDark, location: 1)
                             ],
                             startPoint: .top,
@@ -94,6 +100,7 @@ struct Hero: View {
                         )
                     }
                     .frame(width: totalWidth, height: heroHeight)
+                    .clipped()
                     .allowsHitTesting(false)
                     .accessibilityHidden(true)
                 } else {
@@ -125,14 +132,14 @@ struct Hero: View {
                     headline
                     Text("A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.")
                         .font(.lexiconBody(11.5))
-                        .frame(maxWidth: textWidth * 0.88, alignment: .leading)
+                        .frame(maxWidth: textWidth * ((isDark && !enlargedText) ? 0.84 : 0.88), alignment: .leading)
                         .foregroundStyle(subtextColor)
                         .lineSpacing(2)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .frame(width: textWidth, alignment: .leading)
-                .padding(.leading, 18)
-                .padding(.top, 2)
+                .padding(.leading, isDark ? 20 : 18)
+                .padding(.top, isDark && !enlargedText ? 18 : 2)
 
                 VStack {
                     Spacer()

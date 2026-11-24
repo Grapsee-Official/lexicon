@@ -5,8 +5,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -61,10 +64,10 @@ fun Hero(
         expanded && largeText -> 425.dp
         expanded -> 365.dp
         largeText -> 330.dp
-        compact -> 290.dp
-        else -> 278.dp
+        compact -> if (isDark) 270.dp else 290.dp
+        else -> if (isDark) 258.dp else 278.dp
     }
-    val textWidth = if (compact || largeText) 0.60f else 0.52f
+    val textWidth = if (compact || largeText) 0.60f else if (isDark) 0.49f else 0.52f
 
     Box(
         modifier = modifier
@@ -72,51 +75,63 @@ fun Hero(
             .height(heroHeight),
     ) {
         if (isDark) {
-            // The supplied painting already contains the moon, stars and lanterns.
-            // Let its transparent edges dissolve into the same ink as the Home feed.
+            // Render the complete source on the page canvas, rather than fitting
+            // its transparent padding inside a separate right-hand image box.
+            val painting = painterResource(R.drawable.hero_dark)
             Canvas(Modifier.matchParentSize()) {
                 drawRect(
                     brush = Brush.radialGradient(
-                        colors = listOf(DarkSecondary.copy(alpha = 0.30f), Color.Transparent),
-                        center = Offset(size.width * 0.72f, size.height * 0.42f),
-                        radius = maxOf(size.width, size.height) * 0.54f,
+                        colors = listOf(DarkSecondary.copy(alpha = 0.18f), Color.Transparent),
+                        center = Offset(size.width * 0.78f, size.height * 0.48f),
+                        radius = maxOf(size.width, size.height) * 0.68f,
                     ),
                 )
+                val intrinsic = painting.intrinsicSize
+                val aspect = if (intrinsic.width > 0f && intrinsic.height > 0f) {
+                    intrinsic.width / intrinsic.height
+                } else 1.5f
+                // The source has transparent outer margins. Deliberate 8%
+                // trailing overscan removes the empty strip at the screen edge.
+                val artWidth = minOf(
+                    size.width * (if (largeText) 0.90f else 1.06f),
+                    size.height * aspect * 1.12f,
+                )
+                val artHeight = artWidth / aspect
+                val x = size.width - artWidth * 0.92f
+                val y = size.height - artHeight + size.height * 0.035f
+                clipRect {
+                    translate(left = x, top = y) {
+                        with(painting) {
+                            draw(size = Size(artWidth, artHeight), alpha = 0.91f)
+                        }
+                    }
+                }
             }
-            Image(
-                painter = painterResource(R.drawable.hero_dark),
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
-                alignment = Alignment.CenterEnd,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .fillMaxWidth(if (compact || largeText) 0.82f else 0.90f)
-                    .height(heroHeight - 26.dp),
-            )
-            // A continuous, full-width reading scrim instead of a separate panel.
-            // Keep the cottage and moon clear on the right; protect enlarged copy.
-            val readingEdge = if (compact || largeText) 0.58f else 0.50f
+            // Keep the words readable, but allow the distant trees to emerge
+            // organically beside them. The book continues behind the search.
+            val readingEdge = if (largeText) 0.60f else if (compact) 0.53f else 0.46f
             Box(
                 Modifier.matchParentSize().background(
                     Brush.horizontalGradient(
                         0.00f to DarkBackground,
-                        0.28f to DarkBackground.copy(alpha = 0.97f),
-                        (readingEdge - 0.10f) to DarkBackground.copy(alpha = 0.90f),
-                        readingEdge to DarkBackground.copy(alpha = 0.65f),
-                        (readingEdge + 0.16f) to Color.Transparent,
+                        0.25f to DarkBackground.copy(alpha = 0.98f),
+                        (readingEdge - 0.09f) to DarkBackground.copy(alpha = 0.91f),
+                        readingEdge to DarkBackground.copy(alpha = 0.62f),
+                        (readingEdge + 0.12f) to DarkBackground.copy(alpha = 0.18f),
+                        (readingEdge + 0.22f) to Color.Transparent,
                         1.00f to Color.Transparent,
                     ),
                 ),
             )
-            // Match the header and feed at both boundaries, without cutting
-            // the illustrated silhouette or masking the foreground controls.
+            // Feather the sky and foreground into the shared page ink.
             Box(
                 Modifier.matchParentSize().background(
                     Brush.verticalGradient(
                         0.00f to DarkBackground,
-                        0.10f to Color.Transparent,
-                        0.88f to Color.Transparent,
-                        0.96f to DarkBackground.copy(alpha = 0.70f),
+                        0.045f to DarkBackground.copy(alpha = 0.35f),
+                        0.13f to Color.Transparent,
+                        0.79f to Color.Transparent,
+                        0.92f to DarkBackground.copy(alpha = 0.20f),
                         1.00f to DarkBackground,
                     ),
                 ),
@@ -151,7 +166,7 @@ fun Hero(
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .fillMaxWidth(textWidth)
-                .padding(start = 18.dp, top = 4.dp),
+                .padding(start = if (isDark) 22.dp else 18.dp, top = if (isDark && !largeText) 22.dp else 4.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Column(modifier = Modifier.sectionHeading(1)) {
@@ -189,7 +204,7 @@ fun Hero(
                 text = "A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.",
                 color = subtextColor,
                 style = LexiconTextStyles.HeroParagraph,
-                modifier = Modifier.fillMaxWidth(0.88f),
+                modifier = Modifier.fillMaxWidth(if (isDark && !largeText) 0.84f else 0.88f),
                 maxLines = if (largeText) 8 else 7,
             )
         }
