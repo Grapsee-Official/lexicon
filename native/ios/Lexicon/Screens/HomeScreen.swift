@@ -26,7 +26,7 @@ struct HomeScreen: View {
           ScrollView {
             VStack(spacing: 11) {
                 VStack(spacing: scheme == .dark ? 5 : 11) {
-                    Hero(sharedNightScene: scheme == .dark)
+                    Hero(sharedNightScene: scheme == .dark && !dynamicTypeSize.isAccessibilitySize)
                         .background {
                             if scheme == .dark {
                                 GeometryReader { geometry in
@@ -112,7 +112,7 @@ private func homeShelfColumns(width: CGFloat, textSize: DynamicTypeSize) -> Int 
     if textSize >= .accessibility3 { return width >= 560 ? 3 : 2 }
     if textSize.isAccessibilitySize { return width >= 560 ? 4 : 3 }
     if width >= 560 { return 5 }
-    if width < 340 && textSize >= .xxLarge { return 3 }
+    if width < 290 || (width < 400 && textSize >= .xxxLarge) { return 3 }
     return 4
 }
 

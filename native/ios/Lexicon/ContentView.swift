@@ -9,6 +9,7 @@ struct ContentView: View {
     @EnvironmentObject private var vm: LexiconViewModel
     @EnvironmentObject private var theme: LexiconThemeState
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     @State private var toastMessage: String? = nil
     @State private var homeMasthead: CGRect = .zero
@@ -31,7 +32,7 @@ struct ContentView: View {
 
                 // The sky belongs to the entire page, not to a clipped hero.
                 // Translate it with the scroll content, leaving the header fixed.
-                if !homeMasthead.isEmpty && homeHeaderHeight > 0 &&
+                if !dynamicTypeSize.isAccessibilitySize && !homeMasthead.isEmpty && homeHeaderHeight > 0 &&
                     homeMasthead.maxY > homeHeaderHeight {
                     HomeNightScene(extendsBehindTags: true, headerInset: homeHeaderHeight,
                                    measuredHeroHeight: homeHeroHeight)
@@ -61,10 +62,13 @@ struct ContentView: View {
                         }
                 }
 
-                activeScreen
-                    .frame(maxWidth: isHome ? 640 : .infinity, maxHeight: .infinity)
-                    .clipped()
-                    .lexiconEditMenu(engine: vm.engine)
+                if isHome {
+                    activeScreen.frame(maxWidth: 640, maxHeight: .infinity)
+                        .clipped().lexiconEditMenu(engine: vm.engine)
+                } else {
+                    activeScreen.frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .lexiconEditMenu(engine: vm.engine)
+                }
 
                 if isHome {
                     // A reserved dock, not a view floating over scroll content.

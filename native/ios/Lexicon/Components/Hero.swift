@@ -48,6 +48,8 @@ struct Hero: View {
         Group {
             if isDark {
                 darkHero
+            } else if dynamicTypeSize.isAccessibilitySize {
+                accessibleLightHero
             } else {
                 lightHero
             }
@@ -84,6 +86,26 @@ struct Hero: View {
             if !sharedNightScene {
                 HomeNightScene()
             }
+        }
+    }
+
+    private var accessibleLightHero: some View {
+        NightHeroLayout(enlargedText: true) {
+            VStack(alignment: .leading, spacing: 6) {
+                headline
+                Text("A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.")
+                    .font(.lexiconBody(11.5))
+                    .foregroundStyle(subtextColor)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            FloatingSearchBar()
+        }
+        .background(alignment: .bottomTrailing) {
+            Image("hero-light")
+                .resizable().scaledToFit()
+                .frame(height: 180)
+                .accessibilityHidden(true)
+                .allowsHitTesting(false)
         }
     }
 

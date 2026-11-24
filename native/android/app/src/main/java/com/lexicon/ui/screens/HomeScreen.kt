@@ -104,6 +104,7 @@ fun HomeScreen(viewModel: LexiconViewModel) {
 
     val feedState = rememberLazyListState()
     val density = LocalDensity.current
+    val stackedHero = LocalConfiguration.current.fontScale >= 1.5f
     var headerHeightPx by remember { mutableStateOf(0) }
     var mastheadHeightPx by remember { mutableStateOf(0) }
     var heroHeightPx by remember { mutableStateOf(0) }
@@ -116,7 +117,7 @@ fun HomeScreen(viewModel: LexiconViewModel) {
         // Render the painting once in the PAGE coordinate space. Its upper
         // sky can cross the header/feed boundary; it is not clipped by LazyColumn.
         // Its translation tracks the masthead, while header controls stay fixed.
-        if (state.isDark && headerHeightPx > 0 && mastheadHeightPx > 0 &&
+        if (state.isDark && !stackedHero && headerHeightPx > 0 && mastheadHeightPx > 0 &&
             feedState.firstVisibleItemIndex == 0) {
             HomeNightScene(
                 modifier = Modifier
@@ -194,7 +195,7 @@ private fun HomeFeed(
             // Foreground only. Dark artwork lives behind the entire page.
             Box(Modifier.fillMaxWidth().onSizeChanged { onMastheadMeasured(it.height) }) {
                 Column(verticalArrangement = Arrangement.spacedBy(if (state.isDark) 5.dp else 11.dp)) {
-                    Hero(viewModel = viewModel, sharedNightScene = state.isDark,
+                    Hero(viewModel = viewModel, sharedNightScene = state.isDark && LocalConfiguration.current.fontScale < 1.5f,
                         modifier = Modifier.onSizeChanged { onHeroMeasured(it.height) })
                     TrendingTagRow(
                         viewModel = viewModel,
@@ -306,6 +307,6 @@ internal fun homeShelfColumns(widthDp: Float, fontScale: Float): Int = when {
     fontScale >= 1.8f -> if (widthDp >= 560f) 3 else 2
     fontScale >= 1.5f -> if (widthDp >= 560f) 4 else 3
     widthDp >= 560f -> 5
-    widthDp < 340f && fontScale >= 1.25f -> 3
+    widthDp < 290f || (widthDp < 400f && widthDp / fontScale < 275f) -> 3
     else -> 4
 }

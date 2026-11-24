@@ -88,16 +88,14 @@ fun Hero(
         val compact = maxWidth < 360.dp
         val expanded = maxWidth >= 600.dp
         val heroHeight = when {
-            isDark && largeText -> 0.dp
+            largeText -> 0.dp
             isDark -> (maxWidth * 0.60f).coerceIn(195.dp, 350.dp)
-            expanded && largeText -> 425.dp
             expanded -> 365.dp
-            largeText -> 330.dp
             compact -> 290.dp
             else -> 278.dp
         }
         val textWidth = when {
-            isDark && largeText -> 1f
+            largeText -> 1f
             isDark -> 0.51f
             compact || largeText -> 0.60f
             else -> 0.52f
@@ -116,7 +114,7 @@ fun Hero(
 
         Box(
             modifier = Modifier.fillMaxWidth()
-                .then(if (isDark) Modifier.heightIn(min = heroHeight) else Modifier.height(heroHeight)),
+                .then(if (isDark || largeText) Modifier.heightIn(min = heroHeight) else Modifier.height(heroHeight)),
         ) {
             if (isDark) {
                 if (!sharedNightScene) {
@@ -130,10 +128,10 @@ fun Hero(
                     alignment = Alignment.BottomEnd,
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
-                        .fillMaxWidth(if (compact) 0.82f else 0.88f)
-                        .height(heroHeight),
+                        .fillMaxWidth(if (largeText) 0.85f else if (compact) 0.82f else 0.88f)
+                        .height(if (largeText) 180.dp else heroHeight),
                 )
-                Box(
+                if (!largeText) Box(
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .fillMaxWidth(0.60f)
@@ -182,19 +180,19 @@ fun Hero(
                         text = "A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.",
                         color = subtextColor,
                         style = paragraphStyle,
-                        modifier = Modifier.fillMaxWidth(if (isDark && largeText) 1f else if (isDark) 0.82f else 0.88f),
-                        maxLines = if (isDark) Int.MAX_VALUE else if (largeText) 8 else 7,
+                        modifier = Modifier.fillMaxWidth(if (largeText) 1f else if (isDark) 0.82f else 0.88f),
+                        maxLines = if (isDark || largeText) Int.MAX_VALUE else 7,
                     )
                 }
             }
 
-            if (isDark) {
+            if (isDark || largeText) {
                 // Native vertical flow reserves real space for the full paragraph.
                 // Enlarged text increases the hero instead of hiding behind Search.
                 Column(
                     modifier = Modifier.fillMaxWidth().heightIn(min = heroHeight).padding(bottom = 4.dp),
-                    // Exactly two children: extra space goes between copy and search,
-                    // while the copy's bottom padding guarantees the minimum gap.
+                    // Large text reserves a separate painting band; ordinary
+                    // text keeps the reference's side-by-side composition.
                     verticalArrangement = Arrangement.SpaceBetween,
                 ) {
                     heroCopy(
@@ -204,7 +202,7 @@ fun Hero(
                     if (largeText) Spacer(Modifier.height((maxWidth * 0.48f).coerceIn(135.dp, 210.dp)))
                     FloatingSearchBar(
                         viewModel = viewModel,
-                        sceneIntegrated = true,
+                        sceneIntegrated = isDark,
                         modifier = Modifier.padding(start = 20.dp)
                             .fillMaxWidth(if (largeText) 0.90f else 0.76f),
                     )
@@ -298,7 +296,7 @@ fun HomeNightScene(
 
 /**
  * Non-destructive presentation of original Home PNGs. Cached, downsampled
- * bookplates use exactly the same recipe in light and dark. Night scenes
+ * bookplates share geometry but use a dark-only pigment grade. Night scenes
  * retain the original alpha, with a luminance-dependent shadow dissolve and
  * a highlight-preserving tone curve. No generated/replacement illustration.
  */
