@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/android-test-apk.yml'
+      - 'native/android/app/src/main/java/com/lexicon/ui/components/Hero.kt'
+      - 'native/android/app/src/main/res/drawable-nodpi/hero_dark.png'
+      - 'scripts/install_moonlit_home_hero.py'
 permissions:
   contents: write
 concurrency:
