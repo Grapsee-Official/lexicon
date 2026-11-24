@@ -102,21 +102,22 @@ struct HomeNightBackdrop: View {
             let height = max(1, geo.size.height)
             ZStack {
                 LinearGradient(stops: [
-                    .init(color: Color(hex: "08111A"), location: 0),
-                    .init(color: Color(hex: "040E18"), location: 0.27),
-                    .init(color: Color(hex: "09121B"), location: 0.57),
+                    // Sampled from the reference's unpainted screen areas.
+                    .init(color: Color(hex: "050F18"), location: 0),
+                    .init(color: Color(hex: "040E17"), location: 0.28),
+                    .init(color: Color(hex: "061019"), location: 0.57),
                     .init(color: Color(hex: "08111A"), location: 1)
                 ], startPoint: .top, endPoint: .bottom)
 
                 // The same very low-contrast wash as the Compose canvas:
                 // continuous night ink beneath the header and illustrated sky.
                 RadialGradient(
-                    colors: [Color(hex: "192A3C").opacity(0.29), .clear],
+                    colors: [Color(hex: "192A3C").opacity(0.085), .clear],
                     center: UnitPoint(x: 0.78, y: width * 0.38 / height),
                     startRadius: 0, endRadius: max(1, width * 0.76)
                 )
                 RadialGradient(
-                    colors: [Color(hex: "51412C").opacity(0.055), .clear],
+                    colors: [Color(hex: "51412C").opacity(0.025), .clear],
                     center: UnitPoint(x: 0.79, y: width * 0.70 / height),
                     startRadius: 0, endRadius: max(1, width * 0.46)
                 )

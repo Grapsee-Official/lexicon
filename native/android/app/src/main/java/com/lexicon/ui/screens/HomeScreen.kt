@@ -71,9 +71,10 @@ fun HomeScreen(viewModel: LexiconViewModel) {
     // One page-sized midnight field, rather than a separate hero backdrop.
     val background = if (state.isDark) Modifier.background(
         Brush.verticalGradient(
-            0.00f to Color(0xFF08111A),
-            0.27f to Color(0xFF040E18),
-            0.57f to Color(0xFF09121B),
+            // Reference samples: header/left ink #050F18, lower gap #061019.
+            0.00f to Color(0xFF050F18),
+            0.28f to Color(0xFF040E17),
+            0.57f to Color(0xFF061019),
             1.00f to Color(0xFF08111A),
         )
     ).drawBehind {
@@ -81,12 +82,12 @@ fun HomeScreen(viewModel: LexiconViewModel) {
         // and foreground. No separate image-sized rectangle or hard halo.
         val skyY = size.width * 0.38f
         drawRect(Brush.radialGradient(
-            colors = listOf(Color(0xFF192A3C).copy(alpha = 0.29f), Color.Transparent),
+            colors = listOf(Color(0xFF192A3C).copy(alpha = 0.085f), Color.Transparent),
             center = Offset(size.width * 0.78f, skyY),
             radius = size.width * 0.76f,
         ))
         drawRect(Brush.radialGradient(
-            colors = listOf(Color(0xFF51412C).copy(alpha = 0.055f), Color.Transparent),
+            colors = listOf(Color(0xFF51412C).copy(alpha = 0.025f), Color.Transparent),
             center = Offset(size.width * 0.79f, size.width * 0.70f),
             radius = size.width * 0.46f,
         ))

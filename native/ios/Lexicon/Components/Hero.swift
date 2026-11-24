@@ -186,7 +186,7 @@ struct HomeNightScene: View {
             let height = geo.size.height
             let largeText = dynamicTypeSize.isAccessibilitySize
             let edge: CGFloat = largeText ? 0.69 : (width < 360 ? 0.52 : 0.49)
-            let stretch: CGFloat = largeText ? 1 : 1.11
+            let stretch: CGFloat = largeText ? 1 : 1.04
             let artWidth = min(width * (largeText ? 0.96 : 0.98), height * 1.5 / stretch * 1.08)
             let artHeight = artWidth / 1.5 * stretch
             let artX = max(width * 0.63 - artWidth * 0.54, width - artWidth * 0.95)
@@ -207,7 +207,7 @@ struct HomeNightScene: View {
                         .init(color: .black.opacity(0.64), location: edge - 0.02),
                         .init(color: .black, location: edge + 0.09),
                         .init(color: .black, location: 1)
-                    ], startPoint: .topLeading, endPoint: UnitPoint(x: 1, y: 0.23))
+                    ], startPoint: .topLeading, endPoint: UnitPoint(x: 1, y: 0.29))
                 }
                 .mask {
                     LinearGradient(stops: [
@@ -436,6 +436,7 @@ private enum HomeArtworkProcessor {
             }
         } else {
             let moon = treatment == .moonlit
+            var lightField = ArtworkLightField(width: w, height: h)
             for i in stride(from: 0, to: bytes.count, by: 4) {
                 let a = Float(bytes[i + 3]) / 255
                 if a == 0 { continue }
@@ -475,8 +476,15 @@ private enum HomeArtworkProcessor {
                     * smooth(0.23, 0.35, sy) * (1 - smooth(0.51, 0.60, sy))
                 let foreground = smooth(0.49, 0.61, sy) * (1 - smooth(0.85, 0.96, sy))
                     * smooth(0.32, 0.43, sx) * (1 - smooth(0.85, 0.95, sx))
-                let keep = min(1, max(0, moonRegion + windowRegion + foreground))
-                let gain = moon ? gradedGain * (0.72 + 0.28 * keep) : gradedGain
+                let stackX = smooth(0.19, 0.30, sx) * (1 - smooth(0.43, 0.53, sx))
+                let stackY = smooth(0.59, 0.68, sy) * (1 - smooth(0.84, 0.96, sy))
+                let stack = stackX * stackY
+                let keep = min(1, max(0, moonRegion + windowRegion + foreground + 0.62 * stack))
+                let gain = moon ? min(1, gradedGain * (0.72 + 0.28 * keep)
+                    + 0.07 * stack * (1 - highlight)) : gradedGain
+                let emitRegion: Float = moon ? min(1, max(0, moonRegion + windowRegion)) : 0.42
+                let emission = a * smooth(0.45, 0.83, l) * smooth(0.05, 0.22, r - b) * emitRegion
+                lightField.add(x: pixel % w, y: pixel / w, value: emission)
                 let baseAlpha = a * (0.58 + 0.42 * smooth(0.035, 0.24, l))
                 let dissolved = baseAlpha * (0.69 + 0.31 * smooth(0.16, 0.55, l)) * (0.68 + 0.32 * keep)
                 let alpha = moon ? max(dissolved, baseAlpha * keep * 0.94) : baseAlpha
@@ -488,6 +496,7 @@ private enum HomeArtworkProcessor {
                 bytes[i + 2] = byte(bb * alpha)
                 bytes[i + 3] = byte(alpha)
             }
+            lightField.compositeBehind(&bytes)
         }
 
         guard let provider = CGDataProvider(data: Data(bytes) as CFData),
@@ -581,4 +590,82 @@ private enum HomeArtworkProcessor {
         }
     }
 
+}
+
+
+/// A low-resolution field derived solely from the original warm highlight
+/// pixels, matched to the native Compose processor. It lives underneath the
+/// painting, not on top of the text. The byte buffer is premultiplied RGBA.
+private struct ArtworkLightField {
+    let width: Int
+    let height: Int
+    let columns: Int
+    let rows: Int
+    var values: [Float]
+
+    init(width: Int, height: Int) {
+        self.width = width
+        self.height = height
+        columns = min(96, width)
+        rows = min(height, max(1, Int((96.0 * Double(height) / Double(width)).rounded())))
+        values = [Float](repeating: 0, count: columns * rows)
+    }
+
+    mutating func add(x: Int, y: Int, value: Float) {
+        values[(y * rows / height) * columns + x * columns / width] += value
+    }
+
+    func compositeBehind(_ bytes: inout [UInt8]) {
+        var normalized = values
+        for i in normalized.indices {
+            let x = i % columns, y = i / columns
+            let cw = ((x + 1) * width + columns - 1) / columns - (x * width + columns - 1) / columns
+            let ch = ((y + 1) * height + rows - 1) / rows - (y * height + rows - 1) / rows
+            normalized[i] /= Float(max(1, cw * ch))
+        }
+        var blurred = normalized
+        for _ in 0..<2 { blurred = blur(blur(blurred, horizontal: true), horizontal: false) }
+        func byte(_ value: Float) -> UInt8 {
+            UInt8(min(255, max(0, (value * 255).rounded())))
+        }
+        for y in 0..<height {
+            let fy = min(Float(rows - 1), max(0, (Float(y) + 0.5) * Float(rows) / Float(height) - 0.5))
+            let y0 = Int(fy), y1 = min(rows - 1, y0 + 1)
+            let dy = fy - Float(y0)
+            for x in 0..<width {
+                let fx = min(Float(columns - 1), max(0, (Float(x) + 0.5) * Float(columns) / Float(width) - 0.5))
+                let x0 = Int(fx), x1 = min(columns - 1, x0 + 1)
+                let dx = fx - Float(x0)
+                let top = blurred[y0 * columns + x0] * (1 - dx) + blurred[y0 * columns + x1] * dx
+                let bottom = blurred[y1 * columns + x0] * (1 - dx) + blurred[y1 * columns + x1] * dx
+                let field = (top * (1 - dy) + bottom * dy) * 1.3
+                if field < 0.002 { continue }
+                let i = (y * width + x) * 4
+                let a = Float(bytes[i + 3]) / 255
+                let halo = min(0.18, field) * (1 - a)
+                let out = a + halo
+                if out < 0.004 { continue }
+                bytes[i] = byte(Float(bytes[i]) / 255 + 0.63 * halo)
+                bytes[i + 1] = byte(Float(bytes[i + 1]) / 255 + 0.43 * halo)
+                bytes[i + 2] = byte(Float(bytes[i + 2]) / 255 + 0.20 * halo)
+                bytes[i + 3] = byte(out)
+            }
+        }
+    }
+
+    private func blur(_ input: [Float], horizontal: Bool) -> [Float] {
+        var result = [Float](repeating: 0, count: input.count)
+        for y in 0..<rows {
+            for x in 0..<columns {
+                var sum: Float = 0
+                for d in -2...2 {
+                    let sx = horizontal ? min(columns - 1, max(0, x + d)) : x
+                    let sy = horizontal ? y : min(rows - 1, max(0, y + d))
+                    sum += input[sy * columns + sx]
+                }
+                result[y * columns + x] = sum / 5
+            }
+        }
+        return result
+    }
 }

@@ -229,7 +229,7 @@ fun HomeNightScene(modifier: Modifier = Modifier, extendsBehindTags: Boolean = f
         // Source/reference landmark comparison: reduce the horizontal scale
         // and gently extend the vertical composition. This brings the book
         // into the lower search area without enlarging the roof and crescent.
-        val stretch = if (largeText) 1f else 1.11f
+        val stretch = if (largeText) 1f else 1.04f
         val artWidth = minOf(size.width * (if (largeText) 0.96f else 0.98f),
             size.height * aspect / stretch * 1.08f)
         val artHeight = artWidth / aspect * stretch
@@ -258,7 +258,7 @@ fun HomeNightScene(modifier: Modifier = Modifier, extendsBehindTags: Boolean = f
                 (edge + 0.09f) to Color.Black,
                 1f to Color.Black,
                 start = Offset.Zero,
-                end = Offset(size.width, size.height * 0.23f),
+                end = Offset(size.width, size.height * 0.29f),
             ),
             blendMode = BlendMode.DstIn,
         )
@@ -397,6 +397,7 @@ private fun prepareArtwork(
     val pixels = IntArray(w * h)
     bitmap.getPixels(pixels, 0, w, 0, 0, w, h)
     val moon = treatment == ArtworkTreatment.MOONLIT
+    val lightField = ArtworkLightField(w, h)
     for (i in pixels.indices) {
         val p = pixels[i]
         val a = p ushr 24
@@ -441,8 +442,21 @@ private fun prepareArtwork(
             (1f - smoothArtworkStep(0.85f, 0.96f, sy)) *
             smoothArtworkStep(0.32f, 0.43f, sx) *
             (1f - smoothArtworkStep(0.85f, 0.95f, sx))
-        val keep = (moonRegion + windowRegion + foreground).coerceIn(0f, 1f)
-        val gain = if (moon) baseGain * (0.72f + 0.28f * keep) else baseGain
+        // Reveal the stacked books under the left-hand text without
+        // brightening the distant tree or making a new artificial light.
+        val stack = smoothArtworkStep(0.19f, 0.30f, sx) *
+            (1f - smoothArtworkStep(0.43f, 0.53f, sx)) *
+            smoothArtworkStep(0.59f, 0.68f, sy) *
+            (1f - smoothArtworkStep(0.84f, 0.96f, sy))
+        val keep = (moonRegion + windowRegion + foreground + 0.62f * stack).coerceIn(0f, 1f)
+        val gain = if (moon) (baseGain * (0.72f + 0.28f * keep) +
+            0.07f * stack * (1f - highlight)).coerceAtMost(1f) else baseGain
+        // Extract emission from the ORIGINAL warm highlights, not from
+        // the newly graded bitmap. The paper is excluded from hero emission.
+        val emitRegion = if (moon) (moonRegion + windowRegion).coerceIn(0f, 1f) else 0.42f
+        val emission = (a / 255f) * smoothArtworkStep(0.45f, 0.83f, l) *
+            smoothArtworkStep(0.05f, 0.22f, r - b) * emitRegion
+        lightField.add(i % w, i / w, emission)
         val baseAlpha = a * (0.58f + 0.42f * smoothArtworkStep(0.035f, 0.24f, l))
         val alpha = if (moon) maxOf(
             baseAlpha * (0.69f + 0.31f * smoothArtworkStep(0.16f, 0.55f, l)) *
@@ -457,6 +471,7 @@ private fun prepareArtwork(
             ((gg * 255f).roundToInt().coerceIn(0, 255) shl 8) or
             (bb * 255f).roundToInt().coerceIn(0, 255)
     }
+    lightField.compositeBehind(pixels)
     Bitmap.createBitmap(pixels, w, h, Bitmap.Config.ARGB_8888).asImageBitmap()
 }.getOrNull()
 
@@ -523,4 +538,81 @@ private fun removeNeutralBookplateMatte(pixels: IntArray, w: Int, h: Int): Boole
         if (y + 1 < h) offer(i + w)
     }
     return true
+}
+
+
+/**
+ * A small, image-derived light field. All emission originates in the uploaded
+ * pixels. Two separable box passes approximate a soft optical bloom at a
+ * fraction of the original image memory. Composite UNDER the graded painting,
+ * including its transparent fringe, never over the native text or controls.
+ */
+private class ArtworkLightField(private val width: Int, private val height: Int) {
+    private val columns = minOf(96, width)
+    private val rows = minOf(height, maxOf(1, (96f * height / width).roundToInt()))
+    private val values = FloatArray(columns * rows)
+    private val counts = IntArray(columns * rows)
+
+    fun add(x: Int, y: Int, value: Float) {
+        val i = (y * rows / height) * columns + x * columns / width
+        values[i] += value
+        counts[i]++
+    }
+
+    fun compositeBehind(pixels: IntArray) {
+        // counts excludes alpha-zero source pixels; use full cell area so
+        // transparent borders cannot amplify a tiny light into a large halo.
+        for (i in values.indices) {
+            val x = i % columns
+            val y = i / columns
+            val cellW = ((x + 1) * width + columns - 1) / columns -
+                (x * width + columns - 1) / columns
+            val cellH = ((y + 1) * height + rows - 1) / rows -
+                (y * height + rows - 1) / rows
+            values[i] /= maxOf(1, cellW * cellH, counts[i]).toFloat()
+        }
+        var blurred = values
+        repeat(2) { blurred = blur(blur(blurred, true), false) }
+        for (y in 0 until height) {
+            val fy = ((y + 0.5f) * rows / height - 0.5f).coerceIn(0f, (rows - 1).toFloat())
+            val y0 = fy.toInt()
+            val y1 = minOf(rows - 1, y0 + 1)
+            val dy = fy - y0
+            for (x in 0 until width) {
+                val fx = ((x + 0.5f) * columns / width - 0.5f).coerceIn(0f, (columns - 1).toFloat())
+                val x0 = fx.toInt()
+                val x1 = minOf(columns - 1, x0 + 1)
+                val dx = fx - x0
+                val top = blurred[y0 * columns + x0] * (1f - dx) + blurred[y0 * columns + x1] * dx
+                val bottom = blurred[y1 * columns + x0] * (1f - dx) + blurred[y1 * columns + x1] * dx
+                val field = (top * (1f - dy) + bottom * dy) * 1.3f
+                if (field < 0.002f) continue
+                val i = y * width + x
+                val p = pixels[i]
+                val a = (p ushr 24) / 255f
+                val halo = field.coerceAtMost(0.18f) * (1f - a)
+                val out = a + halo
+                if (out < 0.004f) continue
+                fun channel(c: Int, tint: Float) =
+                    ((c * a + 255f * tint * halo) / out).roundToInt().coerceIn(0, 255)
+                pixels[i] = ((out * 255f).roundToInt().coerceIn(0, 255) shl 24) or
+                    (channel((p ushr 16) and 255, 0.63f) shl 16) or
+                    (channel((p ushr 8) and 255, 0.43f) shl 8) or channel(p and 255, 0.20f)
+            }
+        }
+    }
+
+    private fun blur(input: FloatArray, horizontal: Boolean): FloatArray {
+        val result = FloatArray(input.size)
+        for (y in 0 until rows) for (x in 0 until columns) {
+            var sum = 0f
+            for (d in -2..2) {
+                val sx = if (horizontal) (x + d).coerceIn(0, columns - 1) else x
+                val sy = if (horizontal) y else (y + d).coerceIn(0, rows - 1)
+                sum += input[sy * columns + sx]
+            }
+            result[y * columns + x] = sum / 5f
+        }
+        return result
+    }
 }
