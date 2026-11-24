@@ -251,8 +251,8 @@ fun HomeNightScene(modifier: Modifier = Modifier, extendsBehindTags: Boolean = f
                 readingEdge to Color.Black.copy(alpha = 0.60f),
                 (readingEdge + 0.13f) to Color.Black.copy(alpha = 0.96f),
                 0.84f to Color.Black,
-                0.96f to Color.Black.copy(alpha = 0.83f),
-                1f to Color.Black.copy(alpha = 0.91f),
+                0.92f to Color.Black.copy(alpha = 0.79f),
+                1f to Color.Black.copy(alpha = 0.58f),
             ),
             blendMode = BlendMode.DstIn,
         )
@@ -382,9 +382,24 @@ private fun prepareArtwork(
         val l = r * 0.2126f + g * 0.7152f + b * 0.0722f
         val highlight = smoothArtworkStep(0.63f, 0.95f, l)
         val warm = smoothArtworkStep(0.06f, 0.24f, r - b)
-        val gain = (if (moon) 0.76f else 0.85f) +
+        // Source-space exposure: the open pages catch more light than the
+        // surrounding canopy. The distant moon and window highlights stay
+        // luminous; outer foliage recedes into the shared night ink.
+        val sx = (i % w).toFloat() / maxOf(1, w - 1)
+        val sy = (i / w).toFloat() / maxOf(1, h - 1)
+        val paper = smoothArtworkStep(0.48f, 0.60f, sy) *
+            (1f - smoothArtworkStep(0.81f, 0.95f, sy)) *
+            smoothArtworkStep(0.35f, 0.48f, sx) *
+            (1f - smoothArtworkStep(0.83f, 0.96f, sx))
+        val canopy = (1f - smoothArtworkStep(0.44f, 0.60f, sy)) *
+            (1f - smoothArtworkStep(0.48f, 0.61f, sx))
+        val outerFoliage = smoothArtworkStep(0.80f, 0.97f, sx)
+        val localExposure = if (moon) (0.14f * paper - 0.10f * canopy -
+            0.06f * outerFoliage) * (1f - highlight) else 0f
+        val gain = ((if (moon) 0.76f else 0.85f) +
             (if (moon) 0.22f else 0.13f) * highlight -
-            (if (moon) 0.045f else 0.02f) * warm * (1f - highlight)
+            (if (moon) 0.045f else 0.02f) * warm * (1f - highlight) +
+            localExposure).coerceIn(0f, 1f)
         val saturation = 0.80f + 0.18f * highlight
         val shadow = 1f - smoothArtworkStep(0.09f, 0.35f, l)
         val alpha = a * (0.58f + 0.42f * smoothArtworkStep(0.035f, 0.24f, l))

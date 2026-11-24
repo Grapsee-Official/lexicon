@@ -206,8 +206,8 @@ struct HomeNightScene: View {
                         .init(color: .black.opacity(0.60), location: readingEdge),
                         .init(color: .black.opacity(0.96), location: readingEdge + 0.13),
                         .init(color: .black, location: 0.84),
-                        .init(color: .black.opacity(0.83), location: 0.96),
-                        .init(color: .black.opacity(0.91), location: 1)
+                        .init(color: .black.opacity(0.79), location: 0.92),
+                        .init(color: .black.opacity(0.58), location: 1)
                     ], startPoint: .leading, endPoint: .trailing)
                 }
                 .mask {
@@ -439,8 +439,25 @@ private enum HomeArtworkProcessor {
                 let l = r * 0.2126 + g * 0.7152 + b * 0.0722
                 let highlight = smooth(0.63, 0.95, l)
                 let warm = smooth(0.06, 0.24, r - b)
-                let gain: Float = (moon ? 0.76 : 0.85) + (moon ? 0.22 : 0.13) * highlight
-                    - (moon ? 0.045 : 0.02) * warm * (1 - highlight)
+                // Grade the illustrated foreground separately from distant
+                // foliage, using the same source coordinates as Android.
+                let pixel = i / 4
+                let sx = Float(pixel % w) / Float(max(1, w - 1))
+                let sy = Float(pixel / w) / Float(max(1, h - 1))
+                let paper = smooth(0.48, 0.60, sy)
+                    * (1 - smooth(0.81, 0.95, sy))
+                    * smooth(0.35, 0.48, sx)
+                    * (1 - smooth(0.83, 0.96, sx))
+                let canopy = (1 - smooth(0.44, 0.60, sy)) * (1 - smooth(0.48, 0.61, sx))
+                let outerFoliage = smooth(0.80, 0.97, sx)
+                let localExposure: Float = moon
+                    ? (0.14 * paper - 0.10 * canopy - 0.06 * outerFoliage) * (1 - highlight)
+                    : 0
+                let baseGain: Float = moon ? 0.76 : 0.85
+                let highlightGain: Float = moon ? 0.22 : 0.13
+                let warmReduction: Float = moon ? 0.045 : 0.02
+                let gain = min(1, max(0, baseGain + highlightGain * highlight
+                    - warmReduction * warm * (1 - highlight) + localExposure))
                 let sat = 0.80 + 0.18 * highlight
                 let shadow = 1 - smooth(0.09, 0.35, l)
                 let alpha = a * (0.58 + 0.42 * smooth(0.035, 0.24, l))
