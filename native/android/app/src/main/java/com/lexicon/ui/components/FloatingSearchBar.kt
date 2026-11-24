@@ -79,7 +79,7 @@ fun FloatingSearchBar(
                 .clip(RoundedCornerShape(50))
                 .background(bg)
                 .border(1.dp, borderColor, RoundedCornerShape(50))
-                .padding(horizontal = 15.dp, vertical = if (integrated) 13.dp else 9.dp),
+                .padding(horizontal = 15.dp, vertical = if (integrated) 11.dp else 9.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(9.dp),
         ) {

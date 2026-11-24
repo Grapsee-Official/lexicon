@@ -69,11 +69,11 @@ struct Hero: View {
             VStack(alignment: .leading, spacing: 6) {
                 headline
                 Text("A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.")
-                    .font(.lexiconBody(enlargedText ? 11.5 : 10.5))
+                    .font(.lexiconBody(enlargedText ? 11.5 : 10))
                     .foregroundStyle(subtextColor)
-                    .lineSpacing(2)
+                    .lineSpacing(1.5)
                     .fixedSize(horizontal: false, vertical: true)
-                    .padding(.trailing, enlargedText ? 0 : 12)
+                    .padding(.trailing, enlargedText ? 0 : 24)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -162,7 +162,7 @@ struct Hero: View {
                     .lexiconDecorative()
             }
         }
-        .font(.lexiconDisplay(measuredWidth >= 600 ? 36 : (isDark && !dynamicTypeSize.isAccessibilitySize ? (measuredWidth < 360 ? 24 : 25) : 27), weight: .regular))
+        .font(.lexiconDisplay(measuredWidth >= 600 ? 36 : (isDark && !dynamicTypeSize.isAccessibilitySize ? min(27, max(22, measuredWidth * 0.061)) : 27), weight: .regular))
         .tracking(-0.3)
         .frame(maxWidth: .infinity, alignment: .leading)
         .lexiconCombinedElement()
@@ -232,12 +232,12 @@ private struct NightHeroLayout: Layout {
     private let leading: CGFloat = 20
     private let bottom: CGFloat = 4
     private let minimumGap: CGFloat = 10
-    private var top: CGFloat { enlargedText ? 8 : 15 }
+    private var top: CGFloat { enlargedText ? 8 : 21 }
 
     private func minimumHeight(for width: CGFloat) -> CGFloat {
         if width >= 600 { return enlargedText ? 425 : 365 }
         if enlargedText { return 330 }
-        return width < 360 ? 250 : 242
+        return min(290, max(210, width * 0.60))
     }
 
     private func copyWidth(for width: CGFloat) -> CGFloat {
@@ -245,7 +245,7 @@ private struct NightHeroLayout: Layout {
     }
 
     private func searchWidth(for width: CGFloat) -> CGFloat {
-        max(1, (width - leading) * (enlargedText ? 0.85 : 0.73))
+        max(1, (width - leading) * (enlargedText ? 0.85 : 0.76))
     }
 
     func sizeThatFits(

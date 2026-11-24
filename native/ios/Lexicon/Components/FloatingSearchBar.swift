@@ -54,7 +54,7 @@ struct FloatingSearchBar: View {
                     .lexiconDecorative()
             }
             .padding(.horizontal, 15)
-            .padding(.vertical, isDark && sceneIntegrated ? 13 : 9)
+            .padding(.vertical, isDark && sceneIntegrated ? 11 : 9)
             .background(isDark && sceneIntegrated ? Color(hex: "0C151C").opacity(0.96) : lexiconPalette(scheme).searchPill)
             .clipShape(Capsule())
             .overlay(Capsule().stroke(pillBorder, lineWidth: 1))
