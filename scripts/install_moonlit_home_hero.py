@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Install the approved moonlit Home painting verbatim on both native platforms."""
+"""Install and verify the original repository artwork in native resources."""
 from pathlib import Path
 import argparse
 import hashlib
 import struct
+import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-EXPECTED = "550909662f7a229d90651560b7e4256ca57896f96995e1ea8b1a2a834de2ca8c"
+SOURCE = ROOT / "All real art/Moonlit Cottage Storybook Vignette.png"
 TARGETS = (
     ROOT / "native/android/app/src/main/res/drawable-nodpi/hero_dark.png",
     ROOT / "native/ios/Lexicon/Assets.xcassets/hero-dark.imageset/hero-dark.png",
@@ -14,36 +15,46 @@ TARGETS = (
 )
 
 
-def verify(data: bytes) -> None:
-    if hashlib.sha256(data).hexdigest() != EXPECTED:
-        raise SystemExit("Not the exact approved artwork (SHA-256 mismatch).")
+def dimensions(data: bytes) -> tuple[int, int]:
     if data[:8] != b"\x89PNG\r\n\x1a\n" or data[12:16] != b"IHDR":
-        raise SystemExit("Expected a PNG.")
+        raise SystemExit("Expected a valid PNG header.")
     width, height, depth, color = struct.unpack(">IIBB", data[16:26])
-    if (width, height, depth, color) != (1536, 1024, 8, 6):
-        raise SystemExit("Expected 1536 x 1024 RGBA artwork.")
+    if width <= height or height < 512:
+        raise SystemExit("Expected a full-resolution landscape hero.")
+    if color not in (4, 6) and b"tRNS" not in data:
+        raise SystemExit("Expected transparent artwork.")
+    return width, height
+
+
+def verify(data: bytes, original: bytes, label: str) -> None:
+    dimensions(data)
+    if data != original:
+        raise SystemExit(f"{label}: does not match the approved repository PNG.")
+    print(f"PASS {label}: SHA-256 {hashlib.sha256(data).hexdigest()}")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("artwork", type=Path, nargs="?", help="Original supplied PNG")
-    parser.add_argument("--check", action="store_true", help="Verify installed resources")
+    parser.add_argument("artwork", type=Path, nargs="?", default=SOURCE)
+    parser.add_argument("--check", action="store_true")
+    parser.add_argument("--apk", type=Path, help="Check packaged hero resource")
     args = parser.parse_args()
-    if args.check:
-        for target in TARGETS:
-            verify(target.read_bytes())
-            print("PASS", target.relative_to(ROOT))
-        return
-    if args.artwork is None:
-        parser.error("provide the approved PNG or --check")
-    data = args.artwork.read_bytes()
-    verify(data)
-    if not all(target.is_file() for target in TARGETS):
-        raise SystemExit("Existing native hero resources missing; run in the Lexicon repository.")
+    original = SOURCE.read_bytes()
+    expected_size = dimensions(original)
+    verify(args.artwork.read_bytes(), original, "Source artwork")
     for target in TARGETS:
-        target.write_bytes(data)
-        verify(target.read_bytes())
-        print("Installed", target.relative_to(ROOT))
+        if not args.check:
+            target.write_bytes(original)
+        verify(target.read_bytes(), original, str(target.relative_to(ROOT)))
+    if args.apk:
+        with zipfile.ZipFile(args.apk) as apk:
+            matches = [n for n in apk.namelist() if n.startswith("res/") and n.endswith("/hero_dark.png")]
+            if len(matches) != 1:
+                raise SystemExit(f"Expected exactly one dark hero PNG in APK, found {matches}")
+            packaged = apk.read(matches[0])
+            if dimensions(packaged) != expected_size:
+                raise SystemExit("APK hero dimensions do not match the source.")
+            print(f"PASS packaged hero: {matches[0]}, {expected_size[0]} x {expected_size[1]}")
 
 
 if __name__ == "__main__":

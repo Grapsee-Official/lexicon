@@ -16,6 +16,8 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
+      - name: Verify original moonlit artwork in both native platforms
+        run: python3 scripts/install_moonlit_home_hero.py --check
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -30,6 +32,8 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug --stacktrace
           test -s app/build/outputs/apk/debug/app-debug.apk
+      - name: Verify packaged moonlit hero
+        run: python3 scripts/install_moonlit_home_hero.py --check --apk native/android/app/build/outputs/apk/debug/app-debug.apk
       - name: Publish separate test prerelease
         env:
           GH_TOKEN: ${{ github.token }}
@@ -38,7 +42,7 @@ jobs:
           cp native/android/app/build/outputs/apk/debug/app-debug.apk dist/lexicon-android-test.apk
           "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify dist/lexicon-android-test.apk
           TAG="android-test-${GITHUB_SHA:0:12}"
-          NOTES="Debug APK for testing commit $GITHUB_SHA. Uses a separate debug application ID. Original moonlit artwork is not yet installed; this tests the native rendering changes only. Not a stable release."
+          NOTES="Debug APK for testing commit $GITHUB_SHA. Uses a separate debug application ID. Includes the original moonlit countryside artwork from All real art, verified against both native resources and packaged APK dimensions. Not a stable release."
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$TAG" dist/lexicon-android-test.apk --clobber --repo "$GITHUB_REPOSITORY"
           else
