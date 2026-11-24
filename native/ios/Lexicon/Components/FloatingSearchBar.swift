@@ -11,10 +11,16 @@ struct FloatingSearchBar: View {
 
     var placeholder: String = "Search for a word..."
     var sceneIntegrated: Bool = false
+    var referencePageWidth: CGFloat? = nil
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     private var isDark: Bool { scheme == .dark }
     private var integrated: Bool { isDark && sceneIntegrated }
+    private var referenceHeight: CGFloat { (referencePageWidth ?? 0) * 60 / 591 }
+    private var iconSize: CGFloat { referencePageWidth.map { min(23, max(14, $0 * 21 / 591)) } ?? 15 }
+    private var verticalPadding: CGFloat {
+        referencePageWidth.map { min(14, max(7, $0 * 12 / 591)) } ?? (integrated ? 11 : 9)
+    }
 
     private var iconColor: Color {
         integrated ? Color(hex: "D0AD75") : (isDark ? LexiconColors.accentDark : LexiconColors.highlight)
@@ -36,7 +42,7 @@ struct FloatingSearchBar: View {
         } label: {
             HStack(spacing: 9) {
                 Image(systemName: "magnifyingglass")
-                    .font(.system(size: 15, weight: .regular))
+                    .font(.system(size: iconSize, weight: .regular))
                     .foregroundStyle(iconColor)
                     .lexiconDecorative()
 
@@ -47,17 +53,18 @@ struct FloatingSearchBar: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 Image(systemName: "camera")
-                    .font(.system(size: 15, weight: .regular))
+                    .font(.system(size: iconSize, weight: .regular))
                     .foregroundStyle(iconColor)
                     .lexiconDecorative()
 
                 Image(systemName: "mic")
-                    .font(.system(size: 15, weight: .regular))
+                    .font(.system(size: iconSize, weight: .regular))
                     .foregroundStyle(iconColor)
                     .lexiconDecorative()
             }
             .padding(.horizontal, 15)
-            .padding(.vertical, isDark && sceneIntegrated ? 11 : 9)
+            .padding(.vertical, verticalPadding)
+            .frame(minHeight: referenceHeight)
             .background {
                 if integrated {
                     LinearGradient(colors: [

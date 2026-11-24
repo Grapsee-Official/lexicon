@@ -32,7 +32,7 @@ struct ContentView: View {
 
                 // The sky belongs to the entire page, not to a clipped hero.
                 // Translate it with the scroll content, leaving the header fixed.
-                if !dynamicTypeSize.isAccessibilitySize && !homeMasthead.isEmpty && homeHeaderHeight > 0 &&
+                if !homeMasthead.isEmpty && !referenceHeroStacks(width: homeMasthead.width, textSize: dynamicTypeSize) && homeHeaderHeight > 0 &&
                     homeMasthead.maxY > homeHeaderHeight {
                     HomeNightScene(extendsBehindTags: true, headerInset: homeHeaderHeight,
                                    measuredHeroHeight: homeHeroHeight)

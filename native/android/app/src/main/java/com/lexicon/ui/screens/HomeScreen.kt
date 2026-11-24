@@ -60,6 +60,7 @@ import com.lexicon.ui.components.BottomNav
 import com.lexicon.ui.components.CategoryCard
 import com.lexicon.ui.components.Hero
 import com.lexicon.ui.components.HomeNightScene
+import com.lexicon.ui.components.referenceHeroStacks
 import com.lexicon.ui.components.LexiconHeader
 import com.lexicon.ui.components.SectionHeader
 import com.lexicon.ui.components.TrendingTagRow
@@ -104,7 +105,6 @@ fun HomeScreen(viewModel: LexiconViewModel) {
 
     val feedState = rememberLazyListState()
     val density = LocalDensity.current
-    val stackedHero = LocalConfiguration.current.fontScale >= 1.5f
     var headerHeightPx by remember { mutableStateOf(0) }
     var mastheadHeightPx by remember { mutableStateOf(0) }
     var heroHeightPx by remember { mutableStateOf(0) }
@@ -113,7 +113,8 @@ fun HomeScreen(viewModel: LexiconViewModel) {
         modifier = Modifier.fillMaxSize().then(background),
         contentAlignment = Alignment.TopCenter,
     ) {
-      Box(Modifier.widthIn(max = 640.dp).fillMaxSize().clipToBounds()) {
+      BoxWithConstraints(Modifier.widthIn(max = 640.dp).fillMaxSize().clipToBounds()) {
+        val stackedHero = referenceHeroStacks(maxWidth.value, LocalConfiguration.current.fontScale)
         // Render the painting once in the PAGE coordinate space. Its upper
         // sky can cross the header/feed boundary; it is not clipped by LazyColumn.
         // Its translation tracks the masthead, while header controls stay fixed.
@@ -127,6 +128,7 @@ fun HomeScreen(viewModel: LexiconViewModel) {
                 extendsBehindTags = true,
                 headerInset = with(density) { headerHeightPx.toDp() },
                 measuredHeroHeight = with(density) { heroHeightPx.toDp() },
+                stackedLayout = false,
             )
         }
 
@@ -146,6 +148,7 @@ fun HomeScreen(viewModel: LexiconViewModel) {
                 viewModel = viewModel,
                 modifier = Modifier.weight(1f).clipToBounds(),
                 feedState = feedState,
+                stackedHero = stackedHero,
                 onMastheadMeasured = { mastheadHeightPx = it },
                 onHeroMeasured = { heroHeightPx = it },
             )
@@ -163,6 +166,7 @@ private fun HomeFeed(
     viewModel: LexiconViewModel,
     modifier: Modifier = Modifier,
     feedState: LazyListState,
+    stackedHero: Boolean,
     onMastheadMeasured: (Int) -> Unit,
     onHeroMeasured: (Int) -> Unit,
 ) {
@@ -195,7 +199,8 @@ private fun HomeFeed(
             // Foreground only. Dark artwork lives behind the entire page.
             Box(Modifier.fillMaxWidth().onSizeChanged { onMastheadMeasured(it.height) }) {
                 Column(verticalArrangement = Arrangement.spacedBy(if (state.isDark) 10.dp else 11.dp)) {
-                    Hero(viewModel = viewModel, sharedNightScene = state.isDark && LocalConfiguration.current.fontScale < 1.5f,
+                    Hero(viewModel = viewModel, sharedNightScene = state.isDark && !stackedHero,
+                        stackedLayout = stackedHero,
                         modifier = Modifier.onSizeChanged { onHeroMeasured(it.height) })
                     TrendingTagRow(
                         viewModel = viewModel,

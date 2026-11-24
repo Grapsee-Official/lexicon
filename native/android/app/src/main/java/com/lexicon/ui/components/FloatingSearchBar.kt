@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.ui.unit.Dp
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -48,12 +50,20 @@ fun FloatingSearchBar(
     modifier: Modifier = Modifier,
     placeholder: String = "Search for a word...",
     sceneIntegrated: Boolean = false,
+    referencePageWidth: Dp? = null,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
 
     val integrated = isDark && sceneIntegrated
     val compactType = integrated && LocalConfiguration.current.fontScale < 1.5f
+    // The vector contains the original capsule cutout, measured at
+    // 427 x 60 in the 591-wide reference. Keep its live control large
+    // enough to cover that cutout at every window width.
+    val referenceHeight = referencePageWidth?.let { it * (60f / 591f) } ?: 0.dp
+    val iconSize = referencePageWidth?.let { (it * (21f / 591f)).coerceIn(14.dp, 23.dp) } ?: 16.dp
+    val verticalPadding = referencePageWidth?.let { (it * (12f / 591f)).coerceIn(7.dp, 14.dp) }
+        ?: if (integrated) 11.dp else 9.dp
     val bg = if (integrated) Color(0xFF0B151D)
         else if (isDark) DarkSearchPill.copy(alpha = 0.95f) else SearchPillLight
     val borderColor = if (integrated) Color(0xFFB6A486).copy(alpha = 0.19f)
@@ -70,6 +80,7 @@ fun FloatingSearchBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .heightIn(min = referenceHeight)
                 .then(
                     if (!isDark) {
                         Modifier.shadow(
@@ -85,7 +96,7 @@ fun FloatingSearchBar(
                     listOf(Color(0xFF0D171F), bg)
                 )) else Modifier.background(bg))
                 .border(1.dp, borderColor, RoundedCornerShape(50))
-                .padding(horizontal = 15.dp, vertical = if (integrated) 11.dp else 9.dp),
+                .padding(horizontal = 15.dp, vertical = verticalPadding),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(9.dp),
         ) {
@@ -93,7 +104,7 @@ fun FloatingSearchBar(
                 imageVector = Icons.Outlined.Search,
                 contentDescription = null,
                 tint = iconColor,
-                modifier = Modifier.size(16.dp),
+                modifier = Modifier.size(iconSize),
             )
 
             Text(
@@ -112,14 +123,14 @@ fun FloatingSearchBar(
                 imageVector = Icons.Outlined.CameraAlt,
                 contentDescription = null,
                 tint = iconColor,
-                modifier = Modifier.size(16.dp),
+                modifier = Modifier.size(iconSize),
             )
 
             Icon(
                 imageVector = Icons.Outlined.Mic,
                 contentDescription = null,
                 tint = iconColor,
-                modifier = Modifier.size(16.dp),
+                modifier = Modifier.size(iconSize),
             )
         }
     }

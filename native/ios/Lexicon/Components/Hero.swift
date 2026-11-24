@@ -7,6 +7,13 @@ import SwiftUI
 import UIKit
 import CoreGraphics
 
+// Keep the shared background and the live hero in the same responsive mode.
+func referenceHeroStacks(width: CGFloat, textSize: DynamicTypeSize) -> Bool {
+    textSize.isAccessibilitySize || width < 275 ||
+        (width < 350 && textSize >= .xxLarge) ||
+        (width < 400 && textSize >= .xxxLarge)
+}
+
 struct Hero: View {
     @Environment(\.colorScheme) private var scheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -48,7 +55,7 @@ struct Hero: View {
         Group {
             if isDark {
                 darkHero
-            } else if dynamicTypeSize.isAccessibilitySize {
+            } else if referenceHeroStacks(width: measuredWidth, textSize: dynamicTypeSize) {
                 accessibleLightHero
             } else {
                 lightHero
@@ -64,7 +71,7 @@ struct Hero: View {
     }
 
     private var darkHero: some View {
-        let enlargedText = dynamicTypeSize.isAccessibilitySize
+        let enlargedText = referenceHeroStacks(width: measuredWidth, textSize: dynamicTypeSize)
         // Measure both children at their final width, then place Search at
         // the bottom of the minimum hero or below the copy, whichever is lower.
         return NightHeroLayout(enlargedText: enlargedText) {
@@ -79,7 +86,8 @@ struct Hero: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            FloatingSearchBar(sceneIntegrated: true)
+            FloatingSearchBar(sceneIntegrated: true,
+                              referencePageWidth: enlargedText ? nil : measuredWidth)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .background {
@@ -212,7 +220,7 @@ struct HomeNightScene: View {
             let content = max(1, height - header)
             let hero = measuredHeroHeight > 0 ? min(measuredHeroHeight, content)
                 : content * (extendsBehindTags ? 0.86 : 1)
-            let artWidth = dynamicTypeSize.isAccessibilitySize
+            let artWidth = referenceHeroStacks(width: width, textSize: dynamicTypeSize)
                 ? min(width * 0.645, 210 * 381 / 361) : width * (381 / 591)
             let artHeight = artWidth * (361 / 381)
             // Reference crop x210..591 y125..486; search ends y478.

@@ -26,7 +26,7 @@ struct HomeScreen: View {
           ScrollView {
             VStack(spacing: 11) {
                 VStack(spacing: scheme == .dark ? 10 : 11) {
-                    Hero(sharedNightScene: scheme == .dark && !dynamicTypeSize.isAccessibilitySize)
+                    Hero(sharedNightScene: scheme == .dark && !referenceHeroStacks(width: window.size.width, textSize: dynamicTypeSize))
                         .background {
                             if scheme == .dark {
                                 GeometryReader { geometry in

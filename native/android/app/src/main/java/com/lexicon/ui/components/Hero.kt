@@ -76,6 +76,7 @@ fun Hero(
     viewModel: LexiconViewModel,
     modifier: Modifier = Modifier,
     sharedNightScene: Boolean = false,
+    stackedLayout: Boolean? = null,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
@@ -85,10 +86,9 @@ fun Hero(
     val sprigColor = if (isDark) DarkAccent else OldWoodGold
     val subtextColor = if (isDark) Color(0xFFD3C6B2) else DeepForest.copy(alpha = 0.90f)
     val configuration = LocalConfiguration.current
-    val largeText = configuration.fontScale >= 1.5f
-
     // Use the actual content width, including split-screen and tablet windows.
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
+        val largeText = stackedLayout ?: referenceHeroStacks(maxWidth.value, configuration.fontScale)
         val compact = maxWidth < 360.dp
         val expanded = maxWidth >= 600.dp
         val heroHeight = when {
@@ -125,7 +125,7 @@ fun Hero(
         ) {
             if (isDark) {
                 if (!sharedNightScene) {
-                    HomeNightScene(Modifier.matchParentSize())
+                    HomeNightScene(Modifier.matchParentSize(), stackedLayout = largeText)
                 }
             } else {
                 Image(
@@ -211,6 +211,7 @@ fun Hero(
                     FloatingSearchBar(
                         viewModel = viewModel,
                         sceneIntegrated = isDark,
+                        referencePageWidth = if (isDark && !largeText) maxWidth else null,
                         modifier = if (largeText) Modifier.padding(start = 20.dp).fillMaxWidth(0.90f)
                             else Modifier.padding(start = maxWidth * (30f / 591f))
                                 .width(maxWidth * (427f / 591f)),
@@ -232,6 +233,11 @@ fun Hero(
     }
 }
 
+// One policy for both the hero content and its shared painting. A narrow
+// reading column must not compete with enlarged text for the same pixels.
+internal fun referenceHeroStacks(widthDp: Float, fontScale: Float): Boolean =
+    fontScale >= 1.5f || widthDp / fontScale.coerceAtLeast(1f) < 275f
+
 // The painting belongs to the masthead, not the text or search layout.
 // Home supplies a layer spanning the hero and the trending controls.
 @Composable
@@ -240,8 +246,10 @@ fun HomeNightScene(
     extendsBehindTags: Boolean = false,
     headerInset: Dp = 0.dp,
     measuredHeroHeight: Dp = 0.dp,
+    stackedLayout: Boolean? = null,
 ) {
-    val largeText = LocalConfiguration.current.fontScale >= 1.5f
+    val configuration = LocalConfiguration.current
+    val largeText = stackedLayout ?: referenceHeroStacks(configuration.screenWidthDp.toFloat(), configuration.fontScale)
     // The actual reference composition, not a regraded standalone PNG.
     var sceneWidthPx by remember { mutableIntStateOf(0) }
     val maxAccessibleWidth = with(LocalDensity.current) { 210.dp.toPx() * 381f / 361f }
