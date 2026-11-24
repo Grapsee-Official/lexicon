@@ -240,7 +240,7 @@ private fun HomeFeed(
                                         // labels get width, rather than shrinking the lettering.
                                         when {
                                             category.title.length > 15 -> maxOf(readableWidth, 136.dp)
-                                            category.subtitle.length > 18 -> maxOf(readableWidth, 108.dp)
+                                            category.subtitle.length > 18 -> maxOf(readableWidth, 112.dp)
                                             else -> readableWidth
                                         }
                                     } else readableWidth

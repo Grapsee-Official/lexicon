@@ -15,9 +15,9 @@ struct CategoryCard: View {
 
     var body: some View {
         let p = lexiconPalette(scheme)
-        let surface = isDark ? Color(hex: "16212B").opacity(0.42) : LexiconColors.card
-        let lowerSurface = isDark ? Color(hex: "16212B").opacity(0.18) : Color(hex: "F8F1E6")
-        let border = isDark ? Color(hex: "B6A486").opacity(0.12) : LexiconColors.foreground.opacity(0.10)
+        let surface = isDark ? Color(hex: "101B23").opacity(0.46) : LexiconColors.card
+        let lowerSurface = isDark ? Color(hex: "101B23").opacity(0.12) : Color(hex: "F8F1E6")
+        let border = isDark ? Color(hex: "B6A486").opacity(0.10) : LexiconColors.foreground.opacity(0.10)
         Button {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
             vm.setActiveTab(.dictionary)
@@ -29,19 +29,31 @@ struct CategoryCard: View {
                 PreparedArtworkImage(name: artName, treatment: .bookplate, underpainting: isDark)
                     .scaledToFit()
                     .frame(maxWidth: .infinity)
-                    .frame(height: largeText ? 88 : (isDark ? 60 : 65))
+                    .frame(height: largeText ? 88 : (isDark ? 62 : 65))
+                    .background {
+                        if isDark {
+                            GeometryReader { g in
+                                RadialGradient(
+                                    colors: [Color(hex: "28343B").opacity(0.20), .clear],
+                                    center: UnitPoint(x: 0.5, y: 0.48),
+                                    startRadius: 0,
+                                    endRadius: max(1, max(g.size.width, g.size.height) * 0.63)
+                                )
+                            }
+                        }
+                    }
                     .accessibilityHidden(true)
 
                 Spacer(minLength: 0).frame(height: isDark && !largeText ? 0 : 5)
 
                 VStack(spacing: 2) {
                     Text(category.title)
-                        .font(.lexiconDisplay(12))
+                        .font(.lexiconDisplay(isDark && !largeText ? 11.5 : 12))
                         .foregroundStyle(p.foreground)
                         .fixedSize(horizontal: false, vertical: true)
                     Text(category.subtitle)
                         .font(.lexiconBody(isDark && !largeText ? 8.5 : 9.5))
-                        .foregroundStyle(p.mutedForeground)
+                        .foregroundStyle(isDark ? Color(hex: "B4AD9E") : p.mutedForeground)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .multilineTextAlignment(.center)
@@ -55,7 +67,7 @@ struct CategoryCard: View {
                 if isDark {
                     LinearGradient(stops: [
                         .init(color: surface, location: 0),
-                        .init(color: Color(hex: "16212B").opacity(0.29), location: 0.60),
+                        .init(color: Color(hex: "101B23").opacity(0.22), location: 0.66),
                         .init(color: lowerSurface, location: 1)
                     ], startPoint: .top, endPoint: .bottom)
                 } else {

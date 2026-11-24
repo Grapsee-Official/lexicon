@@ -72,7 +72,7 @@ struct HomeScreen: View {
                                     CategoryCard(category: category)
                                         .frame(width: scheme == .dark && !largeText
                                                ? max(bookplateWidth, category.title.count > 15 ? 136
-                                                     : (category.subtitle.count > 18 ? 108 : 0))
+                                                     : (category.subtitle.count > 18 ? 112 : 0))
                                                : bookplateWidth)
                                 }
                             }

@@ -5,6 +5,7 @@ import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -61,11 +63,11 @@ fun CategoryCard(
     val resId = ctx.resources.getIdentifier(category.illustration, "drawable", ctx.packageName)
     // Let the underlying page ink show through the bookplate rather than
     // introducing a second opaque rectangle around the original art.
-    val surface = if (isDark) Color(0xFF16212B).copy(alpha = 0.42f) else CardSurface
-    val lowerSurface = if (isDark) Color(0xFF16212B).copy(alpha = 0.18f) else Color(0xFFF8F1E6)
+    val surface = if (isDark) Color(0xFF101B23).copy(alpha = 0.46f) else CardSurface
+    val lowerSurface = if (isDark) Color(0xFF101B23).copy(alpha = 0.12f) else Color(0xFFF8F1E6)
     val ink = if (isDark) DarkForeground else DeepForest
-    val muted = if (isDark) DarkMutedForeground else WarmGrey
-    val border = if (isDark) Color(0xFFB6A486).copy(alpha = 0.12f) else DeepForest.copy(alpha = 0.10f)
+    val muted = if (isDark) Color(0xFFB4AD9E) else WarmGrey
+    val border = if (isDark) Color(0xFFB6A486).copy(alpha = 0.10f) else DeepForest.copy(alpha = 0.10f)
     val shape = RoundedCornerShape(if (isDark) 10.dp else 12.dp)
 
     Column(
@@ -74,7 +76,7 @@ fun CategoryCard(
             .clip(shape)
             .background(
                 if (isDark) Brush.verticalGradient(
-                    0f to surface, 0.60f to surface.copy(alpha = 0.29f), 1f to lowerSurface,
+                    0f to surface, 0.66f to surface.copy(alpha = 0.22f), 1f to lowerSurface,
                 ) else Brush.verticalGradient(listOf(surface, lowerSurface))
             )
             .border(1.dp, border, shape)
@@ -85,8 +87,21 @@ fun CategoryCard(
     ) {
         if (resId != 0) {
             val painting = rememberPreparedArtwork(resId, ArtworkTreatment.BOOKPLATE)
-            val artHeight = if (largeText) 88.dp else if (isDark) 60.dp else 65.dp
+            val artHeight = if (largeText) 88.dp else if (isDark) 62.dp else 65.dp
             Box(Modifier.fillMaxWidth().height(artHeight), contentAlignment = Alignment.Center) {
+                if (isDark) {
+                    // A broad, very low-contrast wash seats the motif in the
+                    // same ink as the page, without a visible thumbnail rectangle.
+                    Canvas(Modifier.matchParentSize()) {
+                        if (size.width > 0f && size.height > 0f) {
+                            drawRect(Brush.radialGradient(
+                                colors = listOf(Color(0xFF28343B).copy(alpha = 0.20f), Color.Transparent),
+                                center = Offset(size.width * 0.5f, size.height * 0.48f),
+                                radius = maxOf(size.width, size.height) * 0.63f,
+                            ))
+                        }
+                    }
+                }
                 if (isDark && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     // A subdued underpainting made from this very bookplate,
                     // not a generic golden halo. The visible painting remains
@@ -109,7 +124,7 @@ fun CategoryCard(
                 )
             }
         } else {
-            Spacer(Modifier.height(if (largeText) 88.dp else if (isDark) 60.dp else 65.dp))
+            Spacer(Modifier.height(if (largeText) 88.dp else if (isDark) 62.dp else 65.dp))
         }
         Spacer(Modifier.height(if (isDark && !largeText) 0.dp else 5.dp))
         Column(
@@ -120,7 +135,7 @@ fun CategoryCard(
             Text(
                 text = category.title,
                 color = ink,
-                style = LexiconTextStyles.CategoryTitle.copy(fontSize = 12.sp, lineHeight = 14.sp),
+                style = LexiconTextStyles.CategoryTitle.copy(fontSize = if (isDark && !largeText) 11.5.sp else 12.sp, lineHeight = 14.sp),
                 textAlign = TextAlign.Center,
             )
             Text(
