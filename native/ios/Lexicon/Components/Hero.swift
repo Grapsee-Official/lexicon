@@ -348,20 +348,26 @@ struct PreparedArtworkImage: View {
     let name: String
     let treatment: ArtworkTreatment
     @State private var prepared: UIImage?
+    @State private var finished = false
 
     var body: some View {
         Group {
-            if let prepared {
-                Image(uiImage: prepared).resizable()
-            } else {
+            if let image = prepared ?? HomeArtworkProcessor.cached(name: name, treatment: treatment) {
+                Image(uiImage: image).resizable()
+            } else if finished {
                 Image(name).resizable()
+            } else {
+                Color.clear
             }
         }
         .task(id: name + treatment.rawValue) {
-            let result = await Task.detached(priority: .userInitiated) {
+            let result = await Task.detached(priority: .userInitiated) { [name, treatment] in
                 HomeArtworkProcessor.prepare(name: name, treatment: treatment)
             }.value
-            if !Task.isCancelled { prepared = result }
+            if !Task.isCancelled {
+                prepared = result
+                finished = true
+            }
         }
     }
 }
@@ -372,6 +378,10 @@ private enum HomeArtworkProcessor {
         result.totalCostLimit = 24 * 1024 * 1024
         return result
     }()
+
+    static func cached(name: String, treatment: ArtworkTreatment) -> UIImage? {
+        cache.object(forKey: (name + ":" + treatment.rawValue) as NSString)
+    }
 
     private static func smooth(_ lo: Float, _ hi: Float, _ x: Float) -> Float {
         let t = min(1, max(0, (x - lo) / (hi - lo)))

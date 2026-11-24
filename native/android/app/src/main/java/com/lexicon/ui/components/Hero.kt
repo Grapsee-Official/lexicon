@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.translate
@@ -35,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -288,15 +290,27 @@ private val preparedArtworkCache = object : LruCache<String, ImageBitmap>(24 * 1
 internal fun rememberPreparedArtwork(resId: Int, treatment: ArtworkTreatment): Painter {
     val resources = LocalContext.current.resources
     val key = "$resId:$treatment"
-    val prepared by produceState<ImageBitmap?>(preparedArtworkCache.get(key), key) {
-        value = withContext(Dispatchers.Default) {
+    val prepared by produceState(
+        initialValue = PreparedArtworkState(preparedArtworkCache.get(key), false),
+        key,
+    ) {
+        val bitmap = withContext(Dispatchers.Default) {
             preparedArtworkCache.get(key) ?: prepareArtwork(resources, resId, treatment)
                 ?.also { preparedArtworkCache.put(key, it) }
         }
+        value = PreparedArtworkState(bitmap, true)
     }
-    // The original remains available if a device cannot allocate the derivative.
-    return prepared?.let { BitmapPainter(it) } ?: painterResource(resId)
+    val image = prepared.bitmap
+    return when {
+        image != null -> remember(image) { BitmapPainter(image) }
+        prepared.finished -> painterResource(resId)
+        // A transparent placeholder exposes the intended ink while decoding.
+        // Never flash the ungraded, full-resolution image on a cold start.
+        else -> remember { ColorPainter(Color.Transparent) }
+    }
 }
+
+private data class PreparedArtworkState(val bitmap: ImageBitmap?, val finished: Boolean)
 
 private fun smoothArtworkStep(lo: Float, hi: Float, value: Float): Float {
     val t = ((value - lo) / (hi - lo)).coerceIn(0f, 1f)
