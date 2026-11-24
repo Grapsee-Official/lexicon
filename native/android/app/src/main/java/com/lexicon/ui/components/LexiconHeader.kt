@@ -81,8 +81,8 @@ fun LexiconHeader(
     val wordmarkColor = if (isDark) DarkForeground else BrandGreen
     val taglineColor = if (homeNight) Color(0xFFC9BDA9) else if (isDark) DarkForeground.copy(alpha = 0.76f) else DeepForest.copy(alpha = 0.70f)
     val dotColor = if (isDark) DarkHighlight else OldWoodGold
-    val markRes = if (isDark) R.drawable.lexicon_mark_dark else R.drawable.lexicon_mark
-    val avatarRes = if (isDark) R.drawable.avatar_dark else R.drawable.avatar_default
+    val markRes = if (homeNight) R.drawable.ref_home_crest else if (isDark) R.drawable.lexicon_mark_dark else R.drawable.lexicon_mark
+    val avatarRes = if (homeNight) R.drawable.ref_home_avatar else if (isDark) R.drawable.avatar_dark else R.drawable.avatar_default
 
     Row(
         modifier = modifier
@@ -186,8 +186,6 @@ fun LexiconHeader(
             Image(
                 painter = painterResource(avatarRes),
                 contentDescription = null,
-                colorFilter = if (homeNight) ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0.78f) }) else null,
-                alpha = if (homeNight) 0.87f else 1f,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
             )

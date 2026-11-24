@@ -96,7 +96,7 @@ fun Hero(
         }
         val textWidth = when {
             largeText -> 1f
-            isDark -> 0.51f
+            isDark -> 0.46f
             compact || largeText -> 0.60f
             else -> 0.52f
         }
@@ -180,7 +180,7 @@ fun Hero(
                         text = "A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.",
                         color = subtextColor,
                         style = paragraphStyle,
-                        modifier = Modifier.fillMaxWidth(if (largeText) 1f else if (isDark) 0.82f else 0.88f),
+                        modifier = Modifier.fillMaxWidth(if (largeText) 1f else if (isDark) 0.85f else 0.88f),
                         maxLines = if (isDark || largeText) Int.MAX_VALUE else 7,
                     )
                 }
@@ -197,7 +197,7 @@ fun Hero(
                 ) {
                     heroCopy(
                         Modifier.fillMaxWidth(textWidth)
-                            .padding(start = 20.dp, end = if (largeText) 20.dp else 0.dp, top = if (largeText) 8.dp else 16.dp, bottom = 6.dp),
+                            .padding(start = 20.dp, end = if (largeText) 20.dp else 0.dp, top = if (largeText) 8.dp else (maxWidth * 0.075f).coerceIn(22.dp, 42.dp), bottom = 6.dp),
                     )
                     if (largeText) Spacer(Modifier.height((maxWidth * 0.48f).coerceIn(135.dp, 210.dp)))
                     FloatingSearchBar(
@@ -233,73 +233,28 @@ fun HomeNightScene(
     measuredHeroHeight: Dp = 0.dp,
 ) {
     val largeText = LocalConfiguration.current.fontScale >= 1.5f
-    val painting = rememberPreparedArtwork(R.drawable.hero_dark, ArtworkTreatment.MOONLIT)
-    Canvas(modifier.graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }) {
+    // The actual reference composition, not a regraded standalone PNG.
+    val painting = painterResource(R.drawable.ref_home_hero)
+    Canvas(modifier) {
         if (size.width <= 0f || size.height <= 0f) return@Canvas
-        val aspect = safeArtworkAspect(painting)
         val header = headerInset.toPx().coerceIn(0f, size.height)
-        val contentHeight = (size.height - header).coerceAtLeast(1f)
-        val measured = measuredHeroHeight.toPx()
-        val hero = if (measured > 0f) measured.coerceAtMost(contentHeight)
-            else contentHeight * (if (extendsBehindTags) 0.86f else 1f)
-        // Reference landmarks at 369px: crescent x233/y98, open-book
-        // baseline y284, search capsule bottom y299. Compose the painting
-        // against the measured hero, not a fixed image container.
-        val artWidth = minOf(size.width * (if (largeText) 0.85f else 0.99f),
-            if (largeText) (size.width * 0.48f).coerceIn(135.dp.toPx(), 210.dp.toPx()) * aspect else contentHeight * aspect * 1.08f)
-        val artX = size.width * 0.63f - artWidth * 0.539f
-        val moonY = minOf(hero * 0.10f, size.width * 0.055f)
-        val bookBaseline = hero - 4.dp.toPx() - size.width * 0.040f
-        val naturalHeight = artWidth / aspect
-        val artHeight = if (largeText) naturalHeight else
-            ((bookBaseline - moonY) / (0.88f - 0.17f))
-                .coerceIn(naturalHeight * 0.88f, naturalHeight * 1.14f)
-        val artY = header + if (largeText) bookBaseline - artHeight * 0.97f
-            else moonY - artHeight * 0.17f
+        val content = (size.height - header).coerceAtLeast(1f)
+        val hero = measuredHeroHeight.toPx().takeIf { it > 0f }?.coerceAtMost(content)
+            ?: (content * if (extendsBehindTags) 0.86f else 1f)
+        val width = if (largeText) minOf(size.width * 0.645f, 210.dp.toPx() * 381f / 361f)
+            else size.width * (381f / 591f)
+        val height = width * (361f / 381f)
+        // Reference crop x210..591 y125..486; search ends y478.
+        val y = header + hero - height * (353f / 361f)
         clipRect {
-            translate(left = artX, top = artY) {
-                with(painting) { draw(size = Size(artWidth, artHeight)) }
+            translate(left = size.width - width, top = y) {
+                with(painting) { draw(size = Size(width, height)) }
             }
         }
-
-        // The source-space grade already dissolves the painted edges.
-        // Use only a reading-column shadow and a short bottom fade here.
-        val edge = 0.44f
-        if (!largeText) drawRect(
-            brush = Brush.linearGradient(
-                0f to Color.Transparent,
-                (edge - 0.18f) to Color.Transparent,
-                (edge - 0.08f) to Color.Black.copy(alpha = 0.40f),
-                (edge + 0.07f) to Color.Black,
-                1f to Color.Black,
-                start = Offset.Zero,
-                end = Offset(size.width, contentHeight * 0.24f),
-            ),
-            blendMode = BlendMode.DstIn,
-        )
-        // Let the foreground continue below Search; dissolve only the
-        // remaining tag-side margin instead of fading the open pages.
-        val fadeStart = ((header + hero - size.width * 0.025f) / size.height).coerceIn(0.55f, 0.95f)
-        val fadeEnd = (fadeStart + (1f - fadeStart) * 0.75f).coerceAtMost(0.99f)
-        drawRect(
-            brush = Brush.verticalGradient(
-                0f to Color.Black,
-                fadeStart to Color.Black,
-                fadeEnd to Color.Black.copy(alpha = 0.15f),
-                1f to Color.Transparent,
-            ),
-            blendMode = BlendMode.DstIn,
-        )
     }
 }
 
-
-/**
- * Non-destructive presentation of original Home PNGs. Cached, downsampled
- * bookplates share geometry but use a dark-only pigment grade. Night scenes
- * retain the original alpha, with a luminance-dependent shadow dissolve and
- * a highlight-preserving tone curve. No generated/replacement illustration.
- */
+// Legacy light artwork remains available until its separate reference is supplied.
 internal enum class ArtworkTreatment { MOONLIT, DAILY_LANDSCAPE, STORY, BOOKPLATE, DARK_BOOKPLATE }
 
 private val preparedArtworkCache = object : LruCache<String, ImageBitmap>(24 * 1024 * 1024) {

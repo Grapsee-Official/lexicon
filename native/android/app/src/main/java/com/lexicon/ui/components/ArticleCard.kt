@@ -42,6 +42,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
+import com.lexicon.R
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lexicon.data.Article
@@ -60,6 +62,8 @@ fun ArticleCard(
     article: Article,
     viewModel: LexiconViewModel,
     modifier: Modifier = Modifier,
+    shelfWidth: Dp? = null,
+    shelfHeight: Dp? = null,
     onOpen: () -> Unit = {},
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -80,8 +84,8 @@ fun ArticleCard(
     val shape = RoundedCornerShape(if (isDark) 10.dp else 13.dp)
     val fontScale = LocalConfiguration.current.fontScale
     val largeText = fontScale >= 1.5f
-    val width = if (isDark && !largeText) 150.dp * fontScale.coerceIn(1f, 1.20f) else if (isDark) 210.dp else 174.dp
-    val height = if (isDark && !largeText) 78.dp * fontScale.coerceIn(1f, 1.25f) else if (isDark) 120.dp * (fontScale / 1.5f).coerceAtLeast(1f) else 90.dp
+    val width = shelfWidth ?: if (isDark && !largeText) 150.dp * fontScale.coerceIn(1f, 1.20f) else if (isDark) 210.dp else 174.dp
+    val height = shelfHeight ?: if (isDark && !largeText) 78.dp * fontScale.coerceIn(1f, 1.25f) else if (isDark) 120.dp * (fontScale / 1.5f).coerceAtLeast(1f) else 90.dp
 
     Box(
         modifier = modifier
@@ -102,38 +106,25 @@ fun ArticleCard(
             .border(1.dp, borderColor, shape)
             .clickable(role = Role.Button) { onOpen() },
     ) {
-        // A narrow illustrated column with a soft edge, not artwork behind text.
-        if (isDark && resId != 0) {
-            Image(
-                painter = rememberPreparedArtwork(resId, ArtworkTreatment.STORY),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.align(Alignment.CenterStart)
-                    .fillMaxHeight().fillMaxWidth(0.34f)
-                    .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
-                    .drawWithContent {
-                        drawContent()
-                        drawRect(
-                            brush = Brush.horizontalGradient(
-                                0f to Color.Black.copy(alpha = 0.88f),
-                                0.14f to Color.Black,
-                                0.72f to Color.Black,
-                                0.90f to Color.Black.copy(alpha = 0.48f),
-                                1f to Color.Transparent,
-                            ),
-                            blendMode = BlendMode.DstIn,
-                        )
-                        drawRect(
-                            brush = Brush.verticalGradient(
-                                0f to Color.Black.copy(alpha = 0.72f),
-                                0.15f to Color.Black,
-                                0.83f to Color.Black,
-                                1f to Color.Black.copy(alpha = 0.65f),
-                            ),
-                            blendMode = BlendMode.DstIn,
-                        )
-                    },
-            )
+        if (isDark) {
+            val vector = when (article.id) {
+                "a1" -> R.drawable.ref_home_library_origin
+                "a2" -> R.drawable.ref_home_library_lost
+                "a3" -> R.drawable.ref_home_library_nature
+                else -> 0
+            }
+            if (vector != 0) {
+                Image(
+                    painter = painterResource(vector), contentDescription = null,
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier.align(Alignment.CenterStart)
+                        .fillMaxHeight().fillMaxWidth(0.34f).padding(3.dp),
+                )
+            } else if (resId != 0) {
+                Image(painter = rememberPreparedArtwork(resId, ArtworkTreatment.STORY),
+                    contentDescription = null, contentScale = ContentScale.Crop,
+                    modifier = Modifier.align(Alignment.CenterStart).fillMaxHeight().fillMaxWidth(0.34f))
+            }
         }
         Row(Modifier.fillMaxSize()) {
             if (isDark) {

@@ -283,50 +283,14 @@ fun WordOfTheDayCard(
 // foreground controls; the divider no longer separates two painted surfaces.
 @Composable
 private fun WordOfDayNightScene(modifier: Modifier, accessible: Boolean) {
-    val artwork = rememberPreparedArtwork(R.drawable.wotd_home_dark, ArtworkTreatment.DAILY_LANDSCAPE)
-    Canvas(modifier.graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }) {
+    val artwork = painterResource(R.drawable.ref_home_daily)
+    Canvas(modifier) {
         if (size.width <= 0f || size.height <= 0f) return@Canvas
-        val aspect = safeArtworkAspect(artwork)
-        val width = maxOf(size.width * 0.72f, size.height * aspect)
-        val height = width / aspect
+        val width = size.width * (if (accessible) 0.57f else 0.61f)
         clipRect {
-            translate(left = size.width - width, top = (size.height - height) / 2f) {
-                with(artwork) { draw(size = Size(width, height)) }
+            translate(left = size.width - width, top = 0f) {
+                with(artwork) { draw(size = Size(width, size.height)) }
             }
         }
-        drawRect(
-            // The definition sits in the darker upper-left of a single
-            // landscape. Reveal the lower terrain earlier than the sky.
-            brush = Brush.linearGradient(
-                0f to Color.Transparent,
-                0.40f to Color.Transparent,
-                0.51f to Color.Black.copy(alpha = if (accessible) 0.03f else 0.17f),
-                0.66f to Color.Black.copy(alpha = if (accessible) 0.13f else 0.58f),
-                0.84f to Color.Black.copy(alpha = if (accessible) 0.48f else 0.95f),
-                1f to Color.Black.copy(alpha = if (accessible) 0.60f else 1f),
-                start = Offset.Zero,
-                end = Offset(size.width, size.height * 0.78f),
-            ),
-            blendMode = BlendMode.DstIn,
-        )
-        drawRect(
-            brush = Brush.verticalGradient(
-                0f to Color.Black.copy(alpha = 0.90f),
-                0.12f to Color.Black,
-                0.88f to Color.Black,
-                1f to Color.Black.copy(alpha = 0.94f),
-            ),
-            blendMode = BlendMode.DstIn,
-        )
-        // A localized ink veil follows the definition's reading area. This
-        // protects the lettering without dimming the entire right-hand scene.
-        drawRect(
-            brush = Brush.radialGradient(
-                colors = listOf(Color(0xFF08121A).copy(alpha = 0.34f), Color.Transparent),
-                center = Offset(size.width * 0.62f, size.height * 0.40f),
-                radius = size.width * 0.22f,
-            ),
-            blendMode = BlendMode.SrcAtop,
-        )
     }
 }

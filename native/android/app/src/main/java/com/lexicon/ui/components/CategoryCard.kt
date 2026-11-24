@@ -26,6 +26,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import com.lexicon.R
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -64,7 +66,19 @@ fun CategoryCard(
     val lightRes = if (!isDark) ctx.resources.getIdentifier(
         "${category.illustration}_light", "drawable", ctx.packageName
     ) else 0
-    val resId = if (lightRes != 0) lightRes else
+    val resId = if (isDark) when (category.id) {
+        "vocabulary" -> R.drawable.ref_home_vocabulary
+        "geography" -> R.drawable.ref_home_geography
+        "literature" -> R.drawable.ref_home_literature
+        "science" -> R.drawable.ref_home_science
+        "history" -> R.drawable.ref_home_history
+        "mythology" -> R.drawable.ref_home_mythology
+        "philosophy" -> R.drawable.ref_home_philosophy
+        "art_architecture" -> R.drawable.ref_home_art_architecture
+        "nature" -> R.drawable.ref_home_nature
+        "culture_traditions" -> R.drawable.ref_home_culture_traditions
+        else -> 0
+    } else if (lightRes != 0) lightRes else
         ctx.resources.getIdentifier(category.illustration, "drawable", ctx.packageName)
     // Let the underlying page ink show through the bookplate rather than
     // introducing a second opaque rectangle around the original art.
@@ -77,7 +91,7 @@ fun CategoryCard(
 
     Column(
         modifier = modifier
-            .heightIn(min = if (shelfArtworkHeight != null && !largeText) artHeight + 30.dp * fontScale + 8.dp
+            .heightIn(min = if (shelfArtworkHeight != null && !largeText) artHeight + 28.dp * fontScale + 8.dp
                 else artHeight + (if (largeText) 46.dp else 33.dp) * fontScale.coerceAtMost(2.5f) + 10.dp)
             .clip(shape)
             .background(
@@ -92,29 +106,16 @@ fun CategoryCard(
         verticalArrangement = Arrangement.Top,
     ) {
         if (resId != 0) {
-            val painting = rememberPreparedArtwork(resId, if (isDark) ArtworkTreatment.DARK_BOOKPLATE else ArtworkTreatment.BOOKPLATE)
-            Box(Modifier.fillMaxWidth().height(artHeight), contentAlignment = Alignment.Center) {
-                if (isDark) {
-                    // A broad, very low-contrast wash seats the motif in the
-                    // same ink as the page, without a visible thumbnail rectangle.
-                    Canvas(Modifier.matchParentSize()) {
-                        if (size.width > 0f && size.height > 0f) {
-                            drawRect(Brush.radialGradient(
-                                colors = listOf(Color(0xFF20394D).copy(alpha = 0.15f), Color.Transparent),
-                                center = Offset(size.width * 0.5f, size.height * 0.48f),
-                                radius = maxOf(size.width, size.height) * 0.63f,
-                            ))
-                        }
-                    }
-                }
-                Image(
-                    painter = painting,
-                    contentDescription = null,
-                    modifier = Modifier.matchParentSize(),
-                    contentScale = ContentScale.Fit,
-                    alignment = Alignment.Center,
-                )
-            }
+            // Reference vectors already contain their edge and color treatment.
+            val painting = if (isDark) painterResource(resId)
+                else rememberPreparedArtwork(resId, ArtworkTreatment.BOOKPLATE)
+            Image(
+                painter = painting,
+                contentDescription = null,
+                modifier = Modifier.fillMaxWidth().height(artHeight),
+                contentScale = ContentScale.Fit,
+                alignment = Alignment.Center,
+            )
         } else {
             Spacer(Modifier.height(artHeight))
         }

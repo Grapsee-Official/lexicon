@@ -194,7 +194,7 @@ private fun HomeFeed(
         item(key = "masthead") {
             // Foreground only. Dark artwork lives behind the entire page.
             Box(Modifier.fillMaxWidth().onSizeChanged { onMastheadMeasured(it.height) }) {
-                Column(verticalArrangement = Arrangement.spacedBy(if (state.isDark) 5.dp else 11.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(if (state.isDark) 10.dp else 11.dp)) {
                     Hero(viewModel = viewModel, sharedNightScene = state.isDark && LocalConfiguration.current.fontScale < 1.5f,
                         modifier = Modifier.onSizeChanged { onHeroMeasured(it.height) })
                     TrendingTagRow(
@@ -216,7 +216,8 @@ private fun HomeFeed(
 
         // Ten original bookplates in canonical order; load only visible artwork.
         item(key = "categories") {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(modifier = Modifier.padding(top = if (state.isDark) 7.dp else 0.dp),
+                verticalArrangement = Arrangement.spacedBy(9.dp)) {
                 SectionHeader(
                     title = "Explore by Category",
                     actionLabel = "View all",
@@ -227,10 +228,12 @@ private fun HomeFeed(
                 )
                 BoxWithConstraints(Modifier.fillMaxWidth()) {
                     val fontScale = LocalConfiguration.current.fontScale
-                    val gap = 8.dp
-                    val inset = 16.dp
+                    val gap = if (state.isDark) (maxWidth * 0.023f).coerceIn(7.dp, 12.dp) else 8.dp
+                    val inset = if (state.isDark) (maxWidth * 0.05f).coerceIn(14.dp, 24.dp) else 16.dp
                     val count = homeShelfColumns(maxWidth.value, fontScale)
-                    val width = ((maxWidth - inset * 2 - gap * (count - 1)) / count)
+                    // Four full bookplates and a small continuation on the right.
+                    val peek = if (state.isDark && fontScale < 1.5f) maxWidth * 0.045f else 0.dp
+                    val width = ((maxWidth - inset * 2 - gap * (count - 1) - peek) / count)
                         .coerceAtLeast(56.dp)
                     LazyRow(
                         modifier = Modifier.fillMaxWidth(),
@@ -242,7 +245,7 @@ private fun HomeFeed(
                                 category = category,
                                 viewModel = viewModel,
                                 modifier = Modifier.width(width),
-                                shelfArtworkHeight = (width * 0.82f).coerceIn(50.dp, 96.dp),
+                                shelfArtworkHeight = (width * (if (state.isDark) 0.78f else 0.82f)).coerceIn(46.dp, 96.dp),
                             )
                         }
                     }
@@ -251,7 +254,8 @@ private fun HomeFeed(
         }
 
         item(key = "library") {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(modifier = Modifier.padding(top = if (state.isDark) 6.dp else 0.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 SectionHeader(
                     title = "From the Library",
                     actionLabel = "View all articles",
@@ -260,20 +264,19 @@ private fun HomeFeed(
                     modifier = Modifier.padding(horizontal = if (state.isDark) 18.dp else 16.dp),
                     homeEditorial = true,
                 )
-                val scrollState = rememberScrollState()
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(scrollState)
-                        .padding(horizontal = if (state.isDark) 18.dp else 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                ) {
-                    LexiconData.articles.forEach { article ->
-                        ArticleCard(
-                            article = article,
-                            viewModel = viewModel,
-                            onOpen = { articleToRead = article; libraryOpen = true },
-                        )
+                BoxWithConstraints(Modifier.fillMaxWidth()) {
+                    val editorial = state.isDark && LocalConfiguration.current.fontScale < 1.5f
+                    val cardHeight = (maxWidth * 0.207f).coerceIn(74.dp, 112.dp)
+                    val firstWidth = (maxWidth * 0.40f).coerceIn(140.dp, 230.dp)
+                    val followingWidth = (maxWidth * 0.34f).coerceIn(122.dp, 200.dp)
+                    LazyRow(contentPadding = PaddingValues(horizontal = if (state.isDark) 18.dp else 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        items(LexiconData.articles, key = { it.id }) { article ->
+                            ArticleCard(article = article, viewModel = viewModel,
+                                onOpen = { articleToRead = article; libraryOpen = true },
+                                shelfWidth = if (editorial) (if (article.id == "a1") firstWidth else followingWidth) else null,
+                                shelfHeight = if (editorial) cardHeight else null)
+                        }
                     }
                 }
             }
