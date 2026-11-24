@@ -65,12 +65,12 @@ fun CategoryCard(
 
     Column(
         modifier = modifier
-            .heightIn(min = if (largeText) 190.dp else if (isDark) 122.dp else 130.dp)
+            .heightIn(min = if (largeText) 190.dp else if (isDark) 104.dp else 130.dp)
             .clip(shape)
             .background(Brush.verticalGradient(listOf(surface, lowerSurface)))
             .border(1.dp, border, shape)
             .clickable(role = Role.Button) { viewModel.setActiveTab(TabKey.DICTIONARY) }
-            .padding(horizontal = if (isDark) 5.dp else 7.dp, vertical = 8.dp),
+            .padding(horizontal = if (isDark) 5.dp else 7.dp, vertical = if (isDark && !largeText) 6.dp else 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top,
     ) {
@@ -78,12 +78,12 @@ fun CategoryCard(
             Image(
                 painter = rememberPreparedArtwork(resId, ArtworkTreatment.BOOKPLATE),
                 contentDescription = null,
-                modifier = Modifier.fillMaxWidth().height(if (largeText) 88.dp else if (isDark) 64.dp else 65.dp),
+                modifier = Modifier.fillMaxWidth().height(if (largeText) 88.dp else if (isDark) 57.dp else 65.dp),
                 contentScale = ContentScale.Fit,
                 alignment = Alignment.Center,
             )
         } else {
-            Spacer(Modifier.height(if (largeText) 88.dp else if (isDark) 64.dp else 65.dp))
+            Spacer(Modifier.height(if (largeText) 88.dp else if (isDark) 57.dp else 65.dp))
         }
         Spacer(Modifier.height(if (isDark) 3.dp else 5.dp))
         Column(
@@ -100,7 +100,7 @@ fun CategoryCard(
             Text(
                 text = category.subtitle,
                 color = muted,
-                style = LexiconTextStyles.CategorySubtitle.copy(fontSize = if (isDark) 9.sp else 9.5.sp, lineHeight = 12.sp),
+                style = LexiconTextStyles.CategorySubtitle.copy(fontSize = if (isDark && !largeText) 8.5.sp else 9.5.sp, lineHeight = if (isDark && !largeText) 11.sp else 12.sp),
                 textAlign = TextAlign.Center,
             )
         }

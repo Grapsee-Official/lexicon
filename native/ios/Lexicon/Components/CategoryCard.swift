@@ -26,7 +26,7 @@ struct CategoryCard: View {
                 PreparedArtworkImage(name: artName, treatment: .bookplate)
                     .scaledToFit()
                     .frame(maxWidth: .infinity)
-                    .frame(height: largeText ? 88 : (isDark ? 64 : 65))
+                    .frame(height: largeText ? 88 : (isDark ? 57 : 65))
                     .accessibilityHidden(true)
 
                 Spacer(minLength: 0).frame(height: isDark ? 3 : 5)
@@ -37,7 +37,7 @@ struct CategoryCard: View {
                         .foregroundStyle(p.foreground)
                         .fixedSize(horizontal: false, vertical: true)
                     Text(category.subtitle)
-                        .font(.lexiconBody(isDark ? 9 : 9.5))
+                        .font(.lexiconBody(isDark && !largeText ? 8.5 : 9.5))
                         .foregroundStyle(p.mutedForeground)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -45,9 +45,9 @@ struct CategoryCard: View {
                 .frame(maxWidth: .infinity)
             }
             .padding(.horizontal, isDark ? 5 : 7)
-            .padding(.vertical, 8)
+            .padding(.vertical, isDark && !largeText ? 6 : 8)
             .frame(maxWidth: .infinity)
-            .frame(minHeight: largeText ? 190 : (isDark ? 122 : 130), alignment: .top)
+            .frame(minHeight: largeText ? 190 : (isDark ? 104 : 130), alignment: .top)
             .background(LinearGradient(colors: [surface, lowerSurface], startPoint: .top, endPoint: .bottom))
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             .overlay(

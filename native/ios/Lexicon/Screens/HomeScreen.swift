@@ -56,14 +56,16 @@ struct HomeScreen: View {
                             LazyHStack(alignment: .top, spacing: 10) {
                                 ForEach(LexiconData.categories) { category in
                                     CategoryCard(category: category)
-                                        .frame(width: scheme == .dark && !largeText && category.title.count > 15
-                                               ? max(bookplateWidth, 116) : bookplateWidth)
+                                        .frame(width: scheme == .dark && !largeText
+                                               ? max(bookplateWidth, category.title.count > 15 ? 136
+                                                     : (category.subtitle.count > 18 ? 108 : 0))
+                                               : bookplateWidth)
                                 }
                             }
                             .padding(.horizontal, 16)
                         }
                     }
-                    .frame(height: dynamicTypeSize.isAccessibilitySize ? 230 : (scheme == .dark ? 136 : 145))
+                    .frame(height: dynamicTypeSize.isAccessibilitySize ? 230 : (scheme == .dark ? 114 : 145))
                 }
 
                 // From the Library (with horizontal hairline divider)

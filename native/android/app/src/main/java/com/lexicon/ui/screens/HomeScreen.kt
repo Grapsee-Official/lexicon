@@ -192,8 +192,15 @@ private fun HomeFeed(viewModel: LexiconViewModel) {
                                 category = category,
                                 viewModel = viewModel,
                                 modifier = Modifier.width(
-                                    if (state.isDark && !largeText && category.title.length > 15)
-                                        maxOf(readableWidth, 116.dp) else readableWidth
+                                    if (state.isDark && !largeText) {
+                                        // Keep the opening four bookplates compact; later long
+                                        // labels get width, rather than shrinking the lettering.
+                                        when {
+                                            category.title.length > 15 -> maxOf(readableWidth, 136.dp)
+                                            category.subtitle.length > 18 -> maxOf(readableWidth, 108.dp)
+                                            else -> readableWidth
+                                        }
+                                    } else readableWidth
                                 ),
                             )
                         }
