@@ -186,11 +186,11 @@ struct HomeNightScene: View {
             let width = geo.size.width
             let height = geo.size.height
             let largeText = dynamicTypeSize.isAccessibilitySize
-            let edge: CGFloat = largeText ? 0.69 : (width < 360 ? 0.52 : 0.49)
+            let edge: CGFloat = largeText ? 0.67 : 0.47
             let header = min(height, max(0, headerInset))
             let contentHeight = max(1, height - header)
             let stretch: CGFloat = largeText ? 1 : 1.04
-            let artWidth = min(width * (largeText ? 0.96 : 0.98), contentHeight * 1.5 / stretch * 1.08)
+            let artWidth = min(width * (largeText ? 0.96 : 0.95), contentHeight * 1.5 / stretch * 1.08)
             let artHeight = artWidth / 1.5 * stretch
             let artX = max(width * 0.63 - artWidth * 0.54, width - artWidth * 0.95)
             let moonY = min(contentHeight * (extendsBehindTags ? 0.09 : 0.10), width * 0.055)
@@ -205,28 +205,18 @@ struct HomeNightScene: View {
                 .mask {
                     LinearGradient(stops: [
                         .init(color: .clear, location: 0),
-                        .init(color: .clear, location: edge - 0.19),
-                        .init(color: .black.opacity(0.24), location: edge - 0.10),
-                        .init(color: .black.opacity(0.64), location: edge - 0.02),
-                        .init(color: .black, location: edge + 0.09),
+                        .init(color: .clear, location: edge - 0.18),
+                        .init(color: .black.opacity(0.40), location: edge - 0.08),
+                        .init(color: .black, location: edge + 0.07),
                         .init(color: .black, location: 1)
-                    ], startPoint: .topLeading, endPoint: UnitPoint(x: 1, y: 0.29))
+                    ], startPoint: .topLeading,
+                       endPoint: UnitPoint(x: 1, y: contentHeight * 0.24 / max(1, height)))
                 }
                 .mask {
                     LinearGradient(stops: [
                         .init(color: .black, location: 0),
-                        .init(color: .black, location: 0.89),
-                        .init(color: .black.opacity(0.82), location: 0.96),
-                        .init(color: .black.opacity(0.66), location: 1)
-                    ], startPoint: .leading, endPoint: .trailing)
-                }
-                .mask {
-                    LinearGradient(stops: [
-                        .init(color: .clear, location: 0),
-                        .init(color: .black.opacity(0.48), location: 0.025),
-                        .init(color: .black, location: 0.055),
-                        .init(color: .black, location: 0.80),
-                        .init(color: .black.opacity(0.43), location: 0.91),
+                        .init(color: .black, location: 0.83),
+                        .init(color: .black.opacity(0.12), location: 0.96),
                         .init(color: .clear, location: 1)
                     ], startPoint: .top, endPoint: .bottom)
                 }
@@ -437,8 +427,9 @@ private enum HomeArtworkProcessor {
                     }
                 }
             }
+        } else if treatment == .moonlit {
+            gradeMoonlitPainting(&bytes, width: w, height: h)
         } else {
-            let moon = treatment == .moonlit
             var lightField = ArtworkLightField(width: w, height: h)
             for i in stride(from: 0, to: bytes.count, by: 4) {
                 let a = Float(bytes[i + 3]) / 255
@@ -451,46 +442,13 @@ private enum HomeArtworkProcessor {
                 let l = r * 0.2126 + g * 0.7152 + b * 0.0722
                 let highlight = smooth(0.63, 0.95, l)
                 let warm = smooth(0.06, 0.24, r - b)
-                // Grade the illustrated foreground separately from distant
-                // foliage, using the same source coordinates as Android.
-                let pixel = i / 4
-                let sx = Float(pixel % w) / Float(max(1, w - 1))
-                let sy = Float(pixel / w) / Float(max(1, h - 1))
-                let paper = smooth(0.48, 0.60, sy)
-                    * (1 - smooth(0.81, 0.95, sy))
-                    * smooth(0.35, 0.48, sx)
-                    * (1 - smooth(0.83, 0.96, sx))
-                let canopy = (1 - smooth(0.44, 0.60, sy)) * (1 - smooth(0.48, 0.61, sx))
-                let outerFoliage = smooth(0.80, 0.97, sx)
-                let localExposure: Float = moon
-                    ? (0.14 * paper - 0.10 * canopy - 0.06 * outerFoliage) * (1 - highlight)
-                    : 0
-                let baseGain: Float = moon ? 0.76 : 0.85
-                let highlightGain: Float = moon ? 0.22 : 0.13
-                let warmReduction: Float = moon ? 0.045 : 0.02
-                let gradedGain = min(1, max(0, baseGain + highlightGain * highlight
-                    - warmReduction * warm * (1 - highlight) + localExposure))
+                let gain = min(1, max(0, 0.85 + 0.13 * highlight - 0.02 * warm * (1 - highlight)))
                 let sat = 0.80 + 0.18 * highlight
                 let shadow = 1 - smooth(0.09, 0.35, l)
-                let moonDx = (sx - 0.54) / 0.105
-                let moonDy = (sy - 0.17) / 0.14
-                let moonRegion = exp(-(moonDx * moonDx + moonDy * moonDy))
-                let windowRegion = smooth(0.51, 0.58, sx) * (1 - smooth(0.87, 0.94, sx))
-                    * smooth(0.23, 0.35, sy) * (1 - smooth(0.51, 0.60, sy))
-                let foreground = smooth(0.49, 0.61, sy) * (1 - smooth(0.85, 0.96, sy))
-                    * smooth(0.32, 0.43, sx) * (1 - smooth(0.85, 0.95, sx))
-                let stackX = smooth(0.19, 0.30, sx) * (1 - smooth(0.43, 0.53, sx))
-                let stackY = smooth(0.59, 0.68, sy) * (1 - smooth(0.84, 0.96, sy))
-                let stack = stackX * stackY
-                let keep = min(1, max(0, moonRegion + windowRegion + foreground + 0.62 * stack))
-                let gain = moon ? min(1, gradedGain * (0.72 + 0.28 * keep)
-                    + 0.07 * stack * (1 - highlight)) : gradedGain
-                let emitRegion: Float = moon ? min(1, max(0, moonRegion + windowRegion)) : 0.42
-                let emission = a * smooth(0.45, 0.83, l) * smooth(0.05, 0.22, r - b) * emitRegion
+                let emission = a * smooth(0.45, 0.83, l) * smooth(0.05, 0.22, r - b) * 0.42
+                let pixel = i / 4
                 lightField.add(x: pixel % w, y: pixel / w, value: emission)
-                let baseAlpha = a * (0.58 + 0.42 * smooth(0.035, 0.24, l))
-                let dissolved = baseAlpha * (0.69 + 0.31 * smooth(0.16, 0.55, l)) * (0.68 + 0.32 * keep)
-                let alpha = moon ? max(dissolved, baseAlpha * keep * 0.94) : baseAlpha
+                let alpha = a * (0.58 + 0.42 * smooth(0.035, 0.24, l))
                 let rr = (l + (r - l) * sat) * gain * (1 - 0.10 * shadow)
                 let gg = (l + (g - l) * sat) * gain
                 let bb = (l + (b - l) * sat) * gain + 0.012 * shadow
@@ -670,5 +628,92 @@ private struct ArtworkLightField {
             }
         }
         return result
+    }
+}
+
+
+/// Matched to the source-specific Compose recipe. Preserve original colors
+/// in the uploaded file; this only affects the dark Home presentation.
+private func gradeMoonlitPainting(_ bytes: inout [UInt8], width w: Int, height h: Int) {
+    var distance = [Int32](repeating: 32767, count: w * h)
+    for i in distance.indices where bytes[i * 4 + 3] <= 25 { distance[i] = 0 }
+    for y in 0..<h {
+        for x in 0..<w {
+            let i = y * w + x
+            var d = distance[i]
+            if x > 0 { d = min(d, distance[i - 1] + 3) }
+            if y > 0 {
+                d = min(d, distance[i - w] + 3)
+                if x > 0 { d = min(d, distance[i - w - 1] + 4) }
+                if x + 1 < w { d = min(d, distance[i - w + 1] + 4) }
+            }
+            distance[i] = d
+        }
+    }
+    for y in stride(from: h - 1, through: 0, by: -1) {
+        for x in stride(from: w - 1, through: 0, by: -1) {
+            let i = y * w + x
+            var d = distance[i]
+            if x + 1 < w { d = min(d, distance[i + 1] + 3) }
+            if y + 1 < h {
+                d = min(d, distance[i + w] + 3)
+                if x > 0 { d = min(d, distance[i + w - 1] + 4) }
+                if x + 1 < w { d = min(d, distance[i + w + 1] + 4) }
+            }
+            distance[i] = d
+        }
+    }
+    let scale = 3 * Float(min(w, h))
+    func s(_ lo: Float, _ hi: Float, _ v: Float) -> Float {
+        let t = min(1, max(0, (v - lo) / (hi - lo)))
+        return t * t * (3 - 2 * t)
+    }
+    func g(_ x: Float, _ y: Float, _ cx: Float, _ cy: Float, _ rx: Float, _ ry: Float) -> Float {
+        let dx = (x - cx) / rx
+        let dy = (y - cy) / ry
+        return exp(-1.2 * (dx * dx + dy * dy))
+    }
+    func byte(_ v: Float) -> UInt8 { UInt8(min(255, max(0, (v * 255).rounded()))) }
+    for pixel in distance.indices {
+        let i = pixel * 4
+        let a = Float(bytes[i + 3]) / 255
+        if a == 0 { continue }
+        let r = min(1, Float(bytes[i]) / 255 / a)
+        let green = min(1, Float(bytes[i + 1]) / 255 / a)
+        let b = min(1, Float(bytes[i + 2]) / 255 / a)
+        let l = 0.2126 * r + 0.7152 * green + 0.0722 * b
+        let x = Float(pixel % w) / Float(max(1, w - 1))
+        let y = Float(pixel / w) / Float(max(1, h - 1))
+        let paperX = s(0.37, 0.48, x) * (1 - s(0.80, 0.88, x))
+        let paperY = s(0.50, 0.57, y) * (1 - s(0.82, 0.90, y))
+        let paper = paperX * paperY
+        let crescent = g(x, y, 0.539, 0.17, 0.055, 0.075)
+        let roof = g(x, y, 0.70, 0.31, 0.20, 0.14)
+        let windowX = s(0.51, 0.57, x) * (1 - s(0.86, 0.93, x))
+        let windowY = s(0.29, 0.37, y) * (1 - s(0.50, 0.55, y))
+        let windows = windowX * windowY
+        let stack = g(x, y, 0.34, 0.72, 0.17, 0.18)
+        let lantern = g(x, y, 0.35, 0.43, 0.045, 0.067)
+        let emission = s(0.52, 0.86, l) * s(0.10, 0.32, r - b) * max(crescent, max(windows, lantern))
+        let gainA: Float = 0.51 + 0.25 * paper + 0.10 * stack
+        let gainB: Float = 0.06 * roof + 0.06 * windows + 0.27 * crescent + 0.28 * emission
+        let gain = gainA + gainB
+        let sat: Float = 0.72 - 0.29 * paper + 0.24 * emission
+        let outerX = s(0.13, 0.28, x) * (1 - s(0.86, 0.98, x))
+        let outerY = s(0.02, 0.10, y) * (1 - s(0.88, 1, y))
+        let edge: Float = 0.45 + 0.55 * s(0, 0.035, Float(distance[pixel]) / scale)
+        let subject = max(max(paper * 0.96, crescent * 0.95), max(windows * 0.92, stack * 0.85))
+        let shadowAlpha = (0.35 + 0.65 * s(0.035, 0.26, l)) * edge
+        let pen = g(x, y, 0.73, 0.85, 0.13, 0.038)
+        let car = g(x, y, 0.48, 0.50, 0.065, 0.035)
+        let alpha = a * max(shadowAlpha, subject) * outerX * outerY * (1 - 0.65 * pen) * (1 - 0.70 * car)
+        let rr = (l + (r - l) * sat) * gain * (1 - 0.05 * (1 - paper))
+        let gg = (l + (green - l) * sat) * gain
+        let bb = (l + (b - l) * sat) * gain + 0.009 * (1 - s(0.08, 0.40, l))
+        // Clamp straight components before premultiplication.
+        bytes[i] = byte(min(1, max(0, rr)) * alpha)
+        bytes[i + 1] = byte(min(1, max(0, gg)) * alpha)
+        bytes[i + 2] = byte(min(1, max(0, bb)) * alpha)
+        bytes[i + 3] = byte(alpha)
     }
 }

@@ -237,7 +237,7 @@ fun HomeNightScene(
         val header = headerInset.toPx().coerceIn(0f, size.height)
         val contentHeight = (size.height - header).coerceAtLeast(1f)
         val stretch = if (largeText) 1f else 1.04f
-        val artWidth = minOf(size.width * (if (largeText) 0.96f else 0.98f),
+        val artWidth = minOf(size.width * (if (largeText) 0.96f else 0.95f),
             contentHeight * aspect / stretch * 1.08f)
         val artHeight = artWidth / aspect * stretch
         val artX = maxOf(size.width * 0.63f - artWidth * 0.54f,
@@ -253,38 +253,26 @@ fun HomeNightScene(
             }
         }
 
-        // Diagonal reading shadow: protect the text at the upper left,
-        // allow the stacked books to emerge farther left at the bottom.
-        val edge = if (largeText) 0.69f else if (size.width < 360.dp.toPx()) 0.52f else 0.49f
+        // The source-space grade already dissolves the painted edges.
+        // Use only a reading-column shadow and a short bottom fade here.
+        val edge = if (largeText) 0.67f else 0.47f
         drawRect(
             brush = Brush.linearGradient(
                 0f to Color.Transparent,
-                (edge - 0.19f) to Color.Transparent,
-                (edge - 0.10f) to Color.Black.copy(alpha = 0.24f),
-                (edge - 0.02f) to Color.Black.copy(alpha = 0.64f),
-                (edge + 0.09f) to Color.Black,
+                (edge - 0.18f) to Color.Transparent,
+                (edge - 0.08f) to Color.Black.copy(alpha = 0.40f),
+                (edge + 0.07f) to Color.Black,
                 1f to Color.Black,
                 start = Offset.Zero,
-                end = Offset(size.width, size.height * 0.29f),
-            ),
-            blendMode = BlendMode.DstIn,
-        )
-        drawRect(
-            brush = Brush.horizontalGradient(
-                0f to Color.Black,
-                0.89f to Color.Black,
-                0.96f to Color.Black.copy(alpha = 0.82f),
-                1f to Color.Black.copy(alpha = 0.66f),
+                end = Offset(size.width, contentHeight * 0.24f),
             ),
             blendMode = BlendMode.DstIn,
         )
         drawRect(
             brush = Brush.verticalGradient(
-                0f to Color.Transparent,
-                0.025f to Color.Black.copy(alpha = 0.48f),
-                0.055f to Color.Black,
-                0.80f to Color.Black,
-                0.91f to Color.Black.copy(alpha = 0.43f),
+                0f to Color.Black,
+                0.83f to Color.Black,
+                0.96f to Color.Black.copy(alpha = 0.12f),
                 1f to Color.Transparent,
             ),
             blendMode = BlendMode.DstIn,
@@ -404,6 +392,10 @@ private fun prepareArtwork(
     val pixels = IntArray(w * h)
     bitmap.getPixels(pixels, 0, w, 0, 0, w, h)
     val moon = treatment == ArtworkTreatment.MOONLIT
+    if (moon) {
+        gradeMoonlitPainting(pixels, w, h)
+        return Bitmap.createBitmap(pixels, w, h, Bitmap.Config.ARGB_8888).asImageBitmap()
+    }
     val lightField = ArtworkLightField(w, h)
     for (i in pixels.indices) {
         val p = pixels[i]
@@ -413,63 +405,17 @@ private fun prepareArtwork(
         val g = ((p ushr 8) and 255) / 255f
         val b = (p and 255) / 255f
         val l = r * 0.2126f + g * 0.7152f + b * 0.0722f
+        // The Word of the Day is a separate landscape, not a cottage.
+        // Do not apply hero-specific spatial corrections to this painting.
         val highlight = smoothArtworkStep(0.63f, 0.95f, l)
         val warm = smoothArtworkStep(0.06f, 0.24f, r - b)
-        // Source-space exposure: the open pages catch more light than the
-        // surrounding canopy. The distant moon and window highlights stay
-        // luminous; outer foliage recedes into the shared night ink.
-        val sx = (i % w).toFloat() / maxOf(1, w - 1)
-        val sy = (i / w).toFloat() / maxOf(1, h - 1)
-        val paper = smoothArtworkStep(0.48f, 0.60f, sy) *
-            (1f - smoothArtworkStep(0.81f, 0.95f, sy)) *
-            smoothArtworkStep(0.35f, 0.48f, sx) *
-            (1f - smoothArtworkStep(0.83f, 0.96f, sx))
-        val canopy = (1f - smoothArtworkStep(0.44f, 0.60f, sy)) *
-            (1f - smoothArtworkStep(0.48f, 0.61f, sx))
-        val outerFoliage = smoothArtworkStep(0.80f, 0.97f, sx)
-        val localExposure = if (moon) (0.14f * paper - 0.10f * canopy -
-            0.06f * outerFoliage) * (1f - highlight) else 0f
-        val baseGain = ((if (moon) 0.76f else 0.85f) +
-            (if (moon) 0.22f else 0.13f) * highlight -
-            (if (moon) 0.045f else 0.02f) * warm * (1f - highlight) +
-            localExposure).coerceIn(0f, 1f)
+        val gain = (0.85f + 0.13f * highlight - 0.02f * warm * (1f - highlight)).coerceIn(0f, 1f)
         val saturation = 0.80f + 0.18f * highlight
         val shadow = 1f - smoothArtworkStep(0.09f, 0.35f, l)
-        // Keep the actual crescent, windows, and open pages luminous.
-        // The isolated outer foliage and bright petals are less important
-        // than the reading foreground; dissolve them into the night field.
-        val moonDx = (sx - 0.54f) / 0.105f
-        val moonDy = (sy - 0.17f) / 0.14f
-        val moonRegion = exp(-(moonDx * moonDx + moonDy * moonDy))
-        val windowRegion = smoothArtworkStep(0.51f, 0.58f, sx) *
-            (1f - smoothArtworkStep(0.87f, 0.94f, sx)) *
-            smoothArtworkStep(0.23f, 0.35f, sy) *
-            (1f - smoothArtworkStep(0.51f, 0.60f, sy))
-        val foreground = smoothArtworkStep(0.49f, 0.61f, sy) *
-            (1f - smoothArtworkStep(0.85f, 0.96f, sy)) *
-            smoothArtworkStep(0.32f, 0.43f, sx) *
-            (1f - smoothArtworkStep(0.85f, 0.95f, sx))
-        // Reveal the stacked books under the left-hand text without
-        // brightening the distant tree or making a new artificial light.
-        val stack = smoothArtworkStep(0.19f, 0.30f, sx) *
-            (1f - smoothArtworkStep(0.43f, 0.53f, sx)) *
-            smoothArtworkStep(0.59f, 0.68f, sy) *
-            (1f - smoothArtworkStep(0.84f, 0.96f, sy))
-        val keep = (moonRegion + windowRegion + foreground + 0.62f * stack).coerceIn(0f, 1f)
-        val gain = if (moon) (baseGain * (0.72f + 0.28f * keep) +
-            0.07f * stack * (1f - highlight)).coerceAtMost(1f) else baseGain
-        // Extract emission from the ORIGINAL warm highlights, not from
-        // the newly graded bitmap. The paper is excluded from hero emission.
-        val emitRegion = if (moon) (moonRegion + windowRegion).coerceIn(0f, 1f) else 0.42f
         val emission = (a / 255f) * smoothArtworkStep(0.45f, 0.83f, l) *
-            smoothArtworkStep(0.05f, 0.22f, r - b) * emitRegion
+            smoothArtworkStep(0.05f, 0.22f, r - b) * 0.42f
         lightField.add(i % w, i / w, emission)
-        val baseAlpha = a * (0.58f + 0.42f * smoothArtworkStep(0.035f, 0.24f, l))
-        val alpha = if (moon) maxOf(
-            baseAlpha * (0.69f + 0.31f * smoothArtworkStep(0.16f, 0.55f, l)) *
-                (0.68f + 0.32f * keep),
-            baseAlpha * keep * 0.94f,
-        ) else baseAlpha
+        val alpha = a * (0.58f + 0.42f * smoothArtworkStep(0.035f, 0.24f, l))
         val rr = (l + (r - l) * saturation) * gain * (1f - 0.10f * shadow)
         val gg = (l + (g - l) * saturation) * gain
         val bb = (l + (b - l) * saturation) * gain + 0.012f * shadow
@@ -621,5 +567,83 @@ private class ArtworkLightField(private val width: Int, private val height: Int)
             result[y * columns + x] = sum / 5f
         }
         return result
+    }
+}
+
+
+// Source-specific art direction measured on the original 1536x1024 vignette.
+// Work in straight RGB; retain the original artwork and never alter the light
+// theme. Darken the decorative peripheral subjects, not the reading page.
+private fun gradeMoonlitPainting(pixels: IntArray, w: Int, h: Int) {
+    val distance = IntArray(pixels.size) { if ((pixels[it] ushr 24) <= 25) 0 else 32767 }
+    // Chamfer distance to the actual painted edge, not the PNG rectangle.
+    // Orthogonal cost 3, diagonal cost 4 approximates Euclidean distance.
+    for (y in 0 until h) for (x in 0 until w) {
+        val i = y * w + x
+        var d = distance[i]
+        if (x > 0) d = minOf(d, distance[i - 1] + 3)
+        if (y > 0) {
+            d = minOf(d, distance[i - w] + 3)
+            if (x > 0) d = minOf(d, distance[i - w - 1] + 4)
+            if (x + 1 < w) d = minOf(d, distance[i - w + 1] + 4)
+        }
+        distance[i] = d
+    }
+    for (y in h - 1 downTo 0) for (x in w - 1 downTo 0) {
+        val i = y * w + x
+        var d = distance[i]
+        if (x + 1 < w) d = minOf(d, distance[i + 1] + 3)
+        if (y + 1 < h) {
+            d = minOf(d, distance[i + w] + 3)
+            if (x > 0) d = minOf(d, distance[i + w - 1] + 4)
+            if (x + 1 < w) d = minOf(d, distance[i + w + 1] + 4)
+        }
+        distance[i] = d
+    }
+    val scale = 3f * minOf(w, h)
+    fun s(lo: Float, hi: Float, v: Float) = smoothArtworkStep(lo, hi, v)
+    fun g(x: Float, y: Float, cx: Float, cy: Float, rx: Float, ry: Float): Float {
+        val dx = (x - cx) / rx
+        val dy = (y - cy) / ry
+        return exp(-1.2f * (dx * dx + dy * dy))
+    }
+    fun channel(v: Float) = (v * 255f).roundToInt().coerceIn(0, 255)
+    for (i in pixels.indices) {
+        val p = pixels[i]
+        val a = (p ushr 24) / 255f
+        if (a == 0f) continue
+        val r = ((p ushr 16) and 255) / 255f
+        val green = ((p ushr 8) and 255) / 255f
+        val b = (p and 255) / 255f
+        val l = 0.2126f * r + 0.7152f * green + 0.0722f * b
+        val x = (i % w).toFloat() / maxOf(1, w - 1)
+        val y = (i / w).toFloat() / maxOf(1, h - 1)
+        val paper = s(0.37f, 0.48f, x) * (1f - s(0.80f, 0.88f, x)) *
+            s(0.50f, 0.57f, y) * (1f - s(0.82f, 0.90f, y))
+        val crescent = g(x, y, 0.539f, 0.17f, 0.055f, 0.075f)
+        val roof = g(x, y, 0.70f, 0.31f, 0.20f, 0.14f)
+        val windows = s(0.51f, 0.57f, x) * (1f - s(0.86f, 0.93f, x)) *
+            s(0.29f, 0.37f, y) * (1f - s(0.50f, 0.55f, y))
+        val stack = g(x, y, 0.34f, 0.72f, 0.17f, 0.18f)
+        val lantern = g(x, y, 0.35f, 0.43f, 0.045f, 0.067f)
+        val emission = s(0.52f, 0.86f, l) * s(0.10f, 0.32f, r - b) *
+            maxOf(crescent, windows, lantern)
+        val gain = 0.51f + 0.25f * paper + 0.10f * stack + 0.06f * roof +
+            0.06f * windows + 0.27f * crescent + 0.28f * emission
+        val sat = 0.72f - 0.29f * paper + 0.24f * emission
+        val outer = s(0.13f, 0.28f, x) * (1f - s(0.86f, 0.98f, x)) *
+            s(0.02f, 0.10f, y) * (1f - s(0.88f, 1f, y))
+        val edge = 0.45f + 0.55f * s(0f, 0.035f, distance[i] / scale)
+        val subject = maxOf(paper * 0.96f, crescent * 0.95f, windows * 0.92f, stack * 0.85f)
+        val shadowAlpha = (0.35f + 0.65f * s(0.035f, 0.26f, l)) * edge
+        val pen = g(x, y, 0.73f, 0.85f, 0.13f, 0.038f)
+        val car = g(x, y, 0.48f, 0.50f, 0.065f, 0.035f)
+        val alpha = a * maxOf(shadowAlpha, subject) * outer *
+            (1f - 0.65f * pen) * (1f - 0.70f * car)
+        val rr = (l + (r - l) * sat) * gain * (1f - 0.05f * (1f - paper))
+        val gg = (l + (green - l) * sat) * gain
+        val bb = (l + (b - l) * sat) * gain + 0.009f * (1f - s(0.08f, 0.40f, l))
+        pixels[i] = (channel(alpha) shl 24) or (channel(rr) shl 16) or
+            (channel(gg) shl 8) or channel(bb)
     }
 }
