@@ -286,9 +286,7 @@ private fun WordOfDayNightScene(modifier: Modifier, accessible: Boolean) {
     val artwork = rememberPreparedArtwork(R.drawable.wotd_home_dark, ArtworkTreatment.DAILY_LANDSCAPE)
     Canvas(modifier.graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }) {
         if (size.width <= 0f || size.height <= 0f) return@Canvas
-        val intrinsic = artwork.intrinsicSize
-        val aspect = if (intrinsic.width > 0 && intrinsic.height > 0)
-            intrinsic.width / intrinsic.height else 1.5f
+        val aspect = safeArtworkAspect(artwork)
         val width = maxOf(size.width * 0.72f, size.height * aspect)
         val height = width / aspect
         clipRect {

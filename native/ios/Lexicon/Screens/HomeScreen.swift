@@ -79,7 +79,7 @@ struct HomeScreen: View {
                             .padding(.horizontal, scheme == .dark ? 18 : 16)
                         }
                     }
-                    .frame(height: dynamicTypeSize.isAccessibilitySize ? 230 : (scheme == .dark ? 110 : 145))
+                    .frame(height: dynamicTypeSize.isAccessibilitySize ? 230 : (scheme == .dark ? 124 : 145))
                 }
 
                 // From the Library (with horizontal hairline divider)

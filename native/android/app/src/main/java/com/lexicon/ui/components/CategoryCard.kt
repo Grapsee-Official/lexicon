@@ -1,7 +1,5 @@
 package com.lexicon.ui.components
 
-import android.os.Build
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,11 +20,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -72,7 +68,7 @@ fun CategoryCard(
 
     Column(
         modifier = modifier
-            .heightIn(min = if (largeText) 190.dp else if (isDark) 104.dp else 130.dp)
+            .heightIn(min = if (largeText) 190.dp else if (isDark) 112.dp else 130.dp)
             .clip(shape)
             .background(
                 if (isDark) Brush.verticalGradient(
@@ -81,13 +77,13 @@ fun CategoryCard(
             )
             .border(1.dp, border, shape)
             .clickable(role = Role.Button) { viewModel.setActiveTab(TabKey.DICTIONARY) }
-            .padding(horizontal = if (isDark) 5.dp else 7.dp, vertical = if (isDark && !largeText) 6.dp else 8.dp),
+            .padding(horizontal = if (largeText) 7.dp else 3.dp, vertical = if (isDark && !largeText) 4.dp else 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top,
     ) {
         if (resId != 0) {
             val painting = rememberPreparedArtwork(resId, ArtworkTreatment.BOOKPLATE)
-            val artHeight = if (largeText) 88.dp else if (isDark) 62.dp else 65.dp
+            val artHeight = if (largeText) 100.dp else 74.dp
             Box(Modifier.fillMaxWidth().height(artHeight), contentAlignment = Alignment.Center) {
                 if (isDark) {
                     // A broad, very low-contrast wash seats the motif in the
@@ -102,19 +98,6 @@ fun CategoryCard(
                         }
                     }
                 }
-                if (isDark && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    // A subdued underpainting made from this very bookplate,
-                    // not a generic golden halo. The visible painting remains
-                    // identical in both themes; only its surrounding ink changes.
-                    Image(
-                        painter = painting,
-                        contentDescription = null,
-                        modifier = Modifier.matchParentSize()
-                            .blur(12.dp)
-                            .graphicsLayer { alpha = 0.13f },
-                        contentScale = ContentScale.Fit,
-                    )
-                }
                 Image(
                     painter = painting,
                     contentDescription = null,
@@ -124,7 +107,7 @@ fun CategoryCard(
                 )
             }
         } else {
-            Spacer(Modifier.height(if (largeText) 88.dp else if (isDark) 62.dp else 65.dp))
+            Spacer(Modifier.height(if (largeText) 100.dp else 74.dp))
         }
         Spacer(Modifier.height(if (isDark && !largeText) 0.dp else 5.dp))
         Column(

@@ -26,10 +26,10 @@ struct CategoryCard: View {
                 // Keep the foreground illustration identical in both themes.
                 // Its own softened pigments give the dark card a subtle
                 // underpainting rather than a rectangular thumbnail surround.
-                PreparedArtworkImage(name: artName, treatment: .bookplate, underpainting: isDark)
+                PreparedArtworkImage(name: artName, treatment: .bookplate)
                     .scaledToFit()
                     .frame(maxWidth: .infinity)
-                    .frame(height: largeText ? 88 : (isDark ? 62 : 65))
+                    .frame(height: largeText ? 100 : 74)
                     .background {
                         if isDark {
                             GeometryReader { g in
@@ -59,10 +59,10 @@ struct CategoryCard: View {
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity)
             }
-            .padding(.horizontal, isDark ? 5 : 7)
-            .padding(.vertical, isDark && !largeText ? 6 : 8)
+            .padding(.horizontal, largeText ? 7 : 3)
+            .padding(.vertical, isDark && !largeText ? 4 : 8)
             .frame(maxWidth: .infinity)
-            .frame(minHeight: largeText ? 190 : (isDark ? 104 : 130), alignment: .top)
+            .frame(minHeight: largeText ? 190 : (isDark ? 112 : 130), alignment: .top)
             .background {
                 if isDark {
                     LinearGradient(stops: [

@@ -38,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -61,6 +62,8 @@ import com.lexicon.ui.theme.LexiconTextStyles
 import com.lexicon.ui.theme.OldWoodGold
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlin.math.roundToInt
 import kotlin.math.exp
 
@@ -233,9 +236,7 @@ fun HomeNightScene(
     val painting = rememberPreparedArtwork(R.drawable.hero_dark, ArtworkTreatment.MOONLIT)
     Canvas(modifier.graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }) {
         if (size.width <= 0f || size.height <= 0f) return@Canvas
-        val intrinsic = painting.intrinsicSize
-        val aspect = if (intrinsic.width > 0f && intrinsic.height > 0f)
-            intrinsic.width / intrinsic.height else 1.5f
+        val aspect = safeArtworkAspect(painting)
         val header = headerInset.toPx().coerceIn(0f, size.height)
         val contentHeight = (size.height - header).coerceAtLeast(1f)
         val measured = measuredHeroHeight.toPx()
@@ -306,31 +307,62 @@ private val preparedArtworkCache = object : LruCache<String, ImageBitmap>(24 * 1
         value.width * value.height * 4
 }
 
+// Size.Unspecified is not a zero size: reading its components throws.
+// Both Canvas scenes can be drawn before their asynchronous bitmap arrives.
+internal fun safeArtworkAspect(painter: Painter): Float {
+    val intrinsic = painter.intrinsicSize
+    if (intrinsic == Size.Unspecified) return 1.5f
+    val width = intrinsic.width
+    val height = intrinsic.height
+    return if (width.isFinite() && height.isFinite() && width > 0f && height > 0f)
+        width / height else 1.5f
+}
+
+private val artworkPreparationLock = Mutex()
+
 @Composable
 internal fun rememberPreparedArtwork(resId: Int, treatment: ArtworkTreatment): Painter {
     val resources = LocalContext.current.resources
-    val key = "$resId:$treatment"
-    val prepared by produceState(
-        initialValue = PreparedArtworkState(preparedArtworkCache.get(key), false),
-        key,
-    ) {
-        val bitmap = withContext(Dispatchers.Default) {
-            preparedArtworkCache.get(key) ?: prepareArtwork(resources, resId, treatment)
-                ?.also { preparedArtworkCache.put(key, it) }
+    val cacheKey = "$resId:$treatment"
+    return key(cacheKey) {
+        val prepared by produceState<ImageBitmap?>(preparedArtworkCache.get(cacheKey), cacheKey) {
+            value = withContext(Dispatchers.Default) {
+                artworkPreparationLock.withLock {
+                    preparedArtworkCache.get(cacheKey) ?:
+                        (prepareArtwork(resources, resId, treatment)
+                            ?: runCatching { decodeBoundedArtwork(resources, resId, 512)?.asImageBitmap() }.getOrNull())
+                            ?.also { preparedArtworkCache.put(cacheKey, it) }
+                }
+            }
         }
-        value = PreparedArtworkState(bitmap, true)
-    }
-    val image = prepared.bitmap
-    return when {
-        image != null -> remember(image) { BitmapPainter(image) }
-        prepared.finished -> painterResource(resId)
-        // A transparent placeholder exposes the intended ink while decoding.
-        // Never flash the ungraded, full-resolution image on a cold start.
-        else -> remember { ColorPainter(Color.Transparent) }
+        val image = prepared
+        if (image != null) remember(image) { BitmapPainter(image) }
+        else remember { ColorPainter(Color.Transparent) }
     }
 }
 
-private data class PreparedArtworkState(val bitmap: ImageBitmap?, val finished: Boolean)
+// Sample at decode time, not after allocating the entire original PNG.
+private fun decodeBoundedArtwork(resources: Resources, resId: Int, limit: Int): Bitmap? {
+    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    BitmapFactory.decodeResource(resources, resId, bounds)
+    val longest = maxOf(bounds.outWidth, bounds.outHeight)
+    if (longest <= 0) return null
+    var sample = 1
+    while (longest / sample > limit * 2 && sample < 128) sample *= 2
+    val decoded = BitmapFactory.decodeResource(resources, resId, BitmapFactory.Options().apply {
+        inSampleSize = sample
+        inScaled = false
+        inPreferredConfig = Bitmap.Config.ARGB_8888
+    }) ?: return null
+    val actual = maxOf(decoded.width, decoded.height)
+    if (actual <= limit) return decoded
+    val scale = limit.toDouble() / actual
+    val resized = Bitmap.createScaledBitmap(decoded,
+        (decoded.width * scale).roundToInt().coerceAtLeast(1),
+        (decoded.height * scale).roundToInt().coerceAtLeast(1), true)
+    if (resized !== decoded) decoded.recycle()
+    return resized
+}
 
 private fun smoothArtworkStep(lo: Float, hi: Float, value: Float): Float {
     val t = ((value - lo) / (hi - lo)).coerceIn(0f, 1f)
@@ -340,11 +372,13 @@ private fun smoothArtworkStep(lo: Float, hi: Float, value: Float): Float {
 private fun prepareArtwork(
     resources: Resources, resId: Int, treatment: ArtworkTreatment,
 ): ImageBitmap? = runCatching {
-    val source = BitmapFactory.decodeResource(resources, resId, BitmapFactory.Options().apply {
-        inScaled = false
-        inPreferredConfig = Bitmap.Config.ARGB_8888
-    }) ?: return null
-    var bitmap = source
+    val decodeLimit = when (treatment) {
+        ArtworkTreatment.MOONLIT -> 1536
+        ArtworkTreatment.DAILY_LANDSCAPE -> 1024
+        ArtworkTreatment.STORY -> 512
+        ArtworkTreatment.BOOKPLATE -> 1024
+    }
+    var bitmap = decodeBoundedArtwork(resources, resId, decodeLimit) ?: return null
     if (treatment == ArtworkTreatment.BOOKPLATE) {
         // Bound working memory before examining the transparent perimeter.
         val longest = maxOf(bitmap.width, bitmap.height)
@@ -368,18 +402,13 @@ private fun prepareArtwork(
         var right = -1
         var bottom = -1
         var transparent = 0L
-        var mass = 0.0
-        var weightedX = 0.0
-        var weightedY = 0.0
         for (y in 0 until h) {
             for (x in 0 until w) {
                 val alpha = pixels[y * w + x] ushr 24
                 if (alpha < 12) transparent++
-                if (alpha >= 4) {
-                    val weight = alpha / 255.0
-                    mass += weight
-                    weightedX += (x + 0.5) * weight
-                    weightedY += (y + 0.5) * weight
+                // Ignore near-invisible alpha noise when finding the motif.
+                // The safety margin below retains the surrounding brush fringe.
+                if (alpha >= 16) {
                     left = minOf(left, x)
                     top = minOf(top, y)
                     right = maxOf(right, x)
@@ -387,19 +416,15 @@ private fun prepareArtwork(
                 }
             }
         }
-        if (right >= left && bottom >= top && mass > 0 && transparent > w.toLong() * h / 8) {
-            val paintedArea = (right - left + 1).toDouble() * (bottom - top + 1)
-            val coverage = (mass / paintedArea).coerceIn(0.0, 1.0)
-            val pad = (maxOf(right - left + 1, bottom - top + 1) * 0.035f).roundToInt()
+        if (right >= left && bottom >= top && transparent > w.toLong() * h / 8) {
+            // Preserve the motif's real aspect ratio. A second square canvas
+            // made every narrow/tall painting look like a tiny icon.
+            val pad = (maxOf(right - left + 1, bottom - top + 1) * 0.025f).roundToInt()
             left = (left - pad).coerceAtLeast(0)
             top = (top - pad).coerceAtLeast(0)
             right = (right + pad).coerceAtMost(w - 1)
             bottom = (bottom + pad).coerceAtMost(h - 1)
             bitmap = Bitmap.createBitmap(bitmap, left, top, right - left + 1, bottom - top + 1)
-            return opticalBookplate(
-                bitmap, coverage,
-                weightedX / mass - left, weightedY / mass - top,
-            ).asImageBitmap()
         }
     }
     val limit = if (treatment == ArtworkTreatment.BOOKPLATE) 640 else 1536
@@ -721,31 +746,6 @@ private fun gradeMoonlitPainting(pixels: IntArray, w: Int, h: Int) {
             (channel(gg) shl 8) or channel(bb)
     }
     atmosphere.compositeBehind(pixels)
-}
-
-
-/** Center the painted mass, not the arbitrary PNG rectangle. Sparse motifs
- * get a little more space than dense globes or books. Never crop the subject;
- * the optical shift is bounded by a transparent safety margin. */
-private fun opticalBookplate(
-    source: Bitmap, coverage: Double, centerX: Double, centerY: Double,
-): Bitmap {
-    val side = 640
-    val fill = (0.98 - 0.10 * coverage).coerceIn(0.88, 0.98)
-    val scale = side * fill / maxOf(source.width, source.height)
-    val w = source.width * scale
-    val h = source.height * scale
-    val minMargin = side * 0.01
-    val opticalX = (w / 2 - centerX * scale).coerceIn(-side * 0.035, side * 0.035)
-    val opticalY = (h / 2 - centerY * scale).coerceIn(-side * 0.035, side * 0.035)
-    val x = ((side - w) / 2 + opticalX).coerceIn(minMargin, side - w - minMargin)
-    val y = ((side - h) / 2 + opticalY).coerceIn(minMargin, side - h - minMargin)
-    val result = Bitmap.createBitmap(side, side, Bitmap.Config.ARGB_8888)
-    val canvas = android.graphics.Canvas(result)
-    val paint = android.graphics.Paint(android.graphics.Paint.FILTER_BITMAP_FLAG or android.graphics.Paint.ANTI_ALIAS_FLAG)
-    canvas.drawBitmap(source, null,
-        android.graphics.RectF(x.toFloat(), y.toFloat(), (x + w).toFloat(), (y + h).toFloat()), paint)
-    return result
 }
 
 
