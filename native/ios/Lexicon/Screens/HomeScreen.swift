@@ -37,7 +37,8 @@ struct HomeScreen: View {
                                 }
                             }
                         }
-                    TrendingTagRow(tags: LexiconData.trendingTags, sceneIntegrated: scheme == .dark)
+                    TrendingTagRow(tags: LexiconData.trendingTags, sceneIntegrated: scheme == .dark,
+                                   referencePageWidth: scheme == .dark ? pageWidth : nil)
                         .padding(.horizontal, pageInset)
                 }
                 .background {

@@ -6,6 +6,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -24,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -47,6 +53,7 @@ fun TrendingTagRow(
     tags: List<TrendingTag> = LexiconData.trendingTags,
     modifier: Modifier = Modifier,
     sceneIntegrated: Boolean = false,
+    referencePageWidth: Dp? = null,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
@@ -61,48 +68,76 @@ fun TrendingTagRow(
     val gridTint = if (integrated) Color(0xFFD0AD75) else if (isDark) DarkAccent else DeepForest.copy(alpha = 0.68f)
 
     val scrollState = rememberScrollState()
-    Row(
-        modifier = modifier.horizontalScroll(scrollState),
-        horizontalArrangement = Arrangement.spacedBy(if (compact) 6.dp else 9.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        tags.forEach { tag ->
+    val reference = referencePageWidth?.takeIf { integrated }
+    val gap = if (reference != null) (reference * (9f / 591f)).coerceIn(5.dp, 10.dp)
+        else if (compact) 6.dp else 9.dp
+    val gridWidth = if (reference != null) (reference * (50f / 591f)).coerceIn(32.dp, 54.dp)
+        else 34.dp
+    val chipHeight = if (reference != null) (reference * (40f / 591f)).coerceIn(26.dp, 44.dp)
+        else 34.dp
+    val sizes = mapOf("Ephemeral" to 105f, "Serendipity" to 106f, "Limerence" to 102f, "Ethereal" to 92f)
+    val fontScale = LocalConfiguration.current.fontScale
+    val fixedReference = reference != null && fontScale <= 1.1f && tags.all { sizes.containsKey(it.label) }
+    val available = if (reference != null) (reference * (492f / 591f))
+        .coerceAtLeast(0.dp) else null
+    val tagFont = reference?.value?.let { (it * 13f / 591f).coerceIn(9.5f, 13f) }
+
+    BoxWithConstraints(modifier.fillMaxWidth()) {
+        val rowWidth = if (available != null && fixedReference) minOf(maxWidth, available) else maxWidth
+        Row(
+            modifier = Modifier.width(rowWidth),
+            horizontalArrangement = Arrangement.spacedBy(gap),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Row(
+                modifier = Modifier.weight(1f).horizontalScroll(scrollState),
+                horizontalArrangement = Arrangement.spacedBy(gap),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                tags.forEach { tag ->
+                    val nominalWidth = if (fixedReference && reference != null)
+                        reference * ((sizes[tag.label] ?: 100f) / 591f) else 0.dp
+                    Box(
+                        modifier = Modifier
+                            .widthIn(min = nominalWidth)
+                            .heightIn(min = chipHeight)
+                            .clip(CircleShape)
+                            .background(chipBg)
+                            .border(1.dp, chipBorder, CircleShape)
+                            .clickable(role = Role.Button) {
+                                LexiconData.getWordById(tag.wordId)?.let { viewModel.openWord(it) }
+                            }
+                            .padding(horizontal = if (compact) 5.dp else 12.dp, vertical = if (compact) 3.dp else 8.5.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = tag.label,
+                            color = chipText,
+                            style = if (compact) LexiconTextStyles.TagChip.copy(
+                                fontSize = (tagFont ?: 10.5f).sp, lineHeight = ((tagFont ?: 10.5f) * 1.3f).sp)
+                                else LexiconTextStyles.TagChip,
+                            maxLines = 1,
+                        )
+                    }
+                }
+            }
             Box(
                 modifier = Modifier
-                    .clip(CircleShape)
+                    .size(width = gridWidth, height = if (fontScale >= 1.5f) maxOf(chipHeight, 44.dp) else chipHeight)
+                    .clip(RoundedCornerShape(10.dp))
                     .background(chipBg)
-                    .border(1.dp, chipBorder, CircleShape)
-                    .clickable(role = Role.Button) {
-                        LexiconData.getWordById(tag.wordId)?.let { viewModel.openWord(it) }
-                    }
-                    .padding(horizontal = if (compact) 7.dp else 12.dp, vertical = if (compact) 5.dp else 8.5.dp),
+                    .border(1.dp, chipBorder, RoundedCornerShape(10.dp))
+                    .iconButton(AccessibilityAudit.Descriptions.Grid)
+                    .clickable(role = Role.Button) { viewModel.setActiveTab(TabKey.DICTIONARY) },
                 contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text = tag.label,
-                    color = chipText,
-                    style = if (compact) LexiconTextStyles.TagChip.copy(fontSize = 10.5.sp, lineHeight = 14.sp)
-                        else LexiconTextStyles.TagChip,
+                Icon(
+                    imageVector = Icons.Outlined.GridView,
+                    contentDescription = null,
+                    tint = gridTint,
+                    modifier = Modifier.size(16.dp),
                 )
             }
-        }
-
-        Box(
-            modifier = Modifier
-                .size(width = if (compact) 30.dp else 34.dp, height = if (compact) 28.dp else 34.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(chipBg)
-                .border(1.dp, chipBorder, RoundedCornerShape(10.dp))
-                .iconButton(AccessibilityAudit.Descriptions.Grid)
-                .clickable(role = Role.Button) { viewModel.setActiveTab(TabKey.DICTIONARY) },
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.GridView,
-                contentDescription = null,
-                tint = gridTint,
-                modifier = Modifier.size(16.dp),
-            )
         }
     }
 }

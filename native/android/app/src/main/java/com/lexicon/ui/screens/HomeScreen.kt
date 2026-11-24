@@ -212,6 +212,7 @@ private fun HomeFeed(
                         viewModel = viewModel,
                         modifier = Modifier.padding(horizontal = pageInset),
                         sceneIntegrated = state.isDark,
+                        referencePageWidth = if (state.isDark) pageWidth else null,
                     )
                 }
             }
