@@ -10,6 +10,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -132,8 +134,8 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
     val bg = if (isDark) DarkBackground else WarmCream
-    val cardBg = if (isDark) DarkCard else CardSurface
-    val border = if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.11f)
+    val cardBg = if (isDark) DarkCard else Color(0xFFFFF2DF).copy(alpha = .72f)
+    val border = if (isDark) DarkChipBorder else OldWoodGold.copy(alpha = .28f)
     val fg = if (isDark) DarkForeground else DeepForest
     val muted = if (isDark) DarkMutedForeground else WarmGrey
     val accent = if (isDark) DarkAccent else OldWoodGold
@@ -405,8 +407,8 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
     val bg = if (isDark) DarkBackground else WarmCream
-    val cardBg = if (isDark) DarkCard else CardSurface
-    val border = if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.11f)
+    val cardBg = if (isDark) DarkCard else Color(0xFFFFF2DF).copy(alpha = .72f)
+    val border = if (isDark) DarkChipBorder else OldWoodGold.copy(alpha = .28f)
     val fg = if (isDark) DarkForeground else DeepForest
     val muted = if (isDark) DarkMutedForeground else WarmGrey
     val accent = if (isDark) DarkAccent else OldWoodGold
@@ -666,7 +668,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
             CountrysideQuoteBanner(
                 quote = "A well-written note is a small step towards wisdom.",
                 attribution = "Lexora",
-                illustrationBase = "ill_banner_bridge",
+                illustrationBase = "ill_banner_church",
                 isDark = isDark,
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
@@ -726,8 +728,8 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
     val bg = if (isDark) DarkBackground else WarmCream
-    val cardBg = if (isDark) DarkCard else CardSurface
-    val border = if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.11f)
+    val cardBg = if (isDark) DarkCard else Color(0xFFFFF2DF).copy(alpha = .72f)
+    val border = if (isDark) DarkChipBorder else OldWoodGold.copy(alpha = .28f)
     val fg = if (isDark) DarkForeground else DeepForest
     val muted = if (isDark) DarkMutedForeground else WarmGrey
     val accent = if (isDark) DarkAccent else OldWoodGold
@@ -782,27 +784,26 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                 Triple(Icons.Outlined.BarChart, "$overallPct%", "Overall Progress"),
                 Triple(Icons.Outlined.StarOutline, "${state.dayStreak}", "Day Streak"),
             )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(7.dp),
-            ) {
-                stats.forEach { (ic, num, label) ->
-                    Column(
-                        modifier = Modifier
-                            .width(106.dp)
-                            .clip(RoundedCornerShape(14.dp))
-                            .background(cardBg)
-                            .border(1.dp, border, RoundedCornerShape(14.dp))
-                            .padding(vertical = 10.dp, horizontal = 4.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(3.dp),
-                    ) {
-                        Icon(ic, contentDescription = null, tint = if (isDark) DarkAccent else BrandGreen, modifier = Modifier.size(17.dp))
-                        Text(num, color = fg, style = TextStyle(fontFamily = BodyFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 14.sp))
-                        Text(label, color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 10.5.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+            val fontScale = androidx.compose.ui.platform.LocalConfiguration.current.fontScale
+            BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+                val columns = if (fontScale >= 1.4f || maxWidth < 270.dp) 2 else 4
+                Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                    stats.chunked(columns).forEach { group ->
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                            group.forEach { (ic, num, label) ->
+                                Column(Modifier.weight(1f).heightIn(min = 65.dp)
+                                    .clip(RoundedCornerShape(14.dp)).background(cardBg)
+                                    .border(1.dp, border, RoundedCornerShape(14.dp))
+                                    .padding(vertical = 9.dp, horizontal = 3.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(3.dp, Alignment.CenterVertically)) {
+                                    Icon(ic, null, tint = if (isDark) DarkAccent else BrandGreen, modifier = Modifier.size(18.dp))
+                                    Text(num, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 15.sp))
+                                    Text(label, color = muted, textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                        style = TextStyle(fontFamily = BodyFontFamily, fontSize = 9.5.sp))
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1113,8 +1114,8 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
     val bg = if (isDark) DarkBackground else WarmCream
-    val cardBg = if (isDark) DarkCard else CardSurface
-    val border = if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.11f)
+    val cardBg = if (isDark) DarkCard else Color(0xFFFFF2DF).copy(alpha = .72f)
+    val border = if (isDark) DarkChipBorder else OldWoodGold.copy(alpha = .28f)
     val fg = if (isDark) DarkForeground else DeepForest
     val muted = if (isDark) DarkMutedForeground else WarmGrey
     val accent = if (isDark) DarkAccent else OldWoodGold
@@ -1351,7 +1352,7 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
             CountrysideQuoteBanner(
                 quote = "Better words. A brighter mind.",
                 attribution = "Lexora",
-                illustrationBase = "ill_banner_bridge",
+                illustrationBase = "ill_banner_church",
                 isDark = isDark,
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
@@ -1459,8 +1460,8 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
     val bg = if (isDark) DarkBackground else WarmCream
-    val cardBg = if (isDark) DarkCard else CardSurface
-    val border = if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.11f)
+    val cardBg = if (isDark) DarkCard else Color(0xFFFFF2DF).copy(alpha = .72f)
+    val border = if (isDark) DarkChipBorder else OldWoodGold.copy(alpha = .28f)
     val fg = if (isDark) DarkForeground else DeepForest
     val muted = if (isDark) DarkMutedForeground else WarmGrey
 
@@ -1679,28 +1680,28 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
                     QuadFilterSpec(Icons.Outlined.BarChart, "Difficulty", state.filterDifficulty, "difficulty"),
                     QuadFilterSpec(Icons.Outlined.StarOutline, "Sort By", state.filterSort, "sort"),
                 )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState())
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(7.dp),
-                ) {
-                    filters.forEach { f ->
-                        Column(
-                            modifier = Modifier
-                                .width(112.dp)
-                                .clip(RoundedCornerShape(13.dp))
-                                .background(cardBg)
-                                .border(1.dp, border, RoundedCornerShape(13.dp))
-                                .clickable(role = Role.Button) { viewModel.cycleSearchFilter(f.key) }
-                                .padding(vertical = 9.dp, horizontal = 4.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(3.dp),
-                        ) {
-                            Icon(f.icon, contentDescription = null, tint = if (isDark) DarkAccent else BrandGreen, modifier = Modifier.size(16.dp))
-                            Text(f.title, color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 10.5.sp), maxLines = 1)
-                            Text("${f.value} ⌄", color = fg, style = TextStyle(fontFamily = BodyFontFamily, fontWeight = FontWeight.Medium, fontSize = 10.5.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                val fontScale = androidx.compose.ui.platform.LocalConfiguration.current.fontScale
+                BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+                    val columns = if (fontScale >= 1.4f || maxWidth < 270.dp) 2 else 4
+                    Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                        filters.chunked(columns).forEach { group ->
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                                group.forEach { f ->
+                                    Column(Modifier.weight(1f).heightIn(min = 65.dp)
+                                        .clip(RoundedCornerShape(13.dp)).background(cardBg)
+                                        .border(1.dp, border, RoundedCornerShape(13.dp))
+                                        .clickable(role = Role.Button) { viewModel.cycleSearchFilter(f.key) }
+                                        .padding(vertical = 8.dp, horizontal = 3.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.spacedBy(3.dp, Alignment.CenterVertically)) {
+                                        Icon(f.icon, null, tint = if (isDark) DarkAccent else BrandGreen, modifier = Modifier.size(17.dp))
+                                        Text(f.title, color = muted, textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                            style = TextStyle(fontFamily = BodyFontFamily, fontSize = 9.5.sp))
+                                        Text("${f.value} ⌄", color = fg, textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                            style = TextStyle(fontFamily = BodyFontFamily, fontSize = 9.5.sp))
+                                    }
+                                }
+                            }
                         }
                     }
                 }

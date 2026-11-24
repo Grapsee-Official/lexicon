@@ -33,8 +33,8 @@ fun DictionaryHomeScreen(viewModel: LexiconViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val dark = state.isDark
     val bg = if (dark) DarkBackground else WarmCream
-    val card = if (dark) DarkCard else CardSurface
-    val border = if (dark) DarkChipBorder else DeepForest.copy(alpha = 0.11f)
+    val card = if (dark) DarkCard else Color(0xFFFFF2DF).copy(alpha = .72f)
+    val border = if (dark) DarkChipBorder else OldWoodGold.copy(alpha = .28f)
     val fg = if (dark) DarkForeground else DeepForest
     val muted = if (dark) DarkMutedForeground else WarmGrey
     val highlight = if (dark) DarkAccent else BrandGreen
@@ -161,22 +161,27 @@ fun DictionaryHomeScreen(viewModel: LexiconViewModel) {
                     .border(1.dp, border, RoundedCornerShape(18.dp)).padding(12.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                Text("✧  Quick Access", color = fg,
-                    style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 17.sp))
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Icon(Icons.Outlined.Lightbulb, null, tint = highlight, modifier = Modifier.size(19.dp))
+                    Text("Quick Access", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 17.sp))
+                }
                 Text("Jump to useful tools and features.", color = muted,
                     style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.sp))
-                Row(
-                    Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
+                val fontScale = androidx.compose.ui.platform.LocalConfiguration.current.fontScale
+                val columns = if (fontScale >= 1.4f) 2 else 4
+                val tiles =
                     listOf(
                         Triple("Word of the Day", Icons.AutoMirrored.Outlined.MenuBook, ScreenRoute.WORD_OF_THE_DAY),
                         Triple("Favourite Words", Icons.Outlined.StarOutline, ScreenRoute.COLLECTIONS),
                         Triple("Bookmarks", Icons.Outlined.BookmarkBorder, ScreenRoute.COLLECTIONS),
                         Triple("History", Icons.Outlined.History, ScreenRoute.SEARCH_DISCOVERY),
-                    ).forEach { (title, icon, route) ->
+                    )
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    tiles.chunked(columns).forEach { group ->
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    group.forEach { (title, icon, route) ->
                         Column(
-                            Modifier.width(96.dp).height(88.dp)
+                            Modifier.weight(1f).heightIn(min = 62.dp)
                                 .clip(RoundedCornerShape(14.dp)).background(bg.copy(alpha = 0.55f))
                                 .border(1.dp, border, RoundedCornerShape(14.dp))
                                 .clickable(role = Role.Button) {
@@ -199,6 +204,8 @@ fun DictionaryHomeScreen(viewModel: LexiconViewModel) {
                                     fontSize = 10.sp, lineHeight = 12.sp))
                         }
                     }
+                    }
+                    }
                 }
             }
         }
@@ -212,12 +219,13 @@ fun DictionaryHomeScreen(viewModel: LexiconViewModel) {
             ) {
                 val paintingWidth = maxWidth.coerceAtMost(640.dp)
                 Image(
-                    painter = painterResource(resolveCountrysideDrawable("ill_banner_bridge", dark)),
+                    painter = painterResource(resolveCountrysideDrawable("ill_banner_church", dark)),
                     contentDescription = null,
-                    contentScale = ContentScale.Fit,
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .width(paintingWidth)
-                        .aspectRatio(420f / 182f)
+                        .aspectRatio(758f / 132f)
+                        .clip(RoundedCornerShape(15.dp))
                         .background(card)
                         .border(1.dp, border, RoundedCornerShape(15.dp)),
                 )

@@ -5,6 +5,7 @@ struct DictionaryHomeScreen: View {
     @EnvironmentObject private var vm: LexiconViewModel
     @EnvironmentObject private var theme: LexiconThemeState
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var draft = ""
     private var isDark: Bool { scheme == .dark }
 
@@ -110,17 +111,15 @@ struct DictionaryHomeScreen: View {
                 }
 
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("✧  Quick Access").font(.lexiconDisplay(17))
+                    Label("Quick Access", systemImage: "lightbulb").font(.lexiconDisplay(17))
                         .foregroundStyle(p.foreground)
                     Text("Jump to useful tools and features.")
                         .font(.lexiconBody(11)).foregroundStyle(p.mutedForeground)
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            quickAccess("Word of the Day", icon: "book", route: .wordOfTheDay, p: p)
-                            quickAccess("Favourite Words", icon: "star", route: .collections, p: p)
-                            quickAccess("Bookmarks", icon: "bookmark", route: .collections, p: p)
-                            quickAccess("History", icon: "clock.arrow.circlepath", route: .searchDiscovery, p: p)
-                        }
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 7), count: dynamicTypeSize.isAccessibilitySize ? 2 : 4), spacing: 7) {
+                        quickAccess("Word of the Day", icon: "book", route: .wordOfTheDay, p: p)
+                        quickAccess("Favourite Words", icon: "star", route: .collections, p: p)
+                        quickAccess("Bookmarks", icon: "bookmark", route: .collections, p: p)
+                        quickAccess("History", icon: "clock.arrow.circlepath", route: .searchDiscovery, p: p)
                     }
                 }
                 .padding(12)
@@ -134,9 +133,10 @@ struct DictionaryHomeScreen: View {
                 // Preserve the entire original panorama, with the intrinsic
                 // 420:182 aspect rather than cropping it into a 76pt strip.
                 // On iPad it becomes a centred, generously sized bookplate.
-                Image(countrysideImageName("ill-banner-bridge", isDark: isDark))
+                Image(countrysideImageName("ill-banner-church", isDark: isDark))
                     .resizable()
-                    .scaledToFit()
+                    .aspectRatio(758.0 / 132.0, contentMode: .fill)
+                    .clipped()
                     .frame(maxWidth: 640)
                     .background(p.card)
                     .overlay(RoundedRectangle(cornerRadius: 15)
@@ -163,7 +163,7 @@ struct DictionaryHomeScreen: View {
                     .foregroundStyle(p.foreground)
                     .multilineTextAlignment(.center).lineLimit(2)
             }
-            .frame(width: 96, height: 88)
+            .frame(maxWidth: .infinity, minHeight: 62)
             .background(p.background.opacity(0.55))
             .clipShape(RoundedRectangle(cornerRadius: 14))
             .overlay(RoundedRectangle(cornerRadius: 14).stroke(p.border, lineWidth: 1))

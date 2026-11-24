@@ -407,7 +407,7 @@ struct MyNotesScreen: View {
                 CountrysideQuoteBanner(
                     quote: "A well-written note is a small step towards wisdom.",
                     attribution: "Lexora",
-                    illustrationBase: "ill-banner-bridge"
+                    illustrationBase: "ill-banner-church"
                 )
                 .padding(.horizontal, 16)
             }
@@ -490,15 +490,12 @@ struct StudyListsScreen: View {
                 .padding(.horizontal, 16)
 
                 // 4 Stat Cards
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 7) {
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 7), count: dynamicTypeSize.isAccessibilitySize ? 2 : 4), spacing: 7) {
                     statTile("book", "\(vm.studyLists.count)", "Active Lists", p: p)
                     statTile("checkmark.circle", "\(totalWords)", "Total Words", p: p)
                     statTile("chart.bar", "\(overallPct)%", "Overall Progress", p: p)
                     statTile("star", "\(vm.dayStreak)", "Day Streak", p: p)
-                }
-                    .padding(.horizontal, 16)
-                }
+                }.padding(.horizontal, 16)
 
                 // Today's Study Card
                 VStack(spacing: 10) {
@@ -785,8 +782,8 @@ struct StudyListsScreen: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
         }
-        .frame(width: 106)
-        .padding(.vertical, 10)
+        .frame(maxWidth: .infinity, minHeight: 65)
+        .padding(.vertical, 3)
         .background(p.card)
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(p.border, lineWidth: 1))
@@ -969,7 +966,7 @@ struct QuickTemplatesScreen: View {
                 CountrysideQuoteBanner(
                     quote: "Better words. A brighter mind.",
                     attribution: "Lexora",
-                    illustrationBase: "ill-banner-bridge"
+                    illustrationBase: "ill-banner-church"
                 )
                 .padding(.horizontal, 16)
             }
@@ -1047,6 +1044,7 @@ struct SearchDiscoveryScreen: View {
     @EnvironmentObject private var vm: LexiconViewModel
     @EnvironmentObject private var theme: LexiconThemeState
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     @State private var draft: String = ""
 
@@ -1216,15 +1214,12 @@ struct SearchDiscoveryScreen: View {
                 // 4 Search Filters
                 VStack(spacing: 8) {
                     BotanicalSectionTitle(title: "Search Filters", actionLabel: nil)
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 7) {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 7), count: dynamicTypeSize.isAccessibilitySize ? 2 : 4), spacing: 7) {
                         filterTile("globe", "Language", vm.filterLanguage, key: "language", p: p)
                         filterTile("book", "Part of Speech", vm.filterPos, key: "pos", p: p)
                         filterTile("chart.bar", "Difficulty", vm.filterDifficulty, key: "difficulty", p: p)
                         filterTile("star", "Sort By", vm.filterSort, key: "sort", p: p)
-                    }
-                        .padding(.horizontal, 16)
-                    }
+                    }.padding(.horizontal, 16)
                 }
 
                 CountrysideQuoteBanner(
@@ -1249,16 +1244,14 @@ struct SearchDiscoveryScreen: View {
                 Text(title)
                     .font(.lexiconBody(10.5))
                     .foregroundStyle(p.mutedForeground)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                    .multilineTextAlignment(.center)
                 Text("\(value) ⌄")
                     .font(.lexiconBody(10.5, weight: .medium))
                     .foregroundStyle(p.foreground)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.75)
+                    .multilineTextAlignment(.center)
             }
-            .frame(width: 112)
-            .padding(.vertical, 9)
+            .frame(maxWidth: .infinity, minHeight: 65)
+            .padding(.vertical, 3)
             .background(p.card)
             .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 13, style: .continuous).stroke(p.border, lineWidth: 1))
