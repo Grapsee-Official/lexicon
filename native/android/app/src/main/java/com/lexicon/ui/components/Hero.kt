@@ -4,7 +4,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.BlendMode
@@ -71,7 +70,12 @@ fun Hero(
         compact -> if (isDark) 250.dp else 290.dp
         else -> if (isDark) 242.dp else 278.dp
     }
-    val textWidth = if (largeText) 0.70f else if (isDark) 0.51f else if (compact) 0.60f else 0.52f
+    val textWidth = when {
+        isDark && largeText -> 0.70f
+        isDark -> 0.51f
+        compact || largeText -> 0.60f
+        else -> 0.52f
+    }
     val headlineStyle = when {
         expanded -> LexiconTextStyles.HeroHeadline.copy(fontSize = 36.sp, lineHeight = 42.sp)
         isDark && !largeText -> LexiconTextStyles.HeroHeadline.copy(fontSize = if (compact) 24.sp else 25.sp, lineHeight = 29.sp)
