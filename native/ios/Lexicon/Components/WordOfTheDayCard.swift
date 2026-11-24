@@ -35,7 +35,7 @@ struct WordOfTheDayCard: View {
     }
 
     private var labelGold: Color {
-        isDark ? LexiconColors.accentDark : LexiconColors.wotdGoldLight
+        isDark ? Color(hex: "D0AD75") : LexiconColors.wotdGoldLight
     }
 
     private var wordColor: Color {
@@ -51,7 +51,7 @@ struct WordOfTheDayCard: View {
     }
 
     private var exploreColor: Color {
-        isDark ? LexiconColors.accentDark : LexiconColors.primary
+        isDark ? Color(hex: "D0AD75") : LexiconColors.primary
     }
 
     var body: some View {
@@ -62,6 +62,8 @@ struct WordOfTheDayCard: View {
                 let compact = totalW < (isDark ? 328 : 360)
                 let leftW = totalW * 0.39
                 let rightW = totalW - leftW - 1
+                let editorial = isDark && !dynamicTypeSize.isAccessibilitySize
+                let shortDefinition = editorial && (word.definitions.first ?? "").count <= 72
 
                 HStack(spacing: 0) {
                     VStack(alignment: .leading, spacing: 0) {
@@ -105,18 +107,18 @@ struct WordOfTheDayCard: View {
 
                         VStack(alignment: .leading, spacing: 2) {
                             Text(word.phonetic)
-                                .font(.lexiconBody(10.5))
+                                .font(.lexiconBody(editorial ? 9.5 : 10.5))
                                 .foregroundStyle(phoneticColor)
                                 .lineLimit(1)
 
                             Text(word.partOfSpeech.displayValue)
-                                .font(.lexiconBody(11))
+                                .font(.lexiconBody(editorial ? 10 : 11))
                                 .foregroundStyle(labelGold)
                                 .lineLimit(1)
                         }
                     }
                     .padding(.horizontal, 13)
-                    .padding(.vertical, isDark && !dynamicTypeSize.isAccessibilitySize ? 11 : 14)
+                    .padding(.vertical, 14)
                     .frame(width: leftW, height: height, alignment: .leading)
                     .background(leftBg)
 
@@ -147,26 +149,27 @@ struct WordOfTheDayCard: View {
                             .allowsHitTesting(false)
                         }
 
-                        VStack(alignment: .leading, spacing: 0) {
+                        VStack(alignment: .leading, spacing: shortDefinition ? 10 : 0) {
                             Text(word.definitions.first ?? "")
-                                .font(.lexiconBody(11.5))
+                                .font(.lexiconBody(editorial ? 10.5 : 11.5))
                                 .foregroundStyle(defColor)
-                                .lineSpacing(2.5)
+                                .lineSpacing(editorial ? 1.5 : 2.5)
                                 .lineLimit(4)
-                                .frame(width: isDark ? max(1, rightW * (dynamicTypeSize.isAccessibilitySize ? 0.88 : 0.74) - 17) : rightW * 0.69, alignment: .leading)
+                                .frame(width: isDark ? max(1, rightW * (dynamicTypeSize.isAccessibilitySize ? 0.88 : 0.73) - 17) : rightW * 0.69, alignment: .leading)
 
-                            Spacer(minLength: 4)
+                            if !shortDefinition { Spacer(minLength: 4) }
 
                             HStack(spacing: 4) {
                                 Text("Explore more")
                                 Image(systemName: "arrow.right")
                                     .font(.system(size: 10, weight: .medium))
                             }
-                            .font(.lexiconBody(11, weight: .medium))
+                            .font(.lexiconBody(editorial ? 9.5 : 11, weight: .medium))
                             .foregroundStyle(exploreColor)
                         }
                         .padding(.leading, 13)
-                        .padding(.vertical, isDark && !dynamicTypeSize.isAccessibilitySize ? 11 : 13)
+                        .padding(.vertical, editorial ? 11 : 13)
+                        .frame(maxHeight: .infinity, alignment: shortDefinition ? .center : .top)
                     }
                     .frame(width: rightW, height: height)
                 }
@@ -243,6 +246,11 @@ private struct WordOfDayNightScene: View {
                             .init(color: .black.opacity(0.94), location: 1)
                         ], startPoint: .top, endPoint: .bottom)
                     }
+                RadialGradient(
+                    colors: [Color(hex: "08121A").opacity(0.56), .clear],
+                    center: UnitPoint(x: 0.62, y: 0.40),
+                    startRadius: 0, endRadius: max(1, width * 0.22)
+                )
             }
         }
         .allowsHitTesting(false)

@@ -73,6 +73,8 @@ fun WordOfTheDayCard(
     val compact = config.screenWidthDp < 360
     val accessible = config.fontScale > 1.2f
     val definition = word.definitions.firstOrNull().orEmpty()
+    val editorial = isDark && !accessible
+    val shortDefinition = editorial && definition.length <= 72
     // The reference is a compact editorial spread, not a tall two-panel tile.
     // Give unusually long entries room, while matching the regular card to
     // the reference's proportions at ordinary phone widths.
@@ -89,18 +91,18 @@ fun WordOfTheDayCard(
     val rightBg = if (isDark) Color.Transparent else WotdRightSurface
     val nightInk = Color(0xFF08121A)
     val cardBorder = if (isDark) Color(0xFFB6A486).copy(alpha = 0.17f) else DeepForest.copy(alpha = 0.12f)
-    val labelGold = if (isDark) DarkAccent else WotdGoldLight
+    val labelGold = if (isDark) Color(0xFFD0AD75) else WotdGoldLight
     val wordColor = if (isDark) DarkForeground else Color.White
     val phoneticColor = if (isDark) DarkMutedForeground else Color.White.copy(alpha = 0.78f)
-    val posColor = if (isDark) DarkAccent else WotdGoldLight
+    val posColor = if (isDark) Color(0xFFD0AD75) else WotdGoldLight
     val defColor = if (isDark) DarkForeground.copy(alpha = 0.90f) else DeepForest.copy(alpha = 0.88f)
-    val exploreColor = if (isDark) DarkAccent else BrandGreen
+    val exploreColor = if (isDark) Color(0xFFD0AD75) else BrandGreen
     // Fit ordinary long words beside the speaker icon without splitting them
     // into unnatural fragments on narrow phones (e.g. "Wanderlu" / "st").
     val wordSize = when {
         word.word.length >= 15 -> 12.sp
         word.word.length >= 11 -> if (compact || accessible) 13.sp else 14.sp
-        word.word.length >= 9 -> if (isDark && !accessible) 17.sp else if (compact || accessible) 14.sp else 15.sp
+        word.word.length >= 9 -> if (editorial) 18.sp else if (compact || accessible) 14.sp else 15.sp
         else -> if (compact || accessible) 17.sp else 20.sp
     }
 
@@ -134,7 +136,7 @@ fun WordOfTheDayCard(
                     .weight(0.39f)
                     .fillMaxHeight()
                     .background(leftBg)
-                    .padding(horizontal = 12.dp, vertical = if (isDark && !accessible) 11.dp else 14.dp),
+                    .padding(horizontal = 12.dp, vertical = 14.dp),
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 Row(
@@ -190,14 +192,14 @@ fun WordOfTheDayCard(
                     Text(
                         text = word.phonetic,
                         color = phoneticColor,
-                        style = LexiconTextStyles.WotdPhonetic,
+                        style = if (editorial) LexiconTextStyles.WotdPhonetic.copy(fontSize = 9.5.sp) else LexiconTextStyles.WotdPhonetic,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
                         text = word.partOfSpeech.label(),
                         color = posColor,
-                        style = LexiconTextStyles.WotdPartOfSpeech,
+                        style = if (editorial) LexiconTextStyles.WotdPartOfSpeech.copy(fontSize = 10.sp) else LexiconTextStyles.WotdPartOfSpeech,
                         maxLines = 1,
                     )
                 }
@@ -239,14 +241,16 @@ fun WordOfTheDayCard(
                 Column(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .fillMaxWidth(if (isDark && accessible) 0.88f else if (isDark) 0.74f else 0.69f)
+                        .fillMaxWidth(if (isDark && accessible) 0.88f else if (editorial) 0.73f else 0.69f)
                         .padding(start = 13.dp, top = if (isDark && !accessible) 11.dp else 13.dp, bottom = if (isDark && !accessible) 10.dp else 12.dp, end = 4.dp),
-                    verticalArrangement = Arrangement.SpaceBetween,
+                    verticalArrangement = if (shortDefinition) Arrangement.spacedBy(10.dp, Alignment.CenterVertically)
+                        else Arrangement.SpaceBetween,
                 ) {
                     Text(
                         text = definition,
                         color = defColor,
-                        style = LexiconTextStyles.WotdDefinition,
+                        style = if (editorial) LexiconTextStyles.WotdDefinition.copy(fontSize = 10.5.sp, lineHeight = 14.sp)
+                            else LexiconTextStyles.WotdDefinition,
                         maxLines = 4,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -258,7 +262,8 @@ fun WordOfTheDayCard(
                         Text(
                             text = "Explore more",
                             color = exploreColor,
-                            style = LexiconTextStyles.WotdExploreMore,
+                            style = if (editorial) LexiconTextStyles.WotdExploreMore.copy(fontSize = 9.5.sp)
+                                else LexiconTextStyles.WotdExploreMore,
                         )
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
@@ -314,6 +319,16 @@ private fun WordOfDayNightScene(modifier: Modifier, accessible: Boolean) {
                 1f to Color.Black.copy(alpha = 0.94f),
             ),
             blendMode = BlendMode.DstIn,
+        )
+        // A localized ink veil follows the definition's reading area. This
+        // protects the lettering without dimming the entire right-hand scene.
+        drawRect(
+            brush = Brush.radialGradient(
+                colors = listOf(Color(0xFF08121A).copy(alpha = 0.56f), Color.Transparent),
+                center = Offset(size.width * 0.62f, size.height * 0.40f),
+                radius = size.width * 0.22f,
+            ),
+            blendMode = BlendMode.SrcAtop,
         )
     }
 }
