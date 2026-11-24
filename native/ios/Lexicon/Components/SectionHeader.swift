@@ -10,12 +10,16 @@ struct SectionHeader: View {
     var actionLabel: String = "View all"
     var divider: Bool = false
     var onAction: (() -> Void)? = nil
+    var homeEditorial: Bool = false
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    private var editorial: Bool { scheme == .dark && homeEditorial }
+    private var compactType: Bool { editorial && !dynamicTypeSize.isAccessibilitySize }
 
     var body: some View {
         HStack(spacing: 8) {
             Text(title)
-                .font(.lexiconDisplay(16.5, weight: .regular))
+                .font(.lexiconDisplay(compactType ? 14.5 : 16.5, weight: .regular))
                 .tracking(-0.2)
                 .foregroundStyle(lexiconPalette(scheme).foreground)
                 .lineLimit(1)
@@ -24,7 +28,7 @@ struct SectionHeader: View {
 
             if divider {
                 Rectangle()
-                    .fill(lexiconPalette(scheme).border)
+                    .fill(editorial ? Color(hex: "B6A486").opacity(0.13) : lexiconPalette(scheme).border)
                     .frame(height: 1)
                     .frame(maxWidth: .infinity)
             } else {
@@ -40,8 +44,8 @@ struct SectionHeader: View {
                     Image(systemName: "arrow.right")
                         .font(.system(size: 10, weight: .medium))
                 }
-                .font(.lexiconBody(12, weight: .regular))
-                .foregroundStyle(lexiconPalette(scheme).primary)
+                .font(.lexiconBody(compactType ? 10.5 : 12, weight: .regular))
+                .foregroundStyle(editorial ? Color(hex: "D0AD75") : lexiconPalette(scheme).primary)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -49,6 +53,6 @@ struct SectionHeader: View {
             .accessibilityHint(Text("View all items in this section"))
             .accessibilityAddTraits(.isButton)
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, editorial ? 18 : 16)
     }
 }

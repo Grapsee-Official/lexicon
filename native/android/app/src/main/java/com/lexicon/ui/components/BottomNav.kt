@@ -80,10 +80,10 @@ fun BottomNav(
     val homeNight = isDark && state.route == ScreenRoute.HOME
     val barBg = if (homeNight) Color(0xFF0C151C).copy(alpha = 0.95f)
         else if (isDark) DarkCard.copy(alpha = 0.96f) else CardSurface.copy(alpha = 0.96f)
-    val barBorder = if (homeNight) Color(0xFFB6A486).copy(alpha = 0.16f)
+    val barBorder = if (homeNight) Color(0xFFB6A486).copy(alpha = 0.12f)
         else if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.10f)
-    val activeColor = if (isDark) DarkAccent else BrandGreen
-    val inactiveColor = if (isDark) DarkAccent.copy(alpha = 0.78f) else DeepForest.copy(alpha = 0.88f)
+    val activeColor = if (homeNight) Color(0xFFDDBD87) else if (isDark) DarkAccent else BrandGreen
+    val inactiveColor = if (homeNight) Color(0xFFC6A77A) else if (isDark) DarkAccent.copy(alpha = 0.78f) else DeepForest.copy(alpha = 0.88f)
 
     Box(
         modifier = modifier
@@ -191,8 +191,9 @@ fun BottomNav(
                 .clip(CircleShape)
                 .background(if (homeNight) Color(0xFF0A131B) else if (isDark) Color(0xFF101620) else BrandGreen)
                 .border(
-                    width = if (isDark) 1.5.dp else 3.dp,
-                    color = if (isDark) DarkAccent.copy(alpha = 0.70f) else CardSurface,
+                    width = if (homeNight) 1.dp else if (isDark) 1.5.dp else 3.dp,
+                    color = if (homeNight) Color(0xFFD0AD75).copy(alpha = 0.72f)
+                        else if (isDark) DarkAccent.copy(alpha = 0.70f) else CardSurface,
                     shape = CircleShape,
                 )
                 .iconButton(AccessibilityAudit.Descriptions.SearchFab)
@@ -203,7 +204,7 @@ fun BottomNav(
                 imageVector = Icons.Outlined.Search,
                 contentDescription = null,
                 tint = if (isDark) DarkHighlight else PrimaryForeground,
-                modifier = Modifier.size(24.dp),
+                modifier = Modifier.size(if (homeNight) 21.dp else 24.dp),
             )
         }
     }

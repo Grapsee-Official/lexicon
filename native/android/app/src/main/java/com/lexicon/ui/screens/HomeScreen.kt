@@ -202,7 +202,7 @@ private fun HomeFeed(
             WordOfTheDayCard(
                 word = homeWord,
                 viewModel = viewModel,
-                modifier = Modifier.padding(horizontal = 16.dp),
+                modifier = Modifier.padding(horizontal = if (state.isDark) 18.dp else 16.dp),
             )
         }
 
@@ -214,7 +214,8 @@ private fun HomeFeed(
                     actionLabel = "View all",
                     divider = false,
                     onAction = { viewModel.setActiveTab(TabKey.DICTIONARY) },
-                    modifier = Modifier.padding(horizontal = 16.dp),
+                    modifier = Modifier.padding(horizontal = if (state.isDark) 18.dp else 16.dp),
+                    homeEditorial = true,
                 )
                 androidx.compose.foundation.layout.BoxWithConstraints(Modifier.fillMaxWidth()) {
                     val largeText = LocalConfiguration.current.fontScale > 1.2f
@@ -258,14 +259,15 @@ private fun HomeFeed(
                     actionLabel = "View all articles",
                     divider = true,
                     onAction = { articleToRead = null; libraryOpen = true },
-                    modifier = Modifier.padding(horizontal = 16.dp),
+                    modifier = Modifier.padding(horizontal = if (state.isDark) 18.dp else 16.dp),
+                    homeEditorial = true,
                 )
                 val scrollState = rememberScrollState()
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .horizontalScroll(scrollState)
-                        .padding(horizontal = 16.dp),
+                        .padding(horizontal = if (state.isDark) 18.dp else 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
                     LexiconData.articles.forEach { article ->

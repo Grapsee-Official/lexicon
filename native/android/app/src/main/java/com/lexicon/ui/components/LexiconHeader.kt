@@ -34,6 +34,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
@@ -70,11 +72,12 @@ fun LexiconHeader(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
+    val homeNight = isDark && state.route == ScreenRoute.HOME
     var showDailyLetter by remember { mutableStateOf(false) }
 
-    val iconTint = if (isDark) DarkAccent.copy(alpha = 0.88f) else DeepForest.copy(alpha = 0.72f)
+    val iconTint = if (homeNight) Color(0xFFD0AD75) else if (isDark) DarkAccent.copy(alpha = 0.88f) else DeepForest.copy(alpha = 0.72f)
     val wordmarkColor = if (isDark) DarkForeground else BrandGreen
-    val taglineColor = if (isDark) DarkForeground.copy(alpha = 0.76f) else DeepForest.copy(alpha = 0.70f)
+    val taglineColor = if (homeNight) Color(0xFFC9BDA9) else if (isDark) DarkForeground.copy(alpha = 0.76f) else DeepForest.copy(alpha = 0.70f)
     val dotColor = if (isDark) DarkHighlight else OldWoodGold
     val markRes = if (isDark) R.drawable.lexicon_mark_dark else R.drawable.lexicon_mark
     val avatarRes = if (isDark) R.drawable.avatar_dark else R.drawable.avatar_default
@@ -181,6 +184,8 @@ fun LexiconHeader(
             Image(
                 painter = painterResource(avatarRes),
                 contentDescription = null,
+                colorFilter = if (homeNight) ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0.78f) }) else null,
+                alpha = if (homeNight) 0.87f else 1f,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
             )

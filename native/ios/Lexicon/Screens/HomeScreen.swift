@@ -48,7 +48,7 @@ struct HomeScreen: View {
                 }
 
                 WordOfTheDayCard(word: displayedHomeWord)
-                    .padding(.horizontal, 16)
+                    .padding(.horizontal, scheme == .dark ? 18 : 16)
 
                 // Ten original bookplates in the same canonical order as Android.
                 VStack(spacing: 10) {
@@ -56,7 +56,8 @@ struct HomeScreen: View {
                         title: "Explore by Category",
                         actionLabel: "View all",
                         divider: false,
-                        onAction: { vm.setActiveTab(.dictionary) }
+                        onAction: { vm.setActiveTab(.dictionary) },
+                        homeEditorial: true
                     )
                     GeometryReader { layout in
                         let available = layout.size.width
@@ -87,7 +88,8 @@ struct HomeScreen: View {
                         title: "From the Library",
                         actionLabel: "View all articles",
                         divider: true,
-                        onAction: { vm.openLibrary() }
+                        onAction: { vm.openLibrary() },
+                        homeEditorial: true
                     )
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 10) {
@@ -98,7 +100,7 @@ struct HomeScreen: View {
                                 )
                             }
                         }
-                        .padding(.horizontal, 16)
+                        .padding(.horizontal, scheme == .dark ? 18 : 16)
                     }
                 }
             }

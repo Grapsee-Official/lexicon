@@ -13,11 +13,11 @@ struct BottomNav: View {
     private var homeNight: Bool { isDark && vm.route == .home && !vm.libraryOpen }
 
     private var activeColor: Color {
-        isDark ? LexiconColors.accentDark : LexiconColors.primary
+        homeNight ? Color(hex: "DDBD87") : (isDark ? LexiconColors.accentDark : LexiconColors.primary)
     }
 
     private var inactiveColor: Color {
-        isDark ? LexiconColors.accentDark.opacity(0.78) : LexiconColors.foreground.opacity(0.88)
+        homeNight ? Color(hex: "C6A77A") : (isDark ? LexiconColors.accentDark.opacity(0.78) : LexiconColors.foreground.opacity(0.88))
     }
 
     private var dotColor: Color {
@@ -51,8 +51,8 @@ struct BottomNav: View {
                     .overlay(
                         Circle()
                             .stroke(
-                                isDark ? LexiconColors.accentDark.opacity(0.70) : lexiconPalette(scheme).card,
-                                lineWidth: isDark ? 1.5 : 3
+                                homeNight ? Color(hex: "D0AD75").opacity(0.72) : (isDark ? LexiconColors.accentDark.opacity(0.70) : lexiconPalette(scheme).card),
+                                lineWidth: homeNight ? 1 : (isDark ? 1.5 : 3)
                             )
                     )
             }
@@ -71,7 +71,7 @@ struct BottomNav: View {
         .background {
             Capsule()
                 .fill(homeNight ? Color(hex: "0C151C").opacity(0.95) : lexiconPalette(scheme).card.opacity(0.96))
-                .overlay(Capsule().stroke(homeNight ? Color(hex: "B6A486").opacity(0.16) : lexiconPalette(scheme).border, lineWidth: 1))
+                .overlay(Capsule().stroke(homeNight ? Color(hex: "B6A486").opacity(0.12) : lexiconPalette(scheme).border, lineWidth: 1))
         }
         .shadow(
             color: isDark ? .clear : LexiconColors.foreground.opacity(0.12),

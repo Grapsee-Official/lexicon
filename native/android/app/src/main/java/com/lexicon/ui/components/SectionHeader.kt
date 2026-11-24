@@ -21,6 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import com.lexicon.ui.enforceTouchTarget
 import com.lexicon.ui.sectionHeading
 import com.lexicon.ui.theme.BrandGreen
@@ -38,10 +41,14 @@ fun SectionHeader(
     onAction: () -> Unit = {},
     divider: Boolean = false,
     modifier: Modifier = Modifier,
+    homeEditorial: Boolean = false,
 ) {
     val isDark = MaterialTheme.colorScheme.background == DarkBackground
-    val accent = if (isDark) DarkAccent else BrandGreen
-    val lineColor = if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.12f)
+    val editorial = isDark && homeEditorial
+    val compactType = editorial && LocalConfiguration.current.fontScale <= 1.2f
+    val accent = if (editorial) Color(0xFFD0AD75) else if (isDark) DarkAccent else BrandGreen
+    val lineColor = if (editorial) Color(0xFFB6A486).copy(alpha = 0.13f)
+        else if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.12f)
 
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -51,7 +58,8 @@ fun SectionHeader(
         Text(
             text = title,
             color = MaterialTheme.colorScheme.onBackground,
-            style = LexiconTextStyles.SectionTitle,
+            style = if (compactType) LexiconTextStyles.SectionTitle.copy(fontSize = 14.5.sp, lineHeight = 18.sp)
+                else LexiconTextStyles.SectionTitle,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.sectionHeading(2),
@@ -78,13 +86,14 @@ fun SectionHeader(
             Text(
                 text = actionLabel,
                 color = accent,
-                style = LexiconTextStyles.SectionAction,
+                style = if (compactType) LexiconTextStyles.SectionAction.copy(fontSize = 10.5.sp)
+                    else LexiconTextStyles.SectionAction,
             )
             Icon(
                 imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
                 contentDescription = null,
                 tint = accent,
-                modifier = Modifier.size(13.dp),
+                modifier = Modifier.size(if (editorial) 11.dp else 13.dp),
             )
         }
     }

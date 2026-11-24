@@ -12,9 +12,10 @@ struct LexiconHeader: View {
 
     @State private var showDailyLetter = false
     private var isDark: Bool { scheme == .dark }
+    private var homeNight: Bool { isDark && vm.route == .home && !vm.libraryOpen }
 
     private var iconTint: Color {
-        isDark ? LexiconColors.accentDark.opacity(0.90) : LexiconColors.foreground.opacity(0.72)
+        homeNight ? Color(hex: "D0AD75") : (isDark ? LexiconColors.accentDark.opacity(0.90) : LexiconColors.foreground.opacity(0.72))
     }
 
     private var wordmarkColor: Color {
@@ -22,7 +23,7 @@ struct LexiconHeader: View {
     }
 
     private var taglineColor: Color {
-        isDark ? LexiconColors.foregroundDark.opacity(0.76) : LexiconColors.foreground.opacity(0.70)
+        homeNight ? Color(hex: "C9BDA9") : (isDark ? LexiconColors.foregroundDark.opacity(0.76) : LexiconColors.foreground.opacity(0.70))
     }
 
     private var dotColor: Color {
@@ -89,6 +90,8 @@ struct LexiconHeader: View {
                 Image(isDark ? "avatar-dark" : "avatar-default")
                     .resizable()
                     .scaledToFill()
+                    .saturation(homeNight ? 0.78 : 1)
+                    .opacity(homeNight ? 0.87 : 1)
                     .frame(width: 36, height: 36)
                     .clipShape(Circle())
                     .overlay(
