@@ -411,7 +411,8 @@ private fun prepareArtwork(
     val moon = treatment == ArtworkTreatment.MOONLIT
     if (moon) {
         gradeMoonlitPainting(pixels, w, h)
-        return Bitmap.createBitmap(pixels, w, h, Bitmap.Config.ARGB_8888).asImageBitmap()
+        val composed = reframeMoonlitSubjects(pixels, w, h)
+        return Bitmap.createBitmap(composed, w, h, Bitmap.Config.ARGB_8888).asImageBitmap()
     }
     val lightField = ArtworkLightField(w, h)
     for (i in pixels.indices) {
@@ -794,4 +795,65 @@ private class NightPigmentField(private val width: Int, private val height: Int)
         }
         return output
     }
+}
+
+
+/** A restrained local inverse warp of the original painting. No replacement
+ * subjects: the moon occupies a smaller part of the sky, the house recedes
+ * slightly, and the book moves toward the reference's lower-right focal area.
+ * Smooth quartic falloff avoids seams. Sample premultiplied RGBA so transparent
+ * margins never introduce dark or light fringes. */
+private fun reframeMoonlitSubjects(source: IntArray, w: Int, h: Int): IntArray {
+    val result = IntArray(source.size)
+    val lastX = maxOf(1, w - 1)
+    val lastY = maxOf(1, h - 1)
+    // center x/y, falloff radii, subject scale, displacement x/y
+    val regions = arrayOf(
+        floatArrayOf(0.539f, 0.17f, 0.085f, 0.095f, 0.76f, 0f, 0f),
+        floatArrayOf(0.72f, 0.34f, 0.23f, 0.20f, 0.94f, 0.010f, 0.008f),
+        floatArrayOf(0.62f, 0.70f, 0.26f, 0.19f, 0.98f, 0.025f, 0.010f),
+    )
+    for (y in 0 until h) for (x in 0 until w) {
+        val u = x.toFloat() / lastX
+        val v = y.toFloat() / lastY
+        var du = 0f
+        var dv = 0f
+        for (r in regions) {
+            val nx = (u - r[0]) / r[2]
+            val ny = (v - r[1]) / r[3]
+            val xx = nx * nx
+            val yy = ny * ny
+            val influence = exp(-1.8f * (xx * xx + yy * yy))
+            val inverse = 1f / r[4] - 1f
+            du += influence * ((u - r[0]) * inverse - r[5] / r[4])
+            dv += influence * ((v - r[1]) * inverse - r[6] / r[4])
+        }
+        val sx = (u + du) * lastX
+        val sy = (v + dv) * lastY
+        if (sx < 0f || sy < 0f || sx > w - 1 || sy > h - 1) continue
+        val x0 = sx.toInt()
+        val y0 = sy.toInt()
+        val x1 = minOf(w - 1, x0 + 1)
+        val y1 = minOf(h - 1, y0 + 1)
+        val fx = sx - x0
+        val fy = sy - y0
+        val p0 = source[y0 * w + x0]
+        val p1 = source[y0 * w + x1]
+        val p2 = source[y1 * w + x0]
+        val p3 = source[y1 * w + x1]
+        val a0 = (p0 ushr 24) * (1f - fx) * (1f - fy)
+        val a1 = (p1 ushr 24) * fx * (1f - fy)
+        val a2 = (p2 ushr 24) * (1f - fx) * fy
+        val a3 = (p3 ushr 24) * fx * fy
+        val alpha = a0 + a1 + a2 + a3
+        if (alpha < 0.5f) continue
+        fun color(shift: Int): Int {
+            val value = ((p0 ushr shift) and 255) * a0 + ((p1 ushr shift) and 255) * a1 +
+                ((p2 ushr shift) and 255) * a2 + ((p3 ushr shift) and 255) * a3
+            return (value / alpha).roundToInt().coerceIn(0, 255)
+        }
+        result[y * w + x] = (alpha.roundToInt().coerceIn(0, 255) shl 24) or
+            (color(16) shl 16) or (color(8) shl 8) or color(0)
+    }
+    return result
 }

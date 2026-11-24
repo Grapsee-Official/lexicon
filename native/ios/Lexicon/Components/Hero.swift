@@ -434,6 +434,7 @@ private enum HomeArtworkProcessor {
             }
         } else if treatment == .moonlit {
             gradeMoonlitPainting(&bytes, width: w, height: h)
+            bytes = reframeMoonlitSubjects(bytes, width: w, height: h)
         } else {
             var lightField = ArtworkLightField(width: w, height: h)
             for i in stride(from: 0, to: bytes.count, by: 4) {
@@ -860,4 +861,57 @@ private struct NightPigmentField {
         }
         return output
     }
+}
+
+
+/// Matched inverse warp using the original premultiplied RGBA pixels.
+/// Keep spatial falloff and subject positions identical to Compose.
+private func reframeMoonlitSubjects(_ source: [UInt8], width w: Int, height h: Int) -> [UInt8] {
+    var result = [UInt8](repeating: 0, count: source.count)
+    let lastX = Float(max(1, w - 1))
+    let lastY = Float(max(1, h - 1))
+    let regions: [[Float]] = [
+        [0.539, 0.17, 0.085, 0.095, 0.76, 0, 0],
+        [0.72, 0.34, 0.23, 0.20, 0.94, 0.010, 0.008],
+        [0.62, 0.70, 0.26, 0.19, 0.98, 0.025, 0.010]
+    ]
+    for y in 0..<h {
+        for x in 0..<w {
+            let u = Float(x) / lastX
+            let v = Float(y) / lastY
+            var du: Float = 0
+            var dv: Float = 0
+            for r in regions {
+                let nx = (u - r[0]) / r[2]
+                let ny = (v - r[1]) / r[3]
+                let xx = nx * nx
+                let yy = ny * ny
+                let influence = exp(-1.8 * (xx * xx + yy * yy))
+                let inverse = 1 / r[4] - 1
+                du += influence * ((u - r[0]) * inverse - r[5] / r[4])
+                dv += influence * ((v - r[1]) * inverse - r[6] / r[4])
+            }
+            let sx = (u + du) * lastX
+            let sy = (v + dv) * lastY
+            guard sx >= 0, sy >= 0, sx <= Float(w - 1), sy <= Float(h - 1) else { continue }
+            let x0 = Int(sx), y0 = Int(sy)
+            let x1 = min(w - 1, x0 + 1), y1 = min(h - 1, y0 + 1)
+            let fx = sx - Float(x0), fy = sy - Float(y0)
+            let p0 = (y0 * w + x0) * 4
+            let p1 = (y0 * w + x1) * 4
+            let p2 = (y1 * w + x0) * 4
+            let p3 = (y1 * w + x1) * 4
+            let a = (1 - fx) * (1 - fy)
+            let b = fx * (1 - fy)
+            let c = (1 - fx) * fy
+            let d = fx * fy
+            let out = (y * w + x) * 4
+            for channel in 0..<4 {
+                let top = Float(source[p0 + channel]) * a + Float(source[p1 + channel]) * b
+                let bottom = Float(source[p2 + channel]) * c + Float(source[p3 + channel]) * d
+                result[out + channel] = UInt8(min(255, max(0, (top + bottom).rounded())))
+            }
+        }
+    }
+    return result
 }
