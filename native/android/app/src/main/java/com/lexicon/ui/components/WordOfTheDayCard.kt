@@ -233,7 +233,7 @@ fun WordOfTheDayCard(
             ) {
                 if (!isDark) {
                     Image(
-                        painter = painterResource(R.drawable.wotd_bg_light),
+                        painter = painterResource(resolveCountrysideDrawable("wotd_bg_light", false, "home-daily")),
                         contentDescription = null,
                         modifier = Modifier.align(Alignment.CenterEnd)
                             .fillMaxHeight().fillMaxWidth(0.96f),
@@ -331,7 +331,7 @@ private fun AccessibleDailyWord(
         if (isDark) {
             WordOfDayNightScene(Modifier.fillMaxWidth().height(128.dp), false, fullWidth = true)
         } else {
-            Image(painterResource(R.drawable.wotd_bg_light), null,
+            Image(painterResource(resolveCountrysideDrawable("wotd_bg_light", false, "home-daily")), null,
                 Modifier.fillMaxWidth().height(128.dp), contentScale = ContentScale.Fit,
                 alignment = Alignment.CenterEnd)
         }

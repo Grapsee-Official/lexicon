@@ -66,6 +66,7 @@ fun CategoryCard(
     val ctx = LocalContext.current
     // Future light bookplates have separate names; keep the current art
     // as a fallback until the ten new illustrations are supplied.
+    val boardRes = if (!isDark) ctx.resources.getIdentifier("ref_light_home_" + category.id, "drawable", ctx.packageName) else 0
     val lightRes = if (!isDark) ctx.resources.getIdentifier(
         "${category.illustration}_light", "drawable", ctx.packageName
     ) else 0
@@ -81,7 +82,7 @@ fun CategoryCard(
         "nature" -> R.drawable.ref_home_nature
         "culture_traditions" -> R.drawable.ref_home_culture_traditions
         else -> 0
-    } else if (lightRes != 0) lightRes else
+    } else if (boardRes != 0) boardRes else if (lightRes != 0) lightRes else
         ctx.resources.getIdentifier(category.illustration, "drawable", ctx.packageName)
     // Let the underlying page ink show through the bookplate rather than
     // introducing a second opaque rectangle around the original art.
@@ -111,7 +112,7 @@ fun CategoryCard(
     ) {
         if (resId != 0) {
             // Reference vectors already contain their edge and color treatment.
-            val painting = if (isDark) painterResource(resId)
+            val painting = if (isDark || boardRes != 0) painterResource(resId)
                 else rememberPreparedArtwork(resId, ArtworkTreatment.BOOKPLATE)
             Image(
                 painter = painting,

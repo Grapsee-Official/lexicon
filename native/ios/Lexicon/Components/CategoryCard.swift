@@ -19,6 +19,8 @@ struct CategoryCard: View {
         if isDark {
             return "ref-home-" + category.id.replacingOccurrences(of: "_", with: "-")
         }
+        let board = "ref-light-home-" + category.id.replacingOccurrences(of: "_", with: "-")
+        if UIImage(named: board) != nil { return board }
         let light = category.illustration + "-light"
         return !isDark && UIImage(named: light) != nil ? light : category.illustration
     }
@@ -43,7 +45,7 @@ struct CategoryCard: View {
         } label: {
             VStack(spacing: 0) {
                 Group {
-                    if isDark {
+                    if isDark || artName.hasPrefix("ref-light-") {
                         Image(artName).resizable().renderingMode(.original)
                     } else {
                         PreparedArtworkImage(name: artName, treatment: .bookplate)

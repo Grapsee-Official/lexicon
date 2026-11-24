@@ -4,8 +4,13 @@
 //
 
 import SwiftUI
+import UIKit
 
-func countrysideImageName(_ base: String, isDark: Bool) -> String {
+func countrysideImageName(_ base: String, isDark: Bool, scene: String? = nil) -> String {
+    if !isDark, let scene {
+        let reference = "ref-light-" + scene
+        if UIImage(named: reference) != nil { return reference }
+    }
     let clean = base.replacingOccurrences(of: "_", with: "-")
     return isDark ? "\(clean)-dark" : clean
 }
@@ -17,6 +22,7 @@ struct CountrysideHeroHeader: View {
     let onHistoryClick: () -> Void
     var onLogoToggleTheme: () -> Void = {}
     var heroHeight: CGFloat = 146
+    var onBack: (() -> Void)? = nil
 
     @Environment(\.colorScheme) private var scheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -33,10 +39,17 @@ struct CountrysideHeroHeader: View {
     private var copy: some View {
         VStack(alignment: .leading, spacing: 5) {
             HStack(spacing: 7) {
-                Button(action: onLogoToggleTheme) {
-                    BotanicalSprig(color: isDark ? LexiconColors.accentDark : LexiconColors.highlight)
-                        .frame(width: sprigSize, height: sprigSize)
-                }.buttonStyle(.plain).accessibilityLabel("Switch appearance")
+                if let onBack {
+                    Button(action: onBack) {
+                        Image(systemName: "chevron.left").font(.system(size: 22)).foregroundStyle(ink)
+                            .frame(width: 44, height: 44)
+                    }.buttonStyle(.plain).accessibilityLabel("Back")
+                } else {
+                    Button(action: onLogoToggleTheme) {
+                        BotanicalSprig(color: isDark ? LexiconColors.accentDark : LexiconColors.highlight)
+                            .frame(width: sprigSize, height: sprigSize)
+                    }.buttonStyle(.plain).accessibilityLabel("Switch appearance")
+                }
                 Text(title).font(.lexiconDisplay(titleSize)).tracking(-0.4)
                     .foregroundStyle(ink).fixedSize(horizontal: false, vertical: true)
             }
@@ -53,8 +66,19 @@ struct CountrysideHeroHeader: View {
                 .frame(width: 44, height: 44).contentShape(Rectangle())
         }.buttonStyle(.plain).accessibilityLabel("Search history")
     }
+    private var scene: String? {
+        switch title {
+        case "Notes": return "notes-hero"
+        case "Study List": return "study-hero"
+        case "Quick Templates": return "templates-hero"
+        case "Search": return "search-hero"
+        case "Dictionary\nSearch": return "result-hero"
+        case "Dictionary": return subtitle.isEmpty ? "detail-hero" : "dictionary-hero"
+        default: return nil
+        }
+    }
     private var painting: some View {
-        Image(countrysideImageName(illustrationBase, isDark: isDark))
+        Image(countrysideImageName(illustrationBase, isDark: isDark, scene: scene))
             .resizable().scaledToFit().accessibilityHidden(true).allowsHitTesting(false)
     }
 
@@ -282,6 +306,17 @@ struct CountrysideQuoteBanner: View {
     let quote: String
     var attribution: String = "Lexora"
     var illustrationBase: String = "ill-banner-bridge"
+    private var quoteScene: String? {
+        switch quote {
+        case "A well-written note is a small step towards wisdom.": return "notes-quote"
+        case "Knowledge is a journey, not a destination.": return "study-quote"
+        case "Better words. A brighter mind.": return "templates-quote"
+        case "A word is a doorway to a bigger world.": return "search-quote"
+        case "Words are doors to new worlds.": return "dictionary-books"
+        case "Discover the beauty in every word.": return illustrationBase == "ill-banner-church" ? "detail-quote" : "result-quote"
+        default: return nil
+        }
+    }
 
     @Environment(\.colorScheme) private var scheme
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -301,7 +336,7 @@ struct CountrysideQuoteBanner: View {
 
                 HStack(spacing: 0) {
                     Spacer(minLength: 0)
-                    Image(countrysideImageName(illustrationBase, isDark: isDark))
+                    Image(countrysideImageName(illustrationBase, isDark: isDark, scene: quoteScene))
                         .resizable()
                         .scaledToFit()
                         .frame(width: w, height: bannerHeight, alignment: .bottomTrailing)

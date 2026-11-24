@@ -140,7 +140,7 @@ struct WordOfTheDayCard: View {
                         if !isDark {
                             HStack(spacing: 0) {
                                 Spacer(minLength: 0)
-                                Image("wotd-bg-light")
+                                Image(countrysideImageName("wotd-bg-light", isDark: false, scene: "home-daily"))
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: rightW * 0.96, height: height, alignment: .bottomTrailing)
@@ -249,7 +249,7 @@ struct WordOfTheDayCard: View {
             if isDark {
                 WordOfDayNightScene(largeText: false, fullWidth: true).frame(height: 128)
             } else {
-                Image("wotd-bg-light").resizable().scaledToFit()
+                Image(countrysideImageName("wotd-bg-light", isDark: false, scene: "home-daily")).resizable().scaledToFit()
                     .frame(height: 128).frame(maxWidth: .infinity, alignment: .trailing)
                     .accessibilityHidden(true)
             }

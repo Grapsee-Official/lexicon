@@ -104,7 +104,7 @@ struct Hero: View {
             FloatingSearchBar()
         }
         .background(alignment: .bottomTrailing) {
-            Image("hero-light")
+            Image(countrysideImageName("hero-light", isDark: false, scene: "home-hero"))
                 .resizable().scaledToFit()
                 .frame(height: 180)
                 .accessibilityHidden(true)
@@ -123,7 +123,7 @@ struct Hero: View {
             ZStack(alignment: .topLeading) {
                 HStack(spacing: 0) {
                     Spacer(minLength: 0)
-                    Image("hero-light")
+                    Image(countrysideImageName("hero-light", isDark: false, scene: "home-hero"))
                         .resizable()
                         .scaledToFit()
                         .frame(width: totalWidth * 0.70, height: heroHeight, alignment: .bottomTrailing)

@@ -120,7 +120,7 @@ fun Hero(
                 }
             } else {
                 Image(
-                    painter = painterResource(R.drawable.hero_light),
+                    painter = painterResource(resolveCountrysideDrawable("hero_light", false, "home-hero")),
                     contentDescription = null,
                     contentScale = ContentScale.Fit,
                     alignment = Alignment.BottomEnd,

@@ -30,6 +30,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.Close
@@ -85,8 +86,12 @@ import com.lexicon.ui.theme.SearchPillLight
 import com.lexicon.ui.theme.WarmGrey
 
 @Composable
-fun resolveCountrysideDrawable(baseName: String, isDark: Boolean): Int {
+fun resolveCountrysideDrawable(baseName: String, isDark: Boolean, scene: String? = null): Int {
     val ctx = LocalContext.current
+    if (!isDark && scene != null) {
+        val reference = ctx.resources.getIdentifier("ref_light_" + scene.replace('-', '_'), "drawable", ctx.packageName)
+        if (reference != 0) return reference
+    }
     val target = if (isDark) "${baseName}_dark" else baseName
     return ctx.resources.getIdentifier(target, "drawable", ctx.packageName)
         .takeIf { it != 0 }
@@ -109,11 +114,21 @@ fun CountrysideHeroHeader(
     onHistoryClick: () -> Unit,
     onLogoToggleTheme: () -> Unit = {},
     heroHeight: Dp = 146.dp,
+    onBack: (() -> Unit)? = null,
 ) {
     val titleColor = if (isDark) DarkForeground else Color(0xFF31462F)
     val subColor = if (isDark) DarkForeground.copy(alpha = .88f) else Color(0xFF31462F)
     val sprigColor = if (isDark) DarkAccent else OldWoodGold
-    val resId = resolveCountrysideDrawable(illustrationBase, isDark)
+    val scene = when (title) {
+        "Notes" -> "notes-hero"
+        "Study List" -> "study-hero"
+        "Quick Templates" -> "templates-hero"
+        "Search" -> "search-hero"
+        "Dictionary\nSearch" -> "result-hero"
+        "Dictionary" -> if (subtitle.isBlank()) "detail-hero" else "dictionary-hero"
+        else -> null
+    }
+    val resId = resolveCountrysideDrawable(illustrationBase, isDark, scene)
     val fontScale = androidx.compose.ui.platform.LocalConfiguration.current.fontScale
     androidx.compose.foundation.layout.BoxWithConstraints(
         Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars)
@@ -131,13 +146,19 @@ fun CountrysideHeroHeader(
             Column(copyModifier, verticalArrangement = Arrangement.spacedBy(5.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                    LeafSprig(color = sprigColor, modifier = Modifier.size(sprigSize)
-                        .clickable(role = Role.Button) { onLogoToggleTheme() })
+                    if (onBack != null) {
+                        Box(Modifier.size(44.dp).clickable(role = Role.Button) { onBack() }, contentAlignment = Alignment.Center) {
+                            Icon(Icons.AutoMirrored.Outlined.ArrowBack, "Back", tint = titleColor)
+                        }
+                    } else {
+                        LeafSprig(color = sprigColor, modifier = Modifier.size(sprigSize)
+                            .clickable(role = Role.Button) { onLogoToggleTheme() })
+                    }
                     Text(title, color = titleColor,
                         style = TextStyle(fontFamily = DisplayFontFamily, fontWeight = FontWeight.Normal,
                             fontSize = titleSize.sp, lineHeight = (titleSize * 1.10f).sp, letterSpacing = (-.4).sp))
                 }
-                Text(subtitle, color = subColor,
+                if (subtitle.isNotBlank()) Text(subtitle, color = subColor,
                     style = TextStyle(fontFamily = LongFontFamily, fontSize = subtitleSize.sp,
                         lineHeight = (subtitleSize * 1.34f).sp))
             }
@@ -454,7 +475,16 @@ fun CountrysideQuoteBanner(
     val border = if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.11f)
     val quoteColor = if (isDark) DarkForeground else DeepForest
     val attrColor = if (isDark) DarkAccent else OldWoodGold
-    val resId = resolveCountrysideDrawable(illustrationBase, isDark)
+    val scene = when (quote) {
+        "A well-written note is a small step towards wisdom." -> "notes-quote"
+        "Knowledge is a journey, not a destination." -> "study-quote"
+        "Better words. A brighter mind." -> "templates-quote"
+        "A word is a doorway to a bigger world." -> "search-quote"
+        "Words are doors to new worlds." -> "dictionary-books"
+        "Discover the beauty in every word." -> if (illustrationBase == "ill_banner_church") "detail-quote" else "result-quote"
+        else -> null
+    }
+    val resId = resolveCountrysideDrawable(illustrationBase, isDark, scene)
     val shape = RoundedCornerShape(16.dp)
     val config = androidx.compose.ui.platform.LocalConfiguration.current
     // The 94dp phone banner is too shallow for an 800dp tablet: the
