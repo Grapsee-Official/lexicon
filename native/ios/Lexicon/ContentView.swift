@@ -57,7 +57,9 @@ struct ContentView: View {
                         }
                         .background(alignment: .top) {
                             if isHome && scheme == .dark && homeMasthead.minY < homeHeaderHeight - 1 {
-                                Color(hex: "050F18").ignoresSafeArea(edges: .top)
+                                LinearGradient(colors: [Color(hex: "050F18"), Color(hex: "08111A")],
+                                               startPoint: .top, endPoint: .bottom)
+                                    .ignoresSafeArea(edges: .top)
                             }
                         }
                 }

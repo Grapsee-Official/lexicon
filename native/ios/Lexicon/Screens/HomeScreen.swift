@@ -155,34 +155,25 @@ struct HomeHeaderHeightKey: PreferenceKey {
     }
 }
 
-// The header and scroll feed reveal a single continuous native canvas.
+// Measured reference pigment, shared with Compose. No second ambient halo.
 struct HomeNightBackdrop: View {
     var body: some View {
         GeometryReader { geo in
-            let width = geo.size.width
-            let height = max(1, geo.size.height)
-            ZStack {
-                LinearGradient(stops: [
-                    // Sampled from the reference's unpainted screen areas.
-                    .init(color: Color(hex: "050F18"), location: 0),
-                    .init(color: Color(hex: "040E17"), location: 0.28),
-                    .init(color: Color(hex: "061019"), location: 0.57),
-                    .init(color: Color(hex: "08111A"), location: 1)
-                ], startPoint: .top, endPoint: .bottom)
-
-                // The same very low-contrast wash as the Compose canvas:
-                // continuous night ink beneath the header and illustrated sky.
-                RadialGradient(
-                    colors: [Color(hex: "192A3C").opacity(0.085), .clear],
-                    center: UnitPoint(x: 0.78, y: width * 0.38 / height),
-                    startRadius: 0, endRadius: max(1, width * 0.76)
-                )
-                RadialGradient(
-                    colors: [Color(hex: "51412C").opacity(0.025), .clear],
-                    center: UnitPoint(x: 0.79, y: width * 0.70 / height),
-                    startRadius: 0, endRadius: max(1, width * 0.46)
-                )
-            }
+            let pageWidth = min(640, geo.size.width)
+            let referenceHeight = max(1, pageWidth * 1280 / 591)
+            LinearGradient(stops: [
+                // The unpainted left gutter of the 591x1280 design.
+                .init(color: Color(hex: "050F18"), location: 0),
+                .init(color: Color(hex: "061019"), location: 0.075),
+                .init(color: Color(hex: "09121B"), location: 0.117),
+                .init(color: Color(hex: "040E17"), location: 0.219),
+                .init(color: Color(hex: "030D17"), location: 0.312),
+                .init(color: Color(hex: "050F18"), location: 0.387),
+                .init(color: Color(hex: "09121B"), location: 0.570),
+                .init(color: Color(hex: "08111A"), location: 0.844),
+                .init(color: Color(hex: "08111A"), location: 1)
+            ], startPoint: .top,
+               endPoint: UnitPoint(x: 0.5, y: referenceHeight / max(1, geo.size.height)))
         }
         .ignoresSafeArea()
         .allowsHitTesting(false)
