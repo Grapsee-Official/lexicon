@@ -228,13 +228,12 @@ private struct WordOfDayNightScene: View {
                     .mask {
                         LinearGradient(stops: [
                             .init(color: .clear, location: 0),
-                            .init(color: .clear, location: 0.28),
-                            .init(color: .black.opacity(0.04), location: 0.40),
-                            .init(color: .black.opacity(largeText ? 0.08 : 0.18), location: 0.54),
-                            .init(color: .black.opacity(largeText ? 0.25 : 0.52), location: 0.70),
-                            .init(color: .black.opacity(largeText ? 0.58 : 0.98), location: 0.88),
-                            .init(color: .black.opacity(largeText ? 0.54 : 0.96), location: 1)
-                        ], startPoint: .leading, endPoint: .trailing)
+                            .init(color: .clear, location: 0.40),
+                            .init(color: .black.opacity(largeText ? 0.03 : 0.12), location: 0.51),
+                            .init(color: .black.opacity(largeText ? 0.13 : 0.42), location: 0.66),
+                            .init(color: .black.opacity(largeText ? 0.48 : 0.95), location: 0.84),
+                            .init(color: .black.opacity(largeText ? 0.60 : 1), location: 1)
+                        ], startPoint: .topLeading, endPoint: UnitPoint(x: 1, y: 0.78))
                     }
                     .mask {
                         LinearGradient(stops: [

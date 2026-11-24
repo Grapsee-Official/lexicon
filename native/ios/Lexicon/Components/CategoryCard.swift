@@ -26,10 +26,10 @@ struct CategoryCard: View {
                 PreparedArtworkImage(name: artName, treatment: .bookplate)
                     .scaledToFit()
                     .frame(maxWidth: .infinity)
-                    .frame(height: largeText ? 88 : (isDark ? 57 : 65))
+                    .frame(height: largeText ? 88 : (isDark ? 60 : 65))
                     .accessibilityHidden(true)
 
-                Spacer(minLength: 0).frame(height: isDark ? 3 : 5)
+                Spacer(minLength: 0).frame(height: isDark && !largeText ? 0 : 5)
 
                 VStack(spacing: 2) {
                     Text(category.title)

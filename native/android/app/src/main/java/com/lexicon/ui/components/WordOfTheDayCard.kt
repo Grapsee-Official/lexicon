@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
@@ -291,14 +292,17 @@ private fun WordOfDayNightScene(modifier: Modifier, accessible: Boolean) {
             }
         }
         drawRect(
-            brush = Brush.horizontalGradient(
+            // The definition sits in the darker upper-left of a single
+            // landscape. Reveal the lower terrain earlier than the sky.
+            brush = Brush.linearGradient(
                 0f to Color.Transparent,
-                0.28f to Color.Transparent,
-                0.40f to Color.Black.copy(alpha = 0.04f),
-                0.54f to Color.Black.copy(alpha = if (accessible) 0.08f else 0.18f),
-                0.70f to Color.Black.copy(alpha = if (accessible) 0.25f else 0.52f),
-                0.88f to Color.Black.copy(alpha = if (accessible) 0.58f else 0.98f),
-                1f to Color.Black.copy(alpha = if (accessible) 0.54f else 0.96f),
+                0.40f to Color.Transparent,
+                0.51f to Color.Black.copy(alpha = if (accessible) 0.03f else 0.12f),
+                0.66f to Color.Black.copy(alpha = if (accessible) 0.13f else 0.42f),
+                0.84f to Color.Black.copy(alpha = if (accessible) 0.48f else 0.95f),
+                1f to Color.Black.copy(alpha = if (accessible) 0.60f else 1f),
+                start = Offset.Zero,
+                end = Offset(size.width, size.height * 0.78f),
             ),
             blendMode = BlendMode.DstIn,
         )

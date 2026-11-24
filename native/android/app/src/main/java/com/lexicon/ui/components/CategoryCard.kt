@@ -82,14 +82,14 @@ fun CategoryCard(
             Image(
                 painter = rememberPreparedArtwork(resId, ArtworkTreatment.BOOKPLATE),
                 contentDescription = null,
-                modifier = Modifier.fillMaxWidth().height(if (largeText) 88.dp else if (isDark) 57.dp else 65.dp),
+                modifier = Modifier.fillMaxWidth().height(if (largeText) 88.dp else if (isDark) 60.dp else 65.dp),
                 contentScale = ContentScale.Fit,
                 alignment = Alignment.Center,
             )
         } else {
-            Spacer(Modifier.height(if (largeText) 88.dp else if (isDark) 57.dp else 65.dp))
+            Spacer(Modifier.height(if (largeText) 88.dp else if (isDark) 60.dp else 65.dp))
         }
-        Spacer(Modifier.height(if (isDark) 3.dp else 5.dp))
+        Spacer(Modifier.height(if (isDark && !largeText) 0.dp else 5.dp))
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
