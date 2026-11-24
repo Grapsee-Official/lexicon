@@ -241,7 +241,7 @@ fun HomeNightScene(
         val header = headerInset.toPx().coerceIn(0f, size.height)
         val contentHeight = (size.height - header).coerceAtLeast(1f)
         val stretch = if (largeText) 1f else 1.04f
-        val artWidth = minOf(size.width * (if (largeText) 0.96f else 0.95f),
+        val artWidth = minOf(size.width * (if (largeText) 0.96f else 0.99f),
             contentHeight * aspect / stretch * 1.08f)
         val artHeight = artWidth / aspect * stretch
         val artX = maxOf(size.width * 0.63f - artWidth * 0.54f,
@@ -631,6 +631,7 @@ private fun gradeMoonlitPainting(pixels: IntArray, w: Int, h: Int) {
         distance[i] = d
     }
     val scale = 3f * minOf(w, h)
+    val atmosphere = NightPigmentField(w, h)
     fun s(lo: Float, hi: Float, v: Float) = smoothArtworkStep(lo, hi, v)
     fun g(x: Float, y: Float, cx: Float, cy: Float, rx: Float, ry: Float): Float {
         val dx = (x - cx) / rx
@@ -661,7 +662,7 @@ private fun gradeMoonlitPainting(pixels: IntArray, w: Int, h: Int) {
         val gain = 0.51f + 0.25f * paper + 0.10f * stack + 0.06f * roof +
             0.06f * windows + 0.27f * crescent + 0.28f * emission
         val sat = 0.72f - 0.29f * paper + 0.24f * emission
-        val outer = s(0.13f, 0.28f, x) * (1f - s(0.86f, 0.98f, x)) *
+        val outer = s(0.13f, 0.28f, x) * (1f - 0.78f * s(0.88f, 1f, x)) *
             s(0.02f, 0.10f, y) * (1f - s(0.88f, 1f, y))
         val edge = 0.45f + 0.55f * s(0f, 0.035f, distance[i] / scale)
         val subject = maxOf(paper * 0.96f, crescent * 0.95f, windows * 0.92f, stack * 0.85f)
@@ -670,12 +671,25 @@ private fun gradeMoonlitPainting(pixels: IntArray, w: Int, h: Int) {
         val car = g(x, y, 0.48f, 0.50f, 0.065f, 0.035f)
         val alpha = a * maxOf(shadowAlpha, subject) * outer *
             (1f - 0.65f * pen) * (1f - 0.70f * car)
-        val rr = (l + (r - l) * sat) * gain * (1f - 0.05f * (1f - paper))
-        val gg = (l + (green - l) * sat) * gain
-        val bb = (l + (b - l) * sat) * gain + 0.009f * (1f - s(0.08f, 0.40f, l))
+        // Near-black perimeter pigment should converge to the actual page ink,
+        // not leave an opaque black silhouette. Keep interior subject contrast.
+        val protect = maxOf(paper, crescent, windows, stack * 0.65f)
+        val inkMix = 0.58f * (1f - s(0.04f, 0.23f, l)) * (1f - 0.75f * protect)
+        val paperLift = 0.025f * paper * s(0.18f, 0.60f, l)
+        val rr = ((l + (r - l) * sat) * gain * (1f - 0.05f * (1f - paper))) *
+            (1f - inkMix) + (5f / 255f) * inkMix + paperLift
+        val gg = ((l + (green - l) * sat) * gain) *
+            (1f - inkMix) + (15f / 255f) * inkMix + paperLift
+        val bb = ((l + (b - l) * sat) * gain + 0.009f * (1f - s(0.08f, 0.40f, l))) *
+            (1f - inkMix) + (24f / 255f) * inkMix + paperLift
+        // Build atmospheric color from the painting's own shadow pigment.
+        // Exclude pages, windows and moon to avoid a broad amber halo.
+        val weight = a * (1f - 0.85f * protect) * (1f - s(0.28f, 0.72f, l))
+        atmosphere.add(i % w, i / w, weight, rr, gg, bb)
         pixels[i] = (channel(alpha) shl 24) or (channel(rr) shl 16) or
             (channel(gg) shl 8) or channel(bb)
     }
+    atmosphere.compositeBehind(pixels)
 }
 
 
@@ -701,4 +715,83 @@ private fun opticalBookplate(
     canvas.drawBitmap(source, null,
         android.graphics.RectF(x.toFloat(), y.toFloat(), (x + w).toFloat(), (y + h).toFloat()), paint)
     return result
+}
+
+
+/** A diffuse field of actual source pigment, behind the painted silhouette.
+ * Accumulate premultiplied color and coverage in a bounded grid, blur each
+ * channel identically, then reconstruct straight RGB only at composition. */
+private class NightPigmentField(private val width: Int, private val height: Int) {
+    private val cols = minOf(64, width)
+    private val rows = minOf(height, maxOf(1, (64f * height / width).roundToInt()))
+    private val field = Array(4) { FloatArray(cols * rows) }
+
+    fun add(x: Int, y: Int, weight: Float, r: Float, g: Float, b: Float) {
+        val i = (y * rows / height) * cols + x * cols / width
+        field[0][i] += weight
+        field[1][i] += weight * r.coerceIn(0f, 1f)
+        field[2][i] += weight * g.coerceIn(0f, 1f)
+        field[3][i] += weight * b.coerceIn(0f, 1f)
+    }
+
+    fun compositeBehind(pixels: IntArray) {
+        val blurred = Array(4) { c ->
+            val input = field[c]
+            for (i in input.indices) {
+                val x = i % cols
+                val y = i / cols
+                val cw = ((x + 1) * width + cols - 1) / cols - (x * width + cols - 1) / cols
+                val ch = ((y + 1) * height + rows - 1) / rows - (y * height + rows - 1) / rows
+                input[i] /= maxOf(1, cw * ch).toFloat()
+            }
+            blur(blur(input, true), false)
+        }
+        fun byte(v: Float) = (v * 255f).roundToInt().coerceIn(0, 255)
+        for (y in 0 until height) {
+            val fy = ((y + 0.5f) * rows / height - 0.5f).coerceIn(0f, (rows - 1).toFloat())
+            val y0 = fy.toInt()
+            val y1 = minOf(rows - 1, y0 + 1)
+            val dy = fy - y0
+            for (x in 0 until width) {
+                val fx = ((x + 0.5f) * cols / width - 0.5f).coerceIn(0f, (cols - 1).toFloat())
+                val x0 = fx.toInt()
+                val x1 = minOf(cols - 1, x0 + 1)
+                val dx = fx - x0
+                fun sample(c: Int): Float {
+                    val v = blurred[c]
+                    val t = v[y0 * cols + x0] * (1f - dx) + v[y0 * cols + x1] * dx
+                    val b = v[y1 * cols + x0] * (1f - dx) + v[y1 * cols + x1] * dx
+                    return t * (1f - dy) + b * dy
+                }
+                val coverage = sample(0)
+                if (coverage < 0.003f) continue
+                val i = y * width + x
+                val p = pixels[i]
+                val a = (p ushr 24) / 255f
+                val haze = minOf(0.21f, coverage * 0.42f) * (1f - a)
+                val out = a + haze
+                if (out < 0.004f) continue
+                fun channel(shift: Int, c: Int): Int {
+                    val original = ((p ushr shift) and 255) / 255f
+                    return byte((original * a + sample(c) / coverage * haze) / out)
+                }
+                pixels[i] = (byte(out) shl 24) or (channel(16, 1) shl 16) or
+                    (channel(8, 2) shl 8) or channel(0, 3)
+            }
+        }
+    }
+    private fun blur(input: FloatArray, horizontal: Boolean): FloatArray {
+        val output = FloatArray(input.size)
+        val weights = intArrayOf(1, 4, 6, 4, 1)
+        for (y in 0 until rows) for (x in 0 until cols) {
+            var sum = 0f
+            for (d in -2..2) {
+                val sx = if (horizontal) x + d else x
+                val sy = if (horizontal) y else y + d
+                if (sx in 0 until cols && sy in 0 until rows) sum += input[sy * cols + sx] * weights[d + 2]
+            }
+            output[y * cols + x] = sum / 16f
+        }
+        return output
+    }
 }

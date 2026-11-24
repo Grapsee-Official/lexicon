@@ -190,7 +190,7 @@ struct HomeNightScene: View {
             let header = min(height, max(0, headerInset))
             let contentHeight = max(1, height - header)
             let stretch: CGFloat = largeText ? 1 : 1.04
-            let artWidth = min(width * (largeText ? 0.96 : 0.95), contentHeight * 1.5 / stretch * 1.08)
+            let artWidth = min(width * (largeText ? 0.96 : 0.99), contentHeight * 1.5 / stretch * 1.08)
             let artHeight = artWidth / 1.5 * stretch
             let artX = max(width * 0.63 - artWidth * 0.54, width - artWidth * 0.95)
             let moonY = min(contentHeight * (extendsBehindTags ? 0.09 : 0.10), width * 0.055)
@@ -686,6 +686,7 @@ private func gradeMoonlitPainting(_ bytes: inout [UInt8], width w: Int, height h
         }
     }
     let scale = 3 * Float(min(w, h))
+    var atmosphere = NightPigmentField(width: w, height: h)
     func s(_ lo: Float, _ hi: Float, _ v: Float) -> Float {
         let t = min(1, max(0, (v - lo) / (hi - lo)))
         return t * t * (3 - 2 * t)
@@ -721,7 +722,7 @@ private func gradeMoonlitPainting(_ bytes: inout [UInt8], width w: Int, height h
         let gainB: Float = 0.06 * roof + 0.06 * windows + 0.27 * crescent + 0.28 * emission
         let gain = gainA + gainB
         let sat: Float = 0.72 - 0.29 * paper + 0.24 * emission
-        let outerX = s(0.13, 0.28, x) * (1 - s(0.86, 0.98, x))
+        let outerX = s(0.13, 0.28, x) * (1 - 0.78 * s(0.88, 1, x))
         let outerY = s(0.02, 0.10, y) * (1 - s(0.88, 1, y))
         let edge: Float = 0.45 + 0.55 * s(0, 0.035, Float(distance[pixel]) / scale)
         let subject = max(max(paper * 0.96, crescent * 0.95), max(windows * 0.92, stack * 0.85))
@@ -729,15 +730,23 @@ private func gradeMoonlitPainting(_ bytes: inout [UInt8], width w: Int, height h
         let pen = g(x, y, 0.73, 0.85, 0.13, 0.038)
         let car = g(x, y, 0.48, 0.50, 0.065, 0.035)
         let alpha = a * max(shadowAlpha, subject) * outerX * outerY * (1 - 0.65 * pen) * (1 - 0.70 * car)
-        let rr = (l + (r - l) * sat) * gain * (1 - 0.05 * (1 - paper))
-        let gg = (l + (green - l) * sat) * gain
-        let bb = (l + (b - l) * sat) * gain + 0.009 * (1 - s(0.08, 0.40, l))
-        // Clamp straight components before premultiplication.
+        let protect = max(max(paper, crescent), max(windows, stack * 0.65))
+        let inkMix: Float = 0.58 * (1 - s(0.04, 0.23, l)) * (1 - 0.75 * protect)
+        let paperLift: Float = 0.025 * paper * s(0.18, 0.60, l)
+        let rawR = (l + (r - l) * sat) * gain * (1 - 0.05 * (1 - paper))
+        let rawG = (l + (green - l) * sat) * gain
+        let rawB = (l + (b - l) * sat) * gain + 0.009 * (1 - s(0.08, 0.40, l))
+        let rr = rawR * (1 - inkMix) + (5.0 / 255.0) * inkMix + paperLift
+        let gg = rawG * (1 - inkMix) + (15.0 / 255.0) * inkMix + paperLift
+        let bb = rawB * (1 - inkMix) + (24.0 / 255.0) * inkMix + paperLift
+        let weight = a * (1 - 0.85 * protect) * (1 - s(0.28, 0.72, l))
+        atmosphere.add(x: pixel % w, y: pixel / w, weight: weight, r: rr, g: gg, b: bb)
         bytes[i] = byte(min(1, max(0, rr)) * alpha)
         bytes[i + 1] = byte(min(1, max(0, gg)) * alpha)
         bytes[i + 2] = byte(min(1, max(0, bb)) * alpha)
         bytes[i + 3] = byte(alpha)
     }
+    atmosphere.compositeBehind(&bytes)
 }
 
 
@@ -767,4 +776,88 @@ private func opticalBookplate(
     // centroids are measured from the top-left raster row.
     ctx.draw(source, in: CGRect(x: x, y: canvas - y - h, width: w, height: h))
     return ctx.makeImage()
+}
+
+
+/// Same bounded source-pigment field as Compose. The buffer stores
+/// premultiplied RGBA; diffuse color is composited behind existing pixels.
+private struct NightPigmentField {
+    let width: Int
+    let height: Int
+    let cols: Int
+    let rows: Int
+    var field: [[Float]]
+
+    init(width: Int, height: Int) {
+        self.width = width; self.height = height
+        cols = min(64, width)
+        rows = min(height, max(1, Int((64.0 * Double(height) / Double(width)).rounded())))
+        field = Array(repeating: Array(repeating: 0, count: cols * rows), count: 4)
+    }
+    mutating func add(x: Int, y: Int, weight: Float, r: Float, g: Float, b: Float) {
+        let i = (y * rows / height) * cols + x * cols / width
+        field[0][i] += weight
+        field[1][i] += weight * min(1, max(0, r))
+        field[2][i] += weight * min(1, max(0, g))
+        field[3][i] += weight * min(1, max(0, b))
+    }
+    func compositeBehind(_ bytes: inout [UInt8]) {
+        var blurred = field
+        for c in 0..<4 {
+            var input = field[c]
+            for i in input.indices {
+                let x = i % cols, y = i / cols
+                let cw = ((x + 1) * width + cols - 1) / cols - (x * width + cols - 1) / cols
+                let ch = ((y + 1) * height + rows - 1) / rows - (y * height + rows - 1) / rows
+                input[i] /= Float(max(1, cw * ch))
+            }
+            blurred[c] = blur(blur(input, horizontal: true), horizontal: false)
+        }
+        func byte(_ v: Float) -> UInt8 { UInt8(min(255, max(0, (v * 255).rounded()))) }
+        for y in 0..<height {
+            let fy = min(Float(rows - 1), max(0, (Float(y) + 0.5) * Float(rows) / Float(height) - 0.5))
+            let y0 = Int(fy), y1 = min(rows - 1, y0 + 1)
+            let dy = fy - Float(y0)
+            for x in 0..<width {
+                let fx = min(Float(cols - 1), max(0, (Float(x) + 0.5) * Float(cols) / Float(width) - 0.5))
+                let x0 = Int(fx), x1 = min(cols - 1, x0 + 1)
+                let dx = fx - Float(x0)
+                func sample(_ c: Int) -> Float {
+                    let v = blurred[c]
+                    let t = v[y0 * cols + x0] * (1 - dx) + v[y0 * cols + x1] * dx
+                    let b = v[y1 * cols + x0] * (1 - dx) + v[y1 * cols + x1] * dx
+                    return t * (1 - dy) + b * dy
+                }
+                let coverage = sample(0)
+                if coverage < 0.003 { continue }
+                let i = (y * width + x) * 4
+                let a = Float(bytes[i + 3]) / 255
+                let haze = min(0.21, coverage * 0.42) * (1 - a)
+                let out = a + haze
+                if out < 0.004 { continue }
+                for c in 0..<3 {
+                    bytes[i + c] = byte(Float(bytes[i + c]) / 255 + sample(c + 1) / coverage * haze)
+                }
+                bytes[i + 3] = byte(out)
+            }
+        }
+    }
+    private func blur(_ input: [Float], horizontal: Bool) -> [Float] {
+        var output = [Float](repeating: 0, count: input.count)
+        let weights: [Float] = [1, 4, 6, 4, 1]
+        for y in 0..<rows {
+            for x in 0..<cols {
+                var sum: Float = 0
+                for d in -2...2 {
+                    let sx = horizontal ? x + d : x
+                    let sy = horizontal ? y : y + d
+                    if sx >= 0 && sx < cols && sy >= 0 && sy < rows {
+                        sum += input[sy * cols + sx] * weights[d + 2]
+                    }
+                }
+                output[y * cols + x] = sum / 16
+            }
+        }
+        return output
+    }
 }
