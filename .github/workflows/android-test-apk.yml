@@ -1,0 +1,46 @@
+name: Lexicon Android test APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/android-test-apk.yml'
+permissions:
+  contents: write
+concurrency:
+  group: lexicon-android-test-apk
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platforms;android-34 build-tools;34.0.0 ndk;26.3.11579264 cmake;3.22.1'
+      - name: Assemble test APK
+        working-directory: native/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --stacktrace
+          test -s app/build/outputs/apk/debug/app-debug.apk
+      - name: Publish separate test prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p dist
+          cp native/android/app/build/outputs/apk/debug/app-debug.apk dist/lexicon-android-test.apk
+          "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify dist/lexicon-android-test.apk
+          TAG="android-test-${GITHUB_SHA:0:12}"
+          NOTES="Debug APK for testing commit $GITHUB_SHA. Uses a separate debug application ID. Original moonlit artwork is not yet installed; this tests the native rendering changes only. Not a stable release."
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/lexicon-android-test.apk --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$TAG" dist/lexicon-android-test.apk --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "Lexicon Android test (${GITHUB_SHA:0:7})" --notes "$NOTES" --prerelease --latest=false
+          fi
