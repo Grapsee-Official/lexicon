@@ -180,6 +180,7 @@ struct HomeNightScene: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     var extendsBehindTags: Bool = false
     var headerInset: CGFloat = 0
+    var measuredHeroHeight: CGFloat = 0
 
     var body: some View {
         GeometryReader { geo in
@@ -189,12 +190,18 @@ struct HomeNightScene: View {
             let edge: CGFloat = largeText ? 0.67 : 0.47
             let header = min(height, max(0, headerInset))
             let contentHeight = max(1, height - header)
-            let stretch: CGFloat = largeText ? 1 : 1.04
-            let artWidth = min(width * (largeText ? 0.96 : 0.99), contentHeight * 1.5 / stretch * 1.08)
-            let artHeight = artWidth / 1.5 * stretch
-            let artX = max(width * 0.63 - artWidth * 0.54, width - artWidth * 0.95)
-            let moonY = min(contentHeight * (extendsBehindTags ? 0.09 : 0.10), width * 0.055)
-            let artY = header + (largeText ? contentHeight * 0.90 - artHeight : moonY - artHeight * 0.17)
+            let hero = measuredHeroHeight > 0 ? min(measuredHeroHeight, contentHeight)
+                : contentHeight * (extendsBehindTags ? 0.86 : 1)
+            let artWidth = min(width * (largeText ? 0.96 : 0.99), contentHeight * 1.5 * 1.08)
+            let artX = width * 0.63 - artWidth * 0.539
+            let moonY = min(hero * 0.10, width * 0.055)
+            let bookBaseline = hero - 4 - width * 0.040
+            let naturalHeight = artWidth / 1.5
+            let artHeight = largeText ? naturalHeight
+                : min(naturalHeight * 1.14, max(naturalHeight * 0.88, (bookBaseline - moonY) / (0.88 - 0.17)))
+            let artY = header + (largeText ? bookBaseline - artHeight * 0.88 : moonY - artHeight * 0.17)
+            let fadeStart = min(0.95, max(0.55, (header + hero - width * 0.025) / max(1, height)))
+            let fadeEnd = min(0.99, fadeStart + (1 - fadeStart) * 0.75)
 
             PreparedArtworkImage(name: "hero-dark", treatment: .moonlit)
                 // Resizable image fills this deliberately adjusted scene aspect.
@@ -215,8 +222,8 @@ struct HomeNightScene: View {
                 .mask {
                     LinearGradient(stops: [
                         .init(color: .black, location: 0),
-                        .init(color: .black, location: 0.83),
-                        .init(color: .black.opacity(0.12), location: 0.96),
+                        .init(color: .black, location: fadeStart),
+                        .init(color: .black.opacity(0.15), location: fadeEnd),
                         .init(color: .clear, location: 1)
                     ], startPoint: .top, endPoint: .bottom)
                 }

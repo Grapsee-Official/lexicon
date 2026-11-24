@@ -26,6 +26,13 @@ struct HomeScreen: View {
             VStack(spacing: 11) {
                 VStack(spacing: scheme == .dark ? 5 : 11) {
                     Hero(sharedNightScene: scheme == .dark)
+                        .background {
+                            if scheme == .dark {
+                                GeometryReader { geometry in
+                                    Color.clear.preference(key: HomeHeroHeightKey.self, value: geometry.size.height)
+                                }
+                            }
+                        }
                     TrendingTagRow(tags: LexiconData.trendingTags, sceneIntegrated: scheme == .dark)
                         .padding(.horizontal, 16)
                 }
@@ -109,6 +116,13 @@ struct HomeMastheadFrameKey: PreferenceKey {
     static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
         let next = nextValue()
         if !next.isEmpty { value = next }
+    }
+}
+
+struct HomeHeroHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
     }
 }
 

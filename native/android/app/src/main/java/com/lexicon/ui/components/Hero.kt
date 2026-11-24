@@ -227,6 +227,7 @@ fun HomeNightScene(
     modifier: Modifier = Modifier,
     extendsBehindTags: Boolean = false,
     headerInset: Dp = 0.dp,
+    measuredHeroHeight: Dp = 0.dp,
 ) {
     val largeText = LocalConfiguration.current.fontScale > 1.2f
     val painting = rememberPreparedArtwork(R.drawable.hero_dark, ArtworkTreatment.MOONLIT)
@@ -235,21 +236,24 @@ fun HomeNightScene(
         val intrinsic = painting.intrinsicSize
         val aspect = if (intrinsic.width > 0f && intrinsic.height > 0f)
             intrinsic.width / intrinsic.height else 1.5f
-        // Source/reference landmark comparison: reduce the horizontal scale
-        // and gently extend the vertical composition. This brings the book
-        // into the lower search area without enlarging the roof and crescent.
         val header = headerInset.toPx().coerceIn(0f, size.height)
         val contentHeight = (size.height - header).coerceAtLeast(1f)
-        val stretch = if (largeText) 1f else 1.04f
+        val measured = measuredHeroHeight.toPx()
+        val hero = if (measured > 0f) measured.coerceAtMost(contentHeight)
+            else contentHeight * (if (extendsBehindTags) 0.86f else 1f)
+        // Reference landmarks at 369px: crescent x233/y98, open-book
+        // baseline y284, search capsule bottom y299. Compose the painting
+        // against the measured hero, not a fixed image container.
         val artWidth = minOf(size.width * (if (largeText) 0.96f else 0.99f),
-            contentHeight * aspect / stretch * 1.08f)
-        val artHeight = artWidth / aspect * stretch
-        val artX = maxOf(size.width * 0.63f - artWidth * 0.54f,
-            size.width - artWidth * 0.95f)
-        // Source landmarks: moon ~54%,17%; book center ~62%,69%.
-        // Reserve the extra tag area for the fading foreground, not extra sky.
-        val moonY = minOf(contentHeight * (if (extendsBehindTags) 0.09f else 0.10f), size.width * 0.055f)
-        val artY = header + if (largeText) contentHeight * 0.90f - artHeight
+            contentHeight * aspect * 1.08f)
+        val artX = size.width * 0.63f - artWidth * 0.539f
+        val moonY = minOf(hero * 0.10f, size.width * 0.055f)
+        val bookBaseline = hero - 4.dp.toPx() - size.width * 0.040f
+        val naturalHeight = artWidth / aspect
+        val artHeight = if (largeText) naturalHeight else
+            ((bookBaseline - moonY) / (0.88f - 0.17f))
+                .coerceIn(naturalHeight * 0.88f, naturalHeight * 1.14f)
+        val artY = header + if (largeText) bookBaseline - artHeight * 0.88f
             else moonY - artHeight * 0.17f
         clipRect {
             translate(left = artX, top = artY) {
@@ -272,11 +276,15 @@ fun HomeNightScene(
             ),
             blendMode = BlendMode.DstIn,
         )
+        // Let the foreground continue below Search; dissolve only the
+        // remaining tag-side margin instead of fading the open pages.
+        val fadeStart = ((header + hero - size.width * 0.025f) / size.height).coerceIn(0.55f, 0.95f)
+        val fadeEnd = (fadeStart + (1f - fadeStart) * 0.75f).coerceAtMost(0.99f)
         drawRect(
             brush = Brush.verticalGradient(
                 0f to Color.Black,
-                0.83f to Color.Black,
-                0.96f to Color.Black.copy(alpha = 0.12f),
+                fadeStart to Color.Black,
+                fadeEnd to Color.Black.copy(alpha = 0.15f),
                 1f to Color.Transparent,
             ),
             blendMode = BlendMode.DstIn,

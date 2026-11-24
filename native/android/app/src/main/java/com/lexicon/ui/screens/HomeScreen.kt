@@ -104,6 +104,7 @@ fun HomeScreen(viewModel: LexiconViewModel) {
     val density = LocalDensity.current
     var headerHeightPx by remember { mutableStateOf(0) }
     var mastheadHeightPx by remember { mutableStateOf(0) }
+    var heroHeightPx by remember { mutableStateOf(0) }
 
     Box(
         modifier = Modifier
@@ -123,6 +124,7 @@ fun HomeScreen(viewModel: LexiconViewModel) {
                     .height(with(density) { (headerHeightPx + mastheadHeightPx).toDp() }),
                 extendsBehindTags = true,
                 headerInset = with(density) { headerHeightPx.toDp() },
+                measuredHeroHeight = with(density) { heroHeightPx.toDp() },
             )
         }
 
@@ -135,6 +137,7 @@ fun HomeScreen(viewModel: LexiconViewModel) {
                 viewModel = viewModel,
                 feedState = feedState,
                 onMastheadMeasured = { mastheadHeightPx = it },
+                onHeroMeasured = { heroHeightPx = it },
             )
         }
 
@@ -153,6 +156,7 @@ private fun HomeFeed(
     viewModel: LexiconViewModel,
     feedState: LazyListState,
     onMastheadMeasured: (Int) -> Unit,
+    onHeroMeasured: (Int) -> Unit,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -183,7 +187,8 @@ private fun HomeFeed(
             // Foreground only. Dark artwork lives behind the entire page.
             Box(Modifier.fillMaxWidth().onSizeChanged { onMastheadMeasured(it.height) }) {
                 Column(verticalArrangement = Arrangement.spacedBy(if (state.isDark) 5.dp else 11.dp)) {
-                    Hero(viewModel = viewModel, sharedNightScene = state.isDark)
+                    Hero(viewModel = viewModel, sharedNightScene = state.isDark,
+                        modifier = Modifier.onSizeChanged { onHeroMeasured(it.height) })
                     TrendingTagRow(
                         viewModel = viewModel,
                         modifier = Modifier.padding(horizontal = 16.dp),

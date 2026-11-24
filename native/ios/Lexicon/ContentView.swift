@@ -13,6 +13,7 @@ struct ContentView: View {
     @State private var toastMessage: String? = nil
     @State private var homeMasthead: CGRect = .zero
     @State private var homeHeaderHeight: CGFloat = 0
+    @State private var homeHeroHeight: CGFloat = 0
 
     private var selectedWordBinding: Binding<WordEntry?> {
         Binding(
@@ -30,7 +31,8 @@ struct ContentView: View {
                 // Translate it with the scroll content, leaving the header fixed.
                 if !homeMasthead.isEmpty && homeHeaderHeight > 0 &&
                     homeMasthead.maxY > homeHeaderHeight {
-                    HomeNightScene(extendsBehindTags: true, headerInset: homeHeaderHeight)
+                    HomeNightScene(extendsBehindTags: true, headerInset: homeHeaderHeight,
+                                   measuredHeroHeight: homeHeroHeight)
                         .frame(width: homeMasthead.width, height: homeMasthead.height + homeHeaderHeight)
                         .position(x: homeMasthead.midX,
                                   y: homeMasthead.midY - homeHeaderHeight / 2)
@@ -105,6 +107,7 @@ struct ContentView: View {
         .coordinateSpace(name: "homeScene")
         .onPreferenceChange(HomeMastheadFrameKey.self) { homeMasthead = $0 }
         .onPreferenceChange(HomeHeaderHeightKey.self) { homeHeaderHeight = $0 }
+        .onPreferenceChange(HomeHeroHeightKey.self) { homeHeroHeight = $0 }
         .background(lexiconPalette(scheme).background)
         .sheet(item: selectedWordBinding) { (word: WordEntry) in
             WordDetailSheet(word: word)
