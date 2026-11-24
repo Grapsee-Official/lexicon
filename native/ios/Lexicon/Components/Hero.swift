@@ -185,15 +185,16 @@ struct HomeNightScene: View {
             let width = geo.size.width
             let height = geo.size.height
             let largeText = dynamicTypeSize.isAccessibilitySize
-            let readingEdge: CGFloat = largeText ? 0.66 : (width < 360 ? 0.49 : 0.45)
-            let artWidth = min(width * (largeText ? 0.96 : 1.08), height * 1.5 * 1.08)
-            let artHeight = artWidth / 1.5
+            let edge: CGFloat = largeText ? 0.69 : (width < 360 ? 0.52 : 0.49)
+            let stretch: CGFloat = largeText ? 1 : 1.11
+            let artWidth = min(width * (largeText ? 0.96 : 0.98), height * 1.5 / stretch * 1.08)
+            let artHeight = artWidth / 1.5 * stretch
             let artX = max(width * 0.63 - artWidth * 0.54, width - artWidth * 0.95)
             let moonY = min(height * (extendsBehindTags ? 0.09 : 0.10), width * 0.055)
             let artY = largeText ? height * 0.90 - artHeight : moonY - artHeight * 0.17
 
             PreparedArtworkImage(name: "hero-dark", treatment: .moonlit)
-                .scaledToFit()
+                // Resizable image fills this deliberately adjusted scene aspect.
                 .frame(width: artWidth, height: artHeight)
                 .position(x: artX + artWidth / 2, y: artY + artHeight / 2)
                 .frame(width: width, height: height)
@@ -201,24 +202,28 @@ struct HomeNightScene: View {
                 .mask {
                     LinearGradient(stops: [
                         .init(color: .clear, location: 0),
-                        .init(color: .clear, location: readingEdge - 0.24),
-                        .init(color: .black.opacity(0.18), location: readingEdge - 0.11),
-                        .init(color: .black.opacity(0.60), location: readingEdge),
-                        .init(color: .black.opacity(0.96), location: readingEdge + 0.13),
-                        .init(color: .black, location: 0.84),
-                        .init(color: .black.opacity(0.79), location: 0.92),
-                        .init(color: .black.opacity(0.58), location: 1)
+                        .init(color: .clear, location: edge - 0.19),
+                        .init(color: .black.opacity(0.24), location: edge - 0.10),
+                        .init(color: .black.opacity(0.64), location: edge - 0.02),
+                        .init(color: .black, location: edge + 0.09),
+                        .init(color: .black, location: 1)
+                    ], startPoint: .topLeading, endPoint: UnitPoint(x: 1, y: 0.23))
+                }
+                .mask {
+                    LinearGradient(stops: [
+                        .init(color: .black, location: 0),
+                        .init(color: .black, location: 0.89),
+                        .init(color: .black.opacity(0.82), location: 0.96),
+                        .init(color: .black.opacity(0.66), location: 1)
                     ], startPoint: .leading, endPoint: .trailing)
                 }
                 .mask {
                     LinearGradient(stops: [
                         .init(color: .clear, location: 0),
-                        .init(color: .black.opacity(0.65), location: 0.025),
-                        .init(color: .black, location: 0.065),
-                        .init(color: .black.opacity(0.93), location: 0.35),
-                        .init(color: .black, location: 0.58),
-                        .init(color: .black.opacity(0.96), location: 0.78),
-                        .init(color: .black.opacity(0.57), location: 0.91),
+                        .init(color: .black.opacity(0.48), location: 0.025),
+                        .init(color: .black, location: 0.055),
+                        .init(color: .black, location: 0.80),
+                        .init(color: .black.opacity(0.43), location: 0.91),
                         .init(color: .clear, location: 1)
                     ], startPoint: .top, endPoint: .bottom)
                 }
@@ -459,11 +464,22 @@ private enum HomeArtworkProcessor {
                 let baseGain: Float = moon ? 0.76 : 0.85
                 let highlightGain: Float = moon ? 0.22 : 0.13
                 let warmReduction: Float = moon ? 0.045 : 0.02
-                let gain = min(1, max(0, baseGain + highlightGain * highlight
+                let gradedGain = min(1, max(0, baseGain + highlightGain * highlight
                     - warmReduction * warm * (1 - highlight) + localExposure))
                 let sat = 0.80 + 0.18 * highlight
                 let shadow = 1 - smooth(0.09, 0.35, l)
-                let alpha = a * (0.58 + 0.42 * smooth(0.035, 0.24, l))
+                let moonDx = (sx - 0.54) / 0.105
+                let moonDy = (sy - 0.17) / 0.14
+                let moonRegion = exp(-(moonDx * moonDx + moonDy * moonDy))
+                let windowRegion = smooth(0.51, 0.58, sx) * (1 - smooth(0.87, 0.94, sx))
+                    * smooth(0.23, 0.35, sy) * (1 - smooth(0.51, 0.60, sy))
+                let foreground = smooth(0.49, 0.61, sy) * (1 - smooth(0.85, 0.96, sy))
+                    * smooth(0.32, 0.43, sx) * (1 - smooth(0.85, 0.95, sx))
+                let keep = min(1, max(0, moonRegion + windowRegion + foreground))
+                let gain = moon ? gradedGain * (0.72 + 0.28 * keep) : gradedGain
+                let baseAlpha = a * (0.58 + 0.42 * smooth(0.035, 0.24, l))
+                let dissolved = baseAlpha * (0.69 + 0.31 * smooth(0.16, 0.55, l)) * (0.68 + 0.32 * keep)
+                let alpha = moon ? max(dissolved, baseAlpha * keep * 0.94) : baseAlpha
                 let rr = (l + (r - l) * sat) * gain * (1 - 0.10 * shadow)
                 let gg = (l + (g - l) * sat) * gain
                 let bb = (l + (b - l) * sat) * gain + 0.012 * shadow

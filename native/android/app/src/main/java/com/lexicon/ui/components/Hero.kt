@@ -9,6 +9,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.CompositingStrategy
@@ -60,6 +61,7 @@ import com.lexicon.ui.theme.OldWoodGold
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
+import kotlin.math.exp
 
 @Composable
 fun Hero(
@@ -224,9 +226,13 @@ fun HomeNightScene(modifier: Modifier = Modifier, extendsBehindTags: Boolean = f
         val intrinsic = painting.intrinsicSize
         val aspect = if (intrinsic.width > 0f && intrinsic.height > 0f)
             intrinsic.width / intrinsic.height else 1.5f
-        val artWidth = minOf(size.width * (if (largeText) 0.96f else 1.08f),
-            size.height * aspect * 1.08f)
-        val artHeight = artWidth / aspect
+        // Source/reference landmark comparison: reduce the horizontal scale
+        // and gently extend the vertical composition. This brings the book
+        // into the lower search area without enlarging the roof and crescent.
+        val stretch = if (largeText) 1f else 1.11f
+        val artWidth = minOf(size.width * (if (largeText) 0.96f else 0.98f),
+            size.height * aspect / stretch * 1.08f)
+        val artHeight = artWidth / aspect * stretch
         val artX = maxOf(size.width * 0.63f - artWidth * 0.54f,
             size.width - artWidth * 0.95f)
         // Source landmarks: moon ~54%,17%; book center ~62%,69%.
@@ -240,31 +246,38 @@ fun HomeNightScene(modifier: Modifier = Modifier, extendsBehindTags: Boolean = f
             }
         }
 
-        // Two-dimensional soft shadow around the reading column, with a
-        // stronger reveal at the lower foreground. Only artwork alpha changes.
-        val readingEdge = if (largeText) 0.66f else if (size.width < 360.dp.toPx()) 0.49f else 0.45f
+        // Diagonal reading shadow: protect the text at the upper left,
+        // allow the stacked books to emerge farther left at the bottom.
+        val edge = if (largeText) 0.69f else if (size.width < 360.dp.toPx()) 0.52f else 0.49f
+        drawRect(
+            brush = Brush.linearGradient(
+                0f to Color.Transparent,
+                (edge - 0.19f) to Color.Transparent,
+                (edge - 0.10f) to Color.Black.copy(alpha = 0.24f),
+                (edge - 0.02f) to Color.Black.copy(alpha = 0.64f),
+                (edge + 0.09f) to Color.Black,
+                1f to Color.Black,
+                start = Offset.Zero,
+                end = Offset(size.width, size.height * 0.23f),
+            ),
+            blendMode = BlendMode.DstIn,
+        )
         drawRect(
             brush = Brush.horizontalGradient(
-                0f to Color.Transparent,
-                (readingEdge - 0.24f) to Color.Transparent,
-                (readingEdge - 0.11f) to Color.Black.copy(alpha = 0.18f),
-                readingEdge to Color.Black.copy(alpha = 0.60f),
-                (readingEdge + 0.13f) to Color.Black.copy(alpha = 0.96f),
-                0.84f to Color.Black,
-                0.92f to Color.Black.copy(alpha = 0.79f),
-                1f to Color.Black.copy(alpha = 0.58f),
+                0f to Color.Black,
+                0.89f to Color.Black,
+                0.96f to Color.Black.copy(alpha = 0.82f),
+                1f to Color.Black.copy(alpha = 0.66f),
             ),
             blendMode = BlendMode.DstIn,
         )
         drawRect(
             brush = Brush.verticalGradient(
                 0f to Color.Transparent,
-                0.025f to Color.Black.copy(alpha = 0.65f),
-                0.065f to Color.Black.copy(alpha = 1f),
-                0.35f to Color.Black.copy(alpha = 0.93f),
-                0.58f to Color.Black,
-                0.78f to Color.Black.copy(alpha = 0.96f),
-                0.91f to Color.Black.copy(alpha = 0.57f),
+                0.025f to Color.Black.copy(alpha = 0.48f),
+                0.055f to Color.Black,
+                0.80f to Color.Black,
+                0.91f to Color.Black.copy(alpha = 0.43f),
                 1f to Color.Transparent,
             ),
             blendMode = BlendMode.DstIn,
@@ -408,13 +421,34 @@ private fun prepareArtwork(
         val outerFoliage = smoothArtworkStep(0.80f, 0.97f, sx)
         val localExposure = if (moon) (0.14f * paper - 0.10f * canopy -
             0.06f * outerFoliage) * (1f - highlight) else 0f
-        val gain = ((if (moon) 0.76f else 0.85f) +
+        val baseGain = ((if (moon) 0.76f else 0.85f) +
             (if (moon) 0.22f else 0.13f) * highlight -
             (if (moon) 0.045f else 0.02f) * warm * (1f - highlight) +
             localExposure).coerceIn(0f, 1f)
         val saturation = 0.80f + 0.18f * highlight
         val shadow = 1f - smoothArtworkStep(0.09f, 0.35f, l)
-        val alpha = a * (0.58f + 0.42f * smoothArtworkStep(0.035f, 0.24f, l))
+        // Keep the actual crescent, windows, and open pages luminous.
+        // The isolated outer foliage and bright petals are less important
+        // than the reading foreground; dissolve them into the night field.
+        val moonDx = (sx - 0.54f) / 0.105f
+        val moonDy = (sy - 0.17f) / 0.14f
+        val moonRegion = exp(-(moonDx * moonDx + moonDy * moonDy))
+        val windowRegion = smoothArtworkStep(0.51f, 0.58f, sx) *
+            (1f - smoothArtworkStep(0.87f, 0.94f, sx)) *
+            smoothArtworkStep(0.23f, 0.35f, sy) *
+            (1f - smoothArtworkStep(0.51f, 0.60f, sy))
+        val foreground = smoothArtworkStep(0.49f, 0.61f, sy) *
+            (1f - smoothArtworkStep(0.85f, 0.96f, sy)) *
+            smoothArtworkStep(0.32f, 0.43f, sx) *
+            (1f - smoothArtworkStep(0.85f, 0.95f, sx))
+        val keep = (moonRegion + windowRegion + foreground).coerceIn(0f, 1f)
+        val gain = if (moon) baseGain * (0.72f + 0.28f * keep) else baseGain
+        val baseAlpha = a * (0.58f + 0.42f * smoothArtworkStep(0.035f, 0.24f, l))
+        val alpha = if (moon) maxOf(
+            baseAlpha * (0.69f + 0.31f * smoothArtworkStep(0.16f, 0.55f, l)) *
+                (0.68f + 0.32f * keep),
+            baseAlpha * keep * 0.94f,
+        ) else baseAlpha
         val rr = (l + (r - l) * saturation) * gain * (1f - 0.10f * shadow)
         val gg = (l + (g - l) * saturation) * gain
         val bb = (l + (b - l) * saturation) * gain + 0.012f * shadow
