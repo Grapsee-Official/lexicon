@@ -90,6 +90,7 @@ import com.lexicon.ui.theme.DarkBackground
 import com.lexicon.ui.theme.DarkCard
 import com.lexicon.ui.theme.DarkChipBorder
 import com.lexicon.ui.theme.DarkForeground
+import com.lexicon.ui.theme.DarkHighlight
 import com.lexicon.ui.theme.DarkMutedForeground
 import com.lexicon.ui.theme.DeepForest
 import com.lexicon.ui.theme.DisplayFontFamily
@@ -108,351 +109,113 @@ import com.lexicon.ui.theme.WarmGrey
 
 @Composable
 fun WordOfTheDayScreen(viewModel: LexiconViewModel) {
+    IllustratedDailyWordScreen(viewModel)
+}
+
+// The dictionary route is a reading page in its own right, not the daily
+// edition with a misleading Word of the Day badge.
+@Composable
+fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val isDark = state.isDark
-    val bg = if (isDark) DarkBackground else WarmCream
-    val cardBg = if (isDark) DarkCard else CardSurface
-    val border = if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.11f)
-    val fg = if (isDark) DarkForeground else DeepForest
-    val muted = if (isDark) DarkMutedForeground else WarmGrey
-    val accent = if (isDark) DarkAccent else OldWoodGold
-
-    val featuredWords = listOf(
-        LexiconData.serendipityEntry,
-        LexiconData.solitudeEntry,
-        LexiconData.wordOfTheDay,
-        LexiconData.dictionary[3],
-    )
-    var dayIdx by remember { mutableIntStateOf(0) }
-    val utcDay = remember { (System.currentTimeMillis() / 86_400_000L).toInt() }
-    val word = LexiconData.featuredWord(dayIdx)
-
-    val bridgeRes = resolveCountrysideDrawable("ill_hero_bridge", isDark)
-    val openBookRes = resolveCountrysideDrawable("ill_open_book_meadow", isDark)
-
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            ,
-        contentPadding = PaddingValues(bottom = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        // Top Header + Cottage Stone Bridge Hero Card
-        item(key = "wotd_hero_card") {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .windowInsetsPadding(WindowInsets.statusBars),
-            ) {
-                // Right-anchored Cottage & Stone Bridge Watercolour Vignette
-                Image(
-                    painter = painterResource(bridgeRes),
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit,
-                    alignment = Alignment.TopEnd,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .fillMaxWidth(0.84f)
-                        .height(282.dp)
-                        .offset(y = 18.dp),
-                )
-
-                if (isDark) {
-                    NocturneAtmosphere(Modifier.fillMaxWidth().height(270.dp))
-                }
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                ) {
-                    Spacer(Modifier.height(10.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            LeafSprig(
-                                color = if (isDark) DarkAccent else BrandGreen,
-                                modifier = Modifier
-                                    .size(25.dp)
-                                    .clickable { viewModel.toggleTheme() },
-                            )
-                            Column {
-                                Text(
-                                    text = "Word of the Day",
-                                    color = fg,
-                                    style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 24.sp),
-                                )
-                                Text(
-                                    text = "A new word, a wider world.",
-                                    color = muted,
-                                    style = TextStyle(fontFamily = LongFontFamily, fontSize = 11.sp),
-                                )
-                            }
-                        }
-
-                        Box(
-                            modifier = Modifier
-                                .size(34.dp)
-                                .clip(CircleShape)
-                                .background(cardBg.copy(alpha = 0.8f))
-                                .border(1.dp, border, CircleShape)
-                                .clickable { dayIdx = (dayIdx + 1) % featuredWords.size },
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Icon(Icons.Outlined.History, contentDescription = "Cycle daily words", tint = fg, modifier = Modifier.size(18.dp))
-                        }
-                    }
-
-                    Spacer(Modifier.height(10.dp))
-
-                    // Date pill
-                    Row(
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .background(cardBg)
-                            .border(1.dp, border, CircleShape)
-                            .padding(horizontal = 11.dp, vertical = 5.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        Icon(Icons.Outlined.CalendarToday, contentDescription = null, tint = accent, modifier = Modifier.size(12.dp))
-                        Text(
-                            text = java.text.SimpleDateFormat("EEE, MMM d, yyyy", java.util.Locale.ENGLISH).format(java.util.Date()),
-                            color = fg.copy(alpha = 0.85f),
-                            style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.sp),
-                        )
-                    }
-
-                    Spacer(Modifier.height(10.dp))
-
-                    // Featured Word Card
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(18.dp))
-                            .background(cardBg)
-                            .border(1.dp, border, RoundedCornerShape(18.dp))
-                            .clickable { viewModel.openWord(word) }
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            Text(
-                                text = word.word,
-                                color = fg,
-                                style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 30.sp),
-                            )
-                            Icon(Icons.AutoMirrored.Outlined.VolumeUp, contentDescription = "Pronounce", tint = muted, modifier = Modifier.size(18.dp))
-                        }
-                        Text(
-                            text = word.partOfSpeech.label(),
-                            color = muted,
-                            style = TextStyle(fontFamily = LongFontFamily, fontStyle = FontStyle.Italic, fontSize = 13.sp),
-                        )
-                        Text(
-                            text = word.phonetic,
-                            color = muted,
-                            style = TextStyle(fontFamily = BodyFontFamily, fontSize = 12.sp),
-                        )
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(0.54f),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            Box(Modifier.weight(1f).height(1.dp).background(border))
-                            LeafSprig(color = accent, modifier = Modifier.size(13.dp))
-                            Box(Modifier.weight(1f).height(1.dp).background(border))
-                        }
-
-                        Text(
-                            text = word.definitions.first(),
-                            color = fg,
-                            style = TextStyle(fontFamily = LongFontFamily, fontSize = 13.5.sp, lineHeight = 19.sp),
-                            modifier = Modifier.fillMaxWidth(0.62f),
-                        )
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(bg.copy(alpha = 0.65f))
-                                .border(1.dp, border, RoundedCornerShape(12.dp))
-                                .padding(horizontal = 12.dp, vertical = 10.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            Icon(Icons.Outlined.FormatQuote, contentDescription = null, tint = accent, modifier = Modifier.size(16.dp))
-                            Text(
-                                text = "“${word.examples.first()}”",
-                                color = fg.copy(alpha = 0.85f),
-                                style = TextStyle(fontFamily = LongFontFamily, fontStyle = FontStyle.Italic, fontSize = 12.sp, lineHeight = 17.sp),
-                            )
-                        }
-                    }
-
-                    // Carousel dots
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp),
-                        horizontalArrangement = Arrangement.Center,
-                    ) {
-                        featuredWords.indices.forEach { i ->
-                            Box(
-                                modifier = Modifier
-                                    .padding(horizontal = 3.dp)
-                                    .size(if (i == dayIdx) 7.dp else 5.dp)
-                                    .clip(CircleShape)
-                                    .background(if (i == dayIdx) (if (isDark) DarkAccent else BrandGreen) else border)
-                                    .clickable { dayIdx = i },
-                            )
-                        }
-                    }
-                }
-
-
-            }
-        }
-
-        // About the Word
-        item(key = "about_word") {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                BotanicalSectionTitle(
-                    title = "About the Word",
-                    isDark = isDark,
-                    actionLabel = "View More",
-                    onAction = { viewModel.openWord(word) },
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                )
-                Row(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(cardBg)
-                        .border(1.dp, border, RoundedCornerShape(16.dp))
-                        .clickable { viewModel.openWord(word) }
-                        .padding(10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                ) {
-                    Image(
-                        painter = painterResource(openBookRes),
-                        contentDescription = null,
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .width(116.dp)
-                            .height(86.dp)
-                            .clip(RoundedCornerShape(10.dp)),
-                    )
-                    Text(
-                        text = word.etymology,
-                        color = fg.copy(alpha = 0.88f),
-                        style = TextStyle(fontFamily = LongFontFamily, fontSize = 11.5.sp, lineHeight = 16.5.sp),
-                        maxLines = 5,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f),
-                    )
+    val word = state.detailWord
+    val dark = state.isDark
+    val ink = if (dark) DarkForeground else Color(0xFF243B37)
+    val accent = if (dark) DarkAccent else BrandGreen
+    val card = if (dark) DarkCard else Color(0xFFFFF2DF).copy(alpha = .72f)
+    val rule = if (dark) DarkChipBorder else OldWoodGold.copy(alpha = .34f)
+    val shape = RoundedCornerShape(14.dp)
+    val context = androidx.compose.ui.platform.LocalContext.current
+    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(9.dp)) {
+        item(key = "dictionary_heading") {
+            Box {
+                CountrysideHeroHeader("Dictionary", "", "ill_hero_cottage", dark,
+                    onHistoryClick = { viewModel.navigate(ScreenRoute.SEARCH_DISCOVERY) })
+                Box(Modifier.align(Alignment.TopStart).windowInsetsPadding(WindowInsets.statusBars)
+                    .padding(start = 12.dp).size(44.dp).clickable { viewModel.navigateBack() },
+                    contentAlignment = Alignment.Center) {
+                    Icon(Icons.AutoMirrored.Outlined.ArrowBack, "Back", tint = accent)
                 }
             }
         }
-
-        // Explore Further (2x3 Grid: Meaning, Synonyms, Antonyms, Etymology, Translations, Usage Examples)
-        item(key = "explore_further") {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                BotanicalSectionTitle(
-                    title = "Explore Further",
-                    isDark = isDark,
-                    actionLabel = null,
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                )
-                val links = listOf(
-                    Triple("Meaning", Icons.AutoMirrored.Outlined.MenuBook, false),
-                    Triple("Synonyms", Icons.Outlined.SwapHoriz, false),
-                    Triple("Antonyms", Icons.Outlined.CompareArrows, false),
-                    Triple("Etymology", Icons.Outlined.AutoStories, false),
-                    Triple("Translations", Icons.Outlined.Language, true),
-                    Triple("Usage Examples", Icons.Outlined.Description, false),
-                )
-                Column(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    links.chunked(3).forEach { rowItems ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            rowItems.forEach { (label, icon, to36) ->
-                                Column(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .clip(RoundedCornerShape(13.dp))
-                                        .background(cardBg)
-                                        .border(1.dp, border, RoundedCornerShape(13.dp))
-                                        .clickable(role = Role.Button) {
-                                            if (to36) viewModel.openWordExpanded(word)
-                                            else viewModel.openWord(word)
-                                        }
-                                        .padding(vertical = 10.dp, horizontal = 6.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                                ) {
-                                    Icon(icon, contentDescription = null, tint = if (isDark) DarkAccent else BrandGreen, modifier = Modifier.size(17.dp))
-                                    Text(
-                                        text = label,
-                                        color = fg,
-                                        style = TextStyle(fontFamily = BodyFontFamily, fontSize = 10.5.sp),
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                    )
-                                }
-                            }
-                        }
+        item(key = "word") {
+            Column(Modifier.fillMaxWidth().padding(horizontal = 18.dp),
+                verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                Text(word.word, color = ink, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 34.sp))
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                    Text(word.phonetic, color = ink, style = TextStyle(fontFamily = LongFontFamily, fontSize = 15.sp),
+                        modifier = Modifier.weight(1f, fill = false))
+                    Box(Modifier.size(44.dp).clip(CircleShape).background(card).clickable { viewModel.pronounce(word.word) },
+                        contentAlignment = Alignment.Center) { Icon(Icons.AutoMirrored.Outlined.VolumeUp, "Pronounce word", tint = accent) }
+                    Icon(if (state.savedWordIds.contains(word.id)) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
+                        "Bookmark word", tint = accent, modifier = Modifier.size(24.dp).clickable { viewModel.toggleSave(word.id) })
+                }
+                Text(word.partOfSpeech.label(), color = if (dark) DarkHighlight else Color.White,
+                    style = TextStyle(fontFamily = LongFontFamily, fontStyle = FontStyle.Italic, fontSize = 13.sp),
+                    modifier = Modifier.clip(CircleShape).background(if (dark) DarkCard else BrandGreen)
+                        .padding(horizontal = 14.dp, vertical = 5.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(word.definitions.firstOrNull().orEmpty(), color = ink,
+                        style = TextStyle(fontFamily = LongFontFamily, fontSize = 15.sp, lineHeight = 21.sp),
+                        modifier = Modifier.weight(1f))
+                    Image(painterResource(resolveCountrysideDrawable("ill_thumb_meadow", dark)), null,
+                        modifier = Modifier.weight(.72f).height(94.dp), contentScale = ContentScale.Fit)
+                }
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                    Box(Modifier.weight(1f).height(1.dp).background(rule))
+                    LeafSprig(accent, Modifier.size(19.dp))
+                    Box(Modifier.weight(1f).height(1.dp).background(rule))
+                }
+            }
+        }
+        val sections = listOf("Synonyms" to word.synonyms.joinToString(", "),
+            "Antonyms" to word.antonyms.joinToString(", "), "Etymology" to word.etymology,
+            "Meanings" to word.definitions.drop(1).joinToString("\n"))
+        sections.filter { it.second.isNotBlank() }.forEach { (title, body) ->
+            item(key = title) {
+                Row(Modifier.padding(horizontal = 18.dp).fillMaxWidth().clip(shape).background(card)
+                    .border(1.dp, rule, shape).padding(13.dp),
+                    horizontalArrangement = Arrangement.spacedBy(9.dp)) {
+                    LeafSprig(accent, Modifier.size(19.dp))
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                        Text(title, color = ink, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 17.sp))
+                        Text(body, color = ink, style = TextStyle(fontFamily = LongFontFamily, fontSize = 13.sp, lineHeight = 18.sp))
                     }
                 }
             }
         }
-
-        item(key = "quote") {
-            CountrysideQuoteBanner(
-                quote = "Words are bridges between minds.",
-                attribution = "Lexora",
-                illustrationBase = "ill_banner_bridge",
-                isDark = isDark,
-                modifier = Modifier.padding(horizontal = 16.dp),
-            )
+        if (word.examples.isNotEmpty()) item(key = "examples") {
+            Column(Modifier.padding(horizontal = 18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                BotanicalSectionTitle("Usage Examples", dark, actionLabel = null)
+                word.examples.forEach { example ->
+                    Text("“$example”", color = ink,
+                        style = TextStyle(fontFamily = LongFontFamily, fontStyle = FontStyle.Italic, fontSize = 13.sp, lineHeight = 19.sp),
+                        modifier = Modifier.fillMaxWidth().clip(shape).background(card).border(1.dp, rule, shape).padding(12.dp))
+                }
+            }
+        }
+        item(key = "explore") {
+            Row(Modifier.padding(horizontal = 18.dp).fillMaxWidth().clip(shape).border(1.dp, rule, shape)
+                .clickable { viewModel.openWordExpanded(word) }.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text("Explore translations across 36 languages", color = ink, modifier = Modifier.weight(1f))
+                Icon(Icons.AutoMirrored.Outlined.ArrowForward, null, tint = accent)
+            }
+        }
+        item(key = "closing") {
+            CountrysideQuoteBanner("Discover the beauty in every word.", "Lexora", "ill_banner_church",
+                dark, Modifier.padding(horizontal = 18.dp))
         }
     }
 }
 
-/**
- * Page 3: Word Detail — Full word profile (shares WordEntry with Page 10):
- *   - Top bar: [←] ... [Bookmark] [Share]
- *   - "Word of the Day" pill + large Playfair title + speaker + IPA + [noun] pill + stone bridge vignette
- *   - 4 Metadata Cards: Language | Origin | Frequency | Level
- *   - Meanings (numbered 1, 2 with italic contextual quotes)
- *   - Synonyms & Antonyms capsule pills
- *   - Side-by-side Etymology (with stacked books art) & Usage Examples
- *   - "Explore in 36 Languages →" progressive expansion button into Page 10
- *   - Did You Know? panoramic coastal palace banner
- */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
+private fun IllustratedDailyWordScreen(viewModel: LexiconViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
     val word = state.detailWord
     val saved = state.savedWordIds.contains(word.id)
+    val shareContext = androidx.compose.ui.platform.LocalContext.current
 
     val bg = if (isDark) DarkBackground else WarmCream
     val cardBg = if (isDark) DarkCard else CardSurface
@@ -527,7 +290,13 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                                 imageVector = Icons.Outlined.Share,
                                 contentDescription = "Share",
                                 tint = fg,
-                                modifier = Modifier.size(20.dp),
+                                modifier = Modifier.size(24.dp).clickable {
+                                    val share = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                        type = "text/plain"
+                                        putExtra(android.content.Intent.EXTRA_TEXT, word.word + " — " + word.definitions.firstOrNull().orEmpty())
+                                    }
+                                    shareContext.startActivity(android.content.Intent.createChooser(share, "Share word"))
+                                },
                             )
                         }
                     }
@@ -579,7 +348,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                     }
 
                     Text(
-                        text = word.definitions.first(),
+                        text = word.definitions.firstOrNull().orEmpty(),
                         color = fg,
                         style = TextStyle(fontFamily = LongFontFamily, fontSize = 13.sp, lineHeight = 18.sp),
                         modifier = Modifier.fillMaxWidth(0.58f),
@@ -637,7 +406,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                     LeafSprig(color = accent, modifier = Modifier.size(15.dp))
                     Text("Meanings", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 16.sp))
                 }
-                word.definitions.take(2).forEachIndexed { i, def ->
+                word.definitions.drop(1).ifEmpty { word.definitions }.forEachIndexed { i, def ->
                     Row(horizontalArrangement = Arrangement.spacedBy(9.dp), verticalAlignment = Alignment.Top) {
                         Box(
                             modifier = Modifier

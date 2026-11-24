@@ -195,7 +195,7 @@ final class LexiconViewModel: ObservableObject {
             nextTab = .more
         }
         routeHistory = Array((routeHistory + [route]).suffix(12))
-        if let w = word {
+        if let w = word ?? (target == .wordOfTheDay ? LexiconData.featuredWord() : nil) {
             detailWord = w
             recentlyViewedIds = Array(([w.id] + recentlyViewedIds.filter { $0 != w.id }).prefix(8))
             UserDefaults.standard.set(recentlyViewedIds, forKey: viewedKey)
@@ -289,7 +289,7 @@ final class LexiconViewModel: ObservableObject {
         addRecentSearch(trimmed)
         searchQuery = trimmed
         let top = searchWords(trimmed, limit: 1).first
-        selectedWord = top
+        selectedWord = nil
         navigate(to: .searchResults, word: top)
     }
 

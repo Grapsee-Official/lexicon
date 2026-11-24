@@ -116,7 +116,7 @@ class LexiconViewModel : ViewModel() {
                 ScreenRoute.QUICK_TEMPLATES -> TabKey.COLLECTIONS
                 ScreenRoute.MORE -> TabKey.MORE
             }
-            val resolvedWord = word ?: s.detailWord
+            val resolvedWord = word ?: if (to == ScreenRoute.WORD_OF_THE_DAY) LexiconData.featuredWord() else s.detailWord
             val nextViewed = if (word != null) {
                 (listOf(word.id) + s.recentlyViewedIds.filter { it != word.id }).take(8)
             } else s.recentlyViewedIds
@@ -242,7 +242,7 @@ class LexiconViewModel : ViewModel() {
             current.copy(
                 searchQuery = trimmed,
                 detailWord = topMatch ?: current.detailWord,
-                selectedWord = topMatch,
+                selectedWord = null,
                 route = ScreenRoute.SEARCH_RESULTS,
                 routeHistory = (current.routeHistory + current.route).takeLast(12),
                 activeTab = TabKey.DICTIONARY,
