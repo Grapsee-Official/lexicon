@@ -352,15 +352,16 @@ enum ArtworkTreatment: String, Sendable {
 struct PreparedArtworkImage: View {
     let name: String
     let treatment: ArtworkTreatment
+    var underpainting: Bool = false
     @State private var prepared: UIImage?
     @State private var finished = false
 
     var body: some View {
         Group {
             if let image = prepared ?? HomeArtworkProcessor.cached(name: name, treatment: treatment) {
-                Image(uiImage: image).resizable()
+                painting(Image(uiImage: image))
             } else if finished {
-                Image(name).resizable()
+                painting(Image(name))
             } else {
                 Color.clear
             }
@@ -374,6 +375,16 @@ struct PreparedArtworkImage: View {
                 finished = true
             }
         }
+    }
+
+    private func painting(_ image: Image) -> some View {
+        image.resizable()
+            .background {
+                if underpainting {
+                    // Reuse the decoded image instead of launching another task.
+                    image.resizable().blur(radius: 12).opacity(0.13)
+                }
+            }
     }
 }
 

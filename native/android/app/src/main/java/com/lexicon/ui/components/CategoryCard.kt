@@ -1,5 +1,7 @@
 package com.lexicon.ui.components
 
+import android.os.Build
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -85,7 +87,7 @@ fun CategoryCard(
             val painting = rememberPreparedArtwork(resId, ArtworkTreatment.BOOKPLATE)
             val artHeight = if (largeText) 88.dp else if (isDark) 60.dp else 65.dp
             Box(Modifier.fillMaxWidth().height(artHeight), contentAlignment = Alignment.Center) {
-                if (isDark) {
+                if (isDark && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     // A subdued underpainting made from this very bookplate,
                     // not a generic golden halo. The visible painting remains
                     // identical in both themes; only its surrounding ink changes.
