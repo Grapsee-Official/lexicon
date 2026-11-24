@@ -413,6 +413,7 @@ private enum HomeArtworkProcessor {
         guard drawn else { return nil }
 
         var left = w, top = h, right = -1, bottom = -1, transparent = 0
+        var mass = 0.0, weightedX = 0.0, weightedY = 0.0
         if treatment == .bookplate {
             // Match the Android pipeline: only a provably uniform, opaque
             // neutral perimeter is treated as a matte, never the painting.
@@ -422,6 +423,10 @@ private enum HomeArtworkProcessor {
                     let alpha = bytes[(y * w + x) * 4 + 3]
                     if alpha < 12 { transparent += 1 }
                     if alpha >= 4 {
+                        let weight = Double(alpha) / 255
+                        mass += weight
+                        weightedX += (Double(x) + 0.5) * weight
+                        weightedY += (Double(y) + 0.5) * weight
                         left = min(left, x); top = min(top, y)
                         right = max(right, x); bottom = max(bottom, y)
                     }
@@ -467,13 +472,20 @@ private enum HomeArtworkProcessor {
                                    provider: provider, decode: nil, shouldInterpolate: true,
                                    intent: .defaultIntent) else { return nil }
 
-        if treatment == .bookplate && right >= left && bottom >= top && transparent > w * h / 8 {
-            let pad = Int((Double(max(right - left + 1, bottom - top + 1)) * 0.055).rounded())
+        if treatment == .bookplate && right >= left && bottom >= top && mass > 0 && transparent > w * h / 8 {
+            let paintedArea = Double(right - left + 1) * Double(bottom - top + 1)
+            let coverage = min(1, max(0, mass / paintedArea))
+            let pad = Int((Double(max(right - left + 1, bottom - top + 1)) * 0.035).rounded())
             left = max(0, left - pad); top = max(0, top - pad)
             right = min(w - 1, right + pad); bottom = min(h - 1, bottom + pad)
-            result = result.cropping(to: CGRect(x: left, y: top,
-                                               width: right - left + 1,
-                                               height: bottom - top + 1)) ?? result
+            if let cropped = result.cropping(to: CGRect(x: left, y: top,
+                                                         width: right - left + 1,
+                                                         height: bottom - top + 1)) {
+                result = opticalBookplate(cropped, coverage: coverage,
+                                          centerX: weightedX / mass - Double(left),
+                                          centerY: weightedY / mass - Double(top),
+                                          space: space, bitmapInfo: info) ?? cropped
+            }
         }
         if treatment == .bookplate && max(result.width, result.height) > 640 {
             let factor = 640.0 / Double(max(result.width, result.height))
@@ -726,4 +738,33 @@ private func gradeMoonlitPainting(_ bytes: inout [UInt8], width w: Int, height h
         bytes[i + 2] = byte(min(1, max(0, bb)) * alpha)
         bytes[i + 3] = byte(alpha)
     }
+}
+
+
+/// Optical centering and padding match Compose. This preserves the actual
+/// painting and uses the same prepared resource in both color schemes.
+private func opticalBookplate(
+    _ source: CGImage, coverage: Double, centerX: Double, centerY: Double,
+    space: CGColorSpace, bitmapInfo: UInt32
+) -> CGImage? {
+    let side = 640
+    let canvas = Double(side)
+    let fill = min(0.98, max(0.88, 0.98 - 0.10 * coverage))
+    let scale = canvas * fill / Double(max(source.width, source.height))
+    let w = Double(source.width) * scale
+    let h = Double(source.height) * scale
+    let margin = canvas * 0.01
+    let opticalX = min(canvas * 0.035, max(-canvas * 0.035, w / 2 - centerX * scale))
+    let opticalY = min(canvas * 0.035, max(-canvas * 0.035, h / 2 - centerY * scale))
+    let x = min(canvas - w - margin, max(margin, (canvas - w) / 2 + opticalX))
+    let y = min(canvas - h - margin, max(margin, (canvas - h) / 2 + opticalY))
+    guard let ctx = CGContext(data: nil, width: side, height: side, bitsPerComponent: 8,
+                              bytesPerRow: side * 4, space: space,
+                              bitmapInfo: bitmapInfo) else { return nil }
+    ctx.clear(CGRect(x: 0, y: 0, width: side, height: side))
+    ctx.interpolationQuality = .high
+    // Core Graphics uses a lower-left drawing origin; source alpha
+    // centroids are measured from the top-left raster row.
+    ctx.draw(source, in: CGRect(x: x, y: canvas - y - h, width: w, height: h))
+    return ctx.makeImage()
 }

@@ -360,11 +360,18 @@ private fun prepareArtwork(
         var right = -1
         var bottom = -1
         var transparent = 0L
+        var mass = 0.0
+        var weightedX = 0.0
+        var weightedY = 0.0
         for (y in 0 until h) {
             for (x in 0 until w) {
                 val alpha = pixels[y * w + x] ushr 24
                 if (alpha < 12) transparent++
                 if (alpha >= 4) {
+                    val weight = alpha / 255.0
+                    mass += weight
+                    weightedX += (x + 0.5) * weight
+                    weightedY += (y + 0.5) * weight
                     left = minOf(left, x)
                     top = minOf(top, y)
                     right = maxOf(right, x)
@@ -372,13 +379,19 @@ private fun prepareArtwork(
                 }
             }
         }
-        if (right >= left && bottom >= top && transparent > w.toLong() * h / 8) {
-            val pad = (maxOf(right - left + 1, bottom - top + 1) * 0.055f).roundToInt()
+        if (right >= left && bottom >= top && mass > 0 && transparent > w.toLong() * h / 8) {
+            val paintedArea = (right - left + 1).toDouble() * (bottom - top + 1)
+            val coverage = (mass / paintedArea).coerceIn(0.0, 1.0)
+            val pad = (maxOf(right - left + 1, bottom - top + 1) * 0.035f).roundToInt()
             left = (left - pad).coerceAtLeast(0)
             top = (top - pad).coerceAtLeast(0)
             right = (right + pad).coerceAtMost(w - 1)
             bottom = (bottom + pad).coerceAtMost(h - 1)
             bitmap = Bitmap.createBitmap(bitmap, left, top, right - left + 1, bottom - top + 1)
+            return opticalBookplate(
+                bitmap, coverage,
+                weightedX / mass - left, weightedY / mass - top,
+            ).asImageBitmap()
         }
     }
     val limit = if (treatment == ArtworkTreatment.BOOKPLATE) 640 else 1536
@@ -663,4 +676,29 @@ private fun gradeMoonlitPainting(pixels: IntArray, w: Int, h: Int) {
         pixels[i] = (channel(alpha) shl 24) or (channel(rr) shl 16) or
             (channel(gg) shl 8) or channel(bb)
     }
+}
+
+
+/** Center the painted mass, not the arbitrary PNG rectangle. Sparse motifs
+ * get a little more space than dense globes or books. Never crop the subject;
+ * the optical shift is bounded by a transparent safety margin. */
+private fun opticalBookplate(
+    source: Bitmap, coverage: Double, centerX: Double, centerY: Double,
+): Bitmap {
+    val side = 640
+    val fill = (0.98 - 0.10 * coverage).coerceIn(0.88, 0.98)
+    val scale = side * fill / maxOf(source.width, source.height)
+    val w = source.width * scale
+    val h = source.height * scale
+    val minMargin = side * 0.01
+    val opticalX = (w / 2 - centerX * scale).coerceIn(-side * 0.035, side * 0.035)
+    val opticalY = (h / 2 - centerY * scale).coerceIn(-side * 0.035, side * 0.035)
+    val x = ((side - w) / 2 + opticalX).coerceIn(minMargin, side - w - minMargin)
+    val y = ((side - h) / 2 + opticalY).coerceIn(minMargin, side - h - minMargin)
+    val result = Bitmap.createBitmap(side, side, Bitmap.Config.ARGB_8888)
+    val canvas = android.graphics.Canvas(result)
+    val paint = android.graphics.Paint(android.graphics.Paint.FILTER_BITMAP_FLAG or android.graphics.Paint.ANTI_ALIAS_FLAG)
+    canvas.drawBitmap(source, null,
+        android.graphics.RectF(x.toFloat(), y.toFloat(), (x + w).toFloat(), (y + h).toFloat()), paint)
+    return result
 }
