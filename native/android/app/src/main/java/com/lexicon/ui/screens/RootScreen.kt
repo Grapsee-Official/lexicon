@@ -77,7 +77,12 @@ fun RootScreen(viewModel: LexiconViewModel) {
             }
         }
 
-        CountrysideMaterialOverlay(isDark = state.isDark, modifier = Modifier.fillMaxSize())
+        // Dark Home is a composed painting with its own natural grain.
+        // A root-level material overlay would put synthetic dots over the
+        // artwork, text, and glass surfaces rather than behind them.
+        if (!(state.isDark && route == ScreenRoute.HOME)) {
+            CountrysideMaterialOverlay(isDark = state.isDark, modifier = Modifier.fillMaxSize())
+        }
 
         if (route != ScreenRoute.HOME) {
             Box(

@@ -37,9 +37,13 @@ struct ContentView: View {
                     .lexiconEditMenu(engine: vm.engine)
             }
 
-            CountrysideMaterialOverlay(isDark: scheme == .dark)
-                .ignoresSafeArea()
-                .zIndex(1)
+            // The dark Home painting supplies the texture itself. Keep the
+            // existing vector material on every other appearance/destination.
+            if !(scheme == .dark && vm.route == .home && !vm.libraryOpen) {
+                CountrysideMaterialOverlay(isDark: scheme == .dark)
+                    .ignoresSafeArea()
+                    .zIndex(1)
+            }
 
             BottomNav()
                 .environmentObject(vm)
