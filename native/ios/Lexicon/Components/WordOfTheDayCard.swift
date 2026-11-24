@@ -19,11 +19,15 @@ struct WordOfTheDayCard: View {
     private var isDark: Bool { scheme == .dark }
 
     private var leftBg: Color {
-        isDark ? LexiconColors.wotdLeftDark : LexiconColors.primary
+        isDark ? Color(hex: "0B141C") : LexiconColors.primary
     }
 
     private var rightBg: Color {
-        isDark ? LexiconColors.wotdRightDark : LexiconColors.wotdRightLight
+        isDark ? Color(hex: "0C151D") : LexiconColors.wotdRightLight
+    }
+
+    private var cardBorder: Color {
+        isDark ? Color(hex: "B6A486").opacity(0.19) : lexiconPalette(scheme).border
     }
 
     private var labelGold: Color {
@@ -112,38 +116,62 @@ struct WordOfTheDayCard: View {
                     .background(leftBg)
 
                     Rectangle()
-                        .fill(isDark ? LexiconColors.borderDark : LexiconColors.foreground.opacity(0.08))
+                        .fill(isDark ? cardBorder : LexiconColors.foreground.opacity(0.08))
                         .frame(width: 1, height: height)
 
                     ZStack(alignment: .leading) {
                         rightBg
 
-                        HStack(spacing: 0) {
-                            Spacer(minLength: 0)
-                            Image(isDark ? "wotd-bg-dark" : "wotd-bg-light")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: rightW * 0.96, height: height, alignment: .bottomTrailing)
-                                .accessibilityHidden(true)
-                        }
-
                         if isDark {
-                            NocturneAtmosphere()
-                                .frame(width: rightW * 0.96, height: height)
-                                .frame(maxWidth: .infinity, alignment: .trailing)
+                            // Match Compose: fill the panel, anchor trailing, then
+                            // reveal the shared card ink with opacity-only masks.
+                            Image("wotd-home-dark")
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: rightW, height: height, alignment: .trailing)
+                                .clipped()
+                                .saturation(0.88)
+                                .opacity(0.94)
+                                .mask {
+                                    LinearGradient(stops: [
+                                        .init(color: .clear, location: 0),
+                                        .init(color: .black.opacity(0.04), location: 0.18),
+                                        .init(color: .black.opacity(0.16), location: 0.38),
+                                        .init(color: .black.opacity(0.52), location: 0.56),
+                                        .init(color: .black.opacity(0.94), location: 0.76),
+                                        .init(color: .black, location: 0.95),
+                                        .init(color: .black.opacity(0.86), location: 1)
+                                    ], startPoint: .leading, endPoint: .trailing)
+                                }
+                                .mask {
+                                    LinearGradient(stops: [
+                                        .init(color: .black.opacity(0.65), location: 0),
+                                        .init(color: .black.opacity(0.94), location: 0.12),
+                                        .init(color: .black, location: 0.78),
+                                        .init(color: .black.opacity(0.66), location: 1)
+                                    ], startPoint: .top, endPoint: .bottom)
+                                }
+                                .allowsHitTesting(false)
+                                .accessibilityHidden(true)
+                        } else {
+                            HStack(spacing: 0) {
+                                Spacer(minLength: 0)
+                                Image("wotd-bg-light")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: rightW * 0.96, height: height, alignment: .bottomTrailing)
+                                    .accessibilityHidden(true)
+                            }
+                            LinearGradient(
+                                stops: [
+                                    .init(color: rightBg.opacity(0.96), location: 0),
+                                    .init(color: rightBg.opacity(0.72), location: 0.38),
+                                    .init(color: .clear, location: 0.83)
+                                ], startPoint: .leading, endPoint: .trailing
+                            )
+                            .frame(width: rightW, height: height)
+                            .allowsHitTesting(false)
                         }
-
-                        // Feather the complete illustration behind the definition.
-                        LinearGradient(
-                            stops: [
-                                .init(color: rightBg.opacity(0.96), location: 0),
-                                .init(color: rightBg.opacity(0.72), location: 0.38),
-                                .init(color: .clear, location: 0.83),
-                            ],
-                            startPoint: .leading, endPoint: .trailing
-                        )
-                        .frame(width: rightW, height: height)
-                        .allowsHitTesting(false)
 
                         VStack(alignment: .leading, spacing: 0) {
                             Text(word.definitions.first ?? "")
@@ -151,7 +179,7 @@ struct WordOfTheDayCard: View {
                                 .foregroundStyle(defColor)
                                 .lineSpacing(2.5)
                                 .lineLimit(4)
-                                .frame(width: rightW * 0.69, alignment: .leading)
+                                .frame(width: isDark ? max(1, rightW * (dynamicTypeSize.isAccessibilitySize ? 0.88 : 0.69) - 17) : rightW * 0.69, alignment: .leading)
 
                             Spacer(minLength: 4)
 
@@ -178,10 +206,10 @@ struct WordOfTheDayCard: View {
                         .onChange(of: measure.size.width) { measuredWidth = $0 }
                 }
             }
-            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: isDark ? 12 : 16, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .stroke(lexiconPalette(scheme).border, lineWidth: 1)
+                RoundedRectangle(cornerRadius: isDark ? 12 : 16, style: .continuous)
+                    .stroke(cardBorder, lineWidth: 1)
             )
             .shadow(
                 color: isDark ? .clear : LexiconColors.foreground.opacity(0.08),
@@ -190,7 +218,7 @@ struct WordOfTheDayCard: View {
                 y: 2
             )
         }
-        .contentShape(RoundedRectangle(cornerRadius: 16))
+        .contentShape(RoundedRectangle(cornerRadius: isDark ? 12 : 16))
         .onTapGesture {
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
             vm.navigate(to: .wordOfTheDay, word: word)

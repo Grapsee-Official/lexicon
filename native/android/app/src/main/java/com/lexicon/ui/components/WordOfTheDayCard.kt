@@ -1,6 +1,7 @@
 package com.lexicon.ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -29,6 +30,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -46,11 +55,8 @@ import com.lexicon.ui.iconButton
 import com.lexicon.ui.liveAnnouncement
 import com.lexicon.ui.theme.BrandGreen
 import com.lexicon.ui.theme.DarkAccent
-import com.lexicon.ui.theme.DarkChipBorder
 import com.lexicon.ui.theme.DarkForeground
 import com.lexicon.ui.theme.DarkMutedForeground
-import com.lexicon.ui.theme.DarkWotdLeft
-import com.lexicon.ui.theme.DarkWotdRight
 import com.lexicon.ui.theme.DeepForest
 import com.lexicon.ui.theme.LexiconTextStyles
 import com.lexicon.ui.theme.WotdGoldLight
@@ -69,16 +75,16 @@ fun WordOfTheDayCard(
     val accessible = config.fontScale > 1.2f
     val cardHeight = if (accessible) 186.dp else if (compact) 144.dp else 118.dp
 
-    val leftBg = if (isDark) DarkWotdLeft else BrandGreen
-    val rightBg = if (isDark) DarkWotdRight else WotdRightSurface
-    val cardBorder = if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.12f)
+    // Same ink family as the Home night backdrop, not a separate slate tile.
+    val leftBg = if (isDark) Color(0xFF0B141C) else BrandGreen
+    val rightBg = if (isDark) Color(0xFF0C151D) else WotdRightSurface
+    val cardBorder = if (isDark) Color(0xFFB6A486).copy(alpha = 0.19f) else DeepForest.copy(alpha = 0.12f)
     val labelGold = if (isDark) DarkAccent else WotdGoldLight
     val wordColor = if (isDark) DarkForeground else Color.White
     val phoneticColor = if (isDark) DarkMutedForeground else Color.White.copy(alpha = 0.78f)
     val posColor = if (isDark) DarkAccent else WotdGoldLight
     val defColor = if (isDark) DarkForeground.copy(alpha = 0.90f) else DeepForest.copy(alpha = 0.88f)
     val exploreColor = if (isDark) DarkAccent else BrandGreen
-    val imageRes = if (isDark) R.drawable.wotd_bg_dark else R.drawable.wotd_bg_light
     // Fit ordinary long words beside the speaker icon without splitting them
     // into unnatural fragments on narrow phones (e.g. "Wanderlu" / "st").
     val wordSize = when {
@@ -88,7 +94,7 @@ fun WordOfTheDayCard(
         else -> if (compact || accessible) 17.sp else 20.sp
     }
 
-    val shape = RoundedCornerShape(16.dp)
+    val shape = RoundedCornerShape(if (isDark) 12.dp else 16.dp)
 
     Row(
         modifier = modifier
@@ -187,7 +193,7 @@ fun WordOfTheDayCard(
             modifier = Modifier
                 .width(1.dp)
                 .fillMaxHeight()
-                .background(if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.08f)),
+                .background(if (isDark) cardBorder else DeepForest.copy(alpha = 0.08f)),
         )
 
         Box(
@@ -196,44 +202,77 @@ fun WordOfTheDayCard(
                 .fillMaxHeight()
                 .background(rightBg),
         ) {
-            Image(
-                painter = painterResource(imageRes),
-                contentDescription = null,
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .fillMaxHeight()
-                    .fillMaxWidth(0.96f),
-                contentScale = ContentScale.Fit,
-                alignment = Alignment.BottomEnd,
-            )
-
             if (isDark) {
-                NocturneAtmosphere(
-                    Modifier.align(Alignment.CenterEnd).fillMaxWidth(0.96f).fillMaxHeight()
+                val artwork = painterResource(R.drawable.wotd_home_dark)
+                val grade = ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0.88f) })
+                // Isolate the illustration so the alpha masks reveal the card's
+                // midnight ink, rather than painting a hard scrim over the art.
+                Canvas(Modifier.matchParentSize().graphicsLayer {
+                    compositingStrategy = CompositingStrategy.Offscreen
+                }) {
+                    val intrinsic = artwork.intrinsicSize
+                    val aspect = if (intrinsic.width > 0 && intrinsic.height > 0)
+                        intrinsic.width / intrinsic.height else 1.5f
+                    val width = maxOf(size.width, size.height * aspect)
+                    val height = width / aspect
+                    clipRect {
+                        translate(left = size.width - width, top = (size.height - height) / 2f) {
+                            with(artwork) {
+                                draw(size = Size(width, height), alpha = 0.94f, colorFilter = grade)
+                            }
+                        }
+                    }
+                    drawRect(
+                        brush = Brush.horizontalGradient(
+                            0f to Color.Transparent,
+                            0.18f to Color.Black.copy(alpha = 0.04f),
+                            0.38f to Color.Black.copy(alpha = 0.16f),
+                            0.56f to Color.Black.copy(alpha = 0.52f),
+                            0.76f to Color.Black.copy(alpha = 0.94f),
+                            0.95f to Color.Black,
+                            1f to Color.Black.copy(alpha = 0.86f),
+                        ),
+                        blendMode = BlendMode.DstIn,
+                    )
+                    drawRect(
+                        brush = Brush.verticalGradient(
+                            0f to Color.Black.copy(alpha = 0.65f),
+                            0.12f to Color.Black.copy(alpha = 0.94f),
+                            0.78f to Color.Black,
+                            1f to Color.Black.copy(alpha = 0.66f),
+                        ),
+                        blendMode = BlendMode.DstIn,
+                    )
+                }
+            } else {
+                Image(
+                    painter = painterResource(R.drawable.wotd_bg_light),
+                    contentDescription = null,
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                        .fillMaxHeight().fillMaxWidth(0.96f),
+                    contentScale = ContentScale.Fit,
+                    alignment = Alignment.BottomEnd,
+                )
+                Box(
+                    modifier = Modifier.fillMaxSize().background(
+                        Brush.horizontalGradient(
+                            0.0f to rightBg.copy(alpha = 0.96f),
+                            0.38f to rightBg.copy(alpha = 0.72f),
+                            0.83f to Color.Transparent,
+                        )
+                    ),
                 )
             }
-
-            // Feather the left edge of the painting into the reading surface;
-            // do not crop or hide the countryside behind a solid rectangle.
-            Box(
-                modifier = Modifier.fillMaxSize().background(
-                    Brush.horizontalGradient(
-                        0.0f to rightBg.copy(alpha = 0.96f),
-                        0.38f to rightBg.copy(alpha = 0.72f),
-                        0.83f to Color.Transparent,
-                    )
-                ),
-            )
 
             Column(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .fillMaxWidth(0.69f)
+                    .fillMaxWidth(if (isDark && accessible) 0.88f else 0.69f)
                     .padding(start = 13.dp, top = 13.dp, bottom = 12.dp, end = 4.dp),
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(
-                    text = word.definitions.first(),
+                    text = word.definitions.firstOrNull().orEmpty(),
                     color = defColor,
                     style = LexiconTextStyles.WotdDefinition,
                     maxLines = 4,
