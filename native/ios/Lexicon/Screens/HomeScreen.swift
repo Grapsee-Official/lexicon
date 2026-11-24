@@ -90,14 +90,14 @@ struct HomeScreen: View {
                         homeEditorial: true
                     )
                     ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 10) {
+                        HStack(spacing: scheme == .dark ? window.size.width * 13 / 591 : 10) {
                             ForEach(LexiconData.articles) { a in
                                 ArticleCard(
                                     article: a,
                                     shelfWidth: scheme == .dark && !dynamicTypeSize.isAccessibilitySize
-                                        ? (a.id == "a1" ? min(230, max(140, window.size.width * 0.40)) : min(200, max(122, window.size.width * 0.34))) : nil,
+                                        ? (a.id == "a1" ? min(260, max(130, window.size.width * 240 / 591)) : min(200, max(112, window.size.width * 180 / 591))) : nil,
                                     shelfHeight: scheme == .dark && !dynamicTypeSize.isAccessibilitySize
-                                        ? min(112, max(74, window.size.width * 0.207)) : nil,
+                                        ? min(132, max(68, window.size.width * 122 / 591)) : nil,
                                     onOpen: { vm.openLibraryArticle(a.id) }
                                 )
                             }

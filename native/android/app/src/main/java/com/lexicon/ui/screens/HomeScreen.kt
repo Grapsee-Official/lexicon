@@ -266,11 +266,11 @@ private fun HomeFeed(
                 )
                 BoxWithConstraints(Modifier.fillMaxWidth()) {
                     val editorial = state.isDark && LocalConfiguration.current.fontScale < 1.5f
-                    val cardHeight = (maxWidth * 0.207f).coerceIn(74.dp, 112.dp)
-                    val firstWidth = (maxWidth * 0.40f).coerceIn(140.dp, 230.dp)
-                    val followingWidth = (maxWidth * 0.34f).coerceIn(122.dp, 200.dp)
+                    val cardHeight = (maxWidth * (122f / 591f)).coerceIn(68.dp, 132.dp)
+                    val firstWidth = (maxWidth * (240f / 591f)).coerceIn(130.dp, 260.dp)
+                    val followingWidth = (maxWidth * (180f / 591f)).coerceIn(112.dp, 200.dp)
                     LazyRow(contentPadding = PaddingValues(horizontal = if (state.isDark) 18.dp else 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        horizontalArrangement = Arrangement.spacedBy(if (editorial) maxWidth * (13f / 591f) else 8.dp)) {
                         items(LexiconData.articles, key = { it.id }) { article ->
                             ArticleCard(article = article, viewModel = viewModel,
                                 onOpen = { articleToRead = article; libraryOpen = true },

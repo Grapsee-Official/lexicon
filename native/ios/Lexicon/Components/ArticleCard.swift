@@ -26,6 +26,7 @@ struct ArticleCard: View {
 
     private var cardWidth: CGFloat { shelfWidth ?? (isDark ? (dynamicTypeSize.isAccessibilitySize ? 210 : 150) : 174) }
     private var cardHeight: CGFloat { shelfHeight ?? (isDark ? (dynamicTypeSize.isAccessibilitySize ? 120 : 78) : 90) }
+    private var imageFraction: CGFloat { isDark && shelfWidth != nil && article.id != "a1" ? 0.41 : 0.35 }
     private var corner: CGFloat { isDark ? 10 : 13 }
 
     var body: some View {
@@ -35,7 +36,7 @@ struct ArticleCard: View {
         } label: {
             HStack(spacing: 0) {
                 if isDark {
-                    Color.clear.frame(width: cardWidth * 0.34)
+                    Color.clear.frame(width: cardWidth * imageFraction)
                 } else {
                     Image(thumbName)
                         .resizable()
@@ -77,7 +78,7 @@ struct ArticleCard: View {
                 .padding(.leading, 5)
                 .padding(.trailing, isDark ? 7 : 10)
                 .padding(.vertical, 8)
-                .frame(width: isDark ? cardWidth * 0.66 : 110, height: cardHeight, alignment: .topLeading)
+                .frame(width: isDark ? cardWidth * (1 - imageFraction) : 110, height: cardHeight, alignment: .topLeading)
             }
             .frame(width: cardWidth, height: cardHeight)
             .background(alignment: .leading) {
@@ -92,7 +93,9 @@ struct ArticleCard: View {
                             PreparedArtworkImage(name: thumbName, treatment: .story)
                         }
                     }
-                    .frame(width: cardWidth * 0.34 - 6, height: cardHeight - 6)
+                    .scaledToFit()
+                    .frame(width: cardWidth * imageFraction - 6, height: cardHeight - 6)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
                     .padding(3)
                     .allowsHitTesting(false)
                         .accessibilityHidden(true)

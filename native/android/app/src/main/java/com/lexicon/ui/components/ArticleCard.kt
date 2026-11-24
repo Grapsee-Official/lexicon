@@ -85,6 +85,7 @@ fun ArticleCard(
     val fontScale = LocalConfiguration.current.fontScale
     val largeText = fontScale >= 1.5f
     val width = shelfWidth ?: if (isDark && !largeText) 150.dp * fontScale.coerceIn(1f, 1.20f) else if (isDark) 210.dp else 174.dp
+    val imageFraction = if (isDark && shelfWidth != null && article.id != "a1") 0.41f else 0.35f
     val height = shelfHeight ?: if (isDark && !largeText) 78.dp * fontScale.coerceIn(1f, 1.25f) else if (isDark) 120.dp * (fontScale / 1.5f).coerceAtLeast(1f) else 90.dp
 
     Box(
@@ -116,19 +117,20 @@ fun ArticleCard(
             if (vector != 0) {
                 Image(
                     painter = painterResource(vector), contentDescription = null,
-                    contentScale = ContentScale.FillBounds,
+                    contentScale = ContentScale.Fit,
                     modifier = Modifier.align(Alignment.CenterStart)
-                        .fillMaxHeight().fillMaxWidth(0.34f).padding(3.dp),
+                        .fillMaxHeight().fillMaxWidth(imageFraction).padding(3.dp)
+                        .clip(RoundedCornerShape(6.dp)),
                 )
             } else if (resId != 0) {
                 Image(painter = rememberPreparedArtwork(resId, ArtworkTreatment.STORY),
                     contentDescription = null, contentScale = ContentScale.Crop,
-                    modifier = Modifier.align(Alignment.CenterStart).fillMaxHeight().fillMaxWidth(0.34f))
+                    modifier = Modifier.align(Alignment.CenterStart).fillMaxHeight().fillMaxWidth(imageFraction))
             }
         }
         Row(Modifier.fillMaxSize()) {
             if (isDark) {
-                Spacer(Modifier.weight(0.34f))
+                Spacer(Modifier.weight(imageFraction))
             } else {
                 Box(
                     modifier = Modifier.weight(0.33f).fillMaxHeight()
@@ -147,7 +149,7 @@ fun ArticleCard(
 
         Column(
             modifier = Modifier
-                .weight(if (isDark) 0.66f else 0.67f)
+                .weight(if (isDark) 1f - imageFraction else 0.67f)
                 .fillMaxHeight()
                 .padding(start = 5.dp, end = if (isDark) 7.dp else 9.dp, top = if (isDark) 8.dp else 10.dp, bottom = if (isDark) 7.dp else 9.dp),
             verticalArrangement = Arrangement.SpaceBetween,
