@@ -11,15 +11,17 @@ struct TrendingTagRow: View {
     @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     private var isDark: Bool { scheme == .dark }
+    private var compact: Bool { isDark && sceneIntegrated && !dynamicTypeSize.isAccessibilitySize }
 
     private var chipBg: Color {
-        isDark && sceneIntegrated ? Color(hex: "0C151C").opacity(0.80)
+        isDark && sceneIntegrated ? Color(hex: "0B151D").opacity(0.88)
             : (isDark ? LexiconColors.cardDark : LexiconColors.card.opacity(0.78))
     }
 
     private var chipBorder: Color {
-        isDark && sceneIntegrated ? Color(hex: "B6A486").opacity(0.15)
+        isDark && sceneIntegrated ? Color(hex: "B6A486").opacity(0.12)
             : (isDark ? LexiconColors.borderDark : LexiconColors.foreground.opacity(0.12))
     }
 
@@ -30,7 +32,7 @@ struct TrendingTagRow: View {
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 9) {
+            HStack(spacing: compact ? 6 : 9) {
                 ForEach(tags) { tag in
                     Button {
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
@@ -39,10 +41,10 @@ struct TrendingTagRow: View {
                         }
                     } label: {
                         Text(tag.label)
-                            .font(.lexiconBody(12))
+                            .font(.lexiconBody(compact ? 10.5 : 12))
                             .foregroundStyle(chipText)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8.5)
+                            .padding(.horizontal, compact ? 10 : 12)
+                            .padding(.vertical, compact ? 6 : 8.5)
                             .background(chipBg)
                             .clipShape(Capsule())
                             .overlay(Capsule().stroke(chipBorder, lineWidth: 1))
@@ -60,8 +62,8 @@ struct TrendingTagRow: View {
                 } label: {
                     Image(systemName: "square.grid.2x2")
                         .font(.system(size: 12, weight: .regular))
-                        .foregroundStyle(isDark ? LexiconColors.accentDark : LexiconColors.foreground.opacity(0.68))
-                        .frame(width: 34, height: 34)
+                        .foregroundStyle(isDark && sceneIntegrated ? Color(hex: "D0AD75") : (isDark ? LexiconColors.accentDark : LexiconColors.foreground.opacity(0.68)))
+                        .frame(width: compact ? 30 : 34, height: compact ? 28 : 34)
                         .background(chipBg)
                         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                         .overlay(

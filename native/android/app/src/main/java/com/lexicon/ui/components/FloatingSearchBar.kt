@@ -21,6 +21,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.semantics.Role
@@ -50,11 +53,12 @@ fun FloatingSearchBar(
     val isDark = state.isDark
 
     val integrated = isDark && sceneIntegrated
-    val bg = if (integrated) Color(0xFF0C151C).copy(alpha = 0.96f)
+    val compactType = integrated && LocalConfiguration.current.fontScale <= 1.2f
+    val bg = if (integrated) Color(0xFF0B161C).copy(alpha = 0.97f)
         else if (isDark) DarkSearchPill.copy(alpha = 0.95f) else SearchPillLight
-    val borderColor = if (integrated) Color(0xFFB6A486).copy(alpha = 0.25f)
+    val borderColor = if (integrated) Color(0xFFB6A486).copy(alpha = 0.19f)
         else if (isDark) DarkBorder else DeepForest.copy(alpha = 0.08f)
-    val iconColor = if (isDark) DarkAccent else OldWoodGold
+    val iconColor = if (integrated) Color(0xFFD0AD75) else if (isDark) DarkAccent else OldWoodGold
     val textColor = if (isDark) DarkMutedForeground else OldWoodGold.copy(alpha = 0.85f)
 
     Box(
@@ -77,7 +81,9 @@ fun FloatingSearchBar(
                     } else Modifier
                 )
                 .clip(RoundedCornerShape(50))
-                .background(bg)
+                .then(if (integrated) Modifier.background(Brush.verticalGradient(
+                    listOf(Color(0xFF10191E).copy(alpha = 0.97f), bg)
+                )) else Modifier.background(bg))
                 .border(1.dp, borderColor, RoundedCornerShape(50))
                 .padding(horizontal = 15.dp, vertical = if (integrated) 11.dp else 9.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -93,7 +99,8 @@ fun FloatingSearchBar(
             Text(
                 text = placeholder,
                 color = textColor,
-                style = LexiconTextStyles.SearchPlaceholder,
+                style = if (compactType) LexiconTextStyles.SearchPlaceholder.copy(fontSize = 11.5.sp)
+                    else LexiconTextStyles.SearchPlaceholder,
                 modifier = Modifier
                     .weight(1f)
                     .clearAndSetSemantics { },

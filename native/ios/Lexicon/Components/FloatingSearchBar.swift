@@ -12,10 +12,12 @@ struct FloatingSearchBar: View {
     var placeholder: String = "Search for a word..."
     var sceneIntegrated: Bool = false
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     private var isDark: Bool { scheme == .dark }
+    private var integrated: Bool { isDark && sceneIntegrated }
 
     private var iconColor: Color {
-        isDark ? LexiconColors.accentDark : LexiconColors.highlight
+        integrated ? Color(hex: "D0AD75") : (isDark ? LexiconColors.accentDark : LexiconColors.highlight)
     }
 
     private var textColor: Color {
@@ -23,7 +25,7 @@ struct FloatingSearchBar: View {
     }
 
     private var pillBorder: Color {
-        isDark && sceneIntegrated ? Color(hex: "B6A486").opacity(0.25)
+        isDark && sceneIntegrated ? Color(hex: "B6A486").opacity(0.19)
             : (isDark ? LexiconColors.goldBorderDark : LexiconColors.foreground.opacity(0.08))
     }
 
@@ -39,7 +41,7 @@ struct FloatingSearchBar: View {
                     .lexiconDecorative()
 
                 Text(placeholder)
-                    .font(.lexiconBody(13))
+                    .font(.lexiconBody(integrated && !dynamicTypeSize.isAccessibilitySize ? 11.5 : 13))
                     .foregroundStyle(textColor)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -55,7 +57,16 @@ struct FloatingSearchBar: View {
             }
             .padding(.horizontal, 15)
             .padding(.vertical, isDark && sceneIntegrated ? 11 : 9)
-            .background(isDark && sceneIntegrated ? Color(hex: "0C151C").opacity(0.96) : lexiconPalette(scheme).searchPill)
+            .background {
+                if integrated {
+                    LinearGradient(colors: [
+                        Color(hex: "10191E").opacity(0.97),
+                        Color(hex: "0B161C").opacity(0.97)
+                    ], startPoint: .top, endPoint: .bottom)
+                } else {
+                    lexiconPalette(scheme).searchPill
+                }
+            }
             .clipShape(Capsule())
             .overlay(Capsule().stroke(pillBorder, lineWidth: 1))
             .shadow(
