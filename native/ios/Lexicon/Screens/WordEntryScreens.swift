@@ -233,9 +233,8 @@ struct WordOfTheDayScreen: View {
                 )
                 .padding(.horizontal, 16)
             }
-            .padding(.bottom, 160)
+            .padding(.bottom, 16)
         }
-        .background(p.background)
     }
 }
 
@@ -461,9 +460,8 @@ struct WordDetailProfileScreen: View {
                     .padding(.horizontal, 16)
                 }
             }
-            .padding(.bottom, 160)
+            .padding(.bottom, 16)
         }
-        .background(p.background)
     }
 
 
@@ -811,9 +809,8 @@ struct SearchResultsScreen: View {
                 )
                 .padding(.horizontal, 16)
             }
-            .padding(.bottom, 160)
+            .padding(.bottom, 16)
         }
-        .background(p.background)
     }
 
     private func resultRow(title: String, value: String, p: LexiconPalette, action: @escaping () -> Void) -> some View {
@@ -1076,7 +1073,7 @@ struct ExpandedExplorationScreen: View {
                     .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous).stroke(p.border, lineWidth: 1))
                     .padding(.horizontal, 16)
             }
-            .padding(.bottom, 160)
+            .padding(.bottom, 16)
         }
         .background(p.background)
         .onAppear { showAll36 = vm.detailExpanded36 }

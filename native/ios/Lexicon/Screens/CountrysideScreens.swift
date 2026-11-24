@@ -158,7 +158,7 @@ struct CollectionsHubScreen: View {
                 )
                 .padding(.horizontal, 16)
             }
-            .padding(.bottom, 160)
+            .padding(.bottom, 16)
         }
         .background(p.background)
         .onAppear { filter = vm.collectionFilter }
@@ -411,7 +411,7 @@ struct MyNotesScreen: View {
                 )
                 .padding(.horizontal, 16)
             }
-            .padding(.bottom, 160)
+            .padding(.bottom, 16)
         }
         .background(p.background)
         .sheet(item: $editingNote) { note in
@@ -664,7 +664,7 @@ struct StudyListsScreen: View {
                 )
                 .padding(.horizontal, 16)
             }
-            .padding(.bottom, 160)
+            .padding(.bottom, 16)
         }
         .background(p.background)
         .sheet(item: $practicingList) { list in
@@ -973,7 +973,7 @@ struct QuickTemplatesScreen: View {
                 )
                 .padding(.horizontal, 16)
             }
-            .padding(.bottom, 160)
+            .padding(.bottom, 16)
         }
         .background(p.background)
         .sheet(isPresented: $showCreateTemplate) {
@@ -1234,9 +1234,8 @@ struct SearchDiscoveryScreen: View {
                 )
                 .padding(.horizontal, 16)
             }
-            .padding(.bottom, 160)
+            .padding(.bottom, 16)
         }
-        .background(p.background)
     }
 
     private func filterTile(_ icon: String, _ title: String, _ value: String, key: String, p: LexiconPalette) -> some View {

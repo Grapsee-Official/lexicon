@@ -145,9 +145,8 @@ struct DictionaryHomeScreen: View {
                     .frame(maxWidth: .infinity)
                     .accessibilityHidden(true)
             }
-            .padding(.bottom, 160)
+            .padding(.bottom, 16)
         }
-        .background(p.background)
     }
 
     private func quickAccess(_ title: String, icon: String, route: ScreenRoute,

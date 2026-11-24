@@ -133,8 +133,8 @@ fun WordOfTheDayScreen(viewModel: LexiconViewModel) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(bg),
-        contentPadding = PaddingValues(bottom = 162.dp),
+            ,
+        contentPadding = PaddingValues(bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         // Top Header + Cottage Stone Bridge Hero Card
@@ -468,8 +468,8 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(bg),
-        contentPadding = PaddingValues(bottom = 162.dp),
+            ,
+        contentPadding = PaddingValues(bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(11.dp),
     ) {
         item(key = "detail_hero") {
@@ -917,8 +917,8 @@ fun SearchResultsScreen(viewModel: LexiconViewModel) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(bg),
-        contentPadding = PaddingValues(bottom = 162.dp),
+            ,
+        contentPadding = PaddingValues(bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item(key = "hero") {
@@ -1268,8 +1268,8 @@ fun ExpandedExplorationScreen(viewModel: LexiconViewModel) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(bg),
-        contentPadding = PaddingValues(bottom = 162.dp),
+            ,
+        contentPadding = PaddingValues(bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item(key = "hero") {

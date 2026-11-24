@@ -41,8 +41,8 @@ fun DictionaryHomeScreen(viewModel: LexiconViewModel) {
     var draft by remember { mutableStateOf("") }
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize().background(bg),
-        contentPadding = PaddingValues(bottom = 162.dp),
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(13.dp),
     ) {
         item {

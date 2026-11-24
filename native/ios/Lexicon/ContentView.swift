@@ -44,6 +44,10 @@ struct ContentView: View {
                 }
             } else {
                 lexiconPalette(scheme).background.ignoresSafeArea()
+                if !isHome {
+                    CountrysideMaterialOverlay(isDark: scheme == .dark).ignoresSafeArea()
+                        .allowsHitTesting(false).accessibilityHidden(true)
+                }
             }
 
             VStack(spacing: 0) {
@@ -68,31 +72,21 @@ struct ContentView: View {
                     activeScreen.frame(maxWidth: 640, maxHeight: .infinity)
                         .clipped().lexiconEditMenu(engine: vm.engine)
                 } else {
-                    activeScreen.frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .lexiconEditMenu(engine: vm.engine)
+                    activeScreen.frame(maxWidth: vm.libraryOpen ? .infinity : 640, maxHeight: .infinity)
+                        .clipped().lexiconEditMenu(engine: vm.engine)
                 }
 
-                if isHome {
-                    // A reserved dock, not a view floating over scroll content.
+                if !vm.libraryOpen {
                     BottomNav(docked: true)
                         .frame(maxWidth: 640)
-                        .background(scheme == .dark ? Color(hex: "08111A") : LexiconColors.background)
+                        .background(isHome && scheme == .dark ? Color(hex: "08111A") : lexiconPalette(scheme).background)
                 }
             }
 
-            // The dark Home painting supplies the texture itself. Keep the
-            // existing vector material on every other appearance/destination.
-            if !(scheme == .dark && vm.route == .home && !vm.libraryOpen) {
-                CountrysideMaterialOverlay(isDark: scheme == .dark)
-                    .ignoresSafeArea()
-                    .zIndex(1)
-            }
-
-            if !isHome {
-                BottomNav()
-                    .environmentObject(vm)
-                    .environmentObject(theme)
-                    .zIndex(2)
+            // The reader keeps its existing floating dock; all reference
+            // destinations use the reserved navigation above.
+            if vm.libraryOpen {
+                BottomNav().environmentObject(vm).environmentObject(theme).zIndex(2)
             }
 
             if vm.searchOpen {

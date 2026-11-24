@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -48,11 +49,15 @@ fun RootScreen(viewModel: LexiconViewModel) {
             .fillMaxSize()
             .background(bg),
     ) {
+        if (route != ScreenRoute.HOME) {
+            CountrysideMaterialOverlay(isDark = state.isDark, modifier = Modifier.fillMaxSize())
+        }
+        Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         AnimatedContent(
             targetState = route,
             transitionSpec = { fadeIn(tween(180)) togetherWith fadeOut(tween(150)) },
             contentKey = { it },
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.weight(1f).then(if (route == ScreenRoute.HOME) Modifier else Modifier.widthIn(max = 640.dp)).fillMaxWidth(),
             label = "routeTransition",
         ) { currentRoute ->
             when (currentRoute) {
@@ -77,21 +82,11 @@ fun RootScreen(viewModel: LexiconViewModel) {
             }
         }
 
-        // Dark Home is a composed painting with its own natural grain.
-        // A root-level material overlay would put synthetic dots over the
-        // artwork, text, and glass surfaces rather than behind them.
-        if (!(state.isDark && route == ScreenRoute.HOME)) {
-            CountrysideMaterialOverlay(isDark = state.isDark, modifier = Modifier.fillMaxSize())
-        }
-
+        // All non-Home destinations reserve the dock's actual measured height.
+        // Home owns its own dock; no duplicate navigation while scrolling.
         if (route != ScreenRoute.HOME) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth(),
-            ) {
-                BottomNav(viewModel = viewModel)
-            }
+            BottomNav(viewModel = viewModel, modifier = Modifier.widthIn(max = 640.dp))
+        }
         }
 
         WordDetailSheet(viewModel = viewModel)

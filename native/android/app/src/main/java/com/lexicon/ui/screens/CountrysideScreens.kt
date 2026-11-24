@@ -153,8 +153,8 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(bg),
-        contentPadding = PaddingValues(bottom = 162.dp),
+            ,
+        contentPadding = PaddingValues(bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item(key = "hero") {
@@ -431,8 +431,8 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(bg),
-        contentPadding = PaddingValues(bottom = 162.dp),
+            ,
+        contentPadding = PaddingValues(bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item(key = "hero") {
@@ -747,8 +747,8 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(bg),
-        contentPadding = PaddingValues(bottom = 162.dp),
+            ,
+        contentPadding = PaddingValues(bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item(key = "hero") {
@@ -1137,8 +1137,8 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(bg),
-        contentPadding = PaddingValues(bottom = 162.dp),
+            ,
+        contentPadding = PaddingValues(bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item(key = "hero") {
@@ -1469,8 +1469,8 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(bg),
-        contentPadding = PaddingValues(bottom = 162.dp),
+            ,
+        contentPadding = PaddingValues(bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item(key = "hero") {
