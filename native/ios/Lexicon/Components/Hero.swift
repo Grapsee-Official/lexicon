@@ -9,6 +9,7 @@ struct Hero: View {
     @Environment(\.colorScheme) private var scheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var measuredWidth: CGFloat = 390
+    var sharedNightScene: Bool = false
 
     private var adaptiveHeight: CGFloat {
         let compact = measuredWidth < 360
@@ -74,67 +75,9 @@ struct Hero: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .background {
-            GeometryReader { geo in
-                let totalWidth = geo.size.width
-                let heroHeight = geo.size.height
-                let compact = totalWidth < 360
-                let readingEdge: CGFloat = enlargedText ? 0.61 : (compact ? 0.51 : 0.45)
-                let artWidth = enlargedText
-                    ? min(totalWidth * 0.91, heroHeight * 1.5)
-                    : min(totalWidth * 1.09, heroHeight * 1.5 * 1.14)
-                let artHeight = artWidth / 1.5
-                let artX = max(totalWidth * 0.63 - artWidth * 0.54,
-                               totalWidth - artWidth * 0.94)
-                let artY = enlargedText ? heroHeight - artHeight
-                    : heroHeight * 0.065 - artHeight * 0.17
-
-                // Mask the source's opacity, not the underlying page.
-                // This keeps the same native night visible through every
-                // shadow, from the header to the illustrated foreground.
-                Image("hero-dark")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: artWidth, height: artHeight)
-                    .saturation(0.79)
-                    .colorMultiply(Color(red: 0.92, green: 0.93, blue: 1.0))
-                    .position(x: artX + artWidth / 2, y: artY + artHeight / 2)
-                    .frame(width: totalWidth, height: heroHeight)
-                    .clipped()
-                    .mask {
-                        LinearGradient(
-                            stops: [
-                                .init(color: .clear, location: 0),
-                                .init(color: .clear, location: readingEdge - 0.23),
-                                .init(color: .black.opacity(0.16), location: readingEdge - 0.10),
-                                .init(color: .black.opacity(0.58), location: readingEdge),
-                                .init(color: .black.opacity(0.94), location: min(readingEdge + 0.12, 0.83)),
-                                .init(color: .black, location: 0.82),
-                                .init(color: .black.opacity(0.78), location: 0.94),
-                                .init(color: .black.opacity(0.54), location: 1)
-                            ], startPoint: .leading, endPoint: .trailing
-                        )
-                    }
-                    .mask {
-                        LinearGradient(
-                            stops: [
-                                .init(color: .clear, location: 0),
-                                .init(color: .black.opacity(0.46), location: 0.035),
-                                .init(color: .black.opacity(0.70), location: 0.085),
-                                .init(color: .black.opacity(0.70), location: 0.36),
-                                .init(color: .black.opacity(0.94), location: 0.59),
-                                .init(color: .black, location: 0.76),
-                                .init(color: .black.opacity(0.88), location: 0.90),
-                                .init(color: .black.opacity(0.28), location: 0.97),
-                                .init(color: .clear, location: 1)
-                            ], startPoint: .top, endPoint: .bottom
-                        )
-                    }
-                    .allowsHitTesting(false)
-                    .accessibilityHidden(true)
-
+            if !sharedNightScene {
+                HomeNightScene()
             }
-            .allowsHitTesting(false)
-            .accessibilityHidden(true)
         }
     }
 
@@ -225,6 +168,63 @@ struct Hero: View {
 // ScrollView proposes an unbounded height. A Spacer alone cannot guarantee
 // bottom placement in that situation. This layout measures both controls
 // before calculating the hero height, without changing the light-mode path.
+// Shared painting layer for the whole Home masthead. The original image
+// and its alpha are preserved; only the presentation is color graded.
+struct HomeNightScene: View {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    var extendsBehindTags: Bool = false
+
+    var body: some View {
+        GeometryReader { geo in
+            let width = geo.size.width
+            let height = geo.size.height
+            let largeText = dynamicTypeSize.isAccessibilitySize
+            let readingEdge: CGFloat = largeText ? 0.66 : (width < 360 ? 0.49 : 0.45)
+            let artWidth = min(width * (largeText ? 0.96 : 1.08), height * 1.5 * 1.08)
+            let artHeight = artWidth / 1.5
+            let artX = max(width * 0.63 - artWidth * 0.54, width - artWidth * 0.95)
+            let moonY = height * (extendsBehindTags ? 0.075 : 0.09)
+            let artY = largeText ? height * 0.90 - artHeight : moonY - artHeight * 0.17
+
+            Image("hero-dark")
+                .resizable()
+                .scaledToFit()
+                .frame(width: artWidth, height: artHeight)
+                .saturation(0.78)
+                .colorMultiply(Color(red: 0.82, green: 0.86, blue: 0.96))
+                .position(x: artX + artWidth / 2, y: artY + artHeight / 2)
+                .frame(width: width, height: height)
+                .clipped()
+                .mask {
+                    LinearGradient(stops: [
+                        .init(color: .clear, location: 0),
+                        .init(color: .clear, location: readingEdge - 0.24),
+                        .init(color: .black.opacity(0.18), location: readingEdge - 0.11),
+                        .init(color: .black.opacity(0.60), location: readingEdge),
+                        .init(color: .black.opacity(0.96), location: readingEdge + 0.13),
+                        .init(color: .black, location: 0.84),
+                        .init(color: .black.opacity(0.83), location: 0.96),
+                        .init(color: .black.opacity(0.73), location: 1)
+                    ], startPoint: .leading, endPoint: .trailing)
+                }
+                .mask {
+                    LinearGradient(stops: [
+                        .init(color: .clear, location: 0),
+                        .init(color: .black.opacity(0.54), location: 0.035),
+                        .init(color: .black.opacity(0.86), location: 0.085),
+                        .init(color: .black.opacity(0.81), location: 0.35),
+                        .init(color: .black, location: 0.58),
+                        .init(color: .black.opacity(0.96), location: 0.78),
+                        .init(color: .black.opacity(0.57), location: 0.91),
+                        .init(color: .clear, location: 1)
+                    ], startPoint: .top, endPoint: .bottom)
+                }
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+}
+
 private struct NightHeroLayout: Layout {
     let enlargedText: Bool
 

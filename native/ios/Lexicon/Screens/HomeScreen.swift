@@ -24,10 +24,16 @@ struct HomeScreen: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 11) {
-                Hero()
-
-                TrendingTagRow(tags: LexiconData.trendingTags)
-                    .padding(.horizontal, 16)
+                VStack(spacing: scheme == .dark ? 5 : 11) {
+                    Hero(sharedNightScene: scheme == .dark)
+                    TrendingTagRow(tags: LexiconData.trendingTags, sceneIntegrated: scheme == .dark)
+                        .padding(.horizontal, 16)
+                }
+                .background {
+                    if scheme == .dark {
+                        HomeNightScene(extendsBehindTags: true)
+                    }
+                }
 
                 WordOfTheDayCard(word: displayedHomeWord)
                     .padding(.horizontal, 16)
@@ -92,9 +98,10 @@ struct HomeNightBackdrop: View {
     var body: some View {
         LinearGradient(
             stops: [
-                .init(color: Color(hex: "040E18"), location: 0),
-                .init(color: Color(hex: "08121B"), location: 0.42),
-                .init(color: Color(hex: "09131C"), location: 1)
+                .init(color: Color(hex: "08111A"), location: 0),
+                .init(color: Color(hex: "040E18"), location: 0.27),
+                .init(color: Color(hex: "09121B"), location: 0.57),
+                .init(color: Color(hex: "08111A"), location: 1)
             ], startPoint: .top, endPoint: .bottom
         )
         .ignoresSafeArea()

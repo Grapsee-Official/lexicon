@@ -7,21 +7,25 @@ import SwiftUI
 
 struct TrendingTagRow: View {
     let tags: [TrendingTag]
+    var sceneIntegrated: Bool = false
     @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
 
     private var isDark: Bool { scheme == .dark }
 
     private var chipBg: Color {
-        isDark ? LexiconColors.cardDark : LexiconColors.card.opacity(0.78)
+        isDark && sceneIntegrated ? Color(hex: "0C151C").opacity(0.80)
+            : (isDark ? LexiconColors.cardDark : LexiconColors.card.opacity(0.78))
     }
 
     private var chipBorder: Color {
-        isDark ? LexiconColors.borderDark : LexiconColors.foreground.opacity(0.12)
+        isDark && sceneIntegrated ? Color(hex: "B6A486").opacity(0.15)
+            : (isDark ? LexiconColors.borderDark : LexiconColors.foreground.opacity(0.12))
     }
 
     private var chipText: Color {
-        isDark ? LexiconColors.foregroundDark.opacity(0.88) : LexiconColors.foreground.opacity(0.84)
+        isDark && sceneIntegrated ? Color(hex: "D8C7A8")
+            : (isDark ? LexiconColors.foregroundDark.opacity(0.88) : LexiconColors.foreground.opacity(0.84))
     }
 
     var body: some View {

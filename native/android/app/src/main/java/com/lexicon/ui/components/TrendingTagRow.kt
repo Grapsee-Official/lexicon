@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
@@ -43,13 +44,17 @@ fun TrendingTagRow(
     viewModel: LexiconViewModel,
     tags: List<TrendingTag> = LexiconData.trendingTags,
     modifier: Modifier = Modifier,
+    sceneIntegrated: Boolean = false,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
 
-    val chipBg = if (isDark) DarkCard else CardSurface.copy(alpha = 0.78f)
-    val chipBorder = if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.12f)
-    val chipText = if (isDark) DarkForeground.copy(alpha = 0.88f) else DeepForest.copy(alpha = 0.84f)
+    val integrated = isDark && sceneIntegrated
+    val chipBg = if (integrated) Color(0xFF0C151C).copy(alpha = 0.80f)
+        else if (isDark) DarkCard else CardSurface.copy(alpha = 0.78f)
+    val chipBorder = if (integrated) Color(0xFFB6A486).copy(alpha = 0.15f)
+        else if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.12f)
+    val chipText = if (integrated) Color(0xFFD8C7A8) else if (isDark) DarkForeground.copy(alpha = 0.88f) else DeepForest.copy(alpha = 0.84f)
     val gridTint = if (isDark) DarkAccent else DeepForest.copy(alpha = 0.68f)
 
     val scrollState = rememberScrollState()

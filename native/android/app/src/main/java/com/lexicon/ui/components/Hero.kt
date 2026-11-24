@@ -52,6 +52,7 @@ import com.lexicon.ui.theme.OldWoodGold
 fun Hero(
     viewModel: LexiconViewModel,
     modifier: Modifier = Modifier,
+    sharedNightScene: Boolean = false,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
@@ -94,76 +95,8 @@ fun Hero(
                 .then(if (isDark) Modifier.heightIn(min = heroHeight) else Modifier.height(heroHeight)),
         ) {
             if (isDark) {
-                // The original illustration remains unmodified. Compose only its
-                // painted pixels over the shared Home night, never an opaque tile.
-                val painting = painterResource(R.drawable.hero_dark)
-                val nightGrade = ColorFilter.colorMatrix(ColorMatrix(floatArrayOf(
-                    0.77f, 0.12f, 0.03f, 0f, 0f,
-                    0.05f, 0.85f, 0.03f, 0f, 0f,
-                    0.05f, 0.13f, 0.82f, 0f, 0f,
-                    0f, 0f, 0f, 1f, 0f,
-                )))
-                val readingEdge = if (largeText) 0.61f else if (compact) 0.51f else 0.45f
-                // DstIn changes the painting's alpha, not the page below it.
-                // The isolated layer is essential: the same night continues under
-                // the header, the book, the search capsule and the feed.
-                Canvas(
-                    Modifier.matchParentSize().graphicsLayer {
-                        compositingStrategy = CompositingStrategy.Offscreen
-                    }
-                ) {
-                    val intrinsic = painting.intrinsicSize
-                    val aspect = if (intrinsic.width > 0f && intrinsic.height > 0f) {
-                        intrinsic.width / intrinsic.height
-                    } else 1.5f
-                    val artWidth = if (largeText) {
-                        minOf(size.width * 0.91f, size.height * aspect)
-                    } else {
-                        minOf(size.width * 1.09f, size.height * aspect * 1.14f)
-                    }
-                    val artHeight = artWidth / aspect
-                    val x = maxOf(size.width * 0.63f - artWidth * 0.54f,
-                        size.width - artWidth * 0.94f)
-                    val y = if (largeText) size.height - artHeight else
-                        size.height * 0.065f - artHeight * 0.17f
-                    clipRect {
-                        translate(left = x, top = y) {
-                            with(painting) {
-                                draw(size = Size(artWidth, artHeight), colorFilter = nightGrade)
-                            }
-                        }
-                    }
-                    // A wide, continuous mask opens into the distant trees,
-                    // preserves the book and turns bright edge foliage into shadow.
-                    drawRect(
-                        brush = Brush.horizontalGradient(
-                            0.00f to Color.Transparent,
-                            (readingEdge - 0.23f) to Color.Transparent,
-                            (readingEdge - 0.10f) to Color.Black.copy(alpha = 0.16f),
-                            readingEdge to Color.Black.copy(alpha = 0.58f),
-                            (readingEdge + 0.12f).coerceAtMost(0.83f) to Color.Black.copy(alpha = 0.94f),
-                            0.82f to Color.Black,
-                            0.94f to Color.Black.copy(alpha = 0.78f),
-                            1.00f to Color.Black.copy(alpha = 0.54f),
-                        ),
-                        blendMode = BlendMode.DstIn,
-                    )
-                    // Sky and roof are quieter than the illuminated foreground.
-                    // Keep the warm pages present under the search capsule.
-                    drawRect(
-                        brush = Brush.verticalGradient(
-                            0.00f to Color.Transparent,
-                            0.035f to Color.Black.copy(alpha = 0.46f),
-                            0.085f to Color.Black.copy(alpha = 0.70f),
-                            0.36f to Color.Black.copy(alpha = 0.70f),
-                            0.59f to Color.Black.copy(alpha = 0.94f),
-                            0.76f to Color.Black,
-                            0.90f to Color.Black.copy(alpha = 0.88f),
-                            0.97f to Color.Black.copy(alpha = 0.28f),
-                            1.00f to Color.Transparent,
-                        ),
-                        blendMode = BlendMode.DstIn,
-                    )
+                if (!sharedNightScene) {
+                    HomeNightScene(Modifier.matchParentSize())
                 }
             } else {
                 Image(
@@ -264,5 +197,70 @@ fun Hero(
                 )
             }
         }
+    }
+}
+
+// The painting belongs to the masthead, not the text or search layout.
+// Home supplies a layer spanning the hero and the trending controls.
+@Composable
+fun HomeNightScene(modifier: Modifier = Modifier, extendsBehindTags: Boolean = false) {
+    val largeText = LocalConfiguration.current.fontScale > 1.2f
+    val painting = painterResource(R.drawable.hero_dark)
+    val grade = ColorFilter.colorMatrix(ColorMatrix(floatArrayOf(
+        0.70f, 0.10f, 0.02f, 0f, 0f,
+        0.04f, 0.79f, 0.03f, 0f, 0f,
+        0.04f, 0.11f, 0.81f, 0f, 0f,
+        0f, 0f, 0f, 1f, 0f,
+    )))
+    Canvas(modifier.graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }) {
+        if (size.width <= 0f || size.height <= 0f) return@Canvas
+        val intrinsic = painting.intrinsicSize
+        val aspect = if (intrinsic.width > 0f && intrinsic.height > 0f)
+            intrinsic.width / intrinsic.height else 1.5f
+        val artWidth = minOf(size.width * (if (largeText) 0.96f else 1.08f),
+            size.height * aspect * 1.08f)
+        val artHeight = artWidth / aspect
+        val artX = maxOf(size.width * 0.63f - artWidth * 0.54f,
+            size.width - artWidth * 0.95f)
+        // Source landmarks: moon ~54%,17%; book center ~62%,69%.
+        // Reserve the extra tag area for the fading foreground, not extra sky.
+        val moonY = size.height * (if (extendsBehindTags) 0.075f else 0.09f)
+        val artY = if (largeText) size.height * 0.90f - artHeight
+            else moonY - artHeight * 0.17f
+        clipRect {
+            translate(left = artX, top = artY) {
+                with(painting) { draw(size = Size(artWidth, artHeight), colorFilter = grade) }
+            }
+        }
+
+        // Two-dimensional soft shadow around the reading column, with a
+        // stronger reveal at the lower foreground. Only artwork alpha changes.
+        val readingEdge = if (largeText) 0.66f else if (size.width < 360.dp.toPx()) 0.49f else 0.45f
+        drawRect(
+            brush = Brush.horizontalGradient(
+                0f to Color.Transparent,
+                (readingEdge - 0.24f) to Color.Transparent,
+                (readingEdge - 0.11f) to Color.Black.copy(alpha = 0.18f),
+                readingEdge to Color.Black.copy(alpha = 0.60f),
+                (readingEdge + 0.13f) to Color.Black.copy(alpha = 0.96f),
+                0.84f to Color.Black,
+                0.96f to Color.Black.copy(alpha = 0.83f),
+                1f to Color.Black.copy(alpha = 0.73f),
+            ),
+            blendMode = BlendMode.DstIn,
+        )
+        drawRect(
+            brush = Brush.verticalGradient(
+                0f to Color.Transparent,
+                0.035f to Color.Black.copy(alpha = 0.54f),
+                0.085f to Color.Black.copy(alpha = 0.86f),
+                0.35f to Color.Black.copy(alpha = 0.81f),
+                0.58f to Color.Black,
+                0.78f to Color.Black.copy(alpha = 0.96f),
+                0.91f to Color.Black.copy(alpha = 0.57f),
+                1f to Color.Transparent,
+            ),
+            blendMode = BlendMode.DstIn,
+        )
     }
 }

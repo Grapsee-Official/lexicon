@@ -48,6 +48,7 @@ import com.lexicon.ui.components.ArticleCard
 import com.lexicon.ui.components.BottomNav
 import com.lexicon.ui.components.CategoryCard
 import com.lexicon.ui.components.Hero
+import com.lexicon.ui.components.HomeNightScene
 import com.lexicon.ui.components.LexiconHeader
 import com.lexicon.ui.components.SectionHeader
 import com.lexicon.ui.components.TrendingTagRow
@@ -68,9 +69,10 @@ fun HomeScreen(viewModel: LexiconViewModel) {
     // One page-sized midnight field, rather than a separate hero backdrop.
     val background = if (state.isDark) Modifier.background(
         Brush.verticalGradient(
-            0.00f to Color(0xFF040E18),
-            0.42f to Color(0xFF08121B),
-            1.00f to Color(0xFF09131C),
+            0.00f to Color(0xFF08111A),
+            0.27f to Color(0xFF040E18),
+            0.57f to Color(0xFF09121B),
+            1.00f to Color(0xFF08111A),
         )
     ) else Modifier.background(WarmCream)
 
@@ -120,15 +122,22 @@ private fun HomeFeed(viewModel: LexiconViewModel) {
         contentPadding = PaddingValues(bottom = 160.dp),
         verticalArrangement = Arrangement.spacedBy(11.dp),
     ) {
-        item(key = "hero") {
-            Hero(viewModel = viewModel)
-        }
-
-        item(key = "tags") {
-            TrendingTagRow(
-                viewModel = viewModel,
-                modifier = Modifier.padding(horizontal = 16.dp),
-            )
+        item(key = "masthead") {
+            // The illustration now spans the headline, search, and tag shelf.
+            // The light appearance retains its original independent image.
+            Box(Modifier.fillMaxWidth()) {
+                if (state.isDark) {
+                    HomeNightScene(Modifier.matchParentSize(), extendsBehindTags = true)
+                }
+                Column(verticalArrangement = Arrangement.spacedBy(if (state.isDark) 5.dp else 11.dp)) {
+                    Hero(viewModel = viewModel, sharedNightScene = state.isDark)
+                    TrendingTagRow(
+                        viewModel = viewModel,
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        sceneIntegrated = state.isDark,
+                    )
+                }
+            }
         }
 
         item(key = "wotd") {
