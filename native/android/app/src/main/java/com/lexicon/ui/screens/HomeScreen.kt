@@ -27,6 +27,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
@@ -74,7 +76,21 @@ fun HomeScreen(viewModel: LexiconViewModel) {
             0.57f to Color(0xFF09121B),
             1.00f to Color(0xFF08111A),
         )
-    ) else Modifier.background(WarmCream)
+    ).drawBehind {
+        // Diffuse ink wash extends from the header through the painted sky
+        // and foreground. No separate image-sized rectangle or hard halo.
+        val skyY = size.width * 0.38f
+        drawRect(Brush.radialGradient(
+            colors = listOf(Color(0xFF192A3C).copy(alpha = 0.29f), Color.Transparent),
+            center = Offset(size.width * 0.78f, skyY),
+            radius = size.width * 0.76f,
+        ))
+        drawRect(Brush.radialGradient(
+            colors = listOf(Color(0xFF51412C).copy(alpha = 0.055f), Color.Transparent),
+            center = Offset(size.width * 0.79f, size.width * 0.70f),
+            radius = size.width * 0.46f,
+        ))
+    } else Modifier.background(WarmCream)
 
     Box(
         modifier = Modifier

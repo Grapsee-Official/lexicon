@@ -97,14 +97,31 @@ struct HomeScreen: View {
 // The header and scroll feed reveal a single continuous native canvas.
 struct HomeNightBackdrop: View {
     var body: some View {
-        LinearGradient(
-            stops: [
-                .init(color: Color(hex: "08111A"), location: 0),
-                .init(color: Color(hex: "040E18"), location: 0.27),
-                .init(color: Color(hex: "09121B"), location: 0.57),
-                .init(color: Color(hex: "08111A"), location: 1)
-            ], startPoint: .top, endPoint: .bottom
-        )
+        GeometryReader { geo in
+            let width = geo.size.width
+            let height = max(1, geo.size.height)
+            ZStack {
+                LinearGradient(stops: [
+                    .init(color: Color(hex: "08111A"), location: 0),
+                    .init(color: Color(hex: "040E18"), location: 0.27),
+                    .init(color: Color(hex: "09121B"), location: 0.57),
+                    .init(color: Color(hex: "08111A"), location: 1)
+                ], startPoint: .top, endPoint: .bottom)
+
+                // The same very low-contrast wash as the Compose canvas:
+                // continuous night ink beneath the header and illustrated sky.
+                RadialGradient(
+                    colors: [Color(hex: "192A3C").opacity(0.29), .clear],
+                    center: UnitPoint(x: 0.78, y: width * 0.38 / height),
+                    startRadius: 0, endRadius: max(1, width * 0.76)
+                )
+                RadialGradient(
+                    colors: [Color(hex: "51412C").opacity(0.055), .clear],
+                    center: UnitPoint(x: 0.79, y: width * 0.70 / height),
+                    startRadius: 0, endRadius: max(1, width * 0.46)
+                )
+            }
+        }
         .ignoresSafeArea()
         .allowsHitTesting(false)
         .accessibilityHidden(true)
