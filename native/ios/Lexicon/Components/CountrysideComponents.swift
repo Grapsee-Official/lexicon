@@ -21,95 +21,75 @@ struct CountrysideHeroHeader: View {
     @Environment(\.colorScheme) private var scheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     private var isDark: Bool { scheme == .dark }
-    private var responsiveHeight: CGFloat {
-        let screen = UIScreen.main.bounds
-        if screen.width >= 600 {
-            // The Cotswolds painting must not shrink into a tablet corner.
-            // Preserve its complete aspect ratio with a taller native header.
-            return min(300, max(heroHeight + 64, screen.width * 0.34))
+    @State private var measuredWidth: CGFloat = 390
+    private var stacked: Bool { dynamicTypeSize.isAccessibilitySize || measuredWidth < 275 || (measuredWidth < 390 && dynamicTypeSize >= .xxLarge) }
+    private var height: CGFloat { min(240, max(112, measuredWidth * 282 / 832)) }
+    private var inset: CGFloat { measuredWidth * 42 / 832 }
+    private var titleSize: CGFloat { min(37, max(19, measuredWidth * 48 / 832)) }
+    private var subtitleSize: CGFloat { min(18, max(11, measuredWidth * 23 / 832)) }
+    private var sprigSize: CGFloat { min(38, max(22, measuredWidth * 50 / 832)) }
+    private var ink: Color { isDark ? LexiconColors.foregroundDark : Color(hex: "31462F") }
+
+    private var copy: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack(spacing: 7) {
+                Button(action: onLogoToggleTheme) {
+                    BotanicalSprig(color: isDark ? LexiconColors.accentDark : LexiconColors.highlight)
+                        .frame(width: sprigSize, height: sprigSize)
+                }.buttonStyle(.plain).accessibilityLabel("Switch appearance")
+                Text(title).font(.lexiconDisplay(titleSize)).tracking(-0.4)
+                    .foregroundStyle(ink).fixedSize(horizontal: false, vertical: true)
+            }
+            Text(subtitle).font(.lexiconLong(subtitleSize)).foregroundStyle(ink.opacity(0.88))
+                .fixedSize(horizontal: false, vertical: true)
         }
-        if dynamicTypeSize.isAccessibilitySize { return heroHeight + 64 }
-        let phoneSize = screen.height < 940
-        return phoneSize ? heroHeight + 12 : heroHeight
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    private var history: some View {
+        Button(action: onHistoryClick) {
+            Image(systemName: "clock.arrow.circlepath")
+                .font(.system(size: min(29, max(18, measuredWidth * 37 / 832)), weight: .regular))
+                .foregroundStyle(isDark ? LexiconColors.accentDark : Color(hex: "6C5738"))
+                .frame(width: 44, height: 44).contentShape(Rectangle())
+        }.buttonStyle(.plain).accessibilityLabel("Search history")
+    }
+    private var painting: some View {
+        Image(countrysideImageName(illustrationBase, isDark: isDark))
+            .resizable().scaledToFit().accessibilityHidden(true).allowsHitTesting(false)
     }
 
     var body: some View {
-        GeometryReader { geo in
-            let w = geo.size.width
-            ZStack(alignment: .topLeading) {
-                HStack(spacing: 0) {
-                    Spacer(minLength: 0)
-                    Image(countrysideImageName(illustrationBase, isDark: isDark))
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: w * 0.90, height: responsiveHeight, alignment: .bottomTrailing)
-                        .accessibilityHidden(true)
+        Group {
+            if stacked {
+                VStack(spacing: 0) {
+                    copy.padding(.leading, inset).padding(.trailing, inset + 44).padding(.top, 12)
+                        .overlay(alignment: .topTrailing) { history.padding(.trailing, inset) }
+                    painting.frame(maxWidth: .infinity, alignment: .trailing).frame(height: height)
                 }
-                .frame(width: w, height: responsiveHeight)
-
-                LinearGradient(
-                    stops: [
-                        .init(color: isDark ? LexiconColors.backgroundDark.opacity(0.70)
-                            : LexiconColors.background.opacity(0.65), location: 0),
-                        .init(color: isDark ? LexiconColors.backgroundDark.opacity(0.32)
-                            : LexiconColors.background.opacity(0.27), location: 0.38),
-                        .init(color: .clear, location: 0.78),
-                    ],
-                    startPoint: .leading, endPoint: .trailing
-                )
-                .frame(width: w, height: responsiveHeight)
-                .allowsHitTesting(false)
-
-                if isDark {
-                    NocturneAtmosphere()
-                        .frame(width: w, height: responsiveHeight)
-                    if illustrationBase.replacingOccurrences(of: "_", with: "-") == "ill-hero-cottage" {
-                        CottageWindowGlow()
-                            .frame(width: w, height: responsiveHeight)
-                    }
+            } else {
+                ZStack(alignment: .leading) {
+                    painting.frame(width: measuredWidth * 0.78, height: height, alignment: .bottomTrailing)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                    let paper = isDark ? LexiconColors.backgroundDark : Color(hex: "FBF1DF")
+                    LinearGradient(stops: [
+                        .init(color: paper.opacity(0.92), location: 0),
+                        .init(color: paper.opacity(0.76), location: 0.58),
+                        .init(color: .clear, location: 1)
+                    ], startPoint: .leading, endPoint: .trailing)
+                    .frame(width: measuredWidth * 0.56, height: height)
+                    .allowsHitTesting(false)
+                    copy.frame(width: measuredWidth * 0.53 - inset, alignment: .leading)
+                        .padding(.leading, inset).padding(.bottom, height * 0.10)
                 }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 8) {
-                        Button(action: onLogoToggleTheme) {
-                            BotanicalSprig(color: isDark ? LexiconColors.accentDark : LexiconColors.primary)
-                                .frame(width: 25, height: 25)
-                        }
-                        .buttonStyle(.plain)
-
-                        Text(title)
-                            .font(.lexiconDisplay(w < 390 || title.count > 14 ? 24 : 28, weight: .regular))
-                            .tracking(-0.3)
-                            .foregroundStyle(lexiconPalette(scheme).foreground)
-                            .lineLimit(dynamicTypeSize.isAccessibilitySize ? 3 : 2)
-                    }
-
-                    Text(subtitle)
-                        .font(.lexiconLong(11.5))
-                        .foregroundStyle(lexiconPalette(scheme).mutedForeground)
-                        .lineSpacing(2)
-                        .lineLimit(dynamicTypeSize.isAccessibilitySize ? 4 : 2)
-                }
-                .frame(width: w * ((w < 390 || dynamicTypeSize.isAccessibilitySize) ? 0.76 : 0.58), alignment: .leading)
-                .padding(.leading, 16)
-                .padding(.top, 12)
-
-                HStack {
-                    Spacer()
-                    Button(action: onHistoryClick) {
-                        Image(systemName: "clock.arrow.circlepath")
-                            .font(.system(size: 15, weight: .regular))
-                            .foregroundStyle(isDark ? LexiconColors.accentDark : LexiconColors.foreground.opacity(0.78))
-                            .frame(width: 34, height: 34)
-                            
-                    }
-                    .buttonStyle(.plain)
-                }
-                .padding(.top, 8)
-                .padding(.trailing, 16)
+                .frame(height: height)
+                .overlay(alignment: .topTrailing) { history.padding(.trailing, inset).padding(.top, 4) }
             }
         }
-        .frame(height: responsiveHeight)
+        .frame(maxWidth: .infinity)
+        .background { GeometryReader { geo in
+            Color.clear.onAppear { measuredWidth = geo.size.width }
+                .onChange(of: geo.size.width) { measuredWidth = $0 }
+        } }
     }
 }
 
@@ -188,8 +168,9 @@ struct CountrysideSearchPill: View {
             }
         }
         .padding(.horizontal, 15)
-        .padding(.vertical, 9.5)
-        .background(lexiconPalette(scheme).searchPill)
+        .padding(.vertical, 8)
+        .frame(minHeight: 42)
+        .background(isDark ? lexiconPalette(scheme).searchPill : Color(hex: "FFF4E2"))
         .clipShape(Capsule())
         .overlay(Capsule().stroke(lexiconPalette(scheme).border, lineWidth: 1))
         .shadow(color: isDark ? .clear : LexiconColors.foreground.opacity(0.09), radius: 5, x: 0, y: 2)
@@ -269,7 +250,7 @@ struct BotanicalSectionTitle: View {
                         .frame(width: 16, height: 16)
                 }
                 Text(title)
-                    .font(.lexiconDisplay(17, weight: .regular))
+                    .font(.lexiconDisplay(18, weight: .regular))
                     .tracking(-0.2)
                     .foregroundStyle(lexiconPalette(scheme).foreground)
                 if sprigAfterTitle {
@@ -278,7 +259,7 @@ struct BotanicalSectionTitle: View {
                 }
             }
 
-            Spacer()
+            Spacer(minLength: 6)
 
             if let action = actionLabel {
                 Button(action: onAction) {

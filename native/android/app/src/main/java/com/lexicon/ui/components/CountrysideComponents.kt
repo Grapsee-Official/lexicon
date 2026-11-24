@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -109,121 +110,72 @@ fun CountrysideHeroHeader(
     onLogoToggleTheme: () -> Unit = {},
     heroHeight: Dp = 146.dp,
 ) {
-    val titleColor = if (isDark) DarkForeground else DeepForest
-    val subColor = if (isDark) DarkMutedForeground else DeepForest.copy(alpha = 0.78f)
-    val sprigColor = if (isDark) DarkAccent else BrandGreen
+    val titleColor = if (isDark) DarkForeground else Color(0xFF31462F)
+    val subColor = if (isDark) DarkForeground.copy(alpha = .88f) else Color(0xFF31462F)
+    val sprigColor = if (isDark) DarkAccent else OldWoodGold
     val resId = resolveCountrysideDrawable(illustrationBase, isDark)
-    val config = androidx.compose.ui.platform.LocalConfiguration.current
-    val compact = config.screenWidthDp < 390
-    val accessibilityText = config.fontScale >= 1.3f
-    // On phone-sized windows, free space for the watercolor quotation below.
-    // Retain increased height for larger system fonts and full artwork on tablets.
-    val phoneHeight = config.screenWidthDp < 600 && config.screenHeightDp < 940
-    val responsiveHeight = when {
-        // The original painting is portrait-ish (~508x345). On an 800dp
-        // tablet a 146dp hero leaves it a tiny corner vignette; give the
-        // whole scene real page space without cropping a single brushstroke.
-        config.screenWidthDp >= 600 ->
-            maxOf(heroHeight + 64.dp, (config.screenWidthDp * 0.34f).dp)
-                .coerceAtMost(300.dp)
-        accessibilityText -> heroHeight + 62.dp
-        phoneHeight -> heroHeight + 12.dp
-        else -> heroHeight
-    }
-    val titleWidth = if (compact || accessibilityText) 0.76f else 0.58f
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .windowInsetsPadding(WindowInsets.statusBars)
-            .height(responsiveHeight),
+    val fontScale = androidx.compose.ui.platform.LocalConfiguration.current.fontScale
+    androidx.compose.foundation.layout.BoxWithConstraints(
+        Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars)
     ) {
-        Image(
-            painter = painterResource(resId),
-            contentDescription = null,
-            contentScale = ContentScale.Fit,
-            alignment = Alignment.BottomEnd,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .fillMaxWidth(0.90f)
-                .height(responsiveHeight),
-        )
-
-        // A responsive painted-paper wash protects legibility
-        // without removing the watercolor landscape.
-        Box(
-            modifier = Modifier.fillMaxSize().background(
-                Brush.horizontalGradient(
-                    0.0f to (if (isDark) Color(0xFF0E131B).copy(alpha = 0.70f)
-                        else Color(0xFFF3EBDD).copy(alpha = 0.65f)),
-                    0.38f to (if (isDark) Color(0xFF0E131B).copy(alpha = 0.32f)
-                        else Color(0xFFF3EBDD).copy(alpha = 0.27f)),
-                    0.78f to Color.Transparent,
-                )
-            ),
-        )
-        if (isDark) {
-            NocturneAtmosphere(Modifier.fillMaxSize())
-            if (illustrationBase == "ill_hero_cottage") {
-                CottageWindowGlow(Modifier.fillMaxSize())
+        val w = maxWidth
+        // All boards share the same 832-wide editorial grid, but retain
+        // their own title, subtitle and painting.
+        val inset = w * (42f / 832f)
+        val stacked = fontScale >= 1.4f || w.value / fontScale.coerceAtLeast(1f) < 260f
+        val height = (w * (282f / 832f)).coerceIn(112.dp, 240.dp)
+        val titleSize = (w.value * (48f / 832f)).coerceIn(19f, 37f)
+        val subtitleSize = (w.value * (23f / 832f)).coerceIn(11f, 18f)
+        val sprigSize = (w * (50f / 832f)).coerceIn(22.dp, 38.dp)
+        val copy: @Composable (Modifier) -> Unit = { copyModifier ->
+            Column(copyModifier, verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                    LeafSprig(color = sprigColor, modifier = Modifier.size(sprigSize)
+                        .clickable(role = Role.Button) { onLogoToggleTheme() })
+                    Text(title, color = titleColor,
+                        style = TextStyle(fontFamily = DisplayFontFamily, fontWeight = FontWeight.Normal,
+                            fontSize = titleSize.sp, lineHeight = (titleSize * 1.10f).sp, letterSpacing = (-.4).sp))
+                }
+                Text(subtitle, color = subColor,
+                    style = TextStyle(fontFamily = LongFontFamily, fontSize = subtitleSize.sp,
+                        lineHeight = (subtitleSize * 1.34f).sp))
             }
         }
-
-        Column(
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .fillMaxWidth(titleWidth)
-                .padding(start = 16.dp, top = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                LeafSprig(
-                    color = sprigColor,
-                    modifier = Modifier
-                        .size(26.dp)
-                        .clickable(role = Role.Button) { onLogoToggleTheme() },
-                )
-                Text(
-                    text = title,
-                    color = titleColor,
-                    style = TextStyle(
-                        fontFamily = DisplayFontFamily,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = if (compact || title.length > 14) 24.sp else 28.sp,
-                        lineHeight = if (accessibilityText) 35.sp else 30.sp,
-                        letterSpacing = (-0.3).sp,
-                    ),
-                )
+        val history: @Composable (Modifier) -> Unit = { position ->
+            Box(position.size(44.dp).clickable(role = Role.Button) { onHistoryClick() },
+                contentAlignment = Alignment.Center) {
+                Icon(Icons.Outlined.History, contentDescription = "Search history",
+                    tint = if (isDark) DarkAccent else Color(0xFF6C5738),
+                    modifier = Modifier.size((w * (37f / 832f)).coerceIn(18.dp, 29.dp)))
             }
-            Text(
-                text = subtitle,
-                color = subColor,
-                style = TextStyle(
-                    fontFamily = LongFontFamily,
-                    fontSize = 11.5.sp,
-                    lineHeight = 15.5.sp,
-                ),
-                maxLines = if (accessibilityText) 4 else 2,
-            )
         }
-
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(top = 10.dp, end = 16.dp)
-                .size(34.dp)
-                .clickable(role = Role.Button) { onHistoryClick() },
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.History,
-                contentDescription = "Search history",
-                tint = if (isDark) DarkAccent else DeepForest.copy(alpha = 0.78f),
-                modifier = Modifier.size(18.dp),
-            )
+        val painting: @Composable (Modifier) -> Unit = { position ->
+            Image(painter = painterResource(resId), contentDescription = null,
+                contentScale = ContentScale.Fit, alignment = Alignment.BottomEnd, modifier = position)
+        }
+        if (stacked) {
+            Column(Modifier.fillMaxWidth()) {
+                Box(Modifier.fillMaxWidth()) {
+                    copy(Modifier.fillMaxWidth().padding(start = inset, end = inset + 44.dp, top = 12.dp))
+                    history(Modifier.align(Alignment.TopEnd).padding(end = inset))
+                }
+                painting(Modifier.fillMaxWidth().height(height))
+            }
+        } else {
+            Box(Modifier.fillMaxWidth().height(height)) {
+                painting(Modifier.align(Alignment.BottomEnd).fillMaxWidth(.78f).height(height))
+                // A thin local edge wash; avoid a full-screen cream veil over
+                // the cottage, church spire and foliage.
+                Box(Modifier.align(Alignment.CenterStart).fillMaxWidth(.56f).fillMaxHeight()
+                    .background(Brush.horizontalGradient(
+                        0f to (if (isDark) Color(0xFF07121C) else Color(0xFFFBF1DF)).copy(alpha = .92f),
+                        .58f to (if (isDark) Color(0xFF07121C) else Color(0xFFFBF1DF)).copy(alpha = .76f),
+                        1f to Color.Transparent)))
+                copy(Modifier.align(Alignment.CenterStart).fillMaxWidth(.53f)
+                    .padding(start = inset, end = 2.dp, bottom = height * .10f))
+                history(Modifier.align(Alignment.TopEnd).padding(end = inset, top = 4.dp))
+            }
         }
     }
 }
@@ -248,10 +200,10 @@ fun CountrysideSearchPill(
     val focusRequester = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
     val bg = if (isDark) DarkCard.copy(alpha = 0.96f) else SearchPillLight
-    val border = if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.11f)
+    val border = if (isDark) DarkChipBorder else OldWoodGold.copy(alpha = 0.22f)
     val iconTint = if (isDark) DarkAccent else DeepForest.copy(alpha = 0.65f)
     val textColor = if (isDark) DarkForeground else DeepForest
-    val placeholderColor = if (isDark) DarkMutedForeground else WarmGrey.copy(alpha = 0.78f)
+    val placeholderColor = if (isDark) DarkMutedForeground else Color(0xFF947650)
 
     Row(
         modifier = modifier
@@ -269,7 +221,8 @@ fun CountrysideSearchPill(
             .clip(RoundedCornerShape(50))
             .background(bg)
             .border(1.dp, border, RoundedCornerShape(50))
-            .padding(horizontal = 15.dp, vertical = 10.dp),
+            .heightIn(min = 42.dp)
+            .padding(horizontal = 15.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(9.dp),
     ) {
@@ -309,7 +262,7 @@ fun CountrysideSearchPill(
                 modifier = Modifier
                     .size(20.dp)
                     .clip(CircleShape)
-                    .background(if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.12f))
+                    .background(if (isDark) DarkChipBorder else OldWoodGold.copy(alpha = 0.27f))
                     .clickable(role = Role.Button) { onValueChange("") },
                 contentAlignment = Alignment.Center,
             ) {
@@ -379,7 +332,7 @@ fun CountrysideFilterPills(
                 active && isDark -> DarkAccent
                 active -> BrandGreen
                 isDark -> DarkCard
-                else -> CardSurface
+                else -> Color(0xFFFFF2DF).copy(alpha = .55f)
             }
             val fg = when {
                 active && isDark -> Color(0xFF0E131B)
@@ -439,6 +392,7 @@ fun BotanicalSectionTitle(
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Row(
+            modifier = Modifier.weight(1f),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
@@ -451,7 +405,7 @@ fun BotanicalSectionTitle(
                 style = TextStyle(
                     fontFamily = DisplayFontFamily,
                     fontWeight = FontWeight.Normal,
-                    fontSize = 17.sp,
+                    fontSize = 18.sp,
                     letterSpacing = (-0.2).sp,
                 ),
             )
