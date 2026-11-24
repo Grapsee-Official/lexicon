@@ -41,6 +41,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lexicon.R
@@ -70,11 +71,21 @@ import com.lexicon.ui.theme.DarkCard
 fun LexiconHeader(
     viewModel: LexiconViewModel,
     modifier: Modifier = Modifier,
+    referencePageWidth: Dp? = null,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
     val homeNight = isDark && state.route == ScreenRoute.HOME
     val homeEditorial = state.route == ScreenRoute.HOME
+    val reference = referencePageWidth?.takeIf { homeNight }
+    val pageInset = reference?.let { (it * (30f / 591f)).coerceIn(12.dp, 32.dp) } ?: 16.dp
+    val crestWidth = reference?.let { (it * (62f / 591f)).coerceIn(31.dp, 62.dp) } ?: if (homeEditorial) 36.dp else 42.dp
+    val crestHeight = reference?.let { (it * (57f / 591f)).coerceIn(29.dp, 57.dp) } ?: crestWidth
+    val avatarSize = reference?.let { (it * (49f / 591f)).coerceIn(28.dp, 49.dp) } ?: if (homeEditorial) 32.dp else 36.dp
+    val brandSize = reference?.value?.let { (it * 29f / 591f).coerceIn(16f, 29f) } ?: 19f
+    val taglineSize = reference?.value?.let { (it * 11f / 591f).coerceIn(8f, 11f) } ?: 8f
+    val symbolSize = reference?.let { (it * (25f / 591f)).coerceIn(15.dp, 25.dp) } ?: 21.dp
+    val gap = reference?.let { (it * (8f / 591f)).coerceIn(4.dp, 9.dp) } ?: 8.dp
     var showDailyLetter by remember { mutableStateOf(false) }
 
     val iconTint = if (homeNight) Color(0xFFD0AD75) else if (isDark) DarkAccent.copy(alpha = 0.88f) else DeepForest.copy(alpha = 0.72f)
@@ -89,7 +100,7 @@ fun LexiconHeader(
             .fillMaxWidth()
             .background(Color.Transparent)
             .windowInsetsPadding(WindowInsets.statusBars)
-            .padding(horizontal = 16.dp, vertical = 4.dp),
+            .padding(horizontal = pageInset, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
@@ -105,7 +116,7 @@ fun LexiconHeader(
                 imageVector = Icons.Outlined.Menu,
                 contentDescription = null,
                 tint = iconTint,
-                modifier = Modifier.size(21.dp),
+                modifier = Modifier.size(symbolSize),
             )
         }
 
@@ -115,12 +126,13 @@ fun LexiconHeader(
             painter = painterResource(markRes),
             contentDescription = null,
             modifier = Modifier
-                .size(if (homeEditorial) 36.dp else 42.dp)
+                .size(width = crestWidth, height = crestHeight)
+                .iconButton(if (isDark) "Switch to light mode" else "Switch to dark mode")
                 .clickable(role = Role.Button) { viewModel.toggleTheme() },
             contentScale = ContentScale.Fit,
         )
 
-        Spacer(Modifier.width(8.dp))
+        Spacer(Modifier.width(gap))
 
         Column(
             modifier = Modifier
@@ -130,14 +142,14 @@ fun LexiconHeader(
             Text(
                 text = "Lexora",
                 color = wordmarkColor,
-                style = if (homeEditorial) LexiconTextStyles.BrandWordmark.copy(fontSize = 19.sp, lineHeight = 22.sp) else LexiconTextStyles.BrandWordmark,
+                style = if (homeEditorial) LexiconTextStyles.BrandWordmark.copy(fontSize = brandSize.sp, lineHeight = (brandSize * 1.16f).sp) else LexiconTextStyles.BrandWordmark,
                 maxLines = 1,
             )
             Spacer(Modifier.height(1.dp))
             Text(
                 text = "Words. Wisdom. Worlds.",
                 color = taglineColor,
-                style = if (homeEditorial) LexiconTextStyles.BrandTagline.copy(fontSize = 8.sp, lineHeight = 10.sp) else LexiconTextStyles.BrandTagline,
+                style = if (homeEditorial) LexiconTextStyles.BrandTagline.copy(fontSize = taglineSize.sp, lineHeight = (taglineSize * 1.25f).sp) else LexiconTextStyles.BrandTagline,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -156,7 +168,7 @@ fun LexiconHeader(
                 imageVector = Icons.Outlined.Notifications,
                 contentDescription = null,
                 tint = iconTint,
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(symbolSize),
             )
             Box(
                 modifier = Modifier
@@ -168,11 +180,11 @@ fun LexiconHeader(
             )
         }
 
-        Spacer(Modifier.width(8.dp))
+        Spacer(Modifier.width(gap))
 
         Box(
             modifier = Modifier
-                .size(if (homeEditorial) 32.dp else 36.dp)
+                .size(avatarSize)
                 .clip(CircleShape)
                 .border(
                     width = 1.dp,

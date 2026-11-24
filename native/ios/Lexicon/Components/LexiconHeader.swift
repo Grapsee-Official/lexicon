@@ -11,6 +11,16 @@ struct LexiconHeader: View {
     @Environment(\.colorScheme) private var scheme
 
     @State private var showDailyLetter = false
+    @State private var measuredWidth: CGFloat = 390
+    private var reference: CGFloat? { homeNight ? measuredWidth : nil }
+    private var pageInset: CGFloat { reference.map { min(32, max(12, $0 * 30 / 591)) } ?? 16 }
+    private var crestWidth: CGFloat { reference.map { min(62, max(31, $0 * 62 / 591)) } ?? (homeEditorial ? 36 : 42) }
+    private var crestHeight: CGFloat { reference.map { min(57, max(29, $0 * 57 / 591)) } ?? (homeEditorial ? 36 : 40) }
+    private var avatarSize: CGFloat { reference.map { min(49, max(28, $0 * 49 / 591)) } ?? (homeEditorial ? 32 : 36) }
+    private var brandSize: CGFloat { reference.map { min(29, max(16, $0 * 29 / 591)) } ?? (homeEditorial ? 19 : 21) }
+    private var taglineSize: CGFloat { reference.map { min(11, max(8, $0 * 11 / 591)) } ?? (homeEditorial ? 8 : 9) }
+    private var symbolSize: CGFloat { reference.map { min(25, max(15, $0 * 25 / 591)) } ?? 18 }
+    private var gap: CGFloat { reference.map { min(9, max(4, $0 * 8 / 591)) } ?? 8 }
     private var isDark: Bool { scheme == .dark }
     private var homeNight: Bool { isDark && homeEditorial }
     private var homeEditorial: Bool { vm.route == .home && !vm.libraryOpen }
@@ -32,14 +42,14 @@ struct LexiconHeader: View {
     }
 
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: gap) {
             button(action: { vm.setActiveTab(.more) }, label: LexiconAccessibilityLabels.menu) {
                 Image(systemName: "line.3.horizontal")
-                    .font(.system(size: 18, weight: .light))
+                    .font(.system(size: symbolSize, weight: .light))
                     .foregroundStyle(iconTint)
             }
 
-            HStack(spacing: 8) {
+            HStack(spacing: gap) {
                 Button {
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     theme.toggle()
@@ -48,7 +58,7 @@ struct LexiconHeader: View {
                         .resizable()
                         .renderingMode(.original)
                         .scaledToFit()
-                        .frame(width: homeEditorial ? 36 : 42, height: homeEditorial ? 36 : 40)
+                        .frame(width: crestWidth, height: crestHeight)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text(isDark ? LexiconAccessibilityLabels.themeToggleLight : LexiconAccessibilityLabels.themeToggleDark))
@@ -59,12 +69,12 @@ struct LexiconHeader: View {
                 } label: {
                     VStack(alignment: .leading, spacing: 1) {
                         Text("Lexora")
-                            .font(.lexiconDisplay(homeEditorial ? 19 : 21, weight: .regular))
+                            .font(.lexiconDisplay(brandSize, weight: .regular))
                             .tracking(-0.2)
                             .foregroundStyle(wordmarkColor)
 
                         Text("Words. Wisdom. Worlds.")
-                            .font(.lexiconBody(homeEditorial ? 8 : 9))
+                            .font(.lexiconBody(taglineSize))
                             .tracking(0.2)
                             .foregroundStyle(taglineColor)
                     }
@@ -77,7 +87,7 @@ struct LexiconHeader: View {
             button(action: { showDailyLetter = true }, label: LexiconAccessibilityLabels.bell) {
                 ZStack(alignment: .topTrailing) {
                     Image(systemName: "bell")
-                        .font(.system(size: 18, weight: .light))
+                        .font(.system(size: symbolSize, weight: .light))
                         .foregroundStyle(iconTint)
                     Circle()
                         .fill(dotColor)
@@ -91,7 +101,7 @@ struct LexiconHeader: View {
                 Image(homeNight ? "ref-home-avatar" : (isDark ? "avatar-dark" : "avatar-default"))
                     .resizable()
                     .scaledToFill()
-                    .frame(width: homeEditorial ? 32 : 36, height: homeEditorial ? 32 : 36)
+                    .frame(width: avatarSize, height: avatarSize)
                     .clipShape(Circle())
                     .overlay(
                         Circle().stroke(
@@ -102,7 +112,13 @@ struct LexiconHeader: View {
             }
         }
         .frame(minHeight: 44)
-        .padding(.horizontal, 16)
+        .padding(.horizontal, pageInset)
+        .background {
+            GeometryReader { geo in
+                Color.clear.onAppear { measuredWidth = geo.size.width }
+                    .onChange(of: geo.size.width) { measuredWidth = $0 }
+            }
+        }
         .alert("A letter from Lexora", isPresented: $showDailyLetter) {
             Button("Explore the word") {
                 vm.navigate(to: .wordOfTheDay, word: LexiconData.featuredWord())

@@ -142,6 +142,7 @@ fun HomeScreen(viewModel: LexiconViewModel) {
             )) {
                 LexiconHeader(
                     viewModel = viewModel,
+                    referencePageWidth = maxWidth,
                     modifier = Modifier.onSizeChanged { headerHeightPx = it.height },
                 )
             }
