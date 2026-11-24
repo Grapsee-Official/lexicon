@@ -38,6 +38,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextOverflow
@@ -71,6 +72,7 @@ import com.lexicon.ui.theme.WarmGrey
 fun BottomNav(
     viewModel: LexiconViewModel,
     modifier: Modifier = Modifier,
+    referencePageWidth: Dp? = null,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val compactLabels = LocalConfiguration.current.screenWidthDp < 400 || LocalConfiguration.current.fontScale >= 1.2f
@@ -78,6 +80,12 @@ fun BottomNav(
     val isDark = state.isDark
 
     val homeNight = isDark && state.route == ScreenRoute.HOME
+    val reference = referencePageWidth?.takeIf { homeNight }
+    val sealDiameter = reference?.let { (it * (66f / 591f)).coerceIn(36.dp, 66.dp) }
+        ?: if (homeNight) 48.dp else 54.dp
+    val sealTarget = maxOf(sealDiameter, 48.dp)
+    val capsuleInset = reference?.let { (it * (19f / 591f)).coerceIn(10.dp, 22.dp) }
+        ?: if (homeNight) 12.dp else 16.dp
     val barBg = if (homeNight) Color(0xFF0C151C).copy(alpha = 0.95f)
         else if (isDark) DarkCard.copy(alpha = 0.96f) else CardSurface.copy(alpha = 0.96f)
     val barBorder = if (homeNight) Color(0xFFB6A486).copy(alpha = 0.12f)
@@ -93,7 +101,7 @@ fun BottomNav(
     ) {
         Row(
             modifier = Modifier
-            .padding(horizontal = if (homeNight) 12.dp else 16.dp, vertical = 6.dp)
+            .padding(horizontal = capsuleInset, vertical = 6.dp)
             .fillMaxWidth()
             .then(
                 if (!isDark) {
@@ -142,7 +150,7 @@ fun BottomNav(
 
             // Reserve a symmetric slot: the actual search circle floats above
             // the capsule and must NOT be clipped by its rounded background.
-            Box(Modifier.weight(1f).height(if (homeNight) 48.dp else 54.dp))
+            Box(Modifier.weight(1f).height(sealTarget))
 
             BottomNavItem(
                 label = "Collections",
@@ -179,7 +187,13 @@ fun BottomNav(
             modifier = Modifier
                 .align(if (homeNight) Alignment.Center else Alignment.TopCenter)
                 .offset(y = if (homeNight) 0.dp else (-7).dp)
-                .size(if (homeNight) 48.dp else 54.dp)
+                .size(sealTarget)
+                .iconButton(AccessibilityAudit.Descriptions.SearchFab)
+                .clickable(role = Role.Button) { viewModel.openSearch() },
+            contentAlignment = Alignment.Center,
+        ) {
+          Box(
+            modifier = Modifier.size(sealDiameter)
                 .then(
                     if (!isDark) Modifier.shadow(
                         elevation = 6.dp,
@@ -195,17 +209,16 @@ fun BottomNav(
                     color = if (homeNight) Color(0xFFD0AD75).copy(alpha = 0.72f)
                         else if (isDark) DarkAccent.copy(alpha = 0.70f) else CardSurface,
                     shape = CircleShape,
-                )
-                .iconButton(AccessibilityAudit.Descriptions.SearchFab)
-                .clickable(role = Role.Button) { viewModel.openSearch() },
+                ),
             contentAlignment = Alignment.Center,
-        ) {
+          ) {
             Icon(
                 imageVector = Icons.Outlined.Search,
                 contentDescription = null,
                 tint = if (isDark) DarkHighlight else PrimaryForeground,
-                modifier = Modifier.size(if (homeNight) 21.dp else 24.dp),
+                modifier = Modifier.size(if (homeNight) sealDiameter * 0.44f else 24.dp),
             )
+          }
         }
     }
 }

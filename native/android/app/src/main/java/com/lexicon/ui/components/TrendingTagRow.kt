@@ -83,7 +83,8 @@ fun TrendingTagRow(
     val tagFont = reference?.value?.let { (it * 13f / 591f).coerceIn(9.5f, 13f) }
 
     BoxWithConstraints(modifier.fillMaxWidth()) {
-        val rowWidth = if (available != null && fixedReference) minOf(maxWidth, available) else maxWidth
+        val rowWidth = if (available != null && fixedReference && reference != null && reference >= 370.dp)
+            minOf(maxWidth, maxOf(available, reference * (405f / 591f) + gap * 4 + gridWidth + 4.dp)) else maxWidth
         Row(
             modifier = Modifier.width(rowWidth),
             horizontalArrangement = Arrangement.spacedBy(gap),

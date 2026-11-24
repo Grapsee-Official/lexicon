@@ -155,9 +155,9 @@ fun HomeScreen(viewModel: LexiconViewModel) {
                 onHeroMeasured = { heroHeightPx = it },
             )
             // Real reserved space for navigation, including the raised search seal.
-            BottomNav(viewModel = viewModel, modifier = Modifier
+            BottomNav(viewModel = viewModel, referencePageWidth = maxWidth, modifier = Modifier
                 .background(if (state.isDark) Color(0xFF08111A) else WarmCream)
-                .padding(top = 8.dp))
+                .padding(top = if (state.isDark) maxWidth * (4f / 591f) else 8.dp))
         }
       }
     }
@@ -198,7 +198,7 @@ private fun HomeFeed(
     LazyColumn(
         state = feedState,
         modifier = modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(bottom = 12.dp),
+        contentPadding = PaddingValues(bottom = if (state.isDark) pageWidth * (10f / 591f) else 12.dp),
         verticalArrangement = Arrangement.spacedBy(if (state.isDark) referenceGap else 11.dp),
     ) {
         item(key = "masthead") {

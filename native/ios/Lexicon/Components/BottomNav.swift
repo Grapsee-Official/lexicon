@@ -9,6 +9,9 @@ struct BottomNav: View {
     var docked: Bool = false
     @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
+    @State private var measuredWidth: CGFloat = 390
+    private var sealDiameter: CGFloat { homeNight ? min(66, max(36, measuredWidth * 66 / 591)) : 54 }
+    private var capsuleInset: CGFloat { homeNight ? min(22, max(10, measuredWidth * 19 / 591)) : 16 }
 
     private var isDark: Bool { scheme == .dark }
     private var homeNight: Bool { isDark && vm.route == .home && !vm.libraryOpen }
@@ -29,9 +32,15 @@ struct BottomNav: View {
         VStack(spacing: 0) {
             if !docked { Spacer(minLength: 0) }
             navCapsule
-                .padding(.horizontal, homeNight ? 12 : 16)
+                .padding(.horizontal, capsuleInset)
                 .padding(.top, docked ? (homeNight ? 4 : 10) : 0)
                 .padding(.bottom, 4)
+        }
+        .background {
+            GeometryReader { geo in
+                Color.clear.onAppear { measuredWidth = geo.size.width }
+                    .onChange(of: geo.size.width) { measuredWidth = $0 }
+            }
         }
     }
 
@@ -45,9 +54,9 @@ struct BottomNav: View {
                 vm.openSearch()
             } label: {
                 Image(systemName: "magnifyingglass")
-                    .font(.system(size: 17, weight: .medium))
+                    .font(.system(size: homeNight ? sealDiameter * 0.44 : 17, weight: .medium))
                     .foregroundStyle(isDark ? LexiconColors.highlightDark : LexiconColors.primaryForeground)
-                    .frame(width: homeNight ? 48 : 54, height: homeNight ? 48 : 54)
+                    .frame(width: sealDiameter, height: sealDiameter)
                     .background(homeNight ? Color(hex: "0A131B") : (isDark ? Color(hex: "101620") : LexiconColors.primary))
                     .clipShape(Circle())
                     .overlay(
@@ -57,6 +66,8 @@ struct BottomNav: View {
                                 lineWidth: homeNight ? 1 : (isDark ? 1.5 : 3)
                             )
                     )
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .shadow(color: isDark ? .clear : LexiconColors.foreground.opacity(0.16), radius: 6, y: 2)

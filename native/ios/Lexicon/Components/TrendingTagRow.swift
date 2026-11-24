@@ -38,7 +38,9 @@ struct TrendingTagRow: View {
         let chipHeight = reference.map { min(44, max(26, $0 * 40 / 591)) } ?? 34
         let sizes: [String: CGFloat] = ["Ephemeral": 105, "Serendipity": 106, "Limerence": 102, "Ethereal": 92]
         let fixedReference = reference != nil && dynamicTypeSize <= .large && tags.allSatisfy { sizes[$0.label] != nil }
-        let rowWidth = fixedReference ? reference.map { $0 * 492 / 591 } : nil
+        let rowWidth = fixedReference ? reference.flatMap { width in
+            width >= 370 ? max(width * 492 / 591, width * 405 / 591 + gap * 4 + gridWidth + 4) : nil
+        } : nil
         let tagFont = reference.map { min(13, max(9.5, $0 * 13 / 591)) } ?? 10.5
         HStack(spacing: gap) {
             ScrollView(.horizontal, showsIndicators: false) {

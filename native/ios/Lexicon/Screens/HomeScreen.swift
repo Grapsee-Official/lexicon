@@ -114,7 +114,7 @@ struct HomeScreen: View {
                 .padding(.top, scheme == .dark ? pageWidth * 10 / 591 : 0)
             }
             .padding(.top, 1)
-            .padding(.bottom, 12)
+            .padding(.bottom, scheme == .dark ? pageWidth * 10 / 591 : 12)
           }
         }
         .background(scheme == .dark ? Color.clear : LexiconColors.background)
