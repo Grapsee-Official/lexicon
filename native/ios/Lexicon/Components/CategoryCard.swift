@@ -23,8 +23,7 @@ struct CategoryCard: View {
             vm.setActiveTab(.dictionary)
         } label: {
             VStack(spacing: 0) {
-                Image(artName)
-                    .resizable()
+                PreparedArtworkImage(name: artName, treatment: .bookplate)
                     .scaledToFit()
                     .frame(maxWidth: .infinity)
                     .frame(height: largeText ? 88 : (isDark ? 64 : 65))

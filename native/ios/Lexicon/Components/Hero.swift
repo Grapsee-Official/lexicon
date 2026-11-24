@@ -4,6 +4,8 @@
 //
 
 import SwiftUI
+import UIKit
+import CoreGraphics
 
 struct Hero: View {
     @Environment(\.colorScheme) private var scheme
@@ -187,15 +189,12 @@ struct HomeNightScene: View {
             let artWidth = min(width * (largeText ? 0.96 : 1.08), height * 1.5 * 1.08)
             let artHeight = artWidth / 1.5
             let artX = max(width * 0.63 - artWidth * 0.54, width - artWidth * 0.95)
-            let moonY = height * (extendsBehindTags ? 0.075 : 0.09)
+            let moonY = min(height * (extendsBehindTags ? 0.09 : 0.10), width * 0.055)
             let artY = largeText ? height * 0.90 - artHeight : moonY - artHeight * 0.17
 
-            Image("hero-dark")
-                .resizable()
+            PreparedArtworkImage(name: "hero-dark", treatment: .moonlit)
                 .scaledToFit()
                 .frame(width: artWidth, height: artHeight)
-                .saturation(0.78)
-                .colorMultiply(Color(red: 0.82, green: 0.86, blue: 0.96))
                 .position(x: artX + artWidth / 2, y: artY + artHeight / 2)
                 .frame(width: width, height: height)
                 .clipped()
@@ -208,15 +207,15 @@ struct HomeNightScene: View {
                         .init(color: .black.opacity(0.96), location: readingEdge + 0.13),
                         .init(color: .black, location: 0.84),
                         .init(color: .black.opacity(0.83), location: 0.96),
-                        .init(color: .black.opacity(0.73), location: 1)
+                        .init(color: .black.opacity(0.91), location: 1)
                     ], startPoint: .leading, endPoint: .trailing)
                 }
                 .mask {
                     LinearGradient(stops: [
                         .init(color: .clear, location: 0),
-                        .init(color: .black.opacity(0.54), location: 0.035),
-                        .init(color: .black.opacity(0.86), location: 0.085),
-                        .init(color: .black.opacity(0.81), location: 0.35),
+                        .init(color: .black.opacity(0.65), location: 0.025),
+                        .init(color: .black, location: 0.065),
+                        .init(color: .black.opacity(0.93), location: 0.35),
                         .init(color: .black, location: 0.58),
                         .init(color: .black.opacity(0.96), location: 0.78),
                         .init(color: .black.opacity(0.57), location: 0.91),
@@ -335,5 +334,144 @@ struct BotanicalSprig: View {
         p.addQuadCurve(to: CGPoint(x: -len * 0.5, y: 0), control: CGPoint(x: 0, y: wid))
         p.closeSubpath()
         copy.fill(p, with: .color(color.opacity(0.92)))
+    }
+}
+
+
+// Same non-destructive artwork recipe as Compose. Native image decoding and
+// pixel processing occur off the main actor, with a bounded decoded-image cache.
+enum ArtworkTreatment: String, Sendable {
+    case moonlit, story, bookplate
+}
+
+struct PreparedArtworkImage: View {
+    let name: String
+    let treatment: ArtworkTreatment
+    @State private var prepared: UIImage?
+
+    var body: some View {
+        Group {
+            if let prepared {
+                Image(uiImage: prepared).resizable()
+            } else {
+                Image(name).resizable()
+            }
+        }
+        .task(id: name + treatment.rawValue) {
+            let result = await Task.detached(priority: .userInitiated) {
+                HomeArtworkProcessor.prepare(name: name, treatment: treatment)
+            }.value
+            if !Task.isCancelled { prepared = result }
+        }
+    }
+}
+
+private enum HomeArtworkProcessor {
+    private static let cache: NSCache<NSString, UIImage> = {
+        let result = NSCache<NSString, UIImage>()
+        result.totalCostLimit = 24 * 1024 * 1024
+        return result
+    }()
+
+    private static func smooth(_ lo: Float, _ hi: Float, _ x: Float) -> Float {
+        let t = min(1, max(0, (x - lo) / (hi - lo)))
+        return t * t * (3 - 2 * t)
+    }
+
+    private static func byte(_ x: Float) -> UInt8 {
+        UInt8(min(255, max(0, (x * 255).rounded())))
+    }
+
+    static func prepare(name: String, treatment: ArtworkTreatment) -> UIImage? {
+        let key = (name + ":" + treatment.rawValue) as NSString
+        if let cached = cache.object(forKey: key) { return cached }
+        guard let original = UIImage(named: name)?.cgImage,
+              let space = CGColorSpace(name: CGColorSpace.sRGB) else { return nil }
+
+        let limit = treatment == .bookplate ? 1280 : 1536
+        let scale = min(1, Double(limit) / Double(max(original.width, original.height)))
+        let w = max(1, Int((Double(original.width) * scale).rounded()))
+        let h = max(1, Int((Double(original.height) * scale).rounded()))
+        let info = CGBitmapInfo.byteOrder32Big.rawValue | CGImageAlphaInfo.premultipliedLast.rawValue
+        var bytes = [UInt8](repeating: 0, count: w * h * 4)
+        let drawn = bytes.withUnsafeMutableBytes { buffer -> Bool in
+            guard let context = CGContext(data: buffer.baseAddress, width: w, height: h,
+                                          bitsPerComponent: 8, bytesPerRow: w * 4,
+                                          space: space, bitmapInfo: info) else { return false }
+            context.interpolationQuality = .high
+            context.draw(original, in: CGRect(x: 0, y: 0, width: w, height: h))
+            return true
+        }
+        guard drawn else { return nil }
+
+        var left = w, top = h, right = -1, bottom = -1, transparent = 0
+        if treatment == .bookplate {
+            for y in 0..<h {
+                for x in 0..<w {
+                    let alpha = bytes[(y * w + x) * 4 + 3]
+                    if alpha < 12 { transparent += 1 }
+                    if alpha >= 16 {
+                        left = min(left, x); top = min(top, y)
+                        right = max(right, x); bottom = max(bottom, y)
+                    }
+                }
+            }
+        } else {
+            let moon = treatment == .moonlit
+            for i in stride(from: 0, to: bytes.count, by: 4) {
+                let a = Float(bytes[i + 3]) / 255
+                if a == 0 { continue }
+                // CGContext stores premultiplied RGBA. Grade straight RGB and
+                // premultiply again using the new alpha to avoid colored halos.
+                let r = min(1, Float(bytes[i]) / 255 / a)
+                let g = min(1, Float(bytes[i + 1]) / 255 / a)
+                let b = min(1, Float(bytes[i + 2]) / 255 / a)
+                let l = r * 0.2126 + g * 0.7152 + b * 0.0722
+                let highlight = smooth(0.63, 0.95, l)
+                let warm = smooth(0.06, 0.24, r - b)
+                let gain: Float = (moon ? 0.76 : 0.85) + (moon ? 0.22 : 0.13) * highlight
+                    - (moon ? 0.045 : 0.02) * warm * (1 - highlight)
+                let sat = 0.80 + 0.18 * highlight
+                let shadow = 1 - smooth(0.09, 0.35, l)
+                let alpha = a * (0.58 + 0.42 * smooth(0.035, 0.24, l))
+                let rr = (l + (r - l) * sat) * gain * (1 - 0.10 * shadow)
+                let gg = (l + (g - l) * sat) * gain
+                let bb = (l + (b - l) * sat) * gain + 0.012 * shadow
+                bytes[i] = byte(rr * alpha)
+                bytes[i + 1] = byte(gg * alpha)
+                bytes[i + 2] = byte(bb * alpha)
+                bytes[i + 3] = byte(alpha)
+            }
+        }
+
+        guard let provider = CGDataProvider(data: Data(bytes) as CFData),
+              var result = CGImage(width: w, height: h, bitsPerComponent: 8,
+                                   bitsPerPixel: 32, bytesPerRow: w * 4,
+                                   space: space, bitmapInfo: CGBitmapInfo(rawValue: info),
+                                   provider: provider, decode: nil, shouldInterpolate: true,
+                                   intent: .defaultIntent) else { return nil }
+
+        if treatment == .bookplate && right >= left && bottom >= top && transparent > w * h / 8 {
+            let pad = Int((Double(max(right - left + 1, bottom - top + 1)) * 0.055).rounded())
+            left = max(0, left - pad); top = max(0, top - pad)
+            right = min(w - 1, right + pad); bottom = min(h - 1, bottom + pad)
+            result = result.cropping(to: CGRect(x: left, y: top,
+                                               width: right - left + 1,
+                                               height: bottom - top + 1)) ?? result
+        }
+        if treatment == .bookplate && max(result.width, result.height) > 640 {
+            let factor = 640.0 / Double(max(result.width, result.height))
+            let rw = max(1, Int((Double(result.width) * factor).rounded()))
+            let rh = max(1, Int((Double(result.height) * factor).rounded()))
+            if let ctx = CGContext(data: nil, width: rw, height: rh, bitsPerComponent: 8,
+                                   bytesPerRow: rw * 4, space: space, bitmapInfo: info) {
+                ctx.interpolationQuality = .high
+                ctx.draw(result, in: CGRect(x: 0, y: 0, width: rw, height: rh))
+                result = ctx.makeImage() ?? result
+            }
+        }
+        let image = UIImage(cgImage: result)
+        cache.setObject(image, forKey: key, cost: result.width * result.height * 4)
+        return image
     }
 }

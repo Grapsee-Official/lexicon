@@ -215,13 +215,10 @@ private struct WordOfDayNightScene: View {
             let height = geo.size.height
             ZStack(alignment: .trailing) {
                 Color(hex: "0B141C")
-                Image("wotd-home-dark")
-                    .resizable()
+                PreparedArtworkImage(name: "wotd-home-dark", treatment: .story)
                     .scaledToFill()
                     .frame(width: width * 0.70, height: height, alignment: .trailing)
                     .clipped()
-                    .saturation(0.84)
-                    .colorMultiply(Color(red: 0.90, green: 0.92, blue: 0.96))
                     .frame(width: width, height: height, alignment: .trailing)
                     .mask {
                         LinearGradient(stops: [

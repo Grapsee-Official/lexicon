@@ -23,7 +23,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -53,7 +52,7 @@ fun CategoryCard(
     val isDark = state.isDark
     val largeText = LocalConfiguration.current.fontScale > 1.2f
     val ctx = LocalContext.current
-    // One original painting for both themes; never tint or crop it.
+    // One original painting for both themes; remove transparent storage margins only.
     val resId = ctx.resources.getIdentifier(category.illustration, "drawable", ctx.packageName)
     // Let the underlying page ink show through the bookplate rather than
     // introducing a second opaque rectangle around the original art.
@@ -77,7 +76,7 @@ fun CategoryCard(
     ) {
         if (resId != 0) {
             Image(
-                painter = painterResource(resId),
+                painter = rememberPreparedArtwork(resId, ArtworkTreatment.BOOKPLATE),
                 contentDescription = null,
                 modifier = Modifier.fillMaxWidth().height(if (largeText) 88.dp else if (isDark) 64.dp else 65.dp),
                 contentScale = ContentScale.Fit,

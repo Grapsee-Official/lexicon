@@ -1,5 +1,9 @@
 package com.lexicon.ui.components
 
+import android.content.res.Resources
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.LruCache
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -10,8 +14,10 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.foundation.layout.Box
@@ -28,10 +34,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,6 +55,9 @@ import com.lexicon.ui.theme.DarkSage
 import com.lexicon.ui.theme.DeepForest
 import com.lexicon.ui.theme.LexiconTextStyles
 import com.lexicon.ui.theme.OldWoodGold
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlin.math.roundToInt
 
 @Composable
 fun Hero(
@@ -205,13 +216,7 @@ fun Hero(
 @Composable
 fun HomeNightScene(modifier: Modifier = Modifier, extendsBehindTags: Boolean = false) {
     val largeText = LocalConfiguration.current.fontScale > 1.2f
-    val painting = painterResource(R.drawable.hero_dark)
-    val grade = ColorFilter.colorMatrix(ColorMatrix(floatArrayOf(
-        0.70f, 0.10f, 0.02f, 0f, 0f,
-        0.04f, 0.79f, 0.03f, 0f, 0f,
-        0.04f, 0.11f, 0.81f, 0f, 0f,
-        0f, 0f, 0f, 1f, 0f,
-    )))
+    val painting = rememberPreparedArtwork(R.drawable.hero_dark, ArtworkTreatment.MOONLIT)
     Canvas(modifier.graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }) {
         if (size.width <= 0f || size.height <= 0f) return@Canvas
         val intrinsic = painting.intrinsicSize
@@ -224,12 +229,12 @@ fun HomeNightScene(modifier: Modifier = Modifier, extendsBehindTags: Boolean = f
             size.width - artWidth * 0.95f)
         // Source landmarks: moon ~54%,17%; book center ~62%,69%.
         // Reserve the extra tag area for the fading foreground, not extra sky.
-        val moonY = size.height * (if (extendsBehindTags) 0.075f else 0.09f)
+        val moonY = minOf(size.height * (if (extendsBehindTags) 0.09f else 0.10f), size.width * 0.055f)
         val artY = if (largeText) size.height * 0.90f - artHeight
             else moonY - artHeight * 0.17f
         clipRect {
             translate(left = artX, top = artY) {
-                with(painting) { draw(size = Size(artWidth, artHeight), colorFilter = grade) }
+                with(painting) { draw(size = Size(artWidth, artHeight)) }
             }
         }
 
@@ -245,16 +250,16 @@ fun HomeNightScene(modifier: Modifier = Modifier, extendsBehindTags: Boolean = f
                 (readingEdge + 0.13f) to Color.Black.copy(alpha = 0.96f),
                 0.84f to Color.Black,
                 0.96f to Color.Black.copy(alpha = 0.83f),
-                1f to Color.Black.copy(alpha = 0.73f),
+                1f to Color.Black.copy(alpha = 0.91f),
             ),
             blendMode = BlendMode.DstIn,
         )
         drawRect(
             brush = Brush.verticalGradient(
                 0f to Color.Transparent,
-                0.035f to Color.Black.copy(alpha = 0.54f),
-                0.085f to Color.Black.copy(alpha = 0.86f),
-                0.35f to Color.Black.copy(alpha = 0.81f),
+                0.025f to Color.Black.copy(alpha = 0.65f),
+                0.065f to Color.Black.copy(alpha = 1f),
+                0.35f to Color.Black.copy(alpha = 0.93f),
                 0.58f to Color.Black,
                 0.78f to Color.Black.copy(alpha = 0.96f),
                 0.91f to Color.Black.copy(alpha = 0.57f),
@@ -264,3 +269,118 @@ fun HomeNightScene(modifier: Modifier = Modifier, extendsBehindTags: Boolean = f
         )
     }
 }
+
+
+/**
+ * Non-destructive presentation of original Home PNGs. Cached, downsampled
+ * bookplates use exactly the same recipe in light and dark. Night scenes
+ * retain the original alpha, with a luminance-dependent shadow dissolve and
+ * a highlight-preserving tone curve. No generated/replacement illustration.
+ */
+internal enum class ArtworkTreatment { MOONLIT, STORY, BOOKPLATE }
+
+private val preparedArtworkCache = object : LruCache<String, ImageBitmap>(24 * 1024 * 1024) {
+    override fun sizeOf(key: String, value: ImageBitmap): Int =
+        value.width * value.height * 4
+}
+
+@Composable
+internal fun rememberPreparedArtwork(resId: Int, treatment: ArtworkTreatment): Painter {
+    val resources = LocalContext.current.resources
+    val key = "$resId:$treatment"
+    val prepared by produceState<ImageBitmap?>(preparedArtworkCache.get(key), key) {
+        value = withContext(Dispatchers.Default) {
+            preparedArtworkCache.get(key) ?: prepareArtwork(resources, resId, treatment)
+                ?.also { preparedArtworkCache.put(key, it) }
+        }
+    }
+    // The original remains available if a device cannot allocate the derivative.
+    return prepared?.let { BitmapPainter(it) } ?: painterResource(resId)
+}
+
+private fun smoothArtworkStep(lo: Float, hi: Float, value: Float): Float {
+    val t = ((value - lo) / (hi - lo)).coerceIn(0f, 1f)
+    return t * t * (3f - 2f * t)
+}
+
+private fun prepareArtwork(
+    resources: Resources, resId: Int, treatment: ArtworkTreatment,
+): ImageBitmap? = runCatching {
+    val source = BitmapFactory.decodeResource(resources, resId, BitmapFactory.Options().apply {
+        inScaled = false
+        inPreferredConfig = Bitmap.Config.ARGB_8888
+    }) ?: return null
+    var bitmap = source
+    if (treatment == ArtworkTreatment.BOOKPLATE && bitmap.hasAlpha()) {
+        val w = bitmap.width
+        val h = bitmap.height
+        val row = IntArray(w)
+        var left = w
+        var top = h
+        var right = -1
+        var bottom = -1
+        var transparent = 0L
+        for (y in 0 until h) {
+            bitmap.getPixels(row, 0, w, 0, y, w, 1)
+            for (x in 0 until w) {
+                val alpha = row[x] ushr 24
+                if (alpha < 12) transparent++
+                if (alpha >= 16) {
+                    left = minOf(left, x)
+                    top = minOf(top, y)
+                    right = maxOf(right, x)
+                    bottom = maxOf(bottom, y)
+                }
+            }
+        }
+        // Crop transparent storage margins only, never an opaque painting.
+        if (right >= left && bottom >= top && transparent > w.toLong() * h / 8) {
+            val pad = (maxOf(right - left + 1, bottom - top + 1) * 0.055f).roundToInt()
+            left = (left - pad).coerceAtLeast(0)
+            top = (top - pad).coerceAtLeast(0)
+            right = (right + pad).coerceAtMost(w - 1)
+            bottom = (bottom + pad).coerceAtMost(h - 1)
+            bitmap = Bitmap.createBitmap(bitmap, left, top, right - left + 1, bottom - top + 1)
+        }
+    }
+    val limit = if (treatment == ArtworkTreatment.BOOKPLATE) 640 else 1536
+    val longest = maxOf(bitmap.width, bitmap.height)
+    if (longest > limit) {
+        val scale = limit.toFloat() / longest
+        bitmap = Bitmap.createScaledBitmap(bitmap,
+            (bitmap.width * scale).roundToInt().coerceAtLeast(1),
+            (bitmap.height * scale).roundToInt().coerceAtLeast(1), true)
+    }
+    if (treatment == ArtworkTreatment.BOOKPLATE) return bitmap.asImageBitmap()
+
+    val w = bitmap.width
+    val h = bitmap.height
+    val pixels = IntArray(w * h)
+    bitmap.getPixels(pixels, 0, w, 0, 0, w, h)
+    val moon = treatment == ArtworkTreatment.MOONLIT
+    for (i in pixels.indices) {
+        val p = pixels[i]
+        val a = p ushr 24
+        if (a == 0) continue
+        val r = ((p ushr 16) and 255) / 255f
+        val g = ((p ushr 8) and 255) / 255f
+        val b = (p and 255) / 255f
+        val l = r * 0.2126f + g * 0.7152f + b * 0.0722f
+        val highlight = smoothArtworkStep(0.63f, 0.95f, l)
+        val warm = smoothArtworkStep(0.06f, 0.24f, r - b)
+        val gain = (if (moon) 0.76f else 0.85f) +
+            (if (moon) 0.22f else 0.13f) * highlight -
+            (if (moon) 0.045f else 0.02f) * warm * (1f - highlight)
+        val saturation = 0.80f + 0.18f * highlight
+        val shadow = 1f - smoothArtworkStep(0.09f, 0.35f, l)
+        val alpha = a * (0.58f + 0.42f * smoothArtworkStep(0.035f, 0.24f, l))
+        val rr = (l + (r - l) * saturation) * gain * (1f - 0.10f * shadow)
+        val gg = (l + (g - l) * saturation) * gain
+        val bb = (l + (b - l) * saturation) * gain + 0.012f * shadow
+        pixels[i] = (alpha.roundToInt().coerceIn(0, 255) shl 24) or
+            ((rr * 255f).roundToInt().coerceIn(0, 255) shl 16) or
+            ((gg * 255f).roundToInt().coerceIn(0, 255) shl 8) or
+            (bb * 255f).roundToInt().coerceIn(0, 255)
+    }
+    Bitmap.createBitmap(pixels, w, h, Bitmap.Config.ARGB_8888).asImageBitmap()
+}.getOrNull()

@@ -32,8 +32,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.drawscope.clipRect
@@ -269,13 +267,7 @@ fun WordOfTheDayCard(
 // foreground controls; the divider no longer separates two painted surfaces.
 @Composable
 private fun WordOfDayNightScene(modifier: Modifier, accessible: Boolean) {
-    val artwork = painterResource(R.drawable.wotd_home_dark)
-    val grade = ColorFilter.colorMatrix(ColorMatrix(floatArrayOf(
-        0.80f, 0.08f, 0.02f, 0f, 0f,
-        0.04f, 0.86f, 0.02f, 0f, 0f,
-        0.03f, 0.08f, 0.85f, 0f, 0f,
-        0f, 0f, 0f, 1f, 0f,
-    )))
+    val artwork = rememberPreparedArtwork(R.drawable.wotd_home_dark, ArtworkTreatment.STORY)
     Canvas(modifier.graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }) {
         if (size.width <= 0f || size.height <= 0f) return@Canvas
         val intrinsic = artwork.intrinsicSize
@@ -285,7 +277,7 @@ private fun WordOfDayNightScene(modifier: Modifier, accessible: Boolean) {
         val height = width / aspect
         clipRect {
             translate(left = size.width - width, top = (size.height - height) / 2f) {
-                with(artwork) { draw(size = Size(width, height), colorFilter = grade) }
+                with(artwork) { draw(size = Size(width, height)) }
             }
         }
         drawRect(
