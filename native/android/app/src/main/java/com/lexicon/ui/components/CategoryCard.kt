@@ -134,7 +134,9 @@ fun CategoryCard(
             Text(
                 text = category.subtitle,
                 color = muted,
-                style = LexiconTextStyles.CategorySubtitle.copy(fontSize = if (shelfArtworkHeight != null) 8.5.sp else 9.5.sp, lineHeight = if (shelfArtworkHeight != null) 11.sp else 12.sp),
+                style = LexiconTextStyles.CategorySubtitle.copy(
+                    fontSize = if (isDark && shelfArtworkHeight != null && !largeText) 7.5.sp else if (shelfArtworkHeight != null) 8.5.sp else 9.5.sp,
+                    lineHeight = if (isDark && shelfArtworkHeight != null && !largeText) 10.sp else if (shelfArtworkHeight != null) 11.sp else 12.sp),
                 textAlign = TextAlign.Center,
             )
         }

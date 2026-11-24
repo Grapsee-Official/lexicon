@@ -54,7 +54,7 @@ struct CategoryCard: View {
                         .foregroundStyle(p.foreground)
                         .fixedSize(horizontal: false, vertical: true)
                     Text(category.subtitle)
-                        .font(.lexiconBody(shelfArtworkHeight != nil ? 8.5 : 9.5))
+                        .font(.lexiconBody(isDark && shelfArtworkHeight != nil && !largeText ? 7.5 : (shelfArtworkHeight != nil ? 8.5 : 9.5)))
                         .foregroundStyle(isDark ? Color(hex: "B4AD9E") : p.mutedForeground)
                         .fixedSize(horizontal: false, vertical: true)
                 }

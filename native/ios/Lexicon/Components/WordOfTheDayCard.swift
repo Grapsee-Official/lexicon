@@ -15,9 +15,8 @@ struct WordOfTheDayCard: View {
     private var cardHeight: CGFloat {
         if dynamicTypeSize.isAccessibilitySize { return 186 }
         if !isDark { return measuredWidth < 360 ? 144 : 118 }
-        if (word.definitions.first ?? "").count > 105 { return 136 }
-        // measuredWidth excludes the two 16pt page margins.
-        return measuredWidth < 328 ? 116 : 112
+        if (word.definitions.first ?? "").count > 105 { return max(136, measuredWidth * 175 / 531) }
+        return max(96, measuredWidth * 175 / 531)
     }
 
     private var isDark: Bool { scheme == .dark }
@@ -151,11 +150,11 @@ struct WordOfTheDayCard: View {
 
                         VStack(alignment: .leading, spacing: shortDefinition ? 10 : 0) {
                             Text(word.definitions.first ?? "")
-                                .font(.lexiconBody(editorial ? 10.5 : 11.5))
+                                .font(.lexiconBody(editorial ? 9.5 : 11.5))
                                 .foregroundStyle(defColor)
                                 .lineSpacing(editorial ? 1.5 : 2.5)
                                 .lineLimit(4)
-                                .frame(width: isDark ? max(1, rightW * (dynamicTypeSize.isAccessibilitySize ? 0.88 : 0.73) - 17) : rightW * 0.69, alignment: .leading)
+                                .frame(width: isDark ? max(1, rightW * (dynamicTypeSize.isAccessibilitySize ? 0.88 : 0.79) - 17) : rightW * 0.69, alignment: .leading)
 
                             if !shortDefinition { Spacer(minLength: 4) }
 

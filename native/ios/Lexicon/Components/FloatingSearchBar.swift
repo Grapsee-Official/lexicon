@@ -43,6 +43,7 @@ struct FloatingSearchBar: View {
                 Text(placeholder)
                     .font(.lexiconBody(integrated && !dynamicTypeSize.isAccessibilitySize ? 11.5 : 13))
                     .foregroundStyle(textColor)
+                    .lineLimit(1)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 Image(systemName: "camera")
@@ -60,8 +61,8 @@ struct FloatingSearchBar: View {
             .background {
                 if integrated {
                     LinearGradient(colors: [
-                        Color(hex: "10191E").opacity(0.97),
-                        Color(hex: "0B161C").opacity(0.97)
+                        Color(hex: "0D171F"),
+                        Color(hex: "0B151D")
                     ], startPoint: .top, endPoint: .bottom)
                 } else {
                     lexiconPalette(scheme).searchPill

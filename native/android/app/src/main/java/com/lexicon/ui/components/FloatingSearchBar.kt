@@ -54,7 +54,7 @@ fun FloatingSearchBar(
 
     val integrated = isDark && sceneIntegrated
     val compactType = integrated && LocalConfiguration.current.fontScale < 1.5f
-    val bg = if (integrated) Color(0xFF0B161C).copy(alpha = 0.97f)
+    val bg = if (integrated) Color(0xFF0B151D)
         else if (isDark) DarkSearchPill.copy(alpha = 0.95f) else SearchPillLight
     val borderColor = if (integrated) Color(0xFFB6A486).copy(alpha = 0.19f)
         else if (isDark) DarkBorder else DeepForest.copy(alpha = 0.08f)
@@ -82,7 +82,7 @@ fun FloatingSearchBar(
                 )
                 .clip(RoundedCornerShape(50))
                 .then(if (integrated) Modifier.background(Brush.verticalGradient(
-                    listOf(Color(0xFF10191E).copy(alpha = 0.97f), bg)
+                    listOf(Color(0xFF0D171F), bg)
                 )) else Modifier.background(bg))
                 .border(1.dp, borderColor, RoundedCornerShape(50))
                 .padding(horizontal = 15.dp, vertical = if (integrated) 11.dp else 9.dp),

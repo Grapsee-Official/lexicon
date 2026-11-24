@@ -78,12 +78,13 @@ fun WordOfTheDayCard(
     // The reference is a compact editorial spread, not a tall two-panel tile.
     // Give unusually long entries room, while matching the regular card to
     // the reference's proportions at ordinary phone widths.
+    val referenceCardWidth = (config.screenWidthDp.coerceAtMost(640) * (531f / 591f)).dp
+    val referenceHeight = referenceCardWidth * (175f / 531f)
     val cardHeight = when {
         accessible -> (128.dp * config.fontScale).coerceIn(190.dp, 320.dp)
         !isDark -> if (compact) 144.dp else 118.dp
-        definition.length > 105 -> 136.dp
-        compact -> 116.dp * config.fontScale.coerceIn(1f, 1.3f)
-        else -> 112.dp * config.fontScale.coerceIn(1f, 1.3f)
+        definition.length > 105 -> maxOf(136.dp, referenceHeight)
+        else -> maxOf(96.dp, referenceHeight) * config.fontScale.coerceIn(1f, 1.25f)
     }
 
     // Same ink family as the Home night backdrop, not a separate slate tile.
@@ -249,7 +250,7 @@ fun WordOfTheDayCard(
                     Text(
                         text = definition,
                         color = defColor,
-                        style = if (editorial) LexiconTextStyles.WotdDefinition.copy(fontSize = 10.5.sp, lineHeight = 14.sp)
+                        style = if (editorial) LexiconTextStyles.WotdDefinition.copy(fontSize = 9.5.sp, lineHeight = 13.sp)
                             else LexiconTextStyles.WotdDefinition,
                         maxLines = 4,
                         overflow = TextOverflow.Ellipsis,

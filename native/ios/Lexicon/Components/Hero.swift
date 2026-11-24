@@ -71,11 +71,11 @@ struct Hero: View {
             VStack(alignment: .leading, spacing: 6) {
                 headline
                 Text("A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.")
-                    .font(.lexiconBody(enlargedText ? 11.5 : 9.5))
+                    .font(.lexiconBody(enlargedText ? 11.5 : min(14, max(9, measuredWidth * 13.5 / 591))))
                     .foregroundStyle(subtextColor)
                     .lineSpacing(1.5)
                     .fixedSize(horizontal: false, vertical: true)
-                    .padding(.trailing, enlargedText ? 0 : 12)
+                    .padding(.trailing, enlargedText ? 0 : measuredWidth * 0.045)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -184,7 +184,7 @@ struct Hero: View {
                     .lexiconDecorative()
             }
         }
-        .font(.lexiconDisplay(isDark ? min(30, max(19, measuredWidth * 0.057)) : (measuredWidth >= 600 ? 36 : 27), weight: .regular))
+        .font(.lexiconDisplay(isDark ? min(35, max(18, measuredWidth * 33 / 591)) : (measuredWidth >= 600 ? 36 : 27), weight: .regular))
         .tracking(-0.3)
         .frame(maxWidth: .infinity, alignment: .leading)
         .lexiconCombinedElement()
@@ -216,7 +216,7 @@ struct HomeNightScene: View {
                 ? min(width * 0.645, 210 * 381 / 361) : width * (381 / 591)
             let artHeight = artWidth * (361 / 381)
             // Reference crop x210..591 y125..486; search ends y478.
-            let artY = header + hero - artHeight * (353 / 361)
+            let artY = header + hero - 4 - artHeight * (353 / 361)
             Image("ref-home-hero")
                 .resizable().renderingMode(.original)
                 .frame(width: artWidth, height: artHeight)
@@ -232,22 +232,23 @@ struct HomeNightScene: View {
 private struct NightHeroLayout: Layout {
     let enlargedText: Bool
 
-    private let leading: CGFloat = 20
+    private func leading(for width: CGFloat) -> CGFloat { enlargedText ? 20 : width * 32 / 591 }
+    private func searchLeading(for width: CGFloat) -> CGFloat { enlargedText ? 20 : width * 30 / 591 }
     private let bottom: CGFloat = 4
     private let minimumGap: CGFloat = 10
-    private func top(for width: CGFloat) -> CGFloat { enlargedText ? 8 : min(42, max(22, width * 0.075)) }
+    private func top(for width: CGFloat) -> CGFloat { enlargedText ? 8 : width * 44 / 591 }
 
     private func minimumHeight(for width: CGFloat) -> CGFloat {
         if enlargedText { return 0 }
-        return min(350, max(195, width * 0.60))
+        return min(390, max(180, width * 356 / 591))
     }
 
     private func copyWidth(for width: CGFloat) -> CGFloat {
-        max(1, width * (enlargedText ? 1 : 0.46) - leading - (enlargedText ? 20 : 0))
+        max(1, width * (enlargedText ? 1 : 0.455) - leading(for: width) - (enlargedText ? 20 : 0))
     }
 
     private func searchWidth(for width: CGFloat) -> CGFloat {
-        max(1, (width - leading) * (enlargedText ? 0.90 : 0.76))
+        max(1, enlargedText ? (width - 20) * 0.90 : width * 427 / 591)
     }
 
     func sizeThatFits(
@@ -280,11 +281,11 @@ private struct NightHeroLayout: Layout {
                           bounds.maxY - bottom - searchSize.height)
 
         subviews[0].place(
-            at: CGPoint(x: bounds.minX + leading, y: bounds.minY + top(for: bounds.width)),
+            at: CGPoint(x: bounds.minX + leading(for: bounds.width), y: bounds.minY + top(for: bounds.width)),
             anchor: .topLeading, proposal: copyProposal
         )
         subviews[1].place(
-            at: CGPoint(x: bounds.minX + leading, y: searchY),
+            at: CGPoint(x: bounds.minX + searchLeading(for: bounds.width), y: searchY),
             anchor: .topLeading, proposal: searchProposal
         )
     }

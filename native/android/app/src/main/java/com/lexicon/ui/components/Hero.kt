@@ -89,27 +89,30 @@ fun Hero(
         val expanded = maxWidth >= 600.dp
         val heroHeight = when {
             largeText -> 0.dp
-            isDark -> (maxWidth * 0.60f).coerceIn(195.dp, 350.dp)
+            isDark -> (maxWidth * (356f / 591f)).coerceIn(180.dp, 390.dp)
             expanded -> 365.dp
             compact -> 290.dp
             else -> 278.dp
         }
         val textWidth = when {
             largeText -> 1f
-            isDark -> 0.46f
+            isDark -> 0.455f
             compact || largeText -> 0.60f
             else -> 0.52f
         }
         val headlineStyle = when {
             isDark -> LexiconTextStyles.HeroHeadline.copy(
-                fontSize = (maxWidth.value * 0.057f).coerceIn(19f, 30f).sp,
-                lineHeight = (maxWidth.value * 0.064f).coerceIn(22f, 35f).sp,
+                fontSize = (maxWidth.value * (33f / 591f)).coerceIn(18f, 35f).sp,
+                lineHeight = (maxWidth.value * (40f / 591f)).coerceIn(22f, 43f).sp,
             )
             expanded -> LexiconTextStyles.HeroHeadline.copy(fontSize = 36.sp, lineHeight = 42.sp)
             else -> LexiconTextStyles.HeroHeadline
         }
         val paragraphStyle = if (isDark && !largeText) {
-            LexiconTextStyles.HeroParagraph.copy(fontSize = 9.5.sp, lineHeight = 12.5.sp)
+            LexiconTextStyles.HeroParagraph.copy(
+                fontSize = (maxWidth.value * (13.5f / 591f)).coerceIn(9f, 14f).sp,
+                lineHeight = (maxWidth.value * (20f / 591f)).coerceIn(12f, 21f).sp,
+            )
         } else LexiconTextStyles.HeroParagraph
 
         Box(
@@ -197,14 +200,16 @@ fun Hero(
                 ) {
                     heroCopy(
                         Modifier.fillMaxWidth(textWidth)
-                            .padding(start = 20.dp, end = if (largeText) 20.dp else 0.dp, top = if (largeText) 8.dp else (maxWidth * 0.075f).coerceIn(22.dp, 42.dp), bottom = 6.dp),
+                            .padding(start = if (largeText) 20.dp else maxWidth * (32f / 591f), end = if (largeText) 20.dp else 0.dp,
+                                top = if (largeText) 8.dp else maxWidth * (44f / 591f), bottom = 6.dp),
                     )
                     if (largeText) Spacer(Modifier.height((maxWidth * 0.48f).coerceIn(135.dp, 210.dp)))
                     FloatingSearchBar(
                         viewModel = viewModel,
                         sceneIntegrated = isDark,
-                        modifier = Modifier.padding(start = 20.dp)
-                            .fillMaxWidth(if (largeText) 0.90f else 0.76f),
+                        modifier = if (largeText) Modifier.padding(start = 20.dp).fillMaxWidth(0.90f)
+                            else Modifier.padding(start = maxWidth * (30f / 591f))
+                                .width(maxWidth * (427f / 591f)),
                     )
                 }
             } else {
@@ -245,7 +250,7 @@ fun HomeNightScene(
             else size.width * (381f / 591f)
         val height = width * (361f / 381f)
         // Reference crop x210..591 y125..486; search ends y478.
-        val y = header + hero - height * (353f / 361f)
+        val y = header + hero - 4.dp.toPx() - height * (353f / 361f)
         clipRect {
             translate(left = size.width - width, top = y) {
                 with(painting) { draw(size = Size(width, height)) }
