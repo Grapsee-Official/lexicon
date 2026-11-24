@@ -10,6 +10,7 @@ struct FloatingSearchBar: View {
     @Environment(\.colorScheme) private var scheme
 
     var placeholder: String = "Search for a word..."
+    var sceneIntegrated: Bool = false
 
     private var isDark: Bool { scheme == .dark }
 
@@ -22,7 +23,8 @@ struct FloatingSearchBar: View {
     }
 
     private var pillBorder: Color {
-        isDark ? LexiconColors.goldBorderDark : LexiconColors.foreground.opacity(0.08)
+        isDark && sceneIntegrated ? Color(hex: "B6A486").opacity(0.25)
+            : (isDark ? LexiconColors.goldBorderDark : LexiconColors.foreground.opacity(0.08))
     }
 
     var body: some View {
@@ -52,8 +54,8 @@ struct FloatingSearchBar: View {
                     .lexiconDecorative()
             }
             .padding(.horizontal, 15)
-            .padding(.vertical, 9)
-            .background(lexiconPalette(scheme).searchPill)
+            .padding(.vertical, isDark && sceneIntegrated ? 13 : 9)
+            .background(isDark && sceneIntegrated ? Color(hex: "0C151C").opacity(0.96) : lexiconPalette(scheme).searchPill)
             .clipShape(Capsule())
             .overlay(Capsule().stroke(pillBorder, lineWidth: 1))
             .shadow(

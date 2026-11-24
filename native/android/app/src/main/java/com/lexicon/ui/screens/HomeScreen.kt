@@ -25,6 +25,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
@@ -47,7 +49,6 @@ import com.lexicon.ui.components.LexiconHeader
 import com.lexicon.ui.components.SectionHeader
 import com.lexicon.ui.components.TrendingTagRow
 import com.lexicon.ui.components.WordOfTheDayCard
-import com.lexicon.ui.theme.DarkBackground
 import com.lexicon.ui.theme.CardSurface
 import com.lexicon.ui.theme.DarkCard
 import com.lexicon.ui.theme.DarkForeground
@@ -61,12 +62,19 @@ import com.lexicon.ui.theme.WarmCream
 @Composable
 fun HomeScreen(viewModel: LexiconViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val bg = if (state.isDark) DarkBackground else WarmCream
+    // One page-sized midnight field, rather than a separate hero backdrop.
+    val background = if (state.isDark) Modifier.background(
+        Brush.verticalGradient(
+            0.00f to Color(0xFF040E18),
+            0.42f to Color(0xFF08121B),
+            1.00f to Color(0xFF09131C),
+        )
+    ) else Modifier.background(WarmCream)
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(bg),
+            .then(background),
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             LexiconHeader(viewModel = viewModel)

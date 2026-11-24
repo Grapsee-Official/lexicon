@@ -21,8 +21,11 @@ struct ContentView: View {
 
     var body: some View {
         ZStack {
-            lexiconPalette(scheme).background
-                .ignoresSafeArea()
+            if scheme == .dark && vm.route == .home && !vm.libraryOpen {
+                HomeNightBackdrop()
+            } else {
+                lexiconPalette(scheme).background.ignoresSafeArea()
+            }
 
             VStack(spacing: 0) {
                 if !vm.libraryOpen && (vm.route == .home || vm.route == .more) {

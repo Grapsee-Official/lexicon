@@ -23,3 +23,7 @@ The installer verifies byte-for-byte identity with `All real art/Moonlit Cottage
 Native composition implemented and the exact user-uploaded artwork is installed at all three native resource paths using the same Git blob as the approved original. Android test APK publication is gated on source parity and packaged hero dimensions. Device-level visual sign-off remains pending.
 
 After installation, build and capture dark and light Home on both native platforms (320–432 pt/dp, tablet and enlarged text), review moon/cottage/book visibility, readable copy, no hard seams, and search accessibility. Visual sign-off requires rendered native screenshots, not a static mockup.
+
+## Continuous night composition
+
+Home uses a single page-sized midnight gradient (`#040E18` → `#08121B` → `#09131C`) behind the transparent header and feed. Android uses an isolated Compose canvas with two alpha masks (`DstIn`); iOS uses two SwiftUI masks. The original source PNG remains byte-identical. The sky/roof are deliberately quieter than the foreground, the outer foliage dissolves, and the search capsule uses the same ink family. Reference screenshot sampling informed the grade; this is not device-rendered sign-off. The reference contains a different original painting composition, so exact pixel equivalence cannot be achieved through positioning alone.

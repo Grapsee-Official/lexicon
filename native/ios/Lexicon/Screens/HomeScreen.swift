@@ -82,7 +82,23 @@ struct HomeScreen: View {
             .padding(.top, 1)
             .padding(.bottom, 160)
         }
-        .background(lexiconPalette(scheme).background)
+        .background(scheme == .dark ? Color.clear : LexiconColors.background)
+    }
+}
+
+// The header and scroll feed reveal a single continuous native canvas.
+struct HomeNightBackdrop: View {
+    var body: some View {
+        LinearGradient(
+            stops: [
+                .init(color: Color(hex: "040E18"), location: 0),
+                .init(color: Color(hex: "08121B"), location: 0.42),
+                .init(color: Color(hex: "09131C"), location: 1)
+            ], startPoint: .top, endPoint: .bottom
+        )
+        .ignoresSafeArea()
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 }
 

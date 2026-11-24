@@ -7,6 +7,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
@@ -37,11 +40,9 @@ import com.lexicon.data.LexiconViewModel
 import com.lexicon.ui.sectionHeading
 import com.lexicon.ui.theme.BrandGreen
 import com.lexicon.ui.theme.DarkAccent
-import com.lexicon.ui.theme.DarkBackground
 import com.lexicon.ui.theme.WarmCream
 import com.lexicon.ui.theme.DarkForeground
 import com.lexicon.ui.theme.DarkSage
-import com.lexicon.ui.theme.DarkSecondary
 import com.lexicon.ui.theme.DeepForest
 import com.lexicon.ui.theme.LexiconTextStyles
 import com.lexicon.ui.theme.OldWoodGold
@@ -85,76 +86,77 @@ fun Hero(
             .height(heroHeight),
     ) {
         if (isDark) {
-            // Render the complete source on the page canvas, rather than fitting
-            // its transparent padding inside a separate right-hand image box.
+            // The original illustration remains unmodified. Compose only its
+            // painted pixels over the shared Home night, never an opaque tile.
             val painting = painterResource(R.drawable.hero_dark)
-            val nightGrade = ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0.83f) })
-            Canvas(Modifier.matchParentSize()) {
-                drawRect(
-                    brush = Brush.radialGradient(
-                        colors = listOf(DarkSecondary.copy(alpha = 0.18f), Color.Transparent),
-                        center = Offset(size.width * 0.79f, size.height * 0.41f),
-                        radius = maxOf(size.width, size.height) * 0.68f,
-                    ),
-                )
+            val nightGrade = ColorFilter.colorMatrix(ColorMatrix(floatArrayOf(
+                0.77f, 0.12f, 0.03f, 0f, 0f,
+                0.05f, 0.85f, 0.03f, 0f, 0f,
+                0.05f, 0.13f, 0.82f, 0f, 0f,
+                0f, 0f, 0f, 1f, 0f,
+            )))
+            val readingEdge = if (largeText) 0.61f else if (compact) 0.51f else 0.45f
+            // DstIn changes the painting's alpha, not the page below it.
+            // The isolated layer is essential: the same night continues under
+            // the header, the book, the search capsule and the feed.
+            Canvas(
+                Modifier.matchParentSize().graphicsLayer {
+                    compositingStrategy = CompositingStrategy.Offscreen
+                }
+            ) {
                 val intrinsic = painting.intrinsicSize
                 val aspect = if (intrinsic.width > 0f && intrinsic.height > 0f) {
                     intrinsic.width / intrinsic.height
                 } else 1.5f
-                // Align the actual painted landmarks, not the transparent PNG bounds.
-                // Source moon: ~54% across, ~17% down. Aim for the reference's
-                // upper-right moon and let the outer foliage continue off-screen.
                 val artWidth = if (largeText) {
-                    minOf(size.width * 0.90f, size.height * aspect * 1.10f)
+                    minOf(size.width * 0.91f, size.height * aspect)
                 } else {
-                    minOf(
-                        maxOf(size.width * 1.14f, size.height * aspect * 0.98f),
-                        size.width * 1.22f,
-                        size.height * aspect * 1.10f,
-                    )
+                    minOf(size.width * 1.13f, size.height * aspect * 1.14f)
                 }
                 val artHeight = artWidth / aspect
-                val x = maxOf(size.width * 0.63f - artWidth * 0.54f,
-                    size.width - artWidth * 0.91f)
-                val y = maxOf(size.height * 0.10f - artHeight * 0.17f,
-                    size.height * 0.98f - artHeight)
+                val x = maxOf(size.width * 0.64f - artWidth * 0.54f,
+                    size.width - artWidth * 0.94f)
+                val y = if (largeText) size.height - artHeight else
+                    size.height * 0.15f - artHeight * 0.17f
                 clipRect {
                     translate(left = x, top = y) {
                         with(painting) {
-                            draw(size = Size(artWidth, artHeight), alpha = 0.90f, colorFilter = nightGrade)
+                            draw(size = Size(artWidth, artHeight), colorFilter = nightGrade)
                         }
                     }
                 }
-            }
-            // Keep the words readable, but allow the distant trees to emerge
-            // organically beside them. The book continues behind the search.
-            val readingEdge = if (largeText) 0.60f else if (compact) 0.53f else 0.46f
-            Box(
-                Modifier.matchParentSize().background(
-                    Brush.horizontalGradient(
-                        0.00f to DarkBackground,
-                        0.25f to DarkBackground.copy(alpha = 0.98f),
-                        (readingEdge - 0.09f) to DarkBackground.copy(alpha = 0.91f),
-                        readingEdge to DarkBackground.copy(alpha = 0.62f),
-                        (readingEdge + 0.12f) to DarkBackground.copy(alpha = 0.18f),
-                        (readingEdge + 0.22f) to Color.Transparent,
+                // A wide, continuous mask opens into the distant trees,
+                // preserves the book and turns bright edge foliage into shadow.
+                drawRect(
+                    brush = Brush.horizontalGradient(
+                        0.00f to Color.Transparent,
+                        (readingEdge - 0.23f) to Color.Transparent,
+                        (readingEdge - 0.10f) to Color.Black.copy(alpha = 0.10f),
+                        readingEdge to Color.Black.copy(alpha = 0.48f),
+                        (readingEdge + 0.12f).coerceAtMost(0.83f) to Color.Black.copy(alpha = 0.94f),
+                        0.82f to Color.Black,
+                        0.94f to Color.Black.copy(alpha = 0.78f),
+                        1.00f to Color.Black.copy(alpha = 0.54f),
+                    ),
+                    blendMode = BlendMode.DstIn,
+                )
+                // Sky and roof are quieter than the illuminated foreground.
+                // Keep the warm pages present under the search capsule.
+                drawRect(
+                    brush = Brush.verticalGradient(
+                        0.00f to Color.Transparent,
+                        0.06f to Color.Black.copy(alpha = 0.40f),
+                        0.15f to Color.Black.copy(alpha = 0.60f),
+                        0.36f to Color.Black.copy(alpha = 0.70f),
+                        0.59f to Color.Black.copy(alpha = 0.94f),
+                        0.76f to Color.Black,
+                        0.90f to Color.Black.copy(alpha = 0.88f),
+                        0.97f to Color.Black.copy(alpha = 0.28f),
                         1.00f to Color.Transparent,
                     ),
-                ),
-            )
-            // Feather the sky and foreground into the shared page ink.
-            Box(
-                Modifier.matchParentSize().background(
-                    Brush.verticalGradient(
-                        0.00f to DarkBackground,
-                        0.035f to DarkBackground.copy(alpha = 0.30f),
-                        0.10f to Color.Transparent,
-                        0.82f to Color.Transparent,
-                        0.94f to DarkBackground.copy(alpha = 0.24f),
-                        1.00f to DarkBackground,
-                    ),
-                ),
-            )
+                    blendMode = BlendMode.DstIn,
+                )
+            }
         } else {
             Image(
                 painter = painterResource(R.drawable.hero_light),
@@ -224,9 +226,10 @@ fun Hero(
 
         FloatingSearchBar(
             viewModel = viewModel,
+            sceneIntegrated = isDark,
             modifier = Modifier
                 .align(Alignment.BottomStart)
-                .padding(start = if (isDark) 20.dp else 16.dp, bottom = if (isDark) 7.dp else 2.dp)
+                .padding(start = if (isDark) 20.dp else 16.dp, bottom = if (isDark) 4.dp else 2.dp)
                 .fillMaxWidth(if (isDark) { if (compact || largeText) 0.85f else 0.73f } else { if (compact) 0.90f else 0.75f }),
         )
     }

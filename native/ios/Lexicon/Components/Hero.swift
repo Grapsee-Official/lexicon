@@ -50,68 +50,59 @@ struct Hero: View {
 
             ZStack(alignment: .topLeading) {
                 if isDark {
-                    let readingEdge: CGFloat = enlargedText ? 0.60 : (compact ? 0.53 : 0.46)
-                    // Match the moon's painted coordinates and foreground,
-                    // not the transparent outer dimensions of the original.
+                    let readingEdge: CGFloat = enlargedText ? 0.61 : (compact ? 0.51 : 0.45)
                     let artWidth = enlargedText
-                        ? min(totalWidth * 0.90, heroHeight * 1.5 * 1.10)
-                        : min(max(totalWidth * 1.14, heroHeight * 1.5 * 0.98),
-                              min(totalWidth * 1.22, heroHeight * 1.5 * 1.10))
+                        ? min(totalWidth * 0.91, heroHeight * 1.5)
+                        : min(totalWidth * 1.13, heroHeight * 1.5 * 1.14)
                     let artHeight = artWidth / 1.5
-                    let artX = max(totalWidth * 0.63 - artWidth * 0.54,
-                                   totalWidth - artWidth * 0.91)
-                    let artY = max(heroHeight * 0.10 - artHeight * 0.17,
-                                   heroHeight * 0.98 - artHeight)
-                    ZStack(alignment: .topLeading) {
-                        RadialGradient(
-                            colors: [LexiconColors.secondaryDark.opacity(0.18), .clear],
-                            center: UnitPoint(x: 0.79, y: 0.41),
-                            startRadius: 0,
-                            endRadius: max(totalWidth, heroHeight) * 0.68
-                        )
+                    let artX = max(totalWidth * 0.64 - artWidth * 0.54,
+                                   totalWidth - artWidth * 0.94)
+                    let artY = enlargedText ? heroHeight - artHeight
+                        : heroHeight * 0.15 - artHeight * 0.17
 
-                        // Overscan the source's transparent right margin and
-                        // extend its foreground behind the search control.
-                        Image("hero-dark")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: artWidth, height: artHeight)
-                            .saturation(0.83)
-                            .opacity(0.90)
-                            .position(x: artX + artWidth / 2,
-                                      y: artY + artHeight / 2)
-
-                        LinearGradient(
-                            stops: [
-                                .init(color: LexiconColors.backgroundDark, location: 0),
-                                .init(color: LexiconColors.backgroundDark.opacity(0.98), location: 0.25),
-                                .init(color: LexiconColors.backgroundDark.opacity(0.91), location: readingEdge - 0.09),
-                                .init(color: LexiconColors.backgroundDark.opacity(0.62), location: readingEdge),
-                                .init(color: LexiconColors.backgroundDark.opacity(0.18), location: readingEdge + 0.12),
-                                .init(color: .clear, location: readingEdge + 0.22),
-                                .init(color: .clear, location: 1)
-                            ],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-
-                        LinearGradient(
-                            stops: [
-                                .init(color: LexiconColors.backgroundDark, location: 0),
-                                .init(color: LexiconColors.backgroundDark.opacity(0.30), location: 0.035),
-                                .init(color: .clear, location: 0.10),
-                                .init(color: .clear, location: 0.82),
-                                .init(color: LexiconColors.backgroundDark.opacity(0.24), location: 0.94),
-                                .init(color: LexiconColors.backgroundDark, location: 1)
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    }
-                    .frame(width: totalWidth, height: heroHeight)
-                    .clipped()
-                    .allowsHitTesting(false)
-                    .accessibilityHidden(true)
+                    // Mask the source's opacity, not the underlying page.
+                    // This keeps the same native night visible through every
+                    // shadow, from the header to the illustrated foreground.
+                    Image("hero-dark")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: artWidth, height: artHeight)
+                        .saturation(0.79)
+                        .colorMultiply(Color(red: 0.92, green: 0.93, blue: 1.0))
+                        .position(x: artX + artWidth / 2, y: artY + artHeight / 2)
+                        .frame(width: totalWidth, height: heroHeight)
+                        .clipped()
+                        .mask {
+                            LinearGradient(
+                                stops: [
+                                    .init(color: .clear, location: 0),
+                                    .init(color: .clear, location: readingEdge - 0.23),
+                                    .init(color: .black.opacity(0.10), location: readingEdge - 0.10),
+                                    .init(color: .black.opacity(0.48), location: readingEdge),
+                                    .init(color: .black.opacity(0.94), location: min(readingEdge + 0.12, 0.83)),
+                                    .init(color: .black, location: 0.82),
+                                    .init(color: .black.opacity(0.78), location: 0.94),
+                                    .init(color: .black.opacity(0.54), location: 1)
+                                ], startPoint: .leading, endPoint: .trailing
+                            )
+                        }
+                        .mask {
+                            LinearGradient(
+                                stops: [
+                                    .init(color: .clear, location: 0),
+                                    .init(color: .black.opacity(0.40), location: 0.06),
+                                    .init(color: .black.opacity(0.60), location: 0.15),
+                                    .init(color: .black.opacity(0.70), location: 0.36),
+                                    .init(color: .black.opacity(0.94), location: 0.59),
+                                    .init(color: .black, location: 0.76),
+                                    .init(color: .black.opacity(0.88), location: 0.90),
+                                    .init(color: .black.opacity(0.28), location: 0.97),
+                                    .init(color: .clear, location: 1)
+                                ], startPoint: .top, endPoint: .bottom
+                            )
+                        }
+                        .allowsHitTesting(false)
+                        .accessibilityHidden(true)
                 } else {
                     HStack(spacing: 0) {
                         Spacer(minLength: 0)
@@ -153,12 +144,12 @@ struct Hero: View {
                 VStack {
                     Spacer()
                     HStack(spacing: 0) {
-                        FloatingSearchBar()
+                        FloatingSearchBar(sceneIntegrated: isDark)
                             .frame(width: totalWidth * (isDark ? ((compact || enlargedText) ? 0.85 : 0.73) : (compact ? 0.90 : 0.75)))
                         Spacer(minLength: 0)
                     }
                     .padding(.leading, isDark ? 20 : 16)
-                    .padding(.bottom, isDark ? 7 : 2)
+                    .padding(.bottom, isDark ? 4 : 2)
                 }
                 .frame(width: totalWidth, height: heroHeight)
             }

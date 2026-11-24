@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.semantics.Role
@@ -43,12 +44,16 @@ fun FloatingSearchBar(
     viewModel: LexiconViewModel,
     modifier: Modifier = Modifier,
     placeholder: String = "Search for a word...",
+    sceneIntegrated: Boolean = false,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
 
-    val bg = if (isDark) DarkSearchPill.copy(alpha = 0.95f) else SearchPillLight
-    val borderColor = if (isDark) DarkBorder else DeepForest.copy(alpha = 0.08f)
+    val integrated = isDark && sceneIntegrated
+    val bg = if (integrated) Color(0xFF0C151C).copy(alpha = 0.96f)
+        else if (isDark) DarkSearchPill.copy(alpha = 0.95f) else SearchPillLight
+    val borderColor = if (integrated) Color(0xFFB6A486).copy(alpha = 0.25f)
+        else if (isDark) DarkBorder else DeepForest.copy(alpha = 0.08f)
     val iconColor = if (isDark) DarkAccent else OldWoodGold
     val textColor = if (isDark) DarkMutedForeground else OldWoodGold.copy(alpha = 0.85f)
 
@@ -74,7 +79,7 @@ fun FloatingSearchBar(
                 .clip(RoundedCornerShape(50))
                 .background(bg)
                 .border(1.dp, borderColor, RoundedCornerShape(50))
-                .padding(horizontal = 15.dp, vertical = 9.dp),
+                .padding(horizontal = 15.dp, vertical = if (integrated) 13.dp else 9.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(9.dp),
         ) {
