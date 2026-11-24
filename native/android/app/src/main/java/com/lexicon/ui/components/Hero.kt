@@ -685,7 +685,13 @@ private fun gradeMoonlitPainting(pixels: IntArray, w: Int, h: Int) {
             maxOf(crescent, windows, lantern)
         val gain = 0.51f + 0.25f * paper + 0.10f * stack + 0.06f * roof +
             0.06f * windows + 0.27f * crescent + 0.28f * emission
-        val sat = 0.72f - 0.29f * paper + 0.24f * emission
+        // Separate paper pigment from the pressed leaves. The reference's
+        // illuminated paper is aged neutral ivory, not orange parchment.
+        // Preserve darker botanical inks rather than desaturating the entire book.
+        val pagePigment = paper * s(0.30f, 0.56f, l) * s(0.025f, 0.10f, r - b)
+        val botanical = paper * (1f - s(0.24f, 0.42f, l))
+        val sat = 0.72f - 0.29f * paper - 0.10f * pagePigment +
+            0.13f * botanical + 0.24f * emission
         val outer = s(0.13f, 0.28f, x) * (1f - 0.78f * s(0.88f, 1f, x)) *
             s(0.02f, 0.10f, y) * (1f - s(0.88f, 1f, y))
         val edge = 0.45f + 0.55f * s(0f, 0.035f, distance[i] / scale)
@@ -700,12 +706,13 @@ private fun gradeMoonlitPainting(pixels: IntArray, w: Int, h: Int) {
         val protect = maxOf(paper, crescent, windows, stack * 0.65f)
         val inkMix = 0.58f * (1f - s(0.04f, 0.23f, l)) * (1f - 0.75f * protect)
         val paperLift = 0.025f * paper * s(0.18f, 0.60f, l)
+        val neutralIvory = 0.025f * pagePigment
         val rr = ((l + (r - l) * sat) * gain * (1f - 0.05f * (1f - paper))) *
-            (1f - inkMix) + (5f / 255f) * inkMix + paperLift
+            (1f - inkMix) + (5f / 255f) * inkMix + paperLift - 0.20f * neutralIvory
         val gg = ((l + (green - l) * sat) * gain) *
-            (1f - inkMix) + (15f / 255f) * inkMix + paperLift
+            (1f - inkMix) + (15f / 255f) * inkMix + paperLift + neutralIvory
         val bb = ((l + (b - l) * sat) * gain + 0.009f * (1f - s(0.08f, 0.40f, l))) *
-            (1f - inkMix) + (24f / 255f) * inkMix + paperLift
+            (1f - inkMix) + (24f / 255f) * inkMix + paperLift + 0.12f * neutralIvory
         // Build atmospheric color from the painting's own shadow pigment.
         // Exclude pages, windows and moon to avoid a broad amber halo.
         val weight = a * (1f - 0.85f * protect) * (1f - s(0.28f, 0.72f, l))

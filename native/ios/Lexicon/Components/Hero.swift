@@ -749,7 +749,12 @@ private func gradeMoonlitPainting(_ bytes: inout [UInt8], width w: Int, height h
         let gainA: Float = 0.51 + 0.25 * paper + 0.10 * stack
         let gainB: Float = 0.06 * roof + 0.06 * windows + 0.27 * crescent + 0.28 * emission
         let gain = gainA + gainB
-        let sat: Float = 0.72 - 0.29 * paper + 0.24 * emission
+        // Neutral aged paper and darker botanical pigment are separate
+        // tonal subjects; match the same source-local treatment as Compose.
+        let pagePigment = paper * s(0.30, 0.56, l) * s(0.025, 0.10, r - b)
+        let botanical = paper * (1 - s(0.24, 0.42, l))
+        let sat: Float = 0.72 - 0.29 * paper - 0.10 * pagePigment
+            + 0.13 * botanical + 0.24 * emission
         let outerX = s(0.13, 0.28, x) * (1 - 0.78 * s(0.88, 1, x))
         let outerY = s(0.02, 0.10, y) * (1 - s(0.88, 1, y))
         let edge: Float = 0.45 + 0.55 * s(0, 0.035, Float(distance[pixel]) / scale)
@@ -761,12 +766,13 @@ private func gradeMoonlitPainting(_ bytes: inout [UInt8], width w: Int, height h
         let protect = max(max(paper, crescent), max(windows, stack * 0.65))
         let inkMix: Float = 0.58 * (1 - s(0.04, 0.23, l)) * (1 - 0.75 * protect)
         let paperLift: Float = 0.025 * paper * s(0.18, 0.60, l)
+        let neutralIvory: Float = 0.025 * pagePigment
         let rawR = (l + (r - l) * sat) * gain * (1 - 0.05 * (1 - paper))
         let rawG = (l + (green - l) * sat) * gain
         let rawB = (l + (b - l) * sat) * gain + 0.009 * (1 - s(0.08, 0.40, l))
-        let rr = rawR * (1 - inkMix) + (5.0 / 255.0) * inkMix + paperLift
-        let gg = rawG * (1 - inkMix) + (15.0 / 255.0) * inkMix + paperLift
-        let bb = rawB * (1 - inkMix) + (24.0 / 255.0) * inkMix + paperLift
+        let rr = rawR * (1 - inkMix) + (5.0 / 255.0) * inkMix + paperLift - 0.20 * neutralIvory
+        let gg = rawG * (1 - inkMix) + (15.0 / 255.0) * inkMix + paperLift + neutralIvory
+        let bb = rawB * (1 - inkMix) + (24.0 / 255.0) * inkMix + paperLift + 0.12 * neutralIvory
         let weight = a * (1 - 0.85 * protect) * (1 - s(0.28, 0.72, l))
         atmosphere.add(x: pixel % w, y: pixel / w, weight: weight, r: rr, g: gg, b: bb)
         bytes[i] = byte(min(1, max(0, rr)) * alpha)
