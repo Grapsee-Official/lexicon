@@ -220,6 +220,21 @@ struct HomeNightScene: View {
             Image("ref-home-hero")
                 .resizable().renderingMode(.original)
                 .frame(width: artWidth, height: artHeight)
+                .mask {
+                    LinearGradient(stops: [
+                        .init(color: .clear, location: 0),
+                        .init(color: .black, location: 12 / 381),
+                        .init(color: .black, location: 1)
+                    ], startPoint: .leading, endPoint: .trailing)
+                }
+                .mask {
+                    LinearGradient(stops: [
+                        .init(color: .clear, location: 0),
+                        .init(color: .black, location: 12 / 361),
+                        .init(color: .black, location: 353 / 361),
+                        .init(color: .clear, location: 1)
+                    ], startPoint: .top, endPoint: .bottom)
+                }
                 .position(x: width - artWidth / 2, y: artY + artHeight / 2)
                 .frame(width: width, height: height)
                 .clipped()

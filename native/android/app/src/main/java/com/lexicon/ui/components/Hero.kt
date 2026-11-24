@@ -240,7 +240,7 @@ fun HomeNightScene(
     val largeText = LocalConfiguration.current.fontScale >= 1.5f
     // The actual reference composition, not a regraded standalone PNG.
     val painting = painterResource(R.drawable.ref_home_hero)
-    Canvas(modifier) {
+    Canvas(modifier.graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }) {
         if (size.width <= 0f || size.height <= 0f) return@Canvas
         val header = headerInset.toPx().coerceIn(0f, size.height)
         val content = (size.height - header).coerceAtLeast(1f)
@@ -254,6 +254,22 @@ fun HomeNightScene(
         clipRect {
             translate(left = size.width - width, top = y) {
                 with(painting) { draw(size = Size(width, height)) }
+                // Feather only the extraction boundary; preserve painted detail.
+                drawRect(
+                    brush = Brush.horizontalGradient(
+                        0f to Color.Transparent, (12f / 381f) to Color.Black, 1f to Color.Black,
+                        startX = 0f, endX = width,
+                    ),
+                    size = Size(width, height), blendMode = BlendMode.DstIn,
+                )
+                drawRect(
+                    brush = Brush.verticalGradient(
+                        0f to Color.Transparent, (12f / 361f) to Color.Black,
+                        (353f / 361f) to Color.Black, 1f to Color.Transparent,
+                        startY = 0f, endY = height,
+                    ),
+                    size = Size(width, height), blendMode = BlendMode.DstIn,
+                )
             }
         }
     }
