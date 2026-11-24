@@ -22,7 +22,8 @@ struct HomeScreen: View {
     }
 
     var body: some View {
-        ScrollView {
+        GeometryReader { window in
+          ScrollView {
             VStack(spacing: 11) {
                 VStack(spacing: scheme == .dark ? 5 : 11) {
                     Hero(sharedNightScene: scheme == .dark)
@@ -59,27 +60,20 @@ struct HomeScreen: View {
                         onAction: { vm.setActiveTab(.dictionary) },
                         homeEditorial: true
                     )
-                    GeometryReader { layout in
-                        let available = layout.size.width
-                        let largeText = dynamicTypeSize.isAccessibilitySize
-                        let bookplateWidth = largeText
-                            ? max(150, min(220, available * 0.43))
-                            : (scheme == .dark ? max(72, min(112, (available - 70) / 4))
-                               : max(94, min(116, (available - 62) / 4)))
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            LazyHStack(alignment: .top, spacing: scheme == .dark ? 8 : 10) {
-                                ForEach(LexiconData.categories) { category in
-                                    CategoryCard(category: category)
-                                        .frame(width: scheme == .dark && !largeText
-                                               ? max(bookplateWidth, category.title.count > 15 ? 136
-                                                     : (category.subtitle.count > 18 ? 112 : 0))
-                                               : bookplateWidth)
-                                }
+                    let available = min(640, window.size.width)
+                    let count = homeShelfColumns(width: available, textSize: dynamicTypeSize)
+                    let bookplateWidth = max(56, (available - 32 - CGFloat(count - 1) * 8) / CGFloat(count))
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        LazyHStack(alignment: .top, spacing: 8) {
+                            ForEach(LexiconData.categories) { category in
+                                CategoryCard(category: category, shelfArtworkHeight: min(96, max(50, bookplateWidth * 0.82)))
+                                    .frame(width: bookplateWidth)
                             }
-                            .padding(.horizontal, scheme == .dark ? 18 : 16)
                         }
+                        .padding(.horizontal, 16)
                     }
-                    .frame(height: dynamicTypeSize.isAccessibilitySize ? 230 : (scheme == .dark ? 124 : 145))
+                    // Let the tallest visible caption determine shelf height.
+                    // No fixed GeometryReader frame to clip large text.
                 }
 
                 // From the Library (with horizontal hairline divider)
@@ -105,10 +99,21 @@ struct HomeScreen: View {
                 }
             }
             .padding(.top, 1)
-            .padding(.bottom, 160)
+            .padding(.bottom, 12)
+          }
         }
         .background(scheme == .dark ? Color.clear : LexiconColors.background)
     }
+}
+
+// Same width-led policy as Android; adapt to Dynamic Type rather than
+// assuming that every phone is a fixed 390-point design canvas.
+private func homeShelfColumns(width: CGFloat, textSize: DynamicTypeSize) -> Int {
+    if textSize >= .accessibility3 { return width >= 560 ? 3 : 2 }
+    if textSize.isAccessibilitySize { return width >= 560 ? 4 : 3 }
+    if width >= 560 { return 5 }
+    if width < 340 && textSize >= .xxLarge { return 3 }
+    return 4
 }
 
 // The header and masthead publish geometry in the page coordinate space.

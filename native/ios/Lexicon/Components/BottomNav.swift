@@ -6,6 +6,7 @@
 import SwiftUI
 
 struct BottomNav: View {
+    var docked: Bool = false
     @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
 
@@ -25,11 +26,12 @@ struct BottomNav: View {
     }
 
     var body: some View {
-        VStack {
-            Spacer()
+        VStack(spacing: 0) {
+            if !docked { Spacer(minLength: 0) }
             navCapsule
                 .padding(.horizontal, 16)
-                .padding(.bottom, 2)
+                .padding(.top, docked ? 10 : 0)
+                .padding(.bottom, 4)
         }
     }
 
@@ -96,8 +98,8 @@ struct BottomNav: View {
                 Text(label)
                     .font(.lexiconBody(9.5, weight: active ? .medium : .regular))
                     .foregroundStyle(active ? activeColor : inactiveColor)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.75)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
 
                 Circle()
                     .fill(active ? dotColor : .clear)

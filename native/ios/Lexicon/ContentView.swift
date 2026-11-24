@@ -15,6 +15,8 @@ struct ContentView: View {
     @State private var homeHeaderHeight: CGFloat = 0
     @State private var homeHeroHeight: CGFloat = 0
 
+    private var isHome: Bool { vm.route == .home && !vm.libraryOpen }
+
     private var selectedWordBinding: Binding<WordEntry?> {
         Binding(
             get: { vm.selectedWord },
@@ -46,16 +48,30 @@ struct ContentView: View {
             VStack(spacing: 0) {
                 if !vm.libraryOpen && (vm.route == .home || vm.route == .more) {
                     LexiconHeader()
+                        .frame(maxWidth: isHome ? 640 : .infinity)
                         .background {
                             GeometryReader { geo in
                                 Color.clear.preference(key: HomeHeaderHeightKey.self, value: geo.size.height)
                             }
                         }
+                        .background(alignment: .top) {
+                            if isHome && scheme == .dark && homeMasthead.minY < homeHeaderHeight - 1 {
+                                Color(hex: "050F18").ignoresSafeArea(edges: .top)
+                            }
+                        }
                 }
 
                 activeScreen
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .frame(maxWidth: isHome ? 640 : .infinity, maxHeight: .infinity)
+                    .clipped()
                     .lexiconEditMenu(engine: vm.engine)
+
+                if isHome {
+                    // A reserved dock, not a view floating over scroll content.
+                    BottomNav(docked: true)
+                        .frame(maxWidth: 640)
+                        .background(scheme == .dark ? Color(hex: "08111A") : LexiconColors.background)
+                }
             }
 
             // The dark Home painting supplies the texture itself. Keep the
@@ -66,10 +82,12 @@ struct ContentView: View {
                     .zIndex(1)
             }
 
-            BottomNav()
-                .environmentObject(vm)
-                .environmentObject(theme)
-                .zIndex(2)
+            if !isHome {
+                BottomNav()
+                    .environmentObject(vm)
+                    .environmentObject(theme)
+                    .zIndex(2)
+            }
 
             if vm.searchOpen {
                 SearchModal()

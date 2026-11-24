@@ -1,17 +1,25 @@
 import SwiftUI
+import UIKit
 
 /// An illustrated bookplate. Artwork uses aspect fit to preserve every
 /// transparent watercolor edge rather than cropping botanicals to a square.
 struct CategoryCard: View {
     let category: LexiconCategory
+    var shelfArtworkHeight: CGFloat? = nil
     @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     private var isDark: Bool { scheme == .dark }
     private var largeText: Bool { dynamicTypeSize.isAccessibilitySize }
-    // One original image per category, irrespective of theme.
-    private var artName: String { category.illustration }
+    // Prefer the new light-specific asset once supplied; keep the original
+    // as a safe fallback. Never modify the original asset catalog.
+    private var artName: String {
+        let light = category.illustration + "-light"
+        return !isDark && UIImage(named: light) != nil ? light : category.illustration
+    }
+    private var artHeight: CGFloat { shelfArtworkHeight ?? (largeText ? 100 : 74) }
+    @ScaledMetric(relativeTo: .caption) private var captionHeight: CGFloat = 33
 
     var body: some View {
         let p = lexiconPalette(scheme)
@@ -26,15 +34,15 @@ struct CategoryCard: View {
                 // Keep the foreground illustration identical in both themes.
                 // Its own softened pigments give the dark card a subtle
                 // underpainting rather than a rectangular thumbnail surround.
-                PreparedArtworkImage(name: artName, treatment: .bookplate)
+                PreparedArtworkImage(name: artName, treatment: isDark ? .darkBookplate : .bookplate)
                     .scaledToFit()
                     .frame(maxWidth: .infinity)
-                    .frame(height: largeText ? 100 : 74)
+                    .frame(height: artHeight)
                     .background {
                         if isDark {
                             GeometryReader { g in
                                 RadialGradient(
-                                    colors: [Color(hex: "28343B").opacity(0.20), .clear],
+                                    colors: [Color(hex: "20394D").opacity(0.27), .clear],
                                     center: UnitPoint(x: 0.5, y: 0.48),
                                     startRadius: 0,
                                     endRadius: max(1, max(g.size.width, g.size.height) * 0.63)
@@ -48,11 +56,11 @@ struct CategoryCard: View {
 
                 VStack(spacing: 2) {
                     Text(category.title)
-                        .font(.lexiconDisplay(isDark && !largeText ? 11.5 : 12))
+                        .font(.lexiconDisplay(shelfArtworkHeight != nil ? 11 : 12))
                         .foregroundStyle(p.foreground)
                         .fixedSize(horizontal: false, vertical: true)
                     Text(category.subtitle)
-                        .font(.lexiconBody(isDark && !largeText ? 8.5 : 9.5))
+                        .font(.lexiconBody(shelfArtworkHeight != nil ? 8.5 : 9.5))
                         .foregroundStyle(isDark ? Color(hex: "B4AD9E") : p.mutedForeground)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -62,7 +70,7 @@ struct CategoryCard: View {
             .padding(.horizontal, largeText ? 7 : 3)
             .padding(.vertical, isDark && !largeText ? 4 : 8)
             .frame(maxWidth: .infinity)
-            .frame(minHeight: largeText ? 190 : (isDark ? 112 : 130), alignment: .top)
+            .frame(minHeight: artHeight + captionHeight + 10, alignment: .top)
             .background {
                 if isDark {
                     LinearGradient(stops: [

@@ -162,7 +162,7 @@ struct Hero: View {
                     .lexiconDecorative()
             }
         }
-        .font(.lexiconDisplay(measuredWidth >= 600 ? 36 : (isDark && !dynamicTypeSize.isAccessibilitySize ? min(27, max(22, measuredWidth * 0.061)) : 27), weight: .regular))
+        .font(.lexiconDisplay(isDark ? min(30, max(19, measuredWidth * 0.058)) : (measuredWidth >= 600 ? 36 : 27), weight: .regular))
         .tracking(-0.3)
         .frame(maxWidth: .infinity, alignment: .leading)
         .lexiconCombinedElement()
@@ -187,19 +187,19 @@ struct HomeNightScene: View {
             let width = geo.size.width
             let height = geo.size.height
             let largeText = dynamicTypeSize.isAccessibilitySize
-            let edge: CGFloat = largeText ? 0.67 : 0.47
+            let edge: CGFloat = largeText ? 0.32 : 0.47
             let header = min(height, max(0, headerInset))
             let contentHeight = max(1, height - header)
             let hero = measuredHeroHeight > 0 ? min(measuredHeroHeight, contentHeight)
                 : contentHeight * (extendsBehindTags ? 0.86 : 1)
-            let artWidth = min(width * (largeText ? 0.96 : 0.99), contentHeight * 1.5 * 1.08)
+            let artWidth = min(width * (largeText ? 0.85 : 0.99), largeText ? 190 * 1.5 : contentHeight * 1.5 * 1.08)
             let artX = width * 0.63 - artWidth * 0.539
             let moonY = min(hero * 0.10, width * 0.055)
             let bookBaseline = hero - 4 - width * 0.040
             let naturalHeight = artWidth / 1.5
             let artHeight = largeText ? naturalHeight
                 : min(naturalHeight * 1.14, max(naturalHeight * 0.88, (bookBaseline - moonY) / (0.88 - 0.17)))
-            let artY = header + (largeText ? bookBaseline - artHeight * 0.88 : moonY - artHeight * 0.17)
+            let artY = header + (largeText ? bookBaseline - artHeight * 0.97 : moonY - artHeight * 0.17)
             let fadeStart = min(0.95, max(0.55, (header + hero - width * 0.025) / max(1, height)))
             let fadeEnd = min(0.99, fadeStart + (1 - fadeStart) * 0.75)
 
@@ -239,20 +239,19 @@ private struct NightHeroLayout: Layout {
     private let leading: CGFloat = 20
     private let bottom: CGFloat = 4
     private let minimumGap: CGFloat = 10
-    private var top: CGFloat { enlargedText ? 8 : 21 }
+    private var top: CGFloat { enlargedText ? 8 : 16 }
 
     private func minimumHeight(for width: CGFloat) -> CGFloat {
-        if width >= 600 { return enlargedText ? 425 : 365 }
-        if enlargedText { return 330 }
-        return min(290, max(210, width * 0.60))
+        if enlargedText { return 0 }
+        return min(350, max(195, width * 0.60))
     }
 
     private func copyWidth(for width: CGFloat) -> CGFloat {
-        max(1, width * (enlargedText ? 0.70 : 0.51) - leading)
+        max(1, width * (enlargedText ? 1 : 0.51) - leading - (enlargedText ? 20 : 0))
     }
 
     private func searchWidth(for width: CGFloat) -> CGFloat {
-        max(1, (width - leading) * (enlargedText ? 0.85 : 0.76))
+        max(1, (width - leading) * (enlargedText ? 0.90 : 0.76))
     }
 
     func sizeThatFits(
@@ -269,7 +268,7 @@ private struct NightHeroLayout: Layout {
         return CGSize(
             width: width,
             height: max(minimumHeight(for: width),
-                        top + copySize.height + minimumGap + searchSize.height + bottom)
+                        top + copySize.height + minimumGap + (enlargedText ? min(210, max(135, width * 0.48)) : 0) + searchSize.height + bottom)
         )
     }
 
@@ -346,7 +345,7 @@ struct BotanicalSprig: View {
 // Same non-destructive artwork recipe as Compose. Native image decoding and
 // pixel processing occur off the main actor, with a bounded decoded-image cache.
 enum ArtworkTreatment: String, Sendable {
-    case moonlit, dailyLandscape, story, bookplate
+    case moonlit, dailyLandscape, story, bookplate, darkBookplate
 }
 
 struct PreparedArtworkImage: View {
@@ -414,7 +413,8 @@ private enum HomeArtworkProcessor {
         guard let original = UIImage(named: name)?.cgImage,
               let space = CGColorSpace(name: CGColorSpace.sRGB) else { return nil }
 
-        let limit = treatment == .bookplate ? 1280 : 1536
+        let isBookplate = treatment == .bookplate || treatment == .darkBookplate
+        let limit = isBookplate ? 1024 : (treatment == .story ? 512 : (treatment == .dailyLandscape ? 1024 : 1536))
         let scale = min(1, Double(limit) / Double(max(original.width, original.height)))
         let w = max(1, Int((Double(original.width) * scale).rounded()))
         let h = max(1, Int((Double(original.height) * scale).rounded()))
@@ -431,7 +431,7 @@ private enum HomeArtworkProcessor {
         guard drawn else { return nil }
 
         var left = w, top = h, right = -1, bottom = -1, transparent = 0
-        if treatment == .bookplate {
+        if isBookplate {
             // Match the Android pipeline: only a provably uniform, opaque
             // neutral perimeter is treated as a matte, never the painting.
             removeNeutralBookplateMatte(&bytes, width: w, height: h)
@@ -443,6 +443,28 @@ private enum HomeArtworkProcessor {
                         left = min(left, x); top = min(top, y)
                         right = max(right, x); bottom = max(bottom, y)
                     }
+                }
+            }
+            if treatment == .darkBookplate {
+                // Navy ambient light in the shadows; gold and paper highlights
+                // remain warm. Work in straight RGB, then premultiply.
+                for i in stride(from: 0, to: bytes.count, by: 4) {
+                    let a = Float(bytes[i + 3]) / 255
+                    if a == 0 { continue }
+                    let r = min(1, Float(bytes[i]) / 255 / a)
+                    let g = min(1, Float(bytes[i + 1]) / 255 / a)
+                    let b = min(1, Float(bytes[i + 2]) / 255 / a)
+                    let l = r * 0.2126 + g * 0.7152 + b * 0.0722
+                    let shade = 1 - smooth(0.12, 0.55, l)
+                    let highlight = smooth(0.58, 0.90, l)
+                    let gain = 0.82 + 0.15 * highlight
+                    let ink = 0.42 * shade
+                    let edge = (1 - smooth(0.12, 0.90, a)) * shade
+                    let alpha = a * (1 - 0.30 * edge)
+                    bytes[i] = byte((r * gain * (1 - ink) + 0.035 * ink) * alpha)
+                    bytes[i + 1] = byte((g * gain * (1 - ink) + 0.085 * ink) * alpha)
+                    bytes[i + 2] = byte((b * gain * (1 - ink) + 0.14 * ink) * alpha)
+                    bytes[i + 3] = byte(alpha)
                 }
             }
         } else if treatment == .moonlit {
@@ -495,7 +517,7 @@ private enum HomeArtworkProcessor {
                                    provider: provider, decode: nil, shouldInterpolate: true,
                                    intent: .defaultIntent) else { return nil }
 
-        if treatment == .bookplate && right >= left && bottom >= top && transparent > w * h / 8 {
+        if isBookplate && right >= left && bottom >= top && transparent > w * h / 8 {
             // Keep the real silhouette aspect ratio, without a square frame.
             let pad = Int((Double(max(right - left + 1, bottom - top + 1)) * 0.025).rounded())
             left = max(0, left - pad); top = max(0, top - pad)
@@ -506,7 +528,7 @@ private enum HomeArtworkProcessor {
                 result = cropped
             }
         }
-        if treatment == .bookplate && max(result.width, result.height) > 640 {
+        if isBookplate && max(result.width, result.height) > 640 {
             let factor = 640.0 / Double(max(result.width, result.height))
             let rw = max(1, Int((Double(result.width) * factor).rounded()))
             let rh = max(1, Int((Double(result.height) * factor).rounded()))
