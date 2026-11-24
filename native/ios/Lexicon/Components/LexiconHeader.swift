@@ -12,7 +12,8 @@ struct LexiconHeader: View {
 
     @State private var showDailyLetter = false
     private var isDark: Bool { scheme == .dark }
-    private var homeNight: Bool { isDark && vm.route == .home && !vm.libraryOpen }
+    private var homeNight: Bool { isDark && homeEditorial }
+    private var homeEditorial: Bool { vm.route == .home && !vm.libraryOpen }
 
     private var iconTint: Color {
         homeNight ? Color(hex: "D0AD75") : (isDark ? LexiconColors.accentDark.opacity(0.90) : LexiconColors.foreground.opacity(0.72))
@@ -47,7 +48,7 @@ struct LexiconHeader: View {
                         .resizable()
                         .renderingMode(.original)
                         .scaledToFit()
-                        .frame(width: 42, height: 40)
+                        .frame(width: homeEditorial ? 36 : 42, height: homeEditorial ? 36 : 40)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text(isDark ? LexiconAccessibilityLabels.themeToggleLight : LexiconAccessibilityLabels.themeToggleDark))
@@ -58,12 +59,12 @@ struct LexiconHeader: View {
                 } label: {
                     VStack(alignment: .leading, spacing: 1) {
                         Text("Lexora")
-                            .font(.lexiconDisplay(21, weight: .regular))
+                            .font(.lexiconDisplay(homeEditorial ? 19 : 21, weight: .regular))
                             .tracking(-0.2)
                             .foregroundStyle(wordmarkColor)
 
                         Text("Words. Wisdom. Worlds.")
-                            .font(.lexiconBody(9))
+                            .font(.lexiconBody(homeEditorial ? 8 : 9))
                             .tracking(0.2)
                             .foregroundStyle(taglineColor)
                     }
@@ -92,7 +93,7 @@ struct LexiconHeader: View {
                     .scaledToFill()
                     .saturation(homeNight ? 0.78 : 1)
                     .opacity(homeNight ? 0.87 : 1)
-                    .frame(width: 36, height: 36)
+                    .frame(width: homeEditorial ? 32 : 36, height: homeEditorial ? 32 : 36)
                     .clipShape(Circle())
                     .overlay(
                         Circle().stroke(
@@ -102,7 +103,7 @@ struct LexiconHeader: View {
                     )
             }
         }
-        .frame(height: 44)
+        .frame(minHeight: 44)
         .padding(.horizontal, 16)
         .alert("A letter from Lexora", isPresented: $showDailyLetter) {
             Button("Explore the word") {

@@ -68,7 +68,7 @@ fun CategoryCard(
         ctx.resources.getIdentifier(category.illustration, "drawable", ctx.packageName)
     // Let the underlying page ink show through the bookplate rather than
     // introducing a second opaque rectangle around the original art.
-    val surface = if (isDark) Color(0xFF101B23).copy(alpha = 0.46f) else CardSurface
+    val surface = if (isDark) Color(0xFF101B23).copy(alpha = 0.32f) else CardSurface
     val lowerSurface = if (isDark) Color(0xFF101B23).copy(alpha = 0.12f) else Color(0xFFF8F1E6)
     val ink = if (isDark) DarkForeground else DeepForest
     val muted = if (isDark) Color(0xFFB4AD9E) else WarmGrey
@@ -77,7 +77,8 @@ fun CategoryCard(
 
     Column(
         modifier = modifier
-            .heightIn(min = artHeight + (if (largeText) 46.dp else 33.dp) * fontScale.coerceAtMost(2.5f) + 10.dp)
+            .heightIn(min = if (shelfArtworkHeight != null && !largeText) artHeight + 30.dp * fontScale + 8.dp
+                else artHeight + (if (largeText) 46.dp else 33.dp) * fontScale.coerceAtMost(2.5f) + 10.dp)
             .clip(shape)
             .background(
                 if (isDark) Brush.verticalGradient(
@@ -99,7 +100,7 @@ fun CategoryCard(
                     Canvas(Modifier.matchParentSize()) {
                         if (size.width > 0f && size.height > 0f) {
                             drawRect(Brush.radialGradient(
-                                colors = listOf(Color(0xFF20394D).copy(alpha = 0.27f), Color.Transparent),
+                                colors = listOf(Color(0xFF20394D).copy(alpha = 0.15f), Color.Transparent),
                                 center = Offset(size.width * 0.5f, size.height * 0.48f),
                                 radius = maxOf(size.width, size.height) * 0.63f,
                             ))
@@ -121,12 +122,12 @@ fun CategoryCard(
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(2.dp),
+            verticalArrangement = Arrangement.spacedBy(if (shelfArtworkHeight != null && !largeText) 1.dp else 2.dp),
         ) {
             Text(
                 text = category.title,
                 color = ink,
-                style = LexiconTextStyles.CategoryTitle.copy(fontSize = if (shelfArtworkHeight != null) 11.sp else 12.sp, lineHeight = 14.sp),
+                style = LexiconTextStyles.CategoryTitle.copy(fontSize = if (shelfArtworkHeight != null && !largeText) 10.5.sp else 12.sp, lineHeight = if (shelfArtworkHeight != null && !largeText) 12.5.sp else 14.sp),
                 textAlign = TextAlign.Center,
             )
             Text(

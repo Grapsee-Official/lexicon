@@ -108,7 +108,7 @@ fun BottomNav(
             .clip(RoundedCornerShape(50))
             .background(barBg)
             .border(1.dp, barBorder, RoundedCornerShape(50))
-            .padding(horizontal = 9.dp, vertical = 7.dp),
+            .padding(horizontal = 9.dp, vertical = if (homeNight) 4.dp else 7.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
@@ -142,7 +142,7 @@ fun BottomNav(
 
             // Reserve a symmetric slot: the actual search circle floats above
             // the capsule and must NOT be clipped by its rounded background.
-            Box(Modifier.weight(1f).height(54.dp))
+            Box(Modifier.weight(1f).height(if (homeNight) 48.dp else 54.dp))
 
             BottomNavItem(
                 label = "Collections",
@@ -179,7 +179,7 @@ fun BottomNav(
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .offset(y = (-7).dp)
-                .size(54.dp)
+                .size(if (homeNight) 48.dp else 54.dp)
                 .then(
                     if (!isDark) Modifier.shadow(
                         elevation = 6.dp,

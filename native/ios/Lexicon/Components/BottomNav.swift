@@ -47,7 +47,7 @@ struct BottomNav: View {
                 Image(systemName: "magnifyingglass")
                     .font(.system(size: 17, weight: .medium))
                     .foregroundStyle(isDark ? LexiconColors.highlightDark : LexiconColors.primaryForeground)
-                    .frame(width: 54, height: 54)
+                    .frame(width: homeNight ? 48 : 54, height: homeNight ? 48 : 54)
                     .background(homeNight ? Color(hex: "0A131B") : (isDark ? Color(hex: "101620") : LexiconColors.primary))
                     .clipShape(Circle())
                     .overlay(
@@ -69,7 +69,7 @@ struct BottomNav: View {
             navItem(.more, label: "More", system: "ellipsis")
         }
         .padding(.horizontal, 8)
-        .padding(.vertical, 7)
+        .padding(.vertical, homeNight ? 4 : 7)
         .background {
             Capsule()
                 .fill(homeNight ? Color(hex: "0C151C").opacity(0.95) : lexiconPalette(scheme).card.opacity(0.96))

@@ -23,7 +23,7 @@ struct CategoryCard: View {
 
     var body: some View {
         let p = lexiconPalette(scheme)
-        let surface = isDark ? Color(hex: "101B23").opacity(0.46) : LexiconColors.card
+        let surface = isDark ? Color(hex: "101B23").opacity(0.32) : LexiconColors.card
         let lowerSurface = isDark ? Color(hex: "101B23").opacity(0.12) : Color(hex: "F8F1E6")
         let border = isDark ? Color(hex: "B6A486").opacity(0.10) : LexiconColors.foreground.opacity(0.10)
         Button {
@@ -31,9 +31,8 @@ struct CategoryCard: View {
             vm.setActiveTab(.dictionary)
         } label: {
             VStack(spacing: 0) {
-                // Keep the foreground illustration identical in both themes.
-                // Its own softened pigments give the dark card a subtle
-                // underpainting rather than a rectangular thumbnail surround.
+                // Dark artwork is graded to the page ink; light mode uses its
+                // separate original once supplied.
                 PreparedArtworkImage(name: artName, treatment: isDark ? .darkBookplate : .bookplate)
                     .scaledToFit()
                     .frame(maxWidth: .infinity)
@@ -42,7 +41,7 @@ struct CategoryCard: View {
                         if isDark {
                             GeometryReader { g in
                                 RadialGradient(
-                                    colors: [Color(hex: "20394D").opacity(0.27), .clear],
+                                    colors: [Color(hex: "20394D").opacity(0.15), .clear],
                                     center: UnitPoint(x: 0.5, y: 0.48),
                                     startRadius: 0,
                                     endRadius: max(1, max(g.size.width, g.size.height) * 0.63)
@@ -54,9 +53,9 @@ struct CategoryCard: View {
 
                 Spacer(minLength: 0).frame(height: isDark && !largeText ? 0 : 5)
 
-                VStack(spacing: 2) {
+                VStack(spacing: shelfArtworkHeight != nil && !largeText ? 1 : 2) {
                     Text(category.title)
-                        .font(.lexiconDisplay(shelfArtworkHeight != nil ? 11 : 12))
+                        .font(.lexiconDisplay(shelfArtworkHeight != nil && !largeText ? 10.5 : 12))
                         .foregroundStyle(p.foreground)
                         .fixedSize(horizontal: false, vertical: true)
                     Text(category.subtitle)
@@ -70,7 +69,7 @@ struct CategoryCard: View {
             .padding(.horizontal, largeText ? 7 : 3)
             .padding(.vertical, isDark && !largeText ? 4 : 8)
             .frame(maxWidth: .infinity)
-            .frame(minHeight: artHeight + captionHeight + 10, alignment: .top)
+            .frame(minHeight: artHeight + captionHeight + (shelfArtworkHeight != nil && !largeText ? 5 : 10), alignment: .top)
             .background {
                 if isDark {
                     LinearGradient(stops: [

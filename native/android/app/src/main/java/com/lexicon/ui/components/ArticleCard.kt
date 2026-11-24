@@ -42,6 +42,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lexicon.data.Article
 import com.lexicon.data.LexiconViewModel
@@ -101,15 +102,14 @@ fun ArticleCard(
             .border(1.dp, borderColor, shape)
             .clickable(role = Role.Button) { onOpen() },
     ) {
-        // On dark Home the painting is part of the page spread. It extends
-        // beneath the first letters instead of ending at a thumbnail seam.
+        // A narrow illustrated column with a soft edge, not artwork behind text.
         if (isDark && resId != 0) {
             Image(
                 painter = rememberPreparedArtwork(resId, ArtworkTreatment.STORY),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.align(Alignment.CenterStart)
-                    .fillMaxHeight().fillMaxWidth(0.53f)
+                    .fillMaxHeight().fillMaxWidth(0.34f)
                     .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
                     .drawWithContent {
                         drawContent()
@@ -117,8 +117,8 @@ fun ArticleCard(
                             brush = Brush.horizontalGradient(
                                 0f to Color.Black.copy(alpha = 0.88f),
                                 0.14f to Color.Black,
-                                0.56f to Color.Black,
-                                0.78f to Color.Black.copy(alpha = 0.42f),
+                                0.72f to Color.Black,
+                                0.90f to Color.Black.copy(alpha = 0.48f),
                                 1f to Color.Transparent,
                             ),
                             blendMode = BlendMode.DstIn,
@@ -164,7 +164,7 @@ fun ArticleCard(
             Text(
                 text = article.title,
                 color = titleColor,
-                style = LexiconTextStyles.ArticleTitle,
+                style = if (isDark && !largeText) LexiconTextStyles.ArticleTitle.copy(fontSize = 10.5.sp, lineHeight = 13.sp) else LexiconTextStyles.ArticleTitle,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -185,7 +185,7 @@ fun ArticleCard(
                     Text(
                         text = "${article.readMinutes} min read",
                         color = metaColor,
-                        style = LexiconTextStyles.ArticleMeta,
+                        style = if (isDark && !largeText) LexiconTextStyles.ArticleMeta.copy(fontSize = 8.sp, lineHeight = 10.sp) else LexiconTextStyles.ArticleMeta,
                     )
                 }
 

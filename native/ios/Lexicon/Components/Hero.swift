@@ -71,7 +71,7 @@ struct Hero: View {
             VStack(alignment: .leading, spacing: 6) {
                 headline
                 Text("A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.")
-                    .font(.lexiconBody(enlargedText ? 11.5 : 10))
+                    .font(.lexiconBody(enlargedText ? 11.5 : 9.5))
                     .foregroundStyle(subtextColor)
                     .lineSpacing(1.5)
                     .fixedSize(horizontal: false, vertical: true)
@@ -180,11 +180,11 @@ struct Hero: View {
                 Text("Words")
                     .foregroundStyle(headlineWords)
                 BotanicalSprig(color: sprigColor)
-                    .frame(width: 23, height: 23)
+                    .frame(width: isDark ? 19 : 23, height: isDark ? 19 : 23)
                     .lexiconDecorative()
             }
         }
-        .font(.lexiconDisplay(isDark ? min(30, max(19, measuredWidth * 0.058)) : (measuredWidth >= 600 ? 36 : 27), weight: .regular))
+        .font(.lexiconDisplay(isDark ? min(30, max(19, measuredWidth * 0.057)) : (measuredWidth >= 600 ? 36 : 27), weight: .regular))
         .tracking(-0.3)
         .frame(maxWidth: .infinity, alignment: .leading)
         .lexiconCombinedElement()
@@ -209,12 +209,12 @@ struct HomeNightScene: View {
             let width = geo.size.width
             let height = geo.size.height
             let largeText = dynamicTypeSize.isAccessibilitySize
-            let edge: CGFloat = largeText ? 0.32 : 0.47
+            let edge: CGFloat = 0.44
             let header = min(height, max(0, headerInset))
             let contentHeight = max(1, height - header)
             let hero = measuredHeroHeight > 0 ? min(measuredHeroHeight, contentHeight)
                 : contentHeight * (extendsBehindTags ? 0.86 : 1)
-            let artWidth = min(width * (largeText ? 0.85 : 0.99), largeText ? 190 * 1.5 : contentHeight * 1.5 * 1.08)
+            let artWidth = min(width * (largeText ? 0.85 : 0.99), largeText ? min(210, max(135, width * 0.48)) * 1.5 : contentHeight * 1.5 * 1.08)
             let artX = width * 0.63 - artWidth * 0.539
             let moonY = min(hero * 0.10, width * 0.055)
             let bookBaseline = hero - 4 - width * 0.040
@@ -232,14 +232,18 @@ struct HomeNightScene: View {
                 .frame(width: width, height: height)
                 .clipped()
                 .mask {
-                    LinearGradient(stops: [
-                        .init(color: .clear, location: 0),
-                        .init(color: .clear, location: edge - 0.18),
-                        .init(color: .black.opacity(0.40), location: edge - 0.08),
-                        .init(color: .black, location: edge + 0.07),
-                        .init(color: .black, location: 1)
-                    ], startPoint: .topLeading,
-                       endPoint: UnitPoint(x: 1, y: contentHeight * 0.24 / max(1, height)))
+                    if largeText {
+                        Color.black
+                    } else {
+                        LinearGradient(stops: [
+                            .init(color: .clear, location: 0),
+                            .init(color: .clear, location: edge - 0.18),
+                            .init(color: .black.opacity(0.40), location: edge - 0.08),
+                            .init(color: .black, location: edge + 0.07),
+                            .init(color: .black, location: 1)
+                        ], startPoint: .topLeading,
+                           endPoint: UnitPoint(x: 1, y: contentHeight * 0.24 / max(1, height)))
+                    }
                 }
                 .mask {
                     LinearGradient(stops: [

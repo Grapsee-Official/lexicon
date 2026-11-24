@@ -102,14 +102,14 @@ fun Hero(
         }
         val headlineStyle = when {
             isDark -> LexiconTextStyles.HeroHeadline.copy(
-                fontSize = (maxWidth.value * 0.058f).coerceIn(19f, 30f).sp,
-                lineHeight = (maxWidth.value * 0.067f).coerceIn(23f, 35f).sp,
+                fontSize = (maxWidth.value * 0.057f).coerceIn(19f, 30f).sp,
+                lineHeight = (maxWidth.value * 0.064f).coerceIn(22f, 35f).sp,
             )
             expanded -> LexiconTextStyles.HeroHeadline.copy(fontSize = 36.sp, lineHeight = 42.sp)
             else -> LexiconTextStyles.HeroHeadline
         }
         val paragraphStyle = if (isDark && !largeText) {
-            LexiconTextStyles.HeroParagraph.copy(fontSize = 10.sp, lineHeight = 13.sp)
+            LexiconTextStyles.HeroParagraph.copy(fontSize = 9.5.sp, lineHeight = 12.5.sp)
         } else LexiconTextStyles.HeroParagraph
 
         Box(
@@ -171,7 +171,7 @@ fun Hero(
                             Spacer(Modifier.width(8.dp))
                             LeafSprig(
                                 color = sprigColor,
-                                modifier = Modifier.size(23.dp),
+                                modifier = Modifier.size(if (isDark) 19.dp else 23.dp),
                             )
                         }
                     }
@@ -246,7 +246,7 @@ fun HomeNightScene(
         // baseline y284, search capsule bottom y299. Compose the painting
         // against the measured hero, not a fixed image container.
         val artWidth = minOf(size.width * (if (largeText) 0.85f else 0.99f),
-            if (largeText) 190.dp.toPx() * aspect else contentHeight * aspect * 1.08f)
+            if (largeText) (size.width * 0.48f).coerceIn(135.dp.toPx(), 210.dp.toPx()) * aspect else contentHeight * aspect * 1.08f)
         val artX = size.width * 0.63f - artWidth * 0.539f
         val moonY = minOf(hero * 0.10f, size.width * 0.055f)
         val bookBaseline = hero - 4.dp.toPx() - size.width * 0.040f
@@ -264,8 +264,8 @@ fun HomeNightScene(
 
         // The source-space grade already dissolves the painted edges.
         // Use only a reading-column shadow and a short bottom fade here.
-        val edge = if (largeText) 0.32f else 0.47f
-        drawRect(
+        val edge = 0.44f
+        if (!largeText) drawRect(
             brush = Brush.linearGradient(
                 0f to Color.Transparent,
                 (edge - 0.18f) to Color.Transparent,

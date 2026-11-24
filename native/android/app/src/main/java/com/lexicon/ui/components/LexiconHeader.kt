@@ -41,6 +41,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lexicon.R
 import com.lexicon.data.LexiconViewModel
@@ -73,6 +74,7 @@ fun LexiconHeader(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
     val homeNight = isDark && state.route == ScreenRoute.HOME
+    val homeEditorial = state.route == ScreenRoute.HOME
     var showDailyLetter by remember { mutableStateOf(false) }
 
     val iconTint = if (homeNight) Color(0xFFD0AD75) else if (isDark) DarkAccent.copy(alpha = 0.88f) else DeepForest.copy(alpha = 0.72f)
@@ -113,7 +115,7 @@ fun LexiconHeader(
             painter = painterResource(markRes),
             contentDescription = null,
             modifier = Modifier
-                .size(42.dp)
+                .size(if (homeEditorial) 36.dp else 42.dp)
                 .clickable(role = Role.Button) { viewModel.toggleTheme() },
             contentScale = ContentScale.Fit,
         )
@@ -128,14 +130,14 @@ fun LexiconHeader(
             Text(
                 text = "Lexora",
                 color = wordmarkColor,
-                style = LexiconTextStyles.BrandWordmark,
+                style = if (homeEditorial) LexiconTextStyles.BrandWordmark.copy(fontSize = 19.sp, lineHeight = 22.sp) else LexiconTextStyles.BrandWordmark,
                 maxLines = 1,
             )
             Spacer(Modifier.height(1.dp))
             Text(
                 text = "Words. Wisdom. Worlds.",
                 color = taglineColor,
-                style = LexiconTextStyles.BrandTagline,
+                style = if (homeEditorial) LexiconTextStyles.BrandTagline.copy(fontSize = 8.sp, lineHeight = 10.sp) else LexiconTextStyles.BrandTagline,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -170,7 +172,7 @@ fun LexiconHeader(
 
         Box(
             modifier = Modifier
-                .size(36.dp)
+                .size(if (homeEditorial) 32.dp else 36.dp)
                 .clip(CircleShape)
                 .border(
                     width = 1.dp,

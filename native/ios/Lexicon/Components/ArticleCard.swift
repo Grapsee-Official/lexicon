@@ -46,7 +46,7 @@ struct ArticleCard: View {
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text(article.title)
-                        .font(.lexiconDisplay(11.5, weight: .regular))
+                        .font(.lexiconDisplay(isDark && !dynamicTypeSize.isAccessibilitySize ? 10.5 : 11.5, weight: .regular))
                         .foregroundStyle(lexiconPalette(scheme).foreground)
                         .lineLimit(3)
                         .multilineTextAlignment(.leading)
@@ -60,7 +60,7 @@ struct ArticleCard: View {
                                 .font(.system(size: 9.5, weight: .regular))
                                 .foregroundStyle(iconColor)
                             Text("\(article.readMinutes) min read")
-                                .font(.lexiconBody(9.5))
+                                .font(.lexiconBody(isDark && !dynamicTypeSize.isAccessibilitySize ? 8 : 9.5))
                                 .foregroundStyle(lexiconPalette(scheme).mutedForeground)
                         }
 
@@ -82,14 +82,14 @@ struct ArticleCard: View {
                 if isDark {
                     PreparedArtworkImage(name: thumbName, treatment: .story)
                         .scaledToFill()
-                        .frame(width: cardWidth * 0.53, height: cardHeight)
+                        .frame(width: cardWidth * 0.34, height: cardHeight)
                         .clipped()
                         .mask {
                             LinearGradient(stops: [
                                 .init(color: .black.opacity(0.88), location: 0),
                                 .init(color: .black, location: 0.14),
-                                .init(color: .black, location: 0.56),
-                                .init(color: .black.opacity(0.42), location: 0.78),
+                                .init(color: .black, location: 0.72),
+                                .init(color: .black.opacity(0.48), location: 0.90),
                                 .init(color: .clear, location: 1)
                             ], startPoint: .leading, endPoint: .trailing)
                         }
