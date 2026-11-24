@@ -51,13 +51,21 @@ struct Hero: View {
             ZStack(alignment: .topLeading) {
                 if isDark {
                     let readingEdge: CGFloat = enlargedText ? 0.60 : (compact ? 0.53 : 0.46)
-                    let artWidth = min(totalWidth * (enlargedText ? 0.90 : 1.06),
-                                       heroHeight * 1.5 * 1.12)
+                    // Match the moon's painted coordinates and foreground,
+                    // not the transparent outer dimensions of the original.
+                    let artWidth = enlargedText
+                        ? min(totalWidth * 0.90, heroHeight * 1.5 * 1.10)
+                        : min(max(totalWidth * 1.14, heroHeight * 1.5 * 0.98),
+                              min(totalWidth * 1.22, heroHeight * 1.5 * 1.10))
                     let artHeight = artWidth / 1.5
+                    let artX = max(totalWidth * 0.63 - artWidth * 0.54,
+                                   totalWidth - artWidth * 0.91)
+                    let artY = max(heroHeight * 0.10 - artHeight * 0.17,
+                                   heroHeight * 0.98 - artHeight)
                     ZStack(alignment: .topLeading) {
                         RadialGradient(
                             colors: [LexiconColors.secondaryDark.opacity(0.18), .clear],
-                            center: UnitPoint(x: 0.78, y: 0.48),
+                            center: UnitPoint(x: 0.79, y: 0.41),
                             startRadius: 0,
                             endRadius: max(totalWidth, heroHeight) * 0.68
                         )
@@ -68,9 +76,10 @@ struct Hero: View {
                             .resizable()
                             .scaledToFit()
                             .frame(width: artWidth, height: artHeight)
-                            .opacity(0.91)
-                            .position(x: totalWidth - artWidth * 0.42,
-                                      y: heroHeight - artHeight / 2 + heroHeight * 0.035)
+                            .saturation(0.83)
+                            .opacity(0.90)
+                            .position(x: artX + artWidth / 2,
+                                      y: artY + artHeight / 2)
 
                         LinearGradient(
                             stops: [
@@ -89,10 +98,10 @@ struct Hero: View {
                         LinearGradient(
                             stops: [
                                 .init(color: LexiconColors.backgroundDark, location: 0),
-                                .init(color: LexiconColors.backgroundDark.opacity(0.35), location: 0.045),
-                                .init(color: .clear, location: 0.13),
-                                .init(color: .clear, location: 0.79),
-                                .init(color: LexiconColors.backgroundDark.opacity(0.20), location: 0.92),
+                                .init(color: LexiconColors.backgroundDark.opacity(0.30), location: 0.035),
+                                .init(color: .clear, location: 0.10),
+                                .init(color: .clear, location: 0.82),
+                                .init(color: LexiconColors.backgroundDark.opacity(0.24), location: 0.94),
                                 .init(color: LexiconColors.backgroundDark, location: 1)
                             ],
                             startPoint: .top,
@@ -131,7 +140,7 @@ struct Hero: View {
                 VStack(alignment: .leading, spacing: 6) {
                     headline
                     Text("A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.")
-                        .font(.lexiconBody(11.5))
+                        .font(.lexiconBody(isDark && compact && !enlargedText ? 10.5 : 11.5))
                         .frame(maxWidth: textWidth * ((isDark && !enlargedText) ? 0.84 : 0.88), alignment: .leading)
                         .foregroundStyle(subtextColor)
                         .lineSpacing(2)
@@ -145,11 +154,11 @@ struct Hero: View {
                     Spacer()
                     HStack(spacing: 0) {
                         FloatingSearchBar()
-                            .frame(width: totalWidth * (compact ? 0.90 : 0.75))
+                            .frame(width: totalWidth * (isDark ? ((compact || enlargedText) ? 0.85 : 0.73) : (compact ? 0.90 : 0.75)))
                         Spacer(minLength: 0)
                     }
-                    .padding(.leading, 16)
-                    .padding(.bottom, 2)
+                    .padding(.leading, isDark ? 20 : 16)
+                    .padding(.bottom, isDark ? 7 : 2)
                 }
                 .frame(width: totalWidth, height: heroHeight)
             }
@@ -179,7 +188,7 @@ struct Hero: View {
                     .lexiconDecorative()
             }
         }
-        .font(.lexiconDisplay(measuredWidth >= 600 ? 36 : 27, weight: .regular))
+        .font(.lexiconDisplay(measuredWidth >= 600 ? 36 : (isDark && measuredWidth < 360 && !dynamicTypeSize.isAccessibilitySize ? 24 : 27), weight: .regular))
         .tracking(-0.3)
         .frame(maxWidth: .infinity, alignment: .leading)
         .lexiconCombinedElement()

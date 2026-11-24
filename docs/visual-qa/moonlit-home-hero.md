@@ -4,7 +4,7 @@ The supplied Moonlit Cottage Storybook Vignette is a 1536 × 1024 RGBA illustrat
 
 ## Native composition
 
-- Dark Home only: paint the scene on a viewport-sized native canvas with 8% trailing overscan to eliminate the transparent right margin. Anchor the foreground behind the search control, with the headline in a separate readable left region.
+- Dark Home only: paint the scene on a viewport-sized native canvas with responsive landmark alignment: aim for the source moon at 63% viewport width, move the art past the right boundary, and carry the foreground behind the search pill. Grade saturation at render time (0.83), preserving the original PNG bytes. Anchor the foreground behind the search control, with the headline in a separate readable left region.
 - Use the shared midnight-paper canvas (#07121C) and a restrained blue ambient gradient behind the painting. Fade into the canvas at the header and feed boundary. Preserve the original warm gold, moon and botanical details.
 - Use a continuous reading scrim rather than a separate rectangular panel; keep synthetic stars out of this hero.
 - Keep light mode, feed order, and search navigation unchanged.
