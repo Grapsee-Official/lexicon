@@ -23,10 +23,21 @@ struct CategoryCard: View {
             vm.setActiveTab(.dictionary)
         } label: {
             VStack(spacing: 0) {
+                // Keep the foreground illustration identical in both themes.
+                // Its own softened pigments give the dark card a subtle
+                // underpainting rather than a rectangular thumbnail surround.
                 PreparedArtworkImage(name: artName, treatment: .bookplate)
                     .scaledToFit()
                     .frame(maxWidth: .infinity)
                     .frame(height: largeText ? 88 : (isDark ? 60 : 65))
+                    .background {
+                        if isDark {
+                            PreparedArtworkImage(name: artName, treatment: .bookplate)
+                                .scaledToFit()
+                                .blur(radius: 12)
+                                .opacity(0.13)
+                        }
+                    }
                     .accessibilityHidden(true)
 
                 Spacer(minLength: 0).frame(height: isDark && !largeText ? 0 : 5)

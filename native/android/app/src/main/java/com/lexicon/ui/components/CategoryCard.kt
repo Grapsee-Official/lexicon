@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,8 +19,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -79,13 +82,30 @@ fun CategoryCard(
         verticalArrangement = Arrangement.Top,
     ) {
         if (resId != 0) {
-            Image(
-                painter = rememberPreparedArtwork(resId, ArtworkTreatment.BOOKPLATE),
-                contentDescription = null,
-                modifier = Modifier.fillMaxWidth().height(if (largeText) 88.dp else if (isDark) 60.dp else 65.dp),
-                contentScale = ContentScale.Fit,
-                alignment = Alignment.Center,
-            )
+            val painting = rememberPreparedArtwork(resId, ArtworkTreatment.BOOKPLATE)
+            val artHeight = if (largeText) 88.dp else if (isDark) 60.dp else 65.dp
+            Box(Modifier.fillMaxWidth().height(artHeight), contentAlignment = Alignment.Center) {
+                if (isDark) {
+                    // A subdued underpainting made from this very bookplate,
+                    // not a generic golden halo. The visible painting remains
+                    // identical in both themes; only its surrounding ink changes.
+                    Image(
+                        painter = painting,
+                        contentDescription = null,
+                        modifier = Modifier.matchParentSize()
+                            .blur(12.dp)
+                            .graphicsLayer { alpha = 0.13f },
+                        contentScale = ContentScale.Fit,
+                    )
+                }
+                Image(
+                    painter = painting,
+                    contentDescription = null,
+                    modifier = Modifier.matchParentSize(),
+                    contentScale = ContentScale.Fit,
+                    alignment = Alignment.Center,
+                )
+            }
         } else {
             Spacer(Modifier.height(if (largeText) 88.dp else if (isDark) 60.dp else 65.dp))
         }
