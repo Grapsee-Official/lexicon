@@ -7,6 +7,9 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -75,16 +78,17 @@ fun WordOfTheDayCard(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
     val config = LocalConfiguration.current
-    val compact = config.screenWidthDp < 360
-    val accessible = config.fontScale >= 1.5f
+    val fontScale = config.fontScale
+    BoxWithConstraints(modifier.fillMaxWidth()) {
+    val compact = maxWidth < 328.dp
+    val accessible = fontScale >= 1.5f || maxWidth.value / fontScale.coerceAtLeast(1f) < 250f
     val definition = word.definitions.firstOrNull().orEmpty()
     val editorial = isDark && !accessible
     val shortDefinition = editorial && definition.length <= 72
     // The reference is a compact editorial spread, not a tall two-panel tile.
     // Give unusually long entries room, while matching the regular card to
     // the reference's proportions at ordinary phone widths.
-    val referenceCardWidth = (config.screenWidthDp.coerceAtMost(640) * (531f / 591f)).dp
-    val referenceHeight = referenceCardWidth * (175f / 531f)
+    val referenceHeight = maxWidth * (175f / 531f)
     val cardHeight = when {
         accessible -> (128.dp * config.fontScale).coerceIn(190.dp, 320.dp)
         !isDark -> if (compact) 144.dp else 118.dp
@@ -114,8 +118,12 @@ fun WordOfTheDayCard(
 
     val shape = RoundedCornerShape(if (isDark) 12.dp else 16.dp)
 
+    if (accessible) {
+        AccessibleDailyWord(word, viewModel, isDark, definition, cardBorder, labelGold)
+        return@BoxWithConstraints
+    }
     Box(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .height(cardHeight)
             .then(
@@ -282,22 +290,73 @@ fun WordOfTheDayCard(
             }
         }
     }
+    }
 }
 
+/** A full-width reading layout for enlarged text or very narrow windows.
+ * The landscape has its own aspect-correct band; all text is live and wraps. */
+@Composable
+private fun AccessibleDailyWord(
+    word: WordEntry, viewModel: LexiconViewModel, isDark: Boolean,
+    definition: String, border: Color, gold: Color,
+) {
+    val shape = RoundedCornerShape(if (isDark) 12.dp else 16.dp)
+    val ink = if (isDark) DarkForeground else DeepForest
+    val muted = if (isDark) DarkMutedForeground else DeepForest.copy(alpha = 0.8f)
+    val accent = if (isDark) gold else BrandGreen
+    Column(
+        Modifier.fillMaxWidth().clip(shape)
+            .background(if (isDark) Color(0xFF08121A) else WotdRightSurface)
+            .border(1.dp, border, shape)
+            .clickable(role = Role.Button) { viewModel.navigate(com.lexicon.data.ScreenRoute.WORD_OF_THE_DAY, word = word) },
+    ) {
+        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("WORD OF THE DAY", color = accent, style = LexiconTextStyles.WotdLabel)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(word.word, color = ink, style = LexiconTextStyles.WotdWord,
+                    modifier = Modifier.weight(1f).liveAnnouncement())
+                Box(Modifier.size(48.dp).iconButton(AccessibilityAudit.Descriptions.Volume)
+                    .clickable(role = Role.Button) { viewModel.pronounce(word.word) },
+                    contentAlignment = Alignment.Center) {
+                    Icon(Icons.AutoMirrored.Outlined.VolumeUp, null, tint = accent)
+                }
+            }
+            Text(word.phonetic, color = muted, style = LexiconTextStyles.WotdPhonetic)
+            Text(word.partOfSpeech.label(), color = accent, style = LexiconTextStyles.WotdPartOfSpeech)
+            Text(definition, color = ink, style = LexiconTextStyles.WotdDefinition)
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text("Explore more", color = accent, style = LexiconTextStyles.WotdExploreMore)
+                Icon(Icons.AutoMirrored.Outlined.ArrowForward, null, tint = accent, modifier = Modifier.size(14.dp))
+            }
+        }
+        if (isDark) {
+            WordOfDayNightScene(Modifier.fillMaxWidth().height(128.dp), false, fullWidth = true)
+        } else {
+            Image(painterResource(R.drawable.wotd_bg_light), null,
+                Modifier.fillMaxWidth().height(128.dp), contentScale = ContentScale.Fit,
+                alignment = Alignment.CenterEnd)
+        }
+    }
+}
 
 // One painting covers the full card. The definition and the word are native
 // foreground controls; the divider no longer separates two painted surfaces.
 @Composable
-private fun WordOfDayNightScene(modifier: Modifier, accessible: Boolean) {
+private fun WordOfDayNightScene(modifier: Modifier, accessible: Boolean, fullWidth: Boolean = false) {
     var sceneWidthPx by remember { mutableIntStateOf(0) }
+    val fraction = if (fullWidth) 1f else if (accessible) 0.57f else 0.61f
     val artwork = rememberReferenceVector(R.drawable.ref_home_daily,
-        (sceneWidthPx * (if (accessible) 0.57f else 0.61f)).roundToInt(), 323, 174)
+        (sceneWidthPx * fraction).roundToInt(), 323, 174)
     Canvas(modifier.onSizeChanged { sceneWidthPx = it.width }) {
         if (size.width <= 0f || size.height <= 0f) return@Canvas
-        val width = size.width * (if (accessible) 0.57f else 0.61f)
-        clipRect {
-            translate(left = size.width - width, top = 0f) {
-                with(artwork) { draw(size = Size(width, size.height)) }
+        val width = size.width * fraction
+        // Scale the drawing uniformly, align the tree and path to the lower
+        // right, and clip only to the intended landscape column.
+        val artWidth = maxOf(width, size.height * 323f / 174f)
+        val artHeight = artWidth * 174f / 323f
+        clipRect(left = size.width - width) {
+            translate(left = size.width - artWidth, top = size.height - artHeight) {
+                with(artwork) { draw(size = Size(artWidth, artHeight)) }
             }
         }
     }

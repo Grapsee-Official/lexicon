@@ -20,6 +20,7 @@ struct WordOfTheDayCard: View {
     }
 
     private var isDark: Bool { scheme == .dark }
+    private var stacked: Bool { dynamicTypeSize.isAccessibilitySize || measuredWidth < 250 || (measuredWidth < 310 && dynamicTypeSize >= .xxLarge) }
 
     private var leftBg: Color {
         isDark ? .clear : LexiconColors.primary
@@ -55,6 +56,15 @@ struct WordOfTheDayCard: View {
 
     var body: some View {
         Group {
+          if stacked {
+            accessibleReadingCard
+                .background {
+                    GeometryReader { measure in
+                        Color.clear.onAppear { measuredWidth = measure.size.width }
+                            .onChange(of: measure.size.width) { measuredWidth = $0 }
+                    }
+                }
+          } else {
             GeometryReader { geo in
                 let totalW = geo.size.width
                 let height = cardHeight
@@ -198,6 +208,7 @@ struct WordOfTheDayCard: View {
                 x: 0,
                 y: 2
             )
+          }
         }
         .contentShape(RoundedRectangle(cornerRadius: isDark ? 12 : 16))
         .onTapGesture {
@@ -209,21 +220,64 @@ struct WordOfTheDayCard: View {
         .accessibilityHint(Text("Opens the dictionary entry"))
         .accessibilityAddTraits(.isButton)
     }
+
+    // Accessibility-sized text gets a real reading column, not a taller
+    // version of the narrow reference spread. Never truncate the definition.
+    private var accessibleReadingCard: some View {
+        let p = lexiconPalette(scheme)
+        let accent = isDark ? labelGold : LexiconColors.primary
+        return VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("WORD OF THE DAY").font(.lexiconBody(10, weight: .medium)).foregroundStyle(accent)
+                HStack {
+                    Text(word.word).font(.lexiconDisplay(22)).foregroundStyle(p.foreground)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer(minLength: 4)
+                    Button { vm.pronounce(word.word) } label: {
+                        Image(systemName: "speaker.wave.2").foregroundStyle(accent)
+                            .frame(width: 44, height: 44).contentShape(Rectangle())
+                    }.buttonStyle(.plain).accessibilityLabel("Pronounce \(word.word)")
+                }
+                Text(word.phonetic).font(.lexiconBody(11)).foregroundStyle(p.mutedForeground)
+                Text(word.partOfSpeech.displayValue).font(.lexiconBody(11)).foregroundStyle(accent)
+                Text(word.definitions.first ?? "").font(.lexiconBody(13)).foregroundStyle(p.foreground)
+                    .fixedSize(horizontal: false, vertical: true)
+                Label("Explore more", systemImage: "arrow.right")
+                    .font(.lexiconBody(12)).foregroundStyle(accent)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(16)
+            if isDark {
+                WordOfDayNightScene(largeText: false, fullWidth: true).frame(height: 128)
+            } else {
+                Image("wotd-bg-light").resizable().scaledToFit()
+                    .frame(height: 128).frame(maxWidth: .infinity, alignment: .trailing)
+                    .accessibilityHidden(true)
+            }
+        }
+        .background(isDark ? Color(hex: "08121A") : LexiconColors.wotdRightLight)
+        .clipShape(RoundedRectangle(cornerRadius: isDark ? 12 : 16))
+        .overlay(RoundedRectangle(cornerRadius: isDark ? 12 : 16).stroke(cardBorder, lineWidth: 1))
+    }
 }
 
 
 /// The entire dark card shares one painted reading surface.
 private struct WordOfDayNightScene: View {
     let largeText: Bool
+    var fullWidth: Bool = false
 
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .trailing) {
                 Color(hex: "08121A")
+                let width = geo.size.width * (fullWidth ? 1 : (largeText ? 0.57 : 0.61))
+                let artWidth = max(width, geo.size.height * 323 / 174)
                 Image("ref-home-daily")
                     .resizable().renderingMode(.original)
-                    .frame(width: geo.size.width * (largeText ? 0.57 : 0.61),
-                           height: geo.size.height)
+                    .frame(width: artWidth, height: artWidth * 174 / 323)
+                    .frame(width: width, height: geo.size.height, alignment: .bottomTrailing)
+                    .clipped()
             }
         }
         .allowsHitTesting(false)
