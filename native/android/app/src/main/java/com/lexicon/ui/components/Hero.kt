@@ -1,19 +1,18 @@
 package com.lexicon.ui.components
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -25,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -37,8 +35,8 @@ import com.lexicon.ui.theme.DarkAccent
 import com.lexicon.ui.theme.DarkBackground
 import com.lexicon.ui.theme.WarmCream
 import com.lexicon.ui.theme.DarkForeground
-import com.lexicon.ui.theme.DarkMutedForeground
 import com.lexicon.ui.theme.DarkSage
+import com.lexicon.ui.theme.DarkSecondary
 import com.lexicon.ui.theme.DeepForest
 import com.lexicon.ui.theme.LexiconTextStyles
 import com.lexicon.ui.theme.OldWoodGold
@@ -55,7 +53,6 @@ fun Hero(
     val headlineWords = if (isDark) DarkSage else BrandGreen
     val sprigColor = if (isDark) DarkAccent else OldWoodGold
     val subtextColor = if (isDark) Color(0xFFD3C6B2) else DeepForest.copy(alpha = 0.90f)
-    val heroArt = if (isDark) R.drawable.hero_dark else R.drawable.hero_light
     val configuration = LocalConfiguration.current
     val compact = configuration.screenWidthDp < 360
     val expanded = configuration.screenWidthDp >= 600
@@ -74,36 +71,81 @@ fun Hero(
             .fillMaxWidth()
             .height(heroHeight),
     ) {
-        Image(
-            painter = painterResource(heroArt),
-            contentDescription = null,
-            contentScale = ContentScale.Fit,
-            alignment = Alignment.BottomEnd,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .fillMaxWidth(if (compact) 0.82f else 0.88f)
-                .height(heroHeight),
-        )
-
         if (isDark) {
-            NocturneAtmosphere(Modifier.fillMaxSize())
-        }
-
-        // A soft parchment/night-paper wash preserves readable typography while
-        // the original full-detail painting remains visible on the right.
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .fillMaxWidth(0.60f)
-                .height(heroHeight)
-                .background(
+            // The supplied painting already contains the moon, stars and lanterns.
+            // Let its transparent edges dissolve into the same ink as the Home feed.
+            Canvas(Modifier.matchParentSize()) {
+                drawRect(
+                    brush = Brush.radialGradient(
+                        colors = listOf(DarkSecondary.copy(alpha = 0.30f), Color.Transparent),
+                        center = Offset(size.width * 0.72f, size.height * 0.42f),
+                        radius = maxOf(size.width, size.height) * 0.54f,
+                    ),
+                )
+            }
+            Image(
+                painter = painterResource(R.drawable.hero_dark),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                alignment = Alignment.CenterEnd,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .fillMaxWidth(if (compact || largeText) 0.82f else 0.90f)
+                    .height(heroHeight - 26.dp),
+            )
+            // A continuous, full-width reading scrim instead of a separate panel.
+            // Keep the cottage and moon clear on the right; protect enlarged copy.
+            val readingEdge = if (compact || largeText) 0.58f else 0.50f
+            Box(
+                Modifier.matchParentSize().background(
                     Brush.horizontalGradient(
-                        0.00f to (if (isDark) DarkBackground else WarmCream).copy(alpha = 0.94f),
-                        0.42f to (if (isDark) DarkBackground else WarmCream).copy(alpha = 0.72f),
+                        0.00f to DarkBackground,
+                        0.28f to DarkBackground.copy(alpha = 0.97f),
+                        (readingEdge - 0.10f) to DarkBackground.copy(alpha = 0.90f),
+                        readingEdge to DarkBackground.copy(alpha = 0.65f),
+                        (readingEdge + 0.16f) to Color.Transparent,
                         1.00f to Color.Transparent,
                     ),
                 ),
-        )
+            )
+            // Match the header and feed at both boundaries, without cutting
+            // the illustrated silhouette or masking the foreground controls.
+            Box(
+                Modifier.matchParentSize().background(
+                    Brush.verticalGradient(
+                        0.00f to DarkBackground,
+                        0.10f to Color.Transparent,
+                        0.88f to Color.Transparent,
+                        0.96f to DarkBackground.copy(alpha = 0.70f),
+                        1.00f to DarkBackground,
+                    ),
+                ),
+            )
+        } else {
+            Image(
+                painter = painterResource(R.drawable.hero_light),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                alignment = Alignment.BottomEnd,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .fillMaxWidth(if (compact) 0.82f else 0.88f)
+                    .height(heroHeight),
+            )
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .fillMaxWidth(0.60f)
+                    .height(heroHeight)
+                    .background(
+                        Brush.horizontalGradient(
+                            0.00f to WarmCream.copy(alpha = 0.94f),
+                            0.42f to WarmCream.copy(alpha = 0.72f),
+                            1.00f to Color.Transparent,
+                        ),
+                    ),
+            )
+        }
 
         Column(
             modifier = Modifier

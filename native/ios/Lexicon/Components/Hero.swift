@@ -49,36 +49,77 @@ struct Hero: View {
             let textWidth = totalWidth * ((compact || enlargedText) ? 0.60 : 0.52)
 
             ZStack(alignment: .topLeading) {
-                HStack(spacing: 0) {
-                    Spacer(minLength: 0)
-                    Image(isDark ? "hero-dark" : "hero-light")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: totalWidth * (compact ? 0.82 : 0.88), height: heroHeight, alignment: .bottomTrailing)
-                        .lexiconDecorative()
-        
-                }
-                .frame(width: totalWidth, height: heroHeight)
-
                 if isDark {
-                    NocturneAtmosphere()
-                        .frame(width: totalWidth, height: heroHeight)
-                }
+                    let readingEdge: CGFloat = (compact || enlargedText) ? 0.58 : 0.50
+                    ZStack(alignment: .topTrailing) {
+                        // The illustration supplies its own moonlight, lanterns
+                        // and stars; do not scatter another layer over the scene.
+                        RadialGradient(
+                            colors: [LexiconColors.secondaryDark.opacity(0.30), .clear],
+                            center: UnitPoint(x: 0.72, y: 0.42),
+                            startRadius: 0,
+                            endRadius: max(totalWidth, heroHeight) * 0.54
+                        )
 
-                // Preserve the old-paper reading space rather than allowing
-                // the body copy to disappear into the cottage illustration.
-                LinearGradient(
-                    stops: [
-                        .init(color: (isDark ? LexiconColors.backgroundDark : LexiconColors.background).opacity(0.94), location: 0),
-                        .init(color: (isDark ? LexiconColors.backgroundDark : LexiconColors.background).opacity(0.72), location: 0.42),
-                        .init(color: .clear, location: 1)
-                    ],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-                .frame(width: totalWidth * 0.60, height: heroHeight)
-                .allowsHitTesting(false)
-                .accessibilityHidden(true)
+                        Image("hero-dark")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: totalWidth * ((compact || enlargedText) ? 0.82 : 0.90),
+                                   height: heroHeight - 26, alignment: .trailing)
+
+                        LinearGradient(
+                            stops: [
+                                .init(color: LexiconColors.backgroundDark, location: 0),
+                                .init(color: LexiconColors.backgroundDark.opacity(0.97), location: 0.28),
+                                .init(color: LexiconColors.backgroundDark.opacity(0.90), location: readingEdge - 0.10),
+                                .init(color: LexiconColors.backgroundDark.opacity(0.65), location: readingEdge),
+                                .init(color: .clear, location: readingEdge + 0.16),
+                                .init(color: .clear, location: 1)
+                            ],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+
+                        // Dissolve naturally into the header and the next row.
+                        LinearGradient(
+                            stops: [
+                                .init(color: LexiconColors.backgroundDark, location: 0),
+                                .init(color: .clear, location: 0.10),
+                                .init(color: .clear, location: 0.88),
+                                .init(color: LexiconColors.backgroundDark.opacity(0.70), location: 0.96),
+                                .init(color: LexiconColors.backgroundDark, location: 1)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    }
+                    .frame(width: totalWidth, height: heroHeight)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+                } else {
+                    HStack(spacing: 0) {
+                        Spacer(minLength: 0)
+                        Image("hero-light")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: totalWidth * (compact ? 0.82 : 0.88), height: heroHeight, alignment: .bottomTrailing)
+                            .lexiconDecorative()
+                    }
+                    .frame(width: totalWidth, height: heroHeight)
+
+                    LinearGradient(
+                        stops: [
+                            .init(color: LexiconColors.background.opacity(0.94), location: 0),
+                            .init(color: LexiconColors.background.opacity(0.72), location: 0.42),
+                            .init(color: .clear, location: 1)
+                        ],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    .frame(width: totalWidth * 0.60, height: heroHeight)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+                }
 
                 VStack(alignment: .leading, spacing: 6) {
                     headline
