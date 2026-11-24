@@ -291,7 +291,7 @@ fun HomeNightScene(
  * retain the original alpha, with a luminance-dependent shadow dissolve and
  * a highlight-preserving tone curve. No generated/replacement illustration.
  */
-internal enum class ArtworkTreatment { MOONLIT, STORY, BOOKPLATE }
+internal enum class ArtworkTreatment { MOONLIT, DAILY_LANDSCAPE, STORY, BOOKPLATE }
 
 private val preparedArtworkCache = object : LruCache<String, ImageBitmap>(24 * 1024 * 1024) {
     override fun sizeOf(key: String, value: ImageBitmap): Int =
@@ -417,6 +417,7 @@ private fun prepareArtwork(
         sky.extendBehind(composed, w, h)
         return Bitmap.createBitmap(composed, w, h, Bitmap.Config.ARGB_8888).asImageBitmap()
     }
+    val dailyLandscape = treatment == ArtworkTreatment.DAILY_LANDSCAPE
     val lightField = ArtworkLightField(w, h)
     for (i in pixels.indices) {
         val p = pixels[i]
@@ -430,22 +431,33 @@ private fun prepareArtwork(
         // Do not apply hero-specific spatial corrections to this painting.
         val highlight = smoothArtworkStep(0.63f, 0.95f, l)
         val warm = smoothArtworkStep(0.06f, 0.24f, r - b)
-        val gain = (0.85f + 0.13f * highlight - 0.02f * warm * (1f - highlight)).coerceIn(0f, 1f)
-        val saturation = 0.80f + 0.18f * highlight
+        // The daily landscape is a small full-bleed painting, not an
+        // emissive thumbnail. Preserve midtone foliage and let dark
+        // source colors converge to its actual reading-surface ink.
+        val gain = if (dailyLandscape) 0.88f + 0.10f * highlight
+            else (0.85f + 0.13f * highlight - 0.02f * warm * (1f - highlight)).coerceIn(0f, 1f)
+        val saturation = if (dailyLandscape) 0.90f + 0.08f * highlight
+            else 0.80f + 0.18f * highlight
         val shadow = 1f - smoothArtworkStep(0.09f, 0.35f, l)
-        val emission = (a / 255f) * smoothArtworkStep(0.45f, 0.83f, l) *
-            smoothArtworkStep(0.05f, 0.22f, r - b) * 0.42f
-        lightField.add(i % w, i / w, emission)
-        val alpha = a * (0.58f + 0.42f * smoothArtworkStep(0.035f, 0.24f, l))
-        val rr = (l + (r - l) * saturation) * gain * (1f - 0.10f * shadow)
-        val gg = (l + (g - l) * saturation) * gain
-        val bb = (l + (b - l) * saturation) * gain + 0.012f * shadow
+        if (!dailyLandscape) {
+            val emission = (a / 255f) * smoothArtworkStep(0.45f, 0.83f, l) *
+                smoothArtworkStep(0.05f, 0.22f, r - b) * 0.42f
+            lightField.add(i % w, i / w, emission)
+        }
+        val inkMix = if (dailyLandscape) 0.72f * (1f - smoothArtworkStep(0.03f, 0.24f, l)) else 0f
+        val alpha = a * (if (dailyLandscape) 0.78f else 0.58f) +
+            a * (if (dailyLandscape) 0.22f else 0.42f) * smoothArtworkStep(0.035f, 0.24f, l)
+        val rr = (l + (r - l) * saturation) * gain * (1f - 0.10f * shadow) *
+            (1f - inkMix) + 8f / 255f * inkMix
+        val gg = (l + (g - l) * saturation) * gain * (1f - inkMix) + 18f / 255f * inkMix
+        val bb = ((l + (b - l) * saturation) * gain + 0.012f * shadow) *
+            (1f - inkMix) + 26f / 255f * inkMix
         pixels[i] = (alpha.roundToInt().coerceIn(0, 255) shl 24) or
             ((rr * 255f).roundToInt().coerceIn(0, 255) shl 16) or
             ((gg * 255f).roundToInt().coerceIn(0, 255) shl 8) or
             (bb * 255f).roundToInt().coerceIn(0, 255)
     }
-    lightField.compositeBehind(pixels)
+    if (!dailyLandscape) lightField.compositeBehind(pixels)
     Bitmap.createBitmap(pixels, w, h, Bitmap.Config.ARGB_8888).asImageBitmap()
 }.getOrNull()
 
@@ -900,6 +912,8 @@ private fun refinePaintedStars(pixels: IntArray, w: Int, h: Int) {
         val bh = bottom - top + 1
         if (bottom >= topH - 1 || left < w * 0.30f || bw > w * 0.055f ||
             bh > h * 0.085f || tail < 20 || maxOf(bw.toFloat() / w, bh.toFloat() / h) < 0.016f) continue
+        // Protect the crescent even if a later source export disconnects it.
+        if (left < w * 0.58f && right > w * 0.50f && top < h * 0.22f && bottom > h * 0.10f) continue
         val scale = if (maxOf(bw.toFloat() / w, bh.toFloat() / h) > 0.03f) 0.43f else 0.68f
         val cx = (left + right) / 2f
         val cy = (top + bottom) / 2f
@@ -923,6 +937,7 @@ private fun refinePaintedStars(pixels: IntArray, w: Int, h: Int) {
             fun color(c: Int) = (sum[c][n] / a).roundToInt().coerceIn(0, 255)
             val i = (top + n / bw) * w + left + n % bw
             if ((pixels[i] ushr 24) > 8) continue
+            seen[i] = true
             pixels[i] = ((a * 255f).roundToInt().coerceIn(0, 255) shl 24) or
                 (color(1) shl 16) or (color(2) shl 8) or color(3)
         }

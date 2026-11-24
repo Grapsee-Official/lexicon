@@ -339,7 +339,7 @@ struct BotanicalSprig: View {
 // Same non-destructive artwork recipe as Compose. Native image decoding and
 // pixel processing occur off the main actor, with a bounded decoded-image cache.
 enum ArtworkTreatment: String, Sendable {
-    case moonlit, story, bookplate
+    case moonlit, dailyLandscape, story, bookplate
 }
 
 struct PreparedArtworkImage: View {
@@ -439,6 +439,7 @@ private enum HomeArtworkProcessor {
             bytes = reframeMoonlitSubjects(bytes, width: w, height: h)
             sky.extendBehind(&bytes, width: w, height: h)
         } else {
+            let dailyLandscape = treatment == .dailyLandscape
             var lightField = ArtworkLightField(width: w, height: h)
             for i in stride(from: 0, to: bytes.count, by: 4) {
                 let a = Float(bytes[i + 3]) / 255
@@ -451,22 +452,27 @@ private enum HomeArtworkProcessor {
                 let l = r * 0.2126 + g * 0.7152 + b * 0.0722
                 let highlight = smooth(0.63, 0.95, l)
                 let warm = smooth(0.06, 0.24, r - b)
-                let gain = min(1, max(0, 0.85 + 0.13 * highlight - 0.02 * warm * (1 - highlight)))
-                let sat = 0.80 + 0.18 * highlight
+                let gain: Float = dailyLandscape ? 0.88 + 0.10 * highlight
+                    : min(1, max(0, 0.85 + 0.13 * highlight - 0.02 * warm * (1 - highlight)))
+                let sat: Float = dailyLandscape ? 0.90 + 0.08 * highlight : 0.80 + 0.18 * highlight
                 let shadow = 1 - smooth(0.09, 0.35, l)
-                let emission = a * smooth(0.45, 0.83, l) * smooth(0.05, 0.22, r - b) * 0.42
-                let pixel = i / 4
-                lightField.add(x: pixel % w, y: pixel / w, value: emission)
-                let alpha = a * (0.58 + 0.42 * smooth(0.035, 0.24, l))
-                let rr = (l + (r - l) * sat) * gain * (1 - 0.10 * shadow)
-                let gg = (l + (g - l) * sat) * gain
-                let bb = (l + (b - l) * sat) * gain + 0.012 * shadow
+                if !dailyLandscape {
+                    let emission = a * smooth(0.45, 0.83, l) * smooth(0.05, 0.22, r - b) * 0.42
+                    let pixel = i / 4
+                    lightField.add(x: pixel % w, y: pixel / w, value: emission)
+                }
+                let inkMix: Float = dailyLandscape ? 0.72 * (1 - smooth(0.03, 0.24, l)) : 0
+                let alphaFloor: Float = dailyLandscape ? 0.78 : 0.58
+                let alpha = a * (alphaFloor + (1 - alphaFloor) * smooth(0.035, 0.24, l))
+                let rr = (l + (r - l) * sat) * gain * (1 - 0.10 * shadow) * (1 - inkMix) + (8.0 / 255.0) * inkMix
+                let gg = (l + (g - l) * sat) * gain * (1 - inkMix) + (18.0 / 255.0) * inkMix
+                let bb = ((l + (b - l) * sat) * gain + 0.012 * shadow) * (1 - inkMix) + (26.0 / 255.0) * inkMix
                 bytes[i] = byte(rr * alpha)
                 bytes[i + 1] = byte(gg * alpha)
                 bytes[i + 2] = byte(bb * alpha)
                 bytes[i + 3] = byte(alpha)
             }
-            lightField.compositeBehind(&bytes)
+            if !dailyLandscape { lightField.compositeBehind(&bytes) }
         }
 
         guard let provider = CGDataProvider(data: Data(bytes) as CFData),
@@ -954,6 +960,8 @@ private func refinePaintedStars(_ bytes: inout [UInt8], width w: Int, height h: 
         if bottom >= topH - 1 || Float(left) < Float(w) * 0.30 ||
             Float(bw) > Float(w) * 0.055 || Float(bh) > Float(h) * 0.085 ||
             tail < 20 || fraction < 0.016 { continue }
+        if Float(left) < Float(w) * 0.58 && Float(right) > Float(w) * 0.50 &&
+            Float(top) < Float(h) * 0.22 && Float(bottom) > Float(h) * 0.10 { continue }
         let scale: Float = fraction > 0.03 ? 0.43 : 0.68
         let cx = Float(left + right) / 2, cy = Float(top + bottom) / 2
         var sum = [Float](repeating: 0, count: bw * bh * 4)
@@ -972,6 +980,7 @@ private func refinePaintedStars(_ bytes: inout [UInt8], width w: Int, height h: 
             if a < 0.765 { continue }
             let i = ((top + n / bw) * w + left + n % bw) * 4
             if bytes[i + 3] > 8 { continue }
+            seen[i / 4] = true
             let normalization = min(1, 255 / a)
             for c in 0..<4 {
                 bytes[i + c] = UInt8(min(255, max(0, (sum[n * 4 + c] * normalization).rounded())))

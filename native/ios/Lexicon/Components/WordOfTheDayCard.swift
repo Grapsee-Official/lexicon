@@ -220,9 +220,9 @@ private struct WordOfDayNightScene: View {
             let height = geo.size.height
             ZStack(alignment: .trailing) {
                 Color(hex: "08121A")
-                PreparedArtworkImage(name: "wotd-home-dark", treatment: .story)
+                PreparedArtworkImage(name: "wotd-home-dark", treatment: .dailyLandscape)
                     .scaledToFill()
-                    .frame(width: width * 0.66, height: height, alignment: .trailing)
+                    .frame(width: width * 0.72, height: height, alignment: .trailing)
                     .clipped()
                     .frame(width: width, height: height, alignment: .trailing)
                     .mask {
@@ -238,10 +238,10 @@ private struct WordOfDayNightScene: View {
                     }
                     .mask {
                         LinearGradient(stops: [
-                            .init(color: .black.opacity(0.68), location: 0),
-                            .init(color: .black.opacity(0.96), location: 0.14),
-                            .init(color: .black, location: 0.84),
-                            .init(color: .black.opacity(0.76), location: 1)
+                            .init(color: .black.opacity(0.90), location: 0),
+                            .init(color: .black, location: 0.12),
+                            .init(color: .black, location: 0.88),
+                            .init(color: .black.opacity(0.94), location: 1)
                         ], startPoint: .top, endPoint: .bottom)
                     }
             }

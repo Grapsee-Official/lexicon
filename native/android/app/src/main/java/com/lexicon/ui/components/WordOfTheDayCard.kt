@@ -277,13 +277,13 @@ fun WordOfTheDayCard(
 // foreground controls; the divider no longer separates two painted surfaces.
 @Composable
 private fun WordOfDayNightScene(modifier: Modifier, accessible: Boolean) {
-    val artwork = rememberPreparedArtwork(R.drawable.wotd_home_dark, ArtworkTreatment.STORY)
+    val artwork = rememberPreparedArtwork(R.drawable.wotd_home_dark, ArtworkTreatment.DAILY_LANDSCAPE)
     Canvas(modifier.graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }) {
         if (size.width <= 0f || size.height <= 0f) return@Canvas
         val intrinsic = artwork.intrinsicSize
         val aspect = if (intrinsic.width > 0 && intrinsic.height > 0)
             intrinsic.width / intrinsic.height else 1.5f
-        val width = maxOf(size.width * 0.66f, size.height * aspect)
+        val width = maxOf(size.width * 0.72f, size.height * aspect)
         val height = width / aspect
         clipRect {
             translate(left = size.width - width, top = (size.height - height) / 2f) {
@@ -304,10 +304,10 @@ private fun WordOfDayNightScene(modifier: Modifier, accessible: Boolean) {
         )
         drawRect(
             brush = Brush.verticalGradient(
-                0f to Color.Black.copy(alpha = 0.68f),
-                0.14f to Color.Black.copy(alpha = 0.96f),
-                0.84f to Color.Black,
-                1f to Color.Black.copy(alpha = 0.76f),
+                0f to Color.Black.copy(alpha = 0.90f),
+                0.12f to Color.Black,
+                0.88f to Color.Black,
+                1f to Color.Black.copy(alpha = 0.94f),
             ),
             blendMode = BlendMode.DstIn,
         )
