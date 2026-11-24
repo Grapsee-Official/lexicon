@@ -84,9 +84,15 @@ fun ArticleCard(
     val shape = RoundedCornerShape(if (isDark) 10.dp else 13.dp)
     val fontScale = LocalConfiguration.current.fontScale
     val largeText = fontScale >= 1.5f
-    val width = shelfWidth ?: if (isDark && !largeText) 150.dp * fontScale.coerceIn(1f, 1.20f) else if (isDark) 210.dp else 174.dp
+    // The illustrated Home shelf is allowed to grow vertically; keep the
+    // reference geometry only for ordinary text in a measured viewport.
+    val width = shelfWidth ?: if (largeText) (210.dp * (fontScale / 1.5f).coerceIn(1f, 1.45f))
+        else if (isDark) 150.dp * fontScale.coerceIn(1f, 1.20f) else 174.dp
     val imageFraction = if (isDark && shelfWidth != null && article.id != "a1") 0.41f else 0.35f
-    val height = shelfHeight ?: if (isDark && !largeText) 78.dp * fontScale.coerceIn(1f, 1.25f) else if (isDark) 120.dp * (fontScale / 1.5f).coerceAtLeast(1f) else 90.dp
+    val height = shelfHeight ?: if (largeText) 132.dp * (fontScale / 1.5f).coerceAtLeast(1f)
+        else if (isDark) 78.dp * fontScale.coerceIn(1f, 1.25f) else 90.dp
+    val titleSize = shelfWidth?.value?.let { ((it / if (article.id == "a1") 240f else 180f) * 14f).coerceIn(10f, 14f) } ?: 10.5f
+    val metaSize = shelfWidth?.value?.let { ((it / if (article.id == "a1") 240f else 180f) * 10f).coerceIn(8f, 10f) } ?: 8f
 
     Box(
         modifier = modifier
@@ -157,8 +163,8 @@ fun ArticleCard(
             Text(
                 text = article.title,
                 color = titleColor,
-                style = if (isDark && !largeText) LexiconTextStyles.ArticleTitle.copy(fontSize = 10.5.sp, lineHeight = 13.sp) else LexiconTextStyles.ArticleTitle,
-                maxLines = 3,
+                style = if (isDark && !largeText) LexiconTextStyles.ArticleTitle.copy(fontSize = titleSize.sp, lineHeight = (titleSize * 1.28f).sp) else LexiconTextStyles.ArticleTitle,
+                maxLines = if (largeText) 5 else 3,
                 overflow = TextOverflow.Ellipsis,
             )
 
@@ -167,7 +173,7 @@ fun ArticleCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.weight(1f, fill = false), verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Outlined.Schedule,
                         contentDescription = null,
@@ -178,10 +184,13 @@ fun ArticleCard(
                     Text(
                         text = "${article.readMinutes} min read",
                         color = metaColor,
-                        style = if (isDark && !largeText) LexiconTextStyles.ArticleMeta.copy(fontSize = 8.sp, lineHeight = 10.sp) else LexiconTextStyles.ArticleMeta,
+                        style = if (isDark && !largeText) LexiconTextStyles.ArticleMeta.copy(fontSize = metaSize.sp, lineHeight = (metaSize * 1.25f).sp) else LexiconTextStyles.ArticleMeta,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
 
+                Spacer(Modifier.width(3.dp))
                 Icon(
                     imageVector = if (isBookmarked) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
                     contentDescription = null,

@@ -278,8 +278,9 @@ private fun HomeFeed(
                     homeEditorial = true,
                 )
                 BoxWithConstraints(Modifier.fillMaxWidth()) {
-                    val editorial = state.isDark && LocalConfiguration.current.fontScale < 1.5f
-                    val cardHeight = (maxWidth * (122f / 591f)).coerceIn(68.dp, 132.dp)
+                    val scale = LocalConfiguration.current.fontScale
+                    val editorial = state.isDark && scale < 1.5f
+                    val cardHeight = (maxWidth * (122f / 591f)).coerceIn(68.dp, 132.dp) * scale.coerceIn(1f, 1.4f)
                     val firstWidth = (maxWidth * (240f / 591f)).coerceIn(130.dp, 260.dp)
                     val followingWidth = (maxWidth * (180f / 591f)).coerceIn(112.dp, 200.dp)
                     LazyRow(contentPadding = PaddingValues(horizontal = pageInset),

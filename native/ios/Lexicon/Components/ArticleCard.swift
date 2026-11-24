@@ -24,8 +24,12 @@ struct ArticleCard: View {
         isDark ? LexiconColors.accentDark : LexiconColors.highlight
     }
 
-    private var cardWidth: CGFloat { shelfWidth ?? (isDark ? (dynamicTypeSize.isAccessibilitySize ? 210 : 150) : 174) }
-    private var cardHeight: CGFloat { shelfHeight ?? (isDark ? (dynamicTypeSize.isAccessibilitySize ? 120 : 78) : 90) }
+    @ScaledMetric(relativeTo: .body) private var accessibleWidth: CGFloat = 210
+    @ScaledMetric(relativeTo: .body) private var accessibleHeight: CGFloat = 132
+    private var cardWidth: CGFloat { shelfWidth ?? (dynamicTypeSize.isAccessibilitySize ? min(310, accessibleWidth) : (isDark ? 150 : 174)) }
+    private var cardHeight: CGFloat { shelfHeight ?? (dynamicTypeSize.isAccessibilitySize ? accessibleHeight : (isDark ? 78 : 90)) }
+    private var titleSize: CGFloat { shelfWidth.map { min(14, max(10, $0 / (article.id == "a1" ? 240 : 180) * 14)) } ?? 10.5 }
+    private var metaSize: CGFloat { shelfWidth.map { min(10, max(8, $0 / (article.id == "a1" ? 240 : 180) * 10)) } ?? 8 }
     private var imageFraction: CGFloat { isDark && shelfWidth != nil && article.id != "a1" ? 0.41 : 0.35 }
     private var corner: CGFloat { isDark ? 10 : 13 }
 
@@ -41,7 +45,7 @@ struct ArticleCard: View {
                     Image(thumbName)
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 54, height: 80)
+                        .frame(width: max(1, cardWidth * 0.33 - 10), height: max(1, cardHeight - 10))
                         .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
                         .padding(5)
                         .lexiconDecorative()
@@ -49,9 +53,9 @@ struct ArticleCard: View {
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text(article.title)
-                        .font(.lexiconDisplay(isDark && !dynamicTypeSize.isAccessibilitySize ? 10.5 : 11.5, weight: .regular))
+                        .font(.lexiconDisplay(isDark && !dynamicTypeSize.isAccessibilitySize ? titleSize : 11.5, weight: .regular))
                         .foregroundStyle(lexiconPalette(scheme).foreground)
-                        .lineLimit(3)
+                        .lineLimit(dynamicTypeSize.isAccessibilitySize ? 5 : 3)
                         .multilineTextAlignment(.leading)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -63,7 +67,8 @@ struct ArticleCard: View {
                                 .font(.system(size: 9.5, weight: .regular))
                                 .foregroundStyle(iconColor)
                             Text("\(article.readMinutes) min read")
-                                .font(.lexiconBody(isDark && !dynamicTypeSize.isAccessibilitySize ? 8 : 9.5))
+                                .font(.lexiconBody(isDark && !dynamicTypeSize.isAccessibilitySize ? metaSize : 9.5))
+                                .lineLimit(1)
                                 .foregroundStyle(lexiconPalette(scheme).mutedForeground)
                         }
 
@@ -78,7 +83,7 @@ struct ArticleCard: View {
                 .padding(.leading, 5)
                 .padding(.trailing, isDark ? 7 : 10)
                 .padding(.vertical, 8)
-                .frame(width: isDark ? cardWidth * (1 - imageFraction) : 110, height: cardHeight, alignment: .topLeading)
+                .frame(width: cardWidth * (isDark ? (1 - imageFraction) : 0.67), height: cardHeight, alignment: .topLeading)
             }
             .frame(width: cardWidth, height: cardHeight)
             .background(alignment: .leading) {

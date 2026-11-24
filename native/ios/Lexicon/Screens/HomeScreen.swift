@@ -103,7 +103,7 @@ struct HomeScreen: View {
                                     shelfWidth: scheme == .dark && !dynamicTypeSize.isAccessibilitySize
                                         ? (a.id == "a1" ? min(260, max(130, window.size.width * 240 / 591)) : min(200, max(112, window.size.width * 180 / 591))) : nil,
                                     shelfHeight: scheme == .dark && !dynamicTypeSize.isAccessibilitySize
-                                        ? min(132, max(68, window.size.width * 122 / 591)) : nil,
+                                        ? min(132, max(68, window.size.width * 122 / 591)) * (dynamicTypeSize >= .xxxLarge ? 1.4 : (dynamicTypeSize >= .xxLarge ? 1.25 : (dynamicTypeSize >= .xLarge ? 1.1 : 1))) : nil,
                                     onOpen: { vm.openLibraryArticle(a.id) }
                                 )
                             }
