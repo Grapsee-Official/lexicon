@@ -76,8 +76,9 @@ fun WordOfTheDayCard(
     val cardHeight = if (accessible) 186.dp else if (compact) 144.dp else 118.dp
 
     // Same ink family as the Home night backdrop, not a separate slate tile.
-    val leftBg = if (isDark) Color(0xFF0B141C) else BrandGreen
-    val rightBg = if (isDark) Color(0xFF0C151D) else WotdRightSurface
+    val leftBg = if (isDark) Color.Transparent else BrandGreen
+    val rightBg = if (isDark) Color.Transparent else WotdRightSurface
+    val nightInk = Color(0xFF0B141C)
     val cardBorder = if (isDark) Color(0xFFB6A486).copy(alpha = 0.19f) else DeepForest.copy(alpha = 0.12f)
     val labelGold = if (isDark) DarkAccent else WotdGoldLight
     val wordColor = if (isDark) DarkForeground else Color.White
@@ -96,7 +97,7 @@ fun WordOfTheDayCard(
 
     val shape = RoundedCornerShape(if (isDark) 12.dp else 16.dp)
 
-    Row(
+    Box(
         modifier = modifier
             .fillMaxWidth()
             .height(cardHeight)
@@ -111,191 +112,202 @@ fun WordOfTheDayCard(
                 } else Modifier
             )
             .clip(shape)
-            .background(rightBg)
+            .background(if (isDark) nightInk else rightBg)
             .border(1.dp, cardBorder, shape)
             .clickable(role = Role.Button) { viewModel.navigate(com.lexicon.data.ScreenRoute.WORD_OF_THE_DAY, word = word) },
     ) {
-        Column(
-            modifier = Modifier
-                .weight(0.39f)
-                .fillMaxHeight()
-                .background(leftBg)
-                .padding(horizontal = 12.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                Text(
-                    text = "WORD OF THE DAY",
-                    color = labelGold,
-                    style = LexiconTextStyles.WotdLabel,
-                    maxLines = 1,
-                )
-                if (!compact) {
-                    LeafSprig(
-                        color = labelGold,
-                        modifier = Modifier.size(13.dp),
-                    )
-                }
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                Text(
-                    text = word.word,
-                    color = wordColor,
-                    style = LexiconTextStyles.WotdWord.copy(fontSize = wordSize),
-                    maxLines = if (word.word.length > 14 || accessible) 2 else 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .weight(1f, fill = false)
-                        .liveAnnouncement(),
-                )
-                Box(
-                    modifier = Modifier
-                        .size(28.dp)
-                        .clip(CircleShape)
-                        .iconButton(AccessibilityAudit.Descriptions.Volume)
-                        .clickable(role = Role.Button) { viewModel.pronounce(word.word) },
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.VolumeUp,
-                        contentDescription = null,
-                        tint = labelGold,
-                        modifier = Modifier.size(14.dp),
-                    )
-                }
-            }
-
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(
-                    text = word.phonetic,
-                    color = phoneticColor,
-                    style = LexiconTextStyles.WotdPhonetic,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    text = word.partOfSpeech.label(),
-                    color = posColor,
-                    style = LexiconTextStyles.WotdPartOfSpeech,
-                    maxLines = 1,
-                )
-            }
+        if (isDark) {
+            WordOfDayNightScene(Modifier.matchParentSize(), accessible)
         }
-
-        Box(
-            modifier = Modifier
-                .width(1.dp)
-                .fillMaxHeight()
-                .background(if (isDark) cardBorder else DeepForest.copy(alpha = 0.08f)),
-        )
-
-        Box(
-            modifier = Modifier
-                .weight(0.61f)
-                .fillMaxHeight()
-                .background(rightBg),
-        ) {
-            if (isDark) {
-                val artwork = painterResource(R.drawable.wotd_home_dark)
-                val grade = ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0.88f) })
-                // Isolate the illustration so the alpha masks reveal the card's
-                // midnight ink, rather than painting a hard scrim over the art.
-                Canvas(Modifier.matchParentSize().graphicsLayer {
-                    compositingStrategy = CompositingStrategy.Offscreen
-                }) {
-                    val intrinsic = artwork.intrinsicSize
-                    val aspect = if (intrinsic.width > 0 && intrinsic.height > 0)
-                        intrinsic.width / intrinsic.height else 1.5f
-                    val width = maxOf(size.width, size.height * aspect)
-                    val height = width / aspect
-                    clipRect {
-                        translate(left = size.width - width, top = (size.height - height) / 2f) {
-                            with(artwork) {
-                                draw(size = Size(width, height), alpha = 0.94f, colorFilter = grade)
-                            }
-                        }
-                    }
-                    drawRect(
-                        brush = Brush.horizontalGradient(
-                            0f to Color.Transparent,
-                            0.18f to Color.Black.copy(alpha = 0.04f),
-                            0.38f to Color.Black.copy(alpha = 0.16f),
-                            0.56f to Color.Black.copy(alpha = 0.52f),
-                            0.76f to Color.Black.copy(alpha = 0.94f),
-                            0.95f to Color.Black,
-                            1f to Color.Black.copy(alpha = 0.86f),
-                        ),
-                        blendMode = BlendMode.DstIn,
-                    )
-                    drawRect(
-                        brush = Brush.verticalGradient(
-                            0f to Color.Black.copy(alpha = 0.65f),
-                            0.12f to Color.Black.copy(alpha = 0.94f),
-                            0.78f to Color.Black,
-                            1f to Color.Black.copy(alpha = 0.66f),
-                        ),
-                        blendMode = BlendMode.DstIn,
-                    )
-                }
-            } else {
-                Image(
-                    painter = painterResource(R.drawable.wotd_bg_light),
-                    contentDescription = null,
-                    modifier = Modifier.align(Alignment.CenterEnd)
-                        .fillMaxHeight().fillMaxWidth(0.96f),
-                    contentScale = ContentScale.Fit,
-                    alignment = Alignment.BottomEnd,
-                )
-                Box(
-                    modifier = Modifier.fillMaxSize().background(
-                        Brush.horizontalGradient(
-                            0.0f to rightBg.copy(alpha = 0.96f),
-                            0.38f to rightBg.copy(alpha = 0.72f),
-                            0.83f to Color.Transparent,
-                        )
-                    ),
-                )
-            }
-
+        Row(Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier
+                    .weight(0.39f)
                     .fillMaxHeight()
-                    .fillMaxWidth(if (isDark && accessible) 0.88f else 0.69f)
-                    .padding(start = 13.dp, top = 13.dp, bottom = 12.dp, end = 4.dp),
+                    .background(leftBg)
+                    .padding(horizontal = 12.dp, vertical = 14.dp),
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
-                Text(
-                    text = word.definitions.firstOrNull().orEmpty(),
-                    color = defColor,
-                    style = LexiconTextStyles.WotdDefinition,
-                    maxLines = 4,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    Text(
+                        text = "WORD OF THE DAY",
+                        color = labelGold,
+                        style = LexiconTextStyles.WotdLabel,
+                        maxLines = 1,
+                    )
+                    if (!compact) {
+                        LeafSprig(
+                            color = labelGold,
+                            modifier = Modifier.size(13.dp),
+                        )
+                    }
+                }
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     Text(
-                        text = "Explore more",
-                        color = exploreColor,
-                        style = LexiconTextStyles.WotdExploreMore,
+                        text = word.word,
+                        color = wordColor,
+                        style = LexiconTextStyles.WotdWord.copy(fontSize = wordSize),
+                        maxLines = if (word.word.length > 14 || accessible) 2 else 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .weight(1f, fill = false)
+                            .liveAnnouncement(),
                     )
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
-                        contentDescription = null,
-                        tint = exploreColor,
-                        modifier = Modifier.size(12.dp),
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clip(CircleShape)
+                            .iconButton(AccessibilityAudit.Descriptions.Volume)
+                            .clickable(role = Role.Button) { viewModel.pronounce(word.word) },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Outlined.VolumeUp,
+                            contentDescription = null,
+                            tint = labelGold,
+                            modifier = Modifier.size(14.dp),
+                        )
+                    }
+                }
+
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(
+                        text = word.phonetic,
+                        color = phoneticColor,
+                        style = LexiconTextStyles.WotdPhonetic,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        text = word.partOfSpeech.label(),
+                        color = posColor,
+                        style = LexiconTextStyles.WotdPartOfSpeech,
+                        maxLines = 1,
                     )
                 }
             }
+
+            Box(
+                modifier = Modifier
+                    .width(1.dp)
+                    .fillMaxHeight()
+                    .background(if (isDark) cardBorder else DeepForest.copy(alpha = 0.08f)),
+            )
+
+            Box(
+                modifier = Modifier
+                    .weight(0.61f)
+                    .fillMaxHeight()
+                    .background(rightBg),
+            ) {
+                if (!isDark) {
+                    Image(
+                        painter = painterResource(R.drawable.wotd_bg_light),
+                        contentDescription = null,
+                        modifier = Modifier.align(Alignment.CenterEnd)
+                            .fillMaxHeight().fillMaxWidth(0.96f),
+                        contentScale = ContentScale.Fit,
+                        alignment = Alignment.BottomEnd,
+                    )
+                    Box(
+                        modifier = Modifier.fillMaxSize().background(
+                            Brush.horizontalGradient(
+                                0.0f to rightBg.copy(alpha = 0.96f),
+                                0.38f to rightBg.copy(alpha = 0.72f),
+                                0.83f to Color.Transparent,
+                            )
+                        ),
+                    )
+                }
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth(if (isDark && accessible) 0.88f else 0.69f)
+                        .padding(start = 13.dp, top = 13.dp, bottom = 12.dp, end = 4.dp),
+                    verticalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(
+                        text = word.definitions.firstOrNull().orEmpty(),
+                        color = defColor,
+                        style = LexiconTextStyles.WotdDefinition,
+                        maxLines = 4,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        Text(
+                            text = "Explore more",
+                            color = exploreColor,
+                            style = LexiconTextStyles.WotdExploreMore,
+                        )
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
+                            contentDescription = null,
+                            tint = exploreColor,
+                            modifier = Modifier.size(12.dp),
+                        )
+                    }
+                }
+            }
         }
+    }
+}
+
+
+// One painting covers the full card. The definition and the word are native
+// foreground controls; the divider no longer separates two painted surfaces.
+@Composable
+private fun WordOfDayNightScene(modifier: Modifier, accessible: Boolean) {
+    val artwork = painterResource(R.drawable.wotd_home_dark)
+    val grade = ColorFilter.colorMatrix(ColorMatrix(floatArrayOf(
+        0.80f, 0.08f, 0.02f, 0f, 0f,
+        0.04f, 0.86f, 0.02f, 0f, 0f,
+        0.03f, 0.08f, 0.85f, 0f, 0f,
+        0f, 0f, 0f, 1f, 0f,
+    )))
+    Canvas(modifier.graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }) {
+        if (size.width <= 0f || size.height <= 0f) return@Canvas
+        val intrinsic = artwork.intrinsicSize
+        val aspect = if (intrinsic.width > 0 && intrinsic.height > 0)
+            intrinsic.width / intrinsic.height else 1.5f
+        val width = maxOf(size.width * 0.70f, size.height * aspect)
+        val height = width / aspect
+        clipRect {
+            translate(left = size.width - width, top = (size.height - height) / 2f) {
+                with(artwork) { draw(size = Size(width, height), colorFilter = grade) }
+            }
+        }
+        drawRect(
+            brush = Brush.horizontalGradient(
+                0f to Color.Transparent,
+                0.28f to Color.Transparent,
+                0.40f to Color.Black.copy(alpha = 0.04f),
+                0.54f to Color.Black.copy(alpha = if (accessible) 0.10f else 0.25f),
+                0.70f to Color.Black.copy(alpha = if (accessible) 0.30f else 0.68f),
+                0.88f to Color.Black.copy(alpha = if (accessible) 0.58f else 0.98f),
+                1f to Color.Black.copy(alpha = if (accessible) 0.54f else 0.88f),
+            ),
+            blendMode = BlendMode.DstIn,
+        )
+        drawRect(
+            brush = Brush.verticalGradient(
+                0f to Color.Black.copy(alpha = 0.52f),
+                0.16f to Color.Black.copy(alpha = 0.90f),
+                0.70f to Color.Black,
+                1f to Color.Black.copy(alpha = 0.54f),
+            ),
+            blendMode = BlendMode.DstIn,
+        )
     }
 }

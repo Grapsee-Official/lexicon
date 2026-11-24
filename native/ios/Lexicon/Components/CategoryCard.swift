@@ -15,9 +15,9 @@ struct CategoryCard: View {
 
     var body: some View {
         let p = lexiconPalette(scheme)
-        let surface = isDark ? Color(hex: "0D1720") : LexiconColors.card
-        let lowerSurface = isDark ? Color(hex: "101A22") : Color(hex: "F8F1E6")
-        let border = isDark ? Color(hex: "B6A486").opacity(0.19) : LexiconColors.foreground.opacity(0.10)
+        let surface = isDark ? Color(hex: "15212A").opacity(0.22) : LexiconColors.card
+        let lowerSurface = isDark ? Color(hex: "15212A").opacity(0.47) : Color(hex: "F8F1E6")
+        let border = isDark ? Color(hex: "B6A486").opacity(0.12) : LexiconColors.foreground.opacity(0.10)
         Button {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
             vm.setActiveTab(.dictionary)
@@ -27,10 +27,10 @@ struct CategoryCard: View {
                     .resizable()
                     .scaledToFit()
                     .frame(maxWidth: .infinity)
-                    .frame(height: largeText ? 88 : 65)
+                    .frame(height: largeText ? 88 : (isDark ? 64 : 65))
                     .accessibilityHidden(true)
 
-                Spacer(minLength: 0).frame(height: 5)
+                Spacer(minLength: 0).frame(height: isDark ? 3 : 5)
 
                 VStack(spacing: 2) {
                     Text(category.title)
@@ -38,17 +38,17 @@ struct CategoryCard: View {
                         .foregroundStyle(p.foreground)
                         .fixedSize(horizontal: false, vertical: true)
                     Text(category.subtitle)
-                        .font(.lexiconBody(9.5))
+                        .font(.lexiconBody(isDark ? 9 : 9.5))
                         .foregroundStyle(p.mutedForeground)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity)
             }
-            .padding(.horizontal, 7)
+            .padding(.horizontal, isDark ? 5 : 7)
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity)
-            .frame(minHeight: largeText ? 190 : 130, alignment: .top)
+            .frame(minHeight: largeText ? 190 : (isDark ? 122 : 130), alignment: .top)
             .background(LinearGradient(colors: [surface, lowerSurface], startPoint: .top, endPoint: .bottom))
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             .overlay(

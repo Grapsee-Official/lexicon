@@ -55,21 +55,23 @@ fun CategoryCard(
     val ctx = LocalContext.current
     // One original painting for both themes; never tint or crop it.
     val resId = ctx.resources.getIdentifier(category.illustration, "drawable", ctx.packageName)
-    val surface = if (isDark) Color(0xFF0D1720) else CardSurface
-    val lowerSurface = if (isDark) Color(0xFF101A22) else Color(0xFFF8F1E6)
+    // Let the underlying page ink show through the bookplate rather than
+    // introducing a second opaque rectangle around the original art.
+    val surface = if (isDark) Color(0xFF15212A).copy(alpha = 0.22f) else CardSurface
+    val lowerSurface = if (isDark) Color(0xFF15212A).copy(alpha = 0.47f) else Color(0xFFF8F1E6)
     val ink = if (isDark) DarkForeground else DeepForest
     val muted = if (isDark) DarkMutedForeground else WarmGrey
-    val border = if (isDark) Color(0xFFB6A486).copy(alpha = 0.19f) else DeepForest.copy(alpha = 0.10f)
+    val border = if (isDark) Color(0xFFB6A486).copy(alpha = 0.12f) else DeepForest.copy(alpha = 0.10f)
     val shape = RoundedCornerShape(12.dp)
 
     Column(
         modifier = modifier
-            .heightIn(min = if (largeText) 190.dp else 130.dp)
+            .heightIn(min = if (largeText) 190.dp else if (isDark) 122.dp else 130.dp)
             .clip(shape)
             .background(Brush.verticalGradient(listOf(surface, lowerSurface)))
             .border(1.dp, border, shape)
             .clickable(role = Role.Button) { viewModel.setActiveTab(TabKey.DICTIONARY) }
-            .padding(horizontal = 7.dp, vertical = 8.dp),
+            .padding(horizontal = if (isDark) 5.dp else 7.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top,
     ) {
@@ -77,14 +79,14 @@ fun CategoryCard(
             Image(
                 painter = painterResource(resId),
                 contentDescription = null,
-                modifier = Modifier.fillMaxWidth().height(if (largeText) 88.dp else 65.dp),
+                modifier = Modifier.fillMaxWidth().height(if (largeText) 88.dp else if (isDark) 64.dp else 65.dp),
                 contentScale = ContentScale.Fit,
                 alignment = Alignment.Center,
             )
         } else {
-            Spacer(Modifier.height(if (largeText) 88.dp else 65.dp))
+            Spacer(Modifier.height(if (largeText) 88.dp else if (isDark) 64.dp else 65.dp))
         }
-        Spacer(Modifier.height(5.dp))
+        Spacer(Modifier.height(if (isDark) 3.dp else 5.dp))
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -99,7 +101,7 @@ fun CategoryCard(
             Text(
                 text = category.subtitle,
                 color = muted,
-                style = LexiconTextStyles.CategorySubtitle.copy(fontSize = 9.5.sp, lineHeight = 12.sp),
+                style = LexiconTextStyles.CategorySubtitle.copy(fontSize = if (isDark) 9.sp else 9.5.sp, lineHeight = 12.sp),
                 textAlign = TextAlign.Center,
             )
         }

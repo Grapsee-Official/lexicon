@@ -19,11 +19,11 @@ struct WordOfTheDayCard: View {
     private var isDark: Bool { scheme == .dark }
 
     private var leftBg: Color {
-        isDark ? Color(hex: "0B141C") : LexiconColors.primary
+        isDark ? .clear : LexiconColors.primary
     }
 
     private var rightBg: Color {
-        isDark ? Color(hex: "0C151D") : LexiconColors.wotdRightLight
+        isDark ? .clear : LexiconColors.wotdRightLight
     }
 
     private var cardBorder: Color {
@@ -122,38 +122,7 @@ struct WordOfTheDayCard: View {
                     ZStack(alignment: .leading) {
                         rightBg
 
-                        if isDark {
-                            // Match Compose: fill the panel, anchor trailing, then
-                            // reveal the shared card ink with opacity-only masks.
-                            Image("wotd-home-dark")
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: rightW, height: height, alignment: .trailing)
-                                .clipped()
-                                .saturation(0.88)
-                                .opacity(0.94)
-                                .mask {
-                                    LinearGradient(stops: [
-                                        .init(color: .clear, location: 0),
-                                        .init(color: .black.opacity(0.04), location: 0.18),
-                                        .init(color: .black.opacity(0.16), location: 0.38),
-                                        .init(color: .black.opacity(0.52), location: 0.56),
-                                        .init(color: .black.opacity(0.94), location: 0.76),
-                                        .init(color: .black, location: 0.95),
-                                        .init(color: .black.opacity(0.86), location: 1)
-                                    ], startPoint: .leading, endPoint: .trailing)
-                                }
-                                .mask {
-                                    LinearGradient(stops: [
-                                        .init(color: .black.opacity(0.65), location: 0),
-                                        .init(color: .black.opacity(0.94), location: 0.12),
-                                        .init(color: .black, location: 0.78),
-                                        .init(color: .black.opacity(0.66), location: 1)
-                                    ], startPoint: .top, endPoint: .bottom)
-                                }
-                                .allowsHitTesting(false)
-                                .accessibilityHidden(true)
-                        } else {
+                        if !isDark {
                             HStack(spacing: 0) {
                                 Spacer(minLength: 0)
                                 Image("wotd-bg-light")
@@ -196,6 +165,11 @@ struct WordOfTheDayCard: View {
                     }
                     .frame(width: rightW, height: height)
                 }
+                .background {
+                    if isDark {
+                        WordOfDayNightScene(largeText: dynamicTypeSize.isAccessibilitySize)
+                    }
+                }
             }
             .frame(height: cardHeight)
             .frame(maxWidth: .infinity)
@@ -227,5 +201,50 @@ struct WordOfTheDayCard: View {
         .accessibilityLabel(Text("Word of the Day. \(word.word). \(word.phonetic). \(word.partOfSpeech.displayValue). \(word.definitions.first ?? "")"))
         .accessibilityHint(Text("Opens the dictionary entry"))
         .accessibilityAddTraits(.isButton)
+    }
+}
+
+
+/// The entire dark card shares one painted reading surface.
+private struct WordOfDayNightScene: View {
+    let largeText: Bool
+
+    var body: some View {
+        GeometryReader { geo in
+            let width = geo.size.width
+            let height = geo.size.height
+            ZStack(alignment: .trailing) {
+                Color(hex: "0B141C")
+                Image("wotd-home-dark")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: width * 0.70, height: height, alignment: .trailing)
+                    .clipped()
+                    .saturation(0.84)
+                    .colorMultiply(Color(red: 0.90, green: 0.92, blue: 0.96))
+                    .frame(width: width, height: height, alignment: .trailing)
+                    .mask {
+                        LinearGradient(stops: [
+                            .init(color: .clear, location: 0),
+                            .init(color: .clear, location: 0.28),
+                            .init(color: .black.opacity(0.04), location: 0.40),
+                            .init(color: .black.opacity(largeText ? 0.10 : 0.25), location: 0.54),
+                            .init(color: .black.opacity(largeText ? 0.30 : 0.68), location: 0.70),
+                            .init(color: .black.opacity(largeText ? 0.58 : 0.98), location: 0.88),
+                            .init(color: .black.opacity(largeText ? 0.54 : 0.88), location: 1)
+                        ], startPoint: .leading, endPoint: .trailing)
+                    }
+                    .mask {
+                        LinearGradient(stops: [
+                            .init(color: .black.opacity(0.52), location: 0),
+                            .init(color: .black.opacity(0.90), location: 0.16),
+                            .init(color: .black, location: 0.70),
+                            .init(color: .black.opacity(0.54), location: 1)
+                        ], startPoint: .top, endPoint: .bottom)
+                    }
+            }
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 }

@@ -29,6 +29,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -40,8 +42,6 @@ import com.lexicon.data.Article
 import com.lexicon.data.LexiconViewModel
 import com.lexicon.ui.theme.CardSurface
 import com.lexicon.ui.theme.DarkAccent
-import com.lexicon.ui.theme.DarkCard
-import com.lexicon.ui.theme.DarkChipBorder
 import com.lexicon.ui.theme.DarkForeground
 import com.lexicon.ui.theme.DarkMutedForeground
 import com.lexicon.ui.theme.DeepForest
@@ -66,8 +66,8 @@ fun ArticleCard(
         .takeIf { it != 0 }
         ?: ctx.resources.getIdentifier(article.thumbnail, "drawable", ctx.packageName)
 
-    val cardBg = if (isDark) DarkCard else CardSurface
-    val borderColor = if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.10f)
+    val cardBg = if (isDark) Color(0xFF0B141C) else CardSurface
+    val borderColor = if (isDark) Color(0xFFB6A486).copy(alpha = 0.14f) else DeepForest.copy(alpha = 0.10f)
     val titleColor = if (isDark) DarkForeground else DeepForest
     val metaColor = if (isDark) DarkMutedForeground else WarmGrey
     val iconColor = if (isDark) DarkAccent else OldWoodGold
@@ -96,15 +96,27 @@ fun ArticleCard(
             modifier = Modifier
                 .weight(0.33f)
                 .fillMaxHeight()
-                .padding(5.dp)
-                .clip(RoundedCornerShape(9.dp)),
+                .then(if (isDark) Modifier else Modifier.padding(5.dp).clip(RoundedCornerShape(9.dp))),
         ) {
-            Image(
-                painter = painterResource(resId),
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop,
-            )
+            if (resId != 0) {
+                Image(
+                    painter = painterResource(resId),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop,
+                )
+            }
+            if (isDark) {
+                // The illustration meets the paper through an ink fade, not
+                // through a second rounded thumbnail frame.
+                Box(Modifier.matchParentSize().background(
+                    Brush.horizontalGradient(
+                        0f to cardBg.copy(alpha = 0.06f),
+                        0.64f to Color.Transparent,
+                        1f to cardBg,
+                    )
+                ))
+            }
         }
 
         Column(

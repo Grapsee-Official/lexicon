@@ -27,13 +27,29 @@ struct ArticleCard: View {
             onOpen()
         } label: {
             HStack(spacing: 0) {
-                Image(thumbName)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 54, height: 80)
-                    .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
-                    .padding(5)
-                    .lexiconDecorative()
+                if isDark {
+                    Image(thumbName)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 60, height: 90)
+                        .clipped()
+                        .mask {
+                            LinearGradient(stops: [
+                                .init(color: .black.opacity(0.94), location: 0),
+                                .init(color: .black, location: 0.64),
+                                .init(color: .clear, location: 1)
+                            ], startPoint: .leading, endPoint: .trailing)
+                        }
+                        .lexiconDecorative()
+                } else {
+                    Image(thumbName)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 54, height: 80)
+                        .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+                        .padding(5)
+                        .lexiconDecorative()
+                }
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text(article.title)
@@ -66,14 +82,14 @@ struct ArticleCard: View {
                 .padding(.leading, 5)
                 .padding(.trailing, 10)
                 .padding(.vertical, 8)
-                .frame(width: 110, height: 90, alignment: .topLeading)
+                .frame(width: isDark ? 114 : 110, height: 90, alignment: .topLeading)
             }
             .frame(width: 174, height: 90)
-            .background(lexiconPalette(scheme).card)
+            .background(isDark ? Color(hex: "0B141C") : lexiconPalette(scheme).card)
             .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 13, style: .continuous)
-                    .stroke(lexiconPalette(scheme).border, lineWidth: 1)
+                    .stroke(isDark ? Color(hex: "B6A486").opacity(0.14) : lexiconPalette(scheme).border, lineWidth: 1)
             )
             .shadow(
                 color: isDark ? .clear : LexiconColors.foreground.opacity(0.06),
