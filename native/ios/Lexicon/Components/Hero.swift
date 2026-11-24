@@ -25,12 +25,7 @@ struct Hero: View {
     }
 
     private var adaptiveHeight: CGFloat {
-        let compact = measuredWidth < 360
-        let expanded = measuredWidth >= 600
-        if expanded && dynamicTypeSize.isAccessibilitySize { return 425 }
-        if expanded { return 365 }
-        if dynamicTypeSize.isAccessibilitySize { return 330 }
-        return compact ? (isDark ? 250 : 266) : (isDark ? 242 : 245)
+        min(390, max(180, measuredWidth * 356 / 591))
     }
 
     private var isDark: Bool { scheme == .dark }
@@ -123,7 +118,7 @@ struct Hero: View {
             let compact = totalWidth < 360
             let enlargedText = dynamicTypeSize.isAccessibilitySize
             let heroHeight = geo.size.height
-            let textWidth = totalWidth * ((compact || enlargedText) ? 0.60 : 0.52)
+            let textWidth = totalWidth * 0.40
 
             ZStack(alignment: .topLeading) {
                 HStack(spacing: 0) {
@@ -131,7 +126,7 @@ struct Hero: View {
                     Image("hero-light")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: totalWidth * (compact ? 0.82 : 0.88), height: heroHeight, alignment: .bottomTrailing)
+                        .frame(width: totalWidth * 0.70, height: heroHeight, alignment: .bottomTrailing)
                         .lexiconDecorative()
                 }
                 .frame(width: totalWidth, height: heroHeight)
@@ -145,31 +140,31 @@ struct Hero: View {
                     startPoint: .leading,
                     endPoint: .trailing
                 )
-                .frame(width: totalWidth * 0.60, height: heroHeight)
+                .frame(width: totalWidth * 0.49, height: heroHeight)
                 .allowsHitTesting(false)
                 .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 6) {
                     headline
                     Text("A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.")
-                        .font(.lexiconBody(11.5))
-                        .frame(maxWidth: textWidth * 0.88, alignment: .leading)
+                        .font(.lexiconBody(min(14, max(9, totalWidth * 13.5 / 591))))
+                        .frame(maxWidth: textWidth * 0.97, alignment: .leading)
                         .foregroundStyle(subtextColor)
                         .lineSpacing(2)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 .frame(width: textWidth, alignment: .leading)
-                .padding(.leading, 18)
-                .padding(.top, 2)
+                .padding(.leading, totalWidth * 32 / 591)
+                .padding(.top, totalWidth * 44 / 591)
 
                 VStack {
                     Spacer()
                     HStack(spacing: 0) {
-                        FloatingSearchBar()
-                            .frame(width: totalWidth * (compact ? 0.90 : 0.75))
+                        FloatingSearchBar(referencePageWidth: totalWidth)
+                            .frame(width: totalWidth * 427 / 591)
                         Spacer(minLength: 0)
                     }
-                    .padding(.leading, 16)
-                    .padding(.bottom, 2)
+                    .padding(.leading, totalWidth * 30 / 591)
+                    .padding(.bottom, 4)
                 }
                 .frame(width: totalWidth, height: heroHeight)
             }
@@ -192,7 +187,7 @@ struct Hero: View {
                     .lexiconDecorative()
             }
         }
-        .font(.lexiconDisplay(isDark ? min(35, max(18, measuredWidth * 33 / 591)) : (measuredWidth >= 600 ? 36 : 27), weight: .regular))
+        .font(.lexiconDisplay(min(35, max(18, measuredWidth * 33 / 591)), weight: .regular))
         .tracking(-0.3)
         .frame(maxWidth: .infinity, alignment: .leading)
         .lexiconCombinedElement()

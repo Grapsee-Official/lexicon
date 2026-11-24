@@ -83,7 +83,7 @@ fun WordOfTheDayCard(
     val compact = maxWidth < 328.dp
     val accessible = fontScale >= 1.5f || maxWidth.value / fontScale.coerceAtLeast(1f) < 250f
     val definition = word.definitions.firstOrNull().orEmpty()
-    val editorial = isDark && !accessible
+    val editorial = !accessible
     val shortDefinition = editorial && definition.length <= 72
     // The reference is a compact editorial spread, not a tall two-panel tile.
     // Give unusually long entries room, while matching the regular card to
@@ -91,7 +91,6 @@ fun WordOfTheDayCard(
     val referenceHeight = maxWidth * (175f / 531f)
     val cardHeight = when {
         accessible -> (128.dp * config.fontScale).coerceIn(190.dp, 320.dp)
-        !isDark -> if (compact) 144.dp else 118.dp
         definition.length > 105 -> maxOf(136.dp, referenceHeight)
         else -> maxOf(96.dp, referenceHeight) * config.fontScale.coerceIn(1f, 1.25f)
     }
@@ -100,7 +99,7 @@ fun WordOfTheDayCard(
     val leftBg = if (isDark) Color.Transparent else BrandGreen
     val rightBg = if (isDark) Color.Transparent else WotdRightSurface
     val nightInk = Color(0xFF08121A)
-    val cardBorder = if (isDark) Color(0xFFB6A486).copy(alpha = 0.17f) else DeepForest.copy(alpha = 0.12f)
+    val cardBorder = if (isDark) Color(0xFFB6A486).copy(alpha = 0.17f) else Color(0xFFA58A61).copy(alpha = .28f)
     val labelGold = if (isDark) Color(0xFFD0AD75) else WotdGoldLight
     val wordColor = if (isDark) DarkForeground else Color.White
     val phoneticColor = if (isDark) DarkMutedForeground else Color.White.copy(alpha = 0.78f)

@@ -192,13 +192,13 @@ private fun HomeFeed(
     val ink = if (state.isDark) DarkForeground else DeepForest
     val secondaryInk = if (state.isDark) DarkMutedForeground else WarmGrey
     // Every editorial section shares the reference's 30/591 page inset.
-    val pageInset = if (state.isDark) (pageWidth * (30f / 591f)).coerceIn(12.dp, 32.dp) else 16.dp
+    val pageInset = (pageWidth * (30f / 591f)).coerceIn(12.dp, 32.dp)
     val referenceGap = (pageWidth * (20f / 591f)).coerceIn(9.dp, 18.dp)
     LazyColumn(
         state = feedState,
         modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues(bottom = if (state.isDark) pageWidth * (10f / 591f) else 12.dp),
-        verticalArrangement = Arrangement.spacedBy(if (state.isDark) referenceGap else 11.dp),
+        verticalArrangement = Arrangement.spacedBy(referenceGap),
     ) {
         item(key = "masthead") {
             // Foreground only. Dark artwork lives behind the entire page.
@@ -239,11 +239,11 @@ private fun HomeFeed(
                 )
                 BoxWithConstraints(Modifier.fillMaxWidth()) {
                     val fontScale = LocalConfiguration.current.fontScale
-                    val gap = if (state.isDark) (maxWidth * (14f / 591f)).coerceIn(6.dp, 16.dp) else 8.dp
+                    val gap = (maxWidth * (14f / 591f)).coerceIn(6.dp, 16.dp)
                     val inset = pageInset
                     val count = homeShelfColumns(maxWidth.value, fontScale)
                     // Four full bookplates and a small continuation on the right.
-                    val peek = if (state.isDark && fontScale < 1.5f) maxWidth * (21f / 591f) else 0.dp
+                    val peek = if (fontScale < 1.5f) maxWidth * (21f / 591f) else 0.dp
                     val width = ((maxWidth - inset * 2 - gap * (count - 1) - peek) / count)
                         .coerceAtLeast(56.dp)
                     LazyRow(
@@ -255,14 +255,14 @@ private fun HomeFeed(
                             // The four visible reference bookplates keep the exact
                             // width. Longer continuation captions gain room without
                             // shrinking their font or their illustrated subject.
-                            val cellWidth = if (state.isDark) (width * continuationBookplateWidth(category.id))
-                                .coerceAtMost((maxWidth - inset * 2).coerceAtLeast(width)) else width
+                            val cellWidth = (width * continuationBookplateWidth(category.id))
+                                .coerceAtMost((maxWidth - inset * 2).coerceAtLeast(width))
                             CategoryCard(
                                 category = category,
                                 viewModel = viewModel,
                                 modifier = Modifier.width(cellWidth),
                                 shelfArtworkHeight = (width * (if (state.isDark) 85f / 117f else 0.82f)).coerceIn(46.dp, 96.dp),
-                                referenceShelfWidth = if (state.isDark) width else null,
+                                referenceShelfWidth = width,
                             )
                         }
                     }
@@ -283,7 +283,7 @@ private fun HomeFeed(
                 )
                 BoxWithConstraints(Modifier.fillMaxWidth()) {
                     val scale = LocalConfiguration.current.fontScale
-                    val editorial = state.isDark && scale < 1.5f
+                    val editorial = scale < 1.5f
                     val cardHeight = (maxWidth * (122f / 591f)).coerceIn(68.dp, 132.dp) * scale.coerceIn(1f, 1.4f)
                     val firstWidth = (maxWidth * (240f / 591f)).coerceIn(130.dp, 260.dp)
                     val followingWidth = (maxWidth * (180f / 591f)).coerceIn(112.dp, 200.dp)

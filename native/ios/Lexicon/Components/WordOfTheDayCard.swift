@@ -14,7 +14,6 @@ struct WordOfTheDayCard: View {
 
     private var cardHeight: CGFloat {
         if dynamicTypeSize.isAccessibilitySize { return 186 }
-        if !isDark { return measuredWidth < 360 ? 144 : 118 }
         if (word.definitions.first ?? "").count > 105 { return max(136, measuredWidth * 175 / 531) }
         return max(96, measuredWidth * 175 / 531)
     }
@@ -31,7 +30,7 @@ struct WordOfTheDayCard: View {
     }
 
     private var cardBorder: Color {
-        isDark ? Color(hex: "B6A486").opacity(0.17) : lexiconPalette(scheme).border
+        isDark ? Color(hex: "B6A486").opacity(0.17) : Color(hex: "A58A61").opacity(0.28)
     }
 
     private var labelGold: Color {
@@ -71,7 +70,7 @@ struct WordOfTheDayCard: View {
                 let compact = totalW < (isDark ? 328 : 360)
                 let leftW = totalW * 0.39
                 let rightW = totalW - leftW - 1
-                let editorial = isDark && !dynamicTypeSize.isAccessibilitySize
+                let editorial = !dynamicTypeSize.isAccessibilitySize
                 let shortDefinition = editorial && (word.definitions.first ?? "").count <= 72
 
                 HStack(spacing: 0) {

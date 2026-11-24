@@ -24,10 +24,10 @@ struct HomeScreen: View {
     var body: some View {
         GeometryReader { window in
           let pageWidth = min(640, window.size.width)
-          let pageInset: CGFloat = scheme == .dark ? min(32, max(12, pageWidth * 30 / 591)) : 16
+          let pageInset: CGFloat = min(32, max(12, pageWidth * 30 / 591))
           let referenceGap = min(18, max(9, pageWidth * 20 / 591))
           ScrollView {
-            VStack(spacing: scheme == .dark ? referenceGap : 11) {
+            VStack(spacing: referenceGap) {
                 VStack(spacing: scheme == .dark ? 10 : 11) {
                     Hero(sharedNightScene: scheme == .dark && !referenceHeroStacks(width: window.size.width, textSize: dynamicTypeSize))
                         .background {
@@ -66,19 +66,17 @@ struct HomeScreen: View {
                     )
                     let available = min(640, window.size.width)
                     let count = homeShelfColumns(width: available, textSize: dynamicTypeSize)
-                    let gap = scheme == .dark ? min(16, max(6, available * 14 / 591)) : 8
+                    let gap = min(16, max(6, available * 14 / 591))
                     let inset = pageInset
-                    let peek = scheme == .dark && !dynamicTypeSize.isAccessibilitySize ? available * 21 / 591 : 0
+                    let peek = !dynamicTypeSize.isAccessibilitySize ? available * 21 / 591 : 0
                     let bookplateWidth = max(56, (available - 2 * inset - CGFloat(count - 1) * gap - peek) / CGFloat(count))
                     ScrollView(.horizontal, showsIndicators: false) {
                         LazyHStack(alignment: .top, spacing: gap) {
                             ForEach(LexiconData.categories) { category in
-                                let cellWidth = scheme == .dark
-                                    ? min(max(bookplateWidth, available - 2 * inset), bookplateWidth * continuationBookplateWidth(category.id))
-                                    : bookplateWidth
+                                let cellWidth = min(max(bookplateWidth, available - 2 * inset), bookplateWidth * continuationBookplateWidth(category.id))
                                 CategoryCard(category: category,
                                     shelfArtworkHeight: min(96, max(46, bookplateWidth * (scheme == .dark ? 85.0 / 117.0 : 0.82))),
-                                    referenceShelfWidth: scheme == .dark ? bookplateWidth : nil)
+                                    referenceShelfWidth: bookplateWidth)
                                     .frame(width: cellWidth)
                             }
                         }
@@ -103,9 +101,9 @@ struct HomeScreen: View {
                             ForEach(LexiconData.articles) { a in
                                 ArticleCard(
                                     article: a,
-                                    shelfWidth: scheme == .dark && !dynamicTypeSize.isAccessibilitySize
+                                    shelfWidth: !dynamicTypeSize.isAccessibilitySize
                                         ? (a.id == "a1" ? min(260, max(130, window.size.width * 240 / 591)) : min(200, max(112, window.size.width * 180 / 591))) : nil,
-                                    shelfHeight: scheme == .dark && !dynamicTypeSize.isAccessibilitySize
+                                    shelfHeight: !dynamicTypeSize.isAccessibilitySize
                                         ? min(132, max(68, window.size.width * 122 / 591)) * (dynamicTypeSize >= .xxxLarge ? 1.4 : (dynamicTypeSize >= .xxLarge ? 1.25 : (dynamicTypeSize >= .xLarge ? 1.1 : 1))) : nil,
                                     onOpen: { vm.openLibraryArticle(a.id) }
                                 )

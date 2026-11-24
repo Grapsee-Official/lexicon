@@ -93,26 +93,17 @@ fun Hero(
         val expanded = maxWidth >= 600.dp
         val heroHeight = when {
             largeText -> 0.dp
-            isDark -> (maxWidth * (356f / 591f)).coerceIn(180.dp, 390.dp)
-            expanded -> 365.dp
-            compact -> 290.dp
-            else -> 278.dp
+            else -> (maxWidth * (356f / 591f)).coerceIn(180.dp, 390.dp)
         }
         val textWidth = when {
             largeText -> 1f
-            isDark -> 0.455f
-            compact || largeText -> 0.60f
-            else -> 0.52f
+            else -> 0.455f
         }
-        val headlineStyle = when {
-            isDark -> LexiconTextStyles.HeroHeadline.copy(
+        val headlineStyle = LexiconTextStyles.HeroHeadline.copy(
                 fontSize = (maxWidth.value * (33f / 591f)).coerceIn(18f, 35f).sp,
                 lineHeight = (maxWidth.value * (40f / 591f)).coerceIn(22f, 43f).sp,
             )
-            expanded -> LexiconTextStyles.HeroHeadline.copy(fontSize = 36.sp, lineHeight = 42.sp)
-            else -> LexiconTextStyles.HeroHeadline
-        }
-        val paragraphStyle = if (isDark && !largeText) {
+        val paragraphStyle = if (!largeText) {
             LexiconTextStyles.HeroParagraph.copy(
                 fontSize = (maxWidth.value * (13.5f / 591f)).coerceIn(9f, 14f).sp,
                 lineHeight = (maxWidth.value * (20f / 591f)).coerceIn(12f, 21f).sp,
@@ -135,18 +126,18 @@ fun Hero(
                     alignment = Alignment.BottomEnd,
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
-                        .fillMaxWidth(if (largeText) 0.85f else if (compact) 0.82f else 0.88f)
+                         .fillMaxWidth(if (largeText) 0.85f else 0.70f)
                         .height(if (largeText) 180.dp else heroHeight),
                 )
                 if (!largeText) Box(
                     modifier = Modifier
                         .align(Alignment.TopStart)
-                        .fillMaxWidth(0.60f)
+                        .fillMaxWidth(0.49f)
                         .height(heroHeight)
                         .background(
                             Brush.horizontalGradient(
-                                0.00f to WarmCream.copy(alpha = 0.94f),
-                                0.42f to WarmCream.copy(alpha = 0.72f),
+                                0.00f to WarmCream.copy(alpha = 0.98f),
+                                0.55f to WarmCream.copy(alpha = 0.85f),
                                 1.00f to Color.Transparent,
                             ),
                         ),
@@ -187,13 +178,13 @@ fun Hero(
                         text = "A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.",
                         color = subtextColor,
                         style = paragraphStyle,
-                        modifier = Modifier.fillMaxWidth(if (largeText) 1f else if (isDark) 0.85f else 0.88f),
+                        modifier = Modifier.fillMaxWidth(if (largeText) 1f else 0.95f),
                         maxLines = if (isDark || largeText) Int.MAX_VALUE else 7,
                     )
                 }
             }
 
-            if (isDark || largeText) {
+            run {
                 // Native vertical flow reserves real space for the full paragraph.
                 // Enlarged text increases the hero instead of hiding behind Search.
                 Column(
@@ -211,24 +202,14 @@ fun Hero(
                     FloatingSearchBar(
                         viewModel = viewModel,
                         sceneIntegrated = isDark,
-                        referencePageWidth = if (isDark && !largeText) maxWidth else null,
+                        referencePageWidth = if (!largeText) maxWidth else null,
                         modifier = if (largeText) Modifier.padding(start = 20.dp).fillMaxWidth(0.90f)
                             else Modifier.padding(start = maxWidth * (30f / 591f))
                                 .width(maxWidth * (427f / 591f)),
                     )
                 }
-            } else {
-                heroCopy(
-                    Modifier.align(Alignment.TopStart).fillMaxWidth(textWidth)
-                        .padding(start = 18.dp, top = 4.dp),
-                )
-                FloatingSearchBar(
-                    viewModel = viewModel,
-                    modifier = Modifier.align(Alignment.BottomStart)
-                        .padding(start = 16.dp, bottom = 2.dp)
-                        .fillMaxWidth(if (compact) 0.90f else 0.75f),
-                )
             }
+
         }
     }
 }
