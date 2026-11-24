@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.foundation.layout.width
 import com.lexicon.ui.enforceTouchTarget
 import com.lexicon.ui.sectionHeading
 import com.lexicon.ui.theme.BrandGreen
@@ -61,13 +62,13 @@ fun SectionHeader(
             style = if (compactType) LexiconTextStyles.SectionTitle.copy(fontSize = 14.5.sp, lineHeight = 18.sp)
                 else LexiconTextStyles.SectionTitle,
             maxLines = 2,
-            modifier = Modifier.weight(1f).sectionHeading(2),
+            modifier = (if (divider && compactType) Modifier else Modifier.weight(1f)).sectionHeading(2),
         )
 
         if (divider) {
             Box(
-                modifier = Modifier
-                    .size(width = 12.dp, height = 1.dp)
+                modifier = (if (compactType) Modifier.weight(1f) else Modifier.width(12.dp))
+                    .height(1.dp)
                     .background(lineColor),
             )
         } else {

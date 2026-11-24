@@ -22,7 +22,7 @@ struct SectionHeader: View {
                 .font(.lexiconDisplay(compactType ? 14.5 : 16.5, weight: .regular))
                 .tracking(-0.2)
                 .foregroundStyle(lexiconPalette(scheme).foreground)
-                .lineLimit(1)
+                .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
                 .layoutPriority(1)
                 .lexiconAccessibilityHeading(.h2)
 

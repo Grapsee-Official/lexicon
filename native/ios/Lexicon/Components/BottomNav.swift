@@ -29,8 +29,8 @@ struct BottomNav: View {
         VStack(spacing: 0) {
             if !docked { Spacer(minLength: 0) }
             navCapsule
-                .padding(.horizontal, 16)
-                .padding(.top, docked ? 10 : 0)
+                .padding(.horizontal, homeNight ? 12 : 16)
+                .padding(.top, docked ? (homeNight ? 4 : 10) : 0)
                 .padding(.bottom, 4)
         }
     }
@@ -60,7 +60,7 @@ struct BottomNav: View {
             }
             .buttonStyle(.plain)
             .shadow(color: isDark ? .clear : LexiconColors.foreground.opacity(0.16), radius: 6, y: 2)
-            .offset(y: -10)
+            .offset(y: homeNight ? 0 : -10)
             .accessibilityLabel(Text(LexiconAccessibilityLabels.search))
             .accessibilityAddTraits(.isButton)
             .frame(maxWidth: .infinity)

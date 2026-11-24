@@ -93,7 +93,7 @@ fun BottomNav(
     ) {
         Row(
             modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .padding(horizontal = if (homeNight) 12.dp else 16.dp, vertical = 6.dp)
             .fillMaxWidth()
             .then(
                 if (!isDark) {
@@ -177,8 +177,8 @@ fun BottomNav(
         // Matches the raised, bookish search seal in both original UI boards.
         Box(
             modifier = Modifier
-                .align(Alignment.TopCenter)
-                .offset(y = (-7).dp)
+                .align(if (homeNight) Alignment.Center else Alignment.TopCenter)
+                .offset(y = if (homeNight) 0.dp else (-7).dp)
                 .size(if (homeNight) 48.dp else 54.dp)
                 .then(
                     if (!isDark) Modifier.shadow(
