@@ -47,6 +47,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lexicon.BuildConfig
 import androidx.compose.ui.platform.LocalContext
@@ -149,6 +150,7 @@ fun HomeScreen(viewModel: LexiconViewModel) {
                 modifier = Modifier.weight(1f).clipToBounds(),
                 feedState = feedState,
                 stackedHero = stackedHero,
+                pageWidth = maxWidth,
                 onMastheadMeasured = { mastheadHeightPx = it },
                 onHeroMeasured = { heroHeightPx = it },
             )
@@ -167,6 +169,7 @@ private fun HomeFeed(
     modifier: Modifier = Modifier,
     feedState: LazyListState,
     stackedHero: Boolean,
+    pageWidth: Dp,
     onMastheadMeasured: (Int) -> Unit,
     onHeroMeasured: (Int) -> Unit,
 ) {
@@ -189,11 +192,14 @@ private fun HomeFeed(
     }
     val ink = if (state.isDark) DarkForeground else DeepForest
     val secondaryInk = if (state.isDark) DarkMutedForeground else WarmGrey
+    // Every editorial section shares the reference's 30/591 page inset.
+    val pageInset = if (state.isDark) (pageWidth * (30f / 591f)).coerceIn(12.dp, 32.dp) else 16.dp
+    val referenceGap = (pageWidth * (20f / 591f)).coerceIn(9.dp, 18.dp)
     LazyColumn(
         state = feedState,
         modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues(bottom = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(11.dp),
+        verticalArrangement = Arrangement.spacedBy(if (state.isDark) referenceGap else 11.dp),
     ) {
         item(key = "masthead") {
             // Foreground only. Dark artwork lives behind the entire page.
@@ -204,7 +210,7 @@ private fun HomeFeed(
                         modifier = Modifier.onSizeChanged { onHeroMeasured(it.height) })
                     TrendingTagRow(
                         viewModel = viewModel,
-                        modifier = Modifier.padding(horizontal = 16.dp),
+                        modifier = Modifier.padding(horizontal = pageInset),
                         sceneIntegrated = state.isDark,
                     )
                 }
@@ -215,29 +221,29 @@ private fun HomeFeed(
             WordOfTheDayCard(
                 word = homeWord,
                 viewModel = viewModel,
-                modifier = Modifier.padding(horizontal = if (state.isDark) 18.dp else 16.dp),
+                modifier = Modifier.padding(horizontal = pageInset),
             )
         }
 
         // Ten original bookplates in canonical order; load only visible artwork.
         item(key = "categories") {
-            Column(modifier = Modifier.padding(top = if (state.isDark) 7.dp else 0.dp),
-                verticalArrangement = Arrangement.spacedBy(9.dp)) {
+            Column(modifier = Modifier.padding(top = if (state.isDark) pageWidth * (10f / 591f) else 0.dp),
+                verticalArrangement = Arrangement.spacedBy(if (state.isDark) pageWidth * (12f / 591f) else 9.dp)) {
                 SectionHeader(
                     title = "Explore by Category",
                     actionLabel = "View all",
                     divider = false,
                     onAction = { viewModel.setActiveTab(TabKey.DICTIONARY) },
-                    modifier = Modifier.padding(horizontal = if (state.isDark) 18.dp else 16.dp),
+                    modifier = Modifier.padding(horizontal = pageInset),
                     homeEditorial = true,
                 )
                 BoxWithConstraints(Modifier.fillMaxWidth()) {
                     val fontScale = LocalConfiguration.current.fontScale
-                    val gap = if (state.isDark) (maxWidth * 0.023f).coerceIn(7.dp, 12.dp) else 8.dp
-                    val inset = if (state.isDark) (maxWidth * 0.05f).coerceIn(14.dp, 24.dp) else 16.dp
+                    val gap = if (state.isDark) (maxWidth * (14f / 591f)).coerceIn(6.dp, 16.dp) else 8.dp
+                    val inset = pageInset
                     val count = homeShelfColumns(maxWidth.value, fontScale)
                     // Four full bookplates and a small continuation on the right.
-                    val peek = if (state.isDark && fontScale < 1.5f) maxWidth * 0.045f else 0.dp
+                    val peek = if (state.isDark && fontScale < 1.5f) maxWidth * (21f / 591f) else 0.dp
                     val width = ((maxWidth - inset * 2 - gap * (count - 1) - peek) / count)
                         .coerceAtLeast(56.dp)
                     LazyRow(
@@ -250,7 +256,8 @@ private fun HomeFeed(
                                 category = category,
                                 viewModel = viewModel,
                                 modifier = Modifier.width(width),
-                                shelfArtworkHeight = (width * (if (state.isDark) 0.78f else 0.82f)).coerceIn(46.dp, 96.dp),
+                                shelfArtworkHeight = (width * (if (state.isDark) 85f / 117f else 0.82f)).coerceIn(46.dp, 96.dp),
+                                referenceShelfWidth = if (state.isDark) width else null,
                             )
                         }
                     }
@@ -259,14 +266,14 @@ private fun HomeFeed(
         }
 
         item(key = "library") {
-            Column(modifier = Modifier.padding(top = if (state.isDark) 6.dp else 0.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(modifier = Modifier.padding(top = if (state.isDark) pageWidth * (10f / 591f) else 0.dp),
+                verticalArrangement = Arrangement.spacedBy(if (state.isDark) pageWidth * (14f / 591f) else 10.dp)) {
                 SectionHeader(
                     title = "From the Library",
                     actionLabel = "View all articles",
                     divider = true,
                     onAction = { articleToRead = null; libraryOpen = true },
-                    modifier = Modifier.padding(horizontal = if (state.isDark) 18.dp else 16.dp),
+                    modifier = Modifier.padding(horizontal = pageInset),
                     homeEditorial = true,
                 )
                 BoxWithConstraints(Modifier.fillMaxWidth()) {
@@ -274,7 +281,7 @@ private fun HomeFeed(
                     val cardHeight = (maxWidth * (122f / 591f)).coerceIn(68.dp, 132.dp)
                     val firstWidth = (maxWidth * (240f / 591f)).coerceIn(130.dp, 260.dp)
                     val followingWidth = (maxWidth * (180f / 591f)).coerceIn(112.dp, 200.dp)
-                    LazyRow(contentPadding = PaddingValues(horizontal = if (state.isDark) 18.dp else 16.dp),
+                    LazyRow(contentPadding = PaddingValues(horizontal = pageInset),
                         horizontalArrangement = Arrangement.spacedBy(if (editorial) maxWidth * (13f / 591f) else 8.dp)) {
                         items(LexiconData.articles, key = { it.id }) { article ->
                             ArticleCard(article = article, viewModel = viewModel,

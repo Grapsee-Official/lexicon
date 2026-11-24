@@ -54,12 +54,15 @@ fun CategoryCard(
     viewModel: LexiconViewModel,
     modifier: Modifier = Modifier,
     shelfArtworkHeight: Dp? = null,
+    referenceShelfWidth: Dp? = null,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
     val fontScale = LocalConfiguration.current.fontScale
     val largeText = fontScale >= 1.5f
     val artHeight = shelfArtworkHeight ?: if (largeText) 100.dp else 74.dp
+    val referenceTitle = referenceShelfWidth?.value?.let { (it * 14f / 117f).coerceIn(9.5f, 14f) }
+    val referenceSubtitle = referenceShelfWidth?.value?.let { (it * 10f / 117f).coerceIn(7.5f, 11f) }
     val ctx = LocalContext.current
     // Future light bookplates have separate names; keep the current art
     // as a fallback until the ten new illustrations are supplied.
@@ -91,7 +94,8 @@ fun CategoryCard(
 
     Column(
         modifier = modifier
-            .heightIn(min = if (shelfArtworkHeight != null && !largeText) artHeight + 28.dp * fontScale + 8.dp
+            .heightIn(min = if (referenceShelfWidth != null && !largeText) maxOf(referenceShelfWidth * (147f / 117f), artHeight + 28.dp * fontScale + 8.dp)
+                else if (shelfArtworkHeight != null && !largeText) artHeight + 28.dp * fontScale + 8.dp
                 else artHeight + (if (largeText) 46.dp else 33.dp) * fontScale.coerceAtMost(2.5f) + 10.dp)
             .clip(shape)
             .background(
@@ -128,15 +132,16 @@ fun CategoryCard(
             Text(
                 text = category.title,
                 color = ink,
-                style = LexiconTextStyles.CategoryTitle.copy(fontSize = if (shelfArtworkHeight != null && !largeText) 10.5.sp else 12.sp, lineHeight = if (shelfArtworkHeight != null && !largeText) 12.5.sp else 14.sp),
+                style = LexiconTextStyles.CategoryTitle.copy(fontSize = if (referenceTitle != null && !largeText) referenceTitle.sp else if (shelfArtworkHeight != null && !largeText) 10.5.sp else 12.sp,
+                    lineHeight = if (referenceTitle != null && !largeText) (referenceTitle * 1.2f).sp else if (shelfArtworkHeight != null && !largeText) 12.5.sp else 14.sp),
                 textAlign = TextAlign.Center,
             )
             Text(
                 text = category.subtitle,
                 color = muted,
                 style = LexiconTextStyles.CategorySubtitle.copy(
-                    fontSize = if (isDark && shelfArtworkHeight != null && !largeText) 7.5.sp else if (shelfArtworkHeight != null) 8.5.sp else 9.5.sp,
-                    lineHeight = if (isDark && shelfArtworkHeight != null && !largeText) 10.sp else if (shelfArtworkHeight != null) 11.sp else 12.sp),
+                    fontSize = if (referenceSubtitle != null && !largeText) referenceSubtitle.sp else if (shelfArtworkHeight != null) 8.5.sp else 9.5.sp,
+                    lineHeight = if (referenceSubtitle != null && !largeText) (referenceSubtitle * 1.3f).sp else if (shelfArtworkHeight != null) 11.sp else 12.sp),
                 textAlign = TextAlign.Center,
             )
         }

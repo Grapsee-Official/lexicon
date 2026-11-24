@@ -23,8 +23,11 @@ struct HomeScreen: View {
 
     var body: some View {
         GeometryReader { window in
+          let pageWidth = min(640, window.size.width)
+          let pageInset: CGFloat = scheme == .dark ? min(32, max(12, pageWidth * 30 / 591)) : 16
+          let referenceGap = min(18, max(9, pageWidth * 20 / 591))
           ScrollView {
-            VStack(spacing: 11) {
+            VStack(spacing: scheme == .dark ? referenceGap : 11) {
                 VStack(spacing: scheme == .dark ? 10 : 11) {
                     Hero(sharedNightScene: scheme == .dark && !referenceHeroStacks(width: window.size.width, textSize: dynamicTypeSize))
                         .background {
@@ -35,7 +38,7 @@ struct HomeScreen: View {
                             }
                         }
                     TrendingTagRow(tags: LexiconData.trendingTags, sceneIntegrated: scheme == .dark)
-                        .padding(.horizontal, 16)
+                        .padding(.horizontal, pageInset)
                 }
                 .background {
                     if scheme == .dark {
@@ -49,27 +52,29 @@ struct HomeScreen: View {
                 }
 
                 WordOfTheDayCard(word: displayedHomeWord)
-                    .padding(.horizontal, scheme == .dark ? 18 : 16)
+                    .padding(.horizontal, pageInset)
 
                 // Ten original bookplates in the same canonical order as Android.
-                VStack(spacing: 10) {
+                VStack(spacing: scheme == .dark ? pageWidth * 12 / 591 : 10) {
                     SectionHeader(
                         title: "Explore by Category",
                         actionLabel: "View all",
                         divider: false,
                         onAction: { vm.setActiveTab(.dictionary) },
-                        homeEditorial: true
+                        homeEditorial: true, homeInset: pageInset
                     )
                     let available = min(640, window.size.width)
                     let count = homeShelfColumns(width: available, textSize: dynamicTypeSize)
-                    let gap = scheme == .dark ? min(12, max(7, available * 0.023)) : 8
-                    let inset = scheme == .dark ? min(24, max(14, available * 0.05)) : 16
-                    let peek = scheme == .dark && !dynamicTypeSize.isAccessibilitySize ? available * 0.045 : 0
+                    let gap = scheme == .dark ? min(16, max(6, available * 14 / 591)) : 8
+                    let inset = pageInset
+                    let peek = scheme == .dark && !dynamicTypeSize.isAccessibilitySize ? available * 21 / 591 : 0
                     let bookplateWidth = max(56, (available - 2 * inset - CGFloat(count - 1) * gap - peek) / CGFloat(count))
                     ScrollView(.horizontal, showsIndicators: false) {
                         LazyHStack(alignment: .top, spacing: gap) {
                             ForEach(LexiconData.categories) { category in
-                                CategoryCard(category: category, shelfArtworkHeight: min(96, max(46, bookplateWidth * (scheme == .dark ? 0.78 : 0.82))))
+                                CategoryCard(category: category,
+                                    shelfArtworkHeight: min(96, max(46, bookplateWidth * (scheme == .dark ? 85.0 / 117.0 : 0.82))),
+                                    referenceShelfWidth: scheme == .dark ? bookplateWidth : nil)
                                     .frame(width: bookplateWidth)
                             }
                         }
@@ -78,16 +83,16 @@ struct HomeScreen: View {
                     // Let the tallest visible caption determine shelf height.
                     // No fixed GeometryReader frame to clip large text.
                 }
-                .padding(.top, scheme == .dark ? 7 : 0)
+                .padding(.top, scheme == .dark ? pageWidth * 10 / 591 : 0)
 
                 // From the Library (with horizontal hairline divider)
-                VStack(spacing: 10) {
+                VStack(spacing: scheme == .dark ? pageWidth * 14 / 591 : 10) {
                     SectionHeader(
                         title: "From the Library",
                         actionLabel: "View all articles",
                         divider: true,
                         onAction: { vm.openLibrary() },
-                        homeEditorial: true
+                        homeEditorial: true, homeInset: pageInset
                     )
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: scheme == .dark ? window.size.width * 13 / 591 : 10) {
@@ -102,10 +107,10 @@ struct HomeScreen: View {
                                 )
                             }
                         }
-                        .padding(.horizontal, scheme == .dark ? 18 : 16)
+                        .padding(.horizontal, pageInset)
                     }
                 }
-                .padding(.top, scheme == .dark ? 6 : 0)
+                .padding(.top, scheme == .dark ? pageWidth * 10 / 591 : 0)
             }
             .padding(.top, 1)
             .padding(.bottom, 12)

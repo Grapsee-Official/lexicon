@@ -11,6 +11,7 @@ struct SectionHeader: View {
     var divider: Bool = false
     var onAction: (() -> Void)? = nil
     var homeEditorial: Bool = false
+    var homeInset: CGFloat? = nil
     @Environment(\.colorScheme) private var scheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     private var editorial: Bool { scheme == .dark && homeEditorial }
@@ -53,6 +54,6 @@ struct SectionHeader: View {
             .accessibilityHint(Text("View all items in this section"))
             .accessibilityAddTraits(.isButton)
         }
-        .padding(.horizontal, editorial ? 18 : 16)
+        .padding(.horizontal, homeInset ?? (editorial ? 18 : 16))
     }
 }

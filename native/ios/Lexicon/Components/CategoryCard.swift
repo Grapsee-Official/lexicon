@@ -6,6 +6,7 @@ import UIKit
 struct CategoryCard: View {
     let category: LexiconCategory
     var shelfArtworkHeight: CGFloat? = nil
+    var referenceShelfWidth: CGFloat? = nil
     @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -23,6 +24,13 @@ struct CategoryCard: View {
     }
     private var artHeight: CGFloat { shelfArtworkHeight ?? (largeText ? 100 : 74) }
     @ScaledMetric(relativeTo: .caption) private var captionHeight: CGFloat = 28
+    private var referenceTitle: CGFloat? { referenceShelfWidth.map { min(14, max(9.5, $0 * 14 / 117)) } }
+    private var referenceSubtitle: CGFloat? { referenceShelfWidth.map { min(11, max(7.5, $0 * 10 / 117)) } }
+    private var minimumHeight: CGFloat {
+        let content = artHeight + captionHeight + (shelfArtworkHeight != nil && !largeText ? 5 : 10)
+        if !largeText, let width = referenceShelfWidth { return max(content, width * 147 / 117) }
+        return content
+    }
 
     var body: some View {
         let p = lexiconPalette(scheme)
@@ -50,11 +58,11 @@ struct CategoryCard: View {
 
                 VStack(spacing: shelfArtworkHeight != nil && !largeText ? 1 : 2) {
                     Text(category.title)
-                        .font(.lexiconDisplay(shelfArtworkHeight != nil && !largeText ? 10.5 : 12))
+                        .font(.lexiconDisplay(!largeText ? (referenceTitle ?? (shelfArtworkHeight != nil ? 10.5 : 12)) : 12))
                         .foregroundStyle(p.foreground)
                         .fixedSize(horizontal: false, vertical: true)
                     Text(category.subtitle)
-                        .font(.lexiconBody(isDark && shelfArtworkHeight != nil && !largeText ? 7.5 : (shelfArtworkHeight != nil ? 8.5 : 9.5)))
+                        .font(.lexiconBody(!largeText ? (referenceSubtitle ?? (shelfArtworkHeight != nil ? 8.5 : 9.5)) : 9.5))
                         .foregroundStyle(isDark ? Color(hex: "B4AD9E") : p.mutedForeground)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -64,7 +72,7 @@ struct CategoryCard: View {
             .padding(.horizontal, largeText ? 7 : 3)
             .padding(.vertical, isDark && !largeText ? 4 : 8)
             .frame(maxWidth: .infinity)
-            .frame(minHeight: artHeight + captionHeight + (shelfArtworkHeight != nil && !largeText ? 5 : 10), alignment: .top)
+            .frame(minHeight: minimumHeight, alignment: .top)
             .background {
                 if isDark {
                     LinearGradient(stops: [
