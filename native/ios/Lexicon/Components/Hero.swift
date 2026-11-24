@@ -179,6 +179,7 @@ struct Hero: View {
 struct HomeNightScene: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     var extendsBehindTags: Bool = false
+    var headerInset: CGFloat = 0
 
     var body: some View {
         GeometryReader { geo in
@@ -186,12 +187,14 @@ struct HomeNightScene: View {
             let height = geo.size.height
             let largeText = dynamicTypeSize.isAccessibilitySize
             let edge: CGFloat = largeText ? 0.69 : (width < 360 ? 0.52 : 0.49)
+            let header = min(height, max(0, headerInset))
+            let contentHeight = max(1, height - header)
             let stretch: CGFloat = largeText ? 1 : 1.04
-            let artWidth = min(width * (largeText ? 0.96 : 0.98), height * 1.5 / stretch * 1.08)
+            let artWidth = min(width * (largeText ? 0.96 : 0.98), contentHeight * 1.5 / stretch * 1.08)
             let artHeight = artWidth / 1.5 * stretch
             let artX = max(width * 0.63 - artWidth * 0.54, width - artWidth * 0.95)
-            let moonY = min(height * (extendsBehindTags ? 0.09 : 0.10), width * 0.055)
-            let artY = largeText ? height * 0.90 - artHeight : moonY - artHeight * 0.17
+            let moonY = min(contentHeight * (extendsBehindTags ? 0.09 : 0.10), width * 0.055)
+            let artY = header + (largeText ? contentHeight * 0.90 - artHeight : moonY - artHeight * 0.17)
 
             PreparedArtworkImage(name: "hero-dark", treatment: .moonlit)
                 // Resizable image fills this deliberately adjusted scene aspect.

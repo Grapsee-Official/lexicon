@@ -45,6 +45,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lexicon.R
@@ -218,7 +219,11 @@ fun Hero(
 // The painting belongs to the masthead, not the text or search layout.
 // Home supplies a layer spanning the hero and the trending controls.
 @Composable
-fun HomeNightScene(modifier: Modifier = Modifier, extendsBehindTags: Boolean = false) {
+fun HomeNightScene(
+    modifier: Modifier = Modifier,
+    extendsBehindTags: Boolean = false,
+    headerInset: Dp = 0.dp,
+) {
     val largeText = LocalConfiguration.current.fontScale > 1.2f
     val painting = rememberPreparedArtwork(R.drawable.hero_dark, ArtworkTreatment.MOONLIT)
     Canvas(modifier.graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }) {
@@ -229,16 +234,18 @@ fun HomeNightScene(modifier: Modifier = Modifier, extendsBehindTags: Boolean = f
         // Source/reference landmark comparison: reduce the horizontal scale
         // and gently extend the vertical composition. This brings the book
         // into the lower search area without enlarging the roof and crescent.
+        val header = headerInset.toPx().coerceIn(0f, size.height)
+        val contentHeight = (size.height - header).coerceAtLeast(1f)
         val stretch = if (largeText) 1f else 1.04f
         val artWidth = minOf(size.width * (if (largeText) 0.96f else 0.98f),
-            size.height * aspect / stretch * 1.08f)
+            contentHeight * aspect / stretch * 1.08f)
         val artHeight = artWidth / aspect * stretch
         val artX = maxOf(size.width * 0.63f - artWidth * 0.54f,
             size.width - artWidth * 0.95f)
         // Source landmarks: moon ~54%,17%; book center ~62%,69%.
         // Reserve the extra tag area for the fading foreground, not extra sky.
-        val moonY = minOf(size.height * (if (extendsBehindTags) 0.09f else 0.10f), size.width * 0.055f)
-        val artY = if (largeText) size.height * 0.90f - artHeight
+        val moonY = minOf(contentHeight * (if (extendsBehindTags) 0.09f else 0.10f), size.width * 0.055f)
+        val artY = header + if (largeText) contentHeight * 0.90f - artHeight
             else moonY - artHeight * 0.17f
         clipRect {
             translate(left = artX, top = artY) {

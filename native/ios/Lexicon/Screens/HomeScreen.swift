@@ -31,7 +31,12 @@ struct HomeScreen: View {
                 }
                 .background {
                     if scheme == .dark {
-                        HomeNightScene(extendsBehindTags: true)
+                        GeometryReader { geometry in
+                            Color.clear.preference(
+                                key: HomeMastheadFrameKey.self,
+                                value: geometry.frame(in: .named("homeScene"))
+                            )
+                        }
                     }
                 }
 
@@ -93,6 +98,23 @@ struct HomeScreen: View {
             .padding(.bottom, 160)
         }
         .background(scheme == .dark ? Color.clear : LexiconColors.background)
+    }
+}
+
+// The header and masthead publish geometry in the page coordinate space.
+// ContentView owns the actual painting, outside the clipping scroll view.
+struct HomeMastheadFrameKey: PreferenceKey {
+    static var defaultValue: CGRect = .zero
+    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
+        let next = nextValue()
+        if !next.isEmpty { value = next }
+    }
+}
+
+struct HomeHeaderHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
     }
 }
 

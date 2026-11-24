@@ -11,6 +11,8 @@ struct ContentView: View {
     @Environment(\.colorScheme) private var scheme
 
     @State private var toastMessage: String? = nil
+    @State private var homeMasthead: CGRect = .zero
+    @State private var homeHeaderHeight: CGFloat = 0
 
     private var selectedWordBinding: Binding<WordEntry?> {
         Binding(
@@ -23,6 +25,18 @@ struct ContentView: View {
         ZStack {
             if scheme == .dark && vm.route == .home && !vm.libraryOpen {
                 HomeNightBackdrop()
+
+                // The sky belongs to the entire page, not to a clipped hero.
+                // Translate it with the scroll content, leaving the header fixed.
+                if !homeMasthead.isEmpty && homeHeaderHeight > 0 &&
+                    homeMasthead.maxY > homeHeaderHeight {
+                    HomeNightScene(extendsBehindTags: true, headerInset: homeHeaderHeight)
+                        .frame(width: homeMasthead.width, height: homeMasthead.height + homeHeaderHeight)
+                        .position(x: homeMasthead.midX,
+                                  y: homeMasthead.midY - homeHeaderHeight / 2)
+                        .accessibilityHidden(true)
+                        .allowsHitTesting(false)
+                }
             } else {
                 lexiconPalette(scheme).background.ignoresSafeArea()
             }
@@ -30,6 +44,11 @@ struct ContentView: View {
             VStack(spacing: 0) {
                 if !vm.libraryOpen && (vm.route == .home || vm.route == .more) {
                     LexiconHeader()
+                        .background {
+                            GeometryReader { geo in
+                                Color.clear.preference(key: HomeHeaderHeightKey.self, value: geo.size.height)
+                            }
+                        }
                 }
 
                 activeScreen
@@ -83,6 +102,9 @@ struct ContentView: View {
                 .allowsHitTesting(false)
             }
         }
+        .coordinateSpace(name: "homeScene")
+        .onPreferenceChange(HomeMastheadFrameKey.self) { homeMasthead = $0 }
+        .onPreferenceChange(HomeHeaderHeightKey.self) { homeHeaderHeight = $0 }
         .background(lexiconPalette(scheme).background)
         .sheet(item: selectedWordBinding) { (word: WordEntry) in
             WordDetailSheet(word: word)

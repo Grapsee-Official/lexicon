@@ -16,7 +16,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -28,6 +31,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -93,14 +100,42 @@ fun HomeScreen(viewModel: LexiconViewModel) {
         ))
     } else Modifier.background(WarmCream)
 
+    val feedState = rememberLazyListState()
+    val density = LocalDensity.current
+    var headerHeightPx by remember { mutableStateOf(0) }
+    var mastheadHeightPx by remember { mutableStateOf(0) }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .clipToBounds()
             .then(background),
     ) {
+        // Render the painting once in the PAGE coordinate space. Its upper
+        // sky can cross the header/feed boundary; it is not clipped by LazyColumn.
+        // Its translation tracks the masthead, while header controls stay fixed.
+        if (state.isDark && headerHeightPx > 0 && mastheadHeightPx > 0 &&
+            feedState.firstVisibleItemIndex == 0) {
+            HomeNightScene(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .offset { IntOffset(0, -feedState.firstVisibleItemScrollOffset) }
+                    .height(with(density) { (headerHeightPx + mastheadHeightPx).toDp() }),
+                extendsBehindTags = true,
+                headerInset = with(density) { headerHeightPx.toDp() },
+            )
+        }
+
         Column(modifier = Modifier.fillMaxSize()) {
-            LexiconHeader(viewModel = viewModel)
-            HomeFeed(viewModel = viewModel)
+            LexiconHeader(
+                viewModel = viewModel,
+                modifier = Modifier.onSizeChanged { headerHeightPx = it.height },
+            )
+            HomeFeed(
+                viewModel = viewModel,
+                feedState = feedState,
+                onMastheadMeasured = { mastheadHeightPx = it },
+            )
         }
 
         Box(
@@ -114,7 +149,11 @@ fun HomeScreen(viewModel: LexiconViewModel) {
 }
 
 @Composable
-private fun HomeFeed(viewModel: LexiconViewModel) {
+private fun HomeFeed(
+    viewModel: LexiconViewModel,
+    feedState: LazyListState,
+    onMastheadMeasured: (Int) -> Unit,
+) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     // Match the canonical Wanderlust reference during explicit debug captures;
@@ -135,17 +174,14 @@ private fun HomeFeed(viewModel: LexiconViewModel) {
     val ink = if (state.isDark) DarkForeground else DeepForest
     val secondaryInk = if (state.isDark) DarkMutedForeground else WarmGrey
     LazyColumn(
+        state = feedState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = 160.dp),
         verticalArrangement = Arrangement.spacedBy(11.dp),
     ) {
         item(key = "masthead") {
-            // The illustration now spans the headline, search, and tag shelf.
-            // The light appearance retains its original independent image.
-            Box(Modifier.fillMaxWidth()) {
-                if (state.isDark) {
-                    HomeNightScene(Modifier.matchParentSize(), extendsBehindTags = true)
-                }
+            // Foreground only. Dark artwork lives behind the entire page.
+            Box(Modifier.fillMaxWidth().onSizeChanged { onMastheadMeasured(it.height) }) {
                 Column(verticalArrangement = Arrangement.spacedBy(if (state.isDark) 5.dp else 11.dp)) {
                     Hero(viewModel = viewModel, sharedNightScene = state.isDark)
                     TrendingTagRow(
