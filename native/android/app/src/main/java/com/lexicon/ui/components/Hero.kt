@@ -410,8 +410,11 @@ private fun prepareArtwork(
     bitmap.getPixels(pixels, 0, w, 0, 0, w, h)
     val moon = treatment == ArtworkTreatment.MOONLIT
     if (moon) {
+        val sky = OriginalSkyPatch(pixels, w, h)
+        refinePaintedStars(pixels, w, h)
         gradeMoonlitPainting(pixels, w, h)
         val composed = reframeMoonlitSubjects(pixels, w, h)
+        sky.extendBehind(composed, w, h)
         return Bitmap.createBitmap(composed, w, h, Bitmap.Config.ARGB_8888).asImageBitmap()
     }
     val lightField = ArtworkLightField(w, h)
@@ -856,4 +859,124 @@ private fun reframeMoonlitSubjects(source: IntArray, w: Int, h: Int): IntArray {
             (color(16) shl 16) or (color(8) shl 8) or color(0)
     }
     return result
+}
+
+
+/** The isolated decorative starbursts in the uploaded painting are much
+ * larger than the reference's distant stars. Reduce only separate alpha
+ * components in the upper sky, never the connected moon/cottage/foliage.
+ * The resampled pigment is the original star, not a generated replacement. */
+private fun refinePaintedStars(pixels: IntArray, w: Int, h: Int) {
+    val topH = (h * 0.32f).toInt().coerceIn(1, h)
+    val seen = BooleanArray(w * topH)
+    val queue = IntArray(w * topH)
+    for (start in seen.indices) {
+        if (seen[start] || (pixels[start] ushr 24) <= 8) continue
+        var head = 0
+        var tail = 1
+        queue[0] = start
+        seen[start] = true
+        var left = start % w
+        var right = left
+        var top = start / w
+        var bottom = top
+        while (head < tail) {
+            val i = queue[head++]
+            val x = i % w
+            val y = i / w
+            left = minOf(left, x); right = maxOf(right, x)
+            top = minOf(top, y); bottom = maxOf(bottom, y)
+            for (dy in -1..1) for (dx in -1..1) {
+                val nx = x + dx; val ny = y + dy
+                if (nx !in 0 until w || ny !in 0 until topH) continue
+                val n = ny * w + nx
+                if (!seen[n] && (pixels[n] ushr 24) > 8) {
+                    seen[n] = true
+                    queue[tail++] = n
+                }
+            }
+        }
+        val bw = right - left + 1
+        val bh = bottom - top + 1
+        if (bottom >= topH - 1 || left < w * 0.30f || bw > w * 0.055f ||
+            bh > h * 0.085f || tail < 20 || maxOf(bw.toFloat() / w, bh.toFloat() / h) < 0.016f) continue
+        val scale = if (maxOf(bw.toFloat() / w, bh.toFloat() / h) > 0.03f) 0.43f else 0.68f
+        val cx = (left + right) / 2f
+        val cy = (top + bottom) / 2f
+        val sum = Array(4) { FloatArray(bw * bh) }
+        for (j in 0 until tail) {
+            val i = queue[j]
+            val p = pixels[i]
+            val nx = (cx + (i % w - cx) * scale).roundToInt().coerceIn(left, right)
+            val ny = (cy + (i / w - cy) * scale).roundToInt().coerceIn(top, bottom)
+            val n = (ny - top) * bw + nx - left
+            val a = (p ushr 24) / 255f * scale * scale
+            sum[0][n] += a
+            sum[1][n] += a * ((p ushr 16) and 255)
+            sum[2][n] += a * ((p ushr 8) and 255)
+            sum[3][n] += a * (p and 255)
+            pixels[i] = 0
+        }
+        for (n in sum[0].indices) {
+            val a = sum[0][n]
+            if (a < 0.003f) continue
+            fun color(c: Int) = (sum[c][n] / a).roundToInt().coerceIn(0, 255)
+            val i = (top + n / bw) * w + left + n % bw
+            if ((pixels[i] ushr 24) > 8) continue
+            pixels[i] = ((a * 255f).roundToInt().coerceIn(0, 255) shl 24) or
+                (color(1) shl 16) or (color(2) shl 8) or color(3)
+        }
+    }
+}
+
+/** Extend the genuine dark-blue sky pigment into the empty upper margins.
+ * A small patch is sampled from the original sky between tree and cottage.
+ * Mirror sampling avoids a rectangular seam; reject bright/non-sky pixels.
+ * This lives behind the existing RGBA painting, not over the reading text. */
+private class OriginalSkyPatch(source: IntArray, w: Int, h: Int) {
+    private val side = 48
+    private val texture = FloatArray(side * side) { i ->
+        val x = ((0.49f + 0.065f * (i % side) / (side - 1)) * (w - 1)).roundToInt()
+        val y = ((0.25f + 0.060f * (i / side) / (side - 1)) * (h - 1)).roundToInt()
+        val p = source[y * w + x]
+        val r = ((p ushr 16) and 255) / 255f
+        val g = ((p ushr 8) and 255) / 255f
+        val b = (p and 255) / 255f
+        if ((p ushr 24) >= 200 && b > r && g > r) {
+            (0.2126f * r + 0.7152f * g + 0.0722f * b - 0.12f).coerceIn(-0.045f, 0.065f)
+        } else 0f
+    }
+
+    private fun mirror(value: Float): Float {
+        val v = value % 2f
+        return if (v <= 1f) v else 2f - v
+    }
+
+    fun extendBehind(pixels: IntArray, w: Int, h: Int) {
+        fun smooth(lo: Float, hi: Float, v: Float) = smoothArtworkStep(lo, hi, v)
+        fun byte(v: Float) = (v * 255f).roundToInt().coerceIn(0, 255)
+        for (y in 0 until (h * 0.57f).toInt()) {
+            val v = y.toFloat() / maxOf(1, h - 1)
+            for (x in 0 until w) {
+                val u = x.toFloat() / maxOf(1, w - 1)
+                val shape = smooth(0.23f, 0.47f, u) * (1f - smooth(0.91f, 1f, u)) *
+                    smooth(0f, 0.075f, v) * (1f - smooth(0.35f, 0.57f, v))
+                if (shape < 0.002f) continue
+                val tx = (mirror(u * 3.1f + v * 0.55f) * (side - 1)).roundToInt()
+                val ty = (mirror(v * 3.7f + u * 0.35f) * (side - 1)).roundToInt()
+                val grain = texture[ty * side + tx] * 0.30f
+                val i = y * w + x
+                val p = pixels[i]
+                val a = (p ushr 24) / 255f
+                val behind = 0.68f * shape * (1f - a)
+                val out = a + behind
+                if (out < 0.004f) continue
+                fun channel(shift: Int, base: Float) = byte(
+                    ((((p ushr shift) and 255) / 255f) * a + (base + grain).coerceIn(0f, 1f) * behind) / out
+                )
+                pixels[i] = (byte(out) shl 24) or (channel(16, 0.029f) shl 16) or
+                    (channel(8, 0.064f) shl 8) or channel(0, 0.111f)
+            }
+        }
+    }
 }

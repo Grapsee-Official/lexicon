@@ -433,8 +433,11 @@ private enum HomeArtworkProcessor {
                 }
             }
         } else if treatment == .moonlit {
+            let sky = OriginalSkyPatch(bytes, width: w, height: h)
+            refinePaintedStars(&bytes, width: w, height: h)
             gradeMoonlitPainting(&bytes, width: w, height: h)
             bytes = reframeMoonlitSubjects(bytes, width: w, height: h)
+            sky.extendBehind(&bytes, width: w, height: h)
         } else {
             var lightField = ArtworkLightField(width: w, height: h)
             for i in stride(from: 0, to: bytes.count, by: 4) {
@@ -914,4 +917,126 @@ private func reframeMoonlitSubjects(_ source: [UInt8], width w: Int, height h: I
         }
     }
     return result
+}
+
+
+/// Shrink only disconnected upper-sky ornaments, retaining their original
+/// premultiplied pigment and protecting the connected moon and landscape.
+private func refinePaintedStars(_ bytes: inout [UInt8], width w: Int, height h: Int) {
+    let topH = max(1, min(h, Int(Float(h) * 0.32)))
+    var seen = [Bool](repeating: false, count: w * topH)
+    var queue = [Int](repeating: 0, count: w * topH)
+    for start in seen.indices {
+        if seen[start] || bytes[start * 4 + 3] <= 8 { continue }
+        var head = 0, tail = 1
+        queue[0] = start; seen[start] = true
+        var left = start % w, right = start % w
+        var top = start / w, bottom = start / w
+        while head < tail {
+            let i = queue[head]; head += 1
+            let x = i % w, y = i / w
+            left = min(left, x); right = max(right, x)
+            top = min(top, y); bottom = max(bottom, y)
+            for dy in -1...1 {
+                for dx in -1...1 {
+                    let nx = x + dx, ny = y + dy
+                    if nx < 0 || nx >= w || ny < 0 || ny >= topH { continue }
+                    let n = ny * w + nx
+                    if !seen[n] && bytes[n * 4 + 3] > 8 {
+                        seen[n] = true
+                        queue[tail] = n; tail += 1
+                    }
+                }
+            }
+        }
+        let bw = right - left + 1, bh = bottom - top + 1
+        let fraction = max(Float(bw) / Float(w), Float(bh) / Float(h))
+        if bottom >= topH - 1 || Float(left) < Float(w) * 0.30 ||
+            Float(bw) > Float(w) * 0.055 || Float(bh) > Float(h) * 0.085 ||
+            tail < 20 || fraction < 0.016 { continue }
+        let scale: Float = fraction > 0.03 ? 0.43 : 0.68
+        let cx = Float(left + right) / 2, cy = Float(top + bottom) / 2
+        var sum = [Float](repeating: 0, count: bw * bh * 4)
+        for j in 0..<tail {
+            let p = queue[j], i = p * 4
+            let nx = min(right, max(left, Int((cx + (Float(p % w) - cx) * scale).rounded())))
+            let ny = min(bottom, max(top, Int((cy + (Float(p / w) - cy) * scale).rounded())))
+            let n = ((ny - top) * bw + nx - left) * 4
+            for c in 0..<4 {
+                sum[n + c] += Float(bytes[i + c]) * scale * scale
+                bytes[i + c] = 0
+            }
+        }
+        for n in 0..<(bw * bh) {
+            let a = sum[n * 4 + 3]
+            if a < 0.765 { continue }
+            let i = ((top + n / bw) * w + left + n % bw) * 4
+            if bytes[i + 3] > 8 { continue }
+            let normalization = min(1, 255 / a)
+            for c in 0..<4 {
+                bytes[i + c] = UInt8(min(255, max(0, (sum[n * 4 + c] * normalization).rounded())))
+            }
+        }
+    }
+}
+
+/// Source-derived sky texture behind the vignette. All pixel operations
+/// match the Compose recipe, with premultiplied RGBA storage on iOS.
+private struct OriginalSkyPatch {
+    private let side = 48
+    private let texture: [Float]
+
+    init(_ bytes: [UInt8], width w: Int, height h: Int) {
+        let side = 48
+        texture = (0..<(side * side)).map { i in
+            let u = 0.49 + 0.065 * Float(i % side) / Float(side - 1)
+            let v = 0.25 + 0.060 * Float(i / side) / Float(side - 1)
+            let x = Int((u * Float(w - 1)).rounded())
+            let y = Int((v * Float(h - 1)).rounded())
+            let p = (y * w + x) * 4
+            let a = Float(bytes[p + 3]) / 255
+            if a < 200.0 / 255.0 { return 0 }
+            let r = min(1, Float(bytes[p]) / 255 / a)
+            let g = min(1, Float(bytes[p + 1]) / 255 / a)
+            let b = min(1, Float(bytes[p + 2]) / 255 / a)
+            if b <= r || g <= r { return 0 }
+            let l = 0.2126 * r + 0.7152 * g + 0.0722 * b
+            return min(0.065, max(-0.045, l - 0.12))
+        }
+    }
+
+    private func mirror(_ value: Float) -> Float {
+        let v = value.truncatingRemainder(dividingBy: 2)
+        return v <= 1 ? v : 2 - v
+    }
+
+    func extendBehind(_ bytes: inout [UInt8], width w: Int, height h: Int) {
+        func smooth(_ lo: Float, _ hi: Float, _ v: Float) -> Float {
+            let t = min(1, max(0, (v - lo) / (hi - lo)))
+            return t * t * (3 - 2 * t)
+        }
+        func byte(_ v: Float) -> UInt8 { UInt8(min(255, max(0, (v * 255).rounded()))) }
+        for y in 0..<Int(Float(h) * 0.57) {
+            let v = Float(y) / Float(max(1, h - 1))
+            for x in 0..<w {
+                let u = Float(x) / Float(max(1, w - 1))
+                let sx = smooth(0.23, 0.47, u) * (1 - smooth(0.91, 1, u))
+                let sy = smooth(0, 0.075, v) * (1 - smooth(0.35, 0.57, v))
+                let shape = sx * sy
+                if shape < 0.002 { continue }
+                let tx = Int((mirror(u * 3.1 + v * 0.55) * Float(side - 1)).rounded())
+                let ty = Int((mirror(v * 3.7 + u * 0.35) * Float(side - 1)).rounded())
+                let grain = texture[ty * side + tx] * 0.30
+                let i = (y * w + x) * 4
+                let a = Float(bytes[i + 3]) / 255
+                let behind = 0.68 * shape * (1 - a)
+                let out = a + behind
+                if out < 0.004 { continue }
+                bytes[i] = byte(Float(bytes[i]) / 255 + min(1, max(0, 0.029 + grain)) * behind)
+                bytes[i + 1] = byte(Float(bytes[i + 1]) / 255 + min(1, max(0, 0.064 + grain)) * behind)
+                bytes[i + 2] = byte(Float(bytes[i + 2]) / 255 + min(1, max(0, 0.111 + grain)) * behind)
+                bytes[i + 3] = byte(out)
+            }
+        }
+    }
 }
