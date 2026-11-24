@@ -252,10 +252,15 @@ private fun HomeFeed(
                         horizontalArrangement = Arrangement.spacedBy(gap),
                     ) {
                         items(LexiconData.categories, key = { it.id }) { category ->
+                            // The four visible reference bookplates keep the exact
+                            // width. Longer continuation captions gain room without
+                            // shrinking their font or their illustrated subject.
+                            val cellWidth = if (state.isDark) (width * continuationBookplateWidth(category.id))
+                                .coerceAtMost((maxWidth - inset * 2).coerceAtLeast(width)) else width
                             CategoryCard(
                                 category = category,
                                 viewModel = viewModel,
-                                modifier = Modifier.width(width),
+                                modifier = Modifier.width(cellWidth),
                                 shelfArtworkHeight = (width * (if (state.isDark) 85f / 117f else 0.82f)).coerceIn(46.dp, 96.dp),
                                 referenceShelfWidth = if (state.isDark) width else null,
                             )
@@ -317,6 +322,14 @@ private fun HomeFeed(
 
 }
 
+
+// The reference supplies only the first four cards. Keep their geometry
+// unchanged; extend the same shelf rhythm for the six specified subjects.
+internal fun continuationBookplateWidth(id: String): Float = when (id) {
+    "art_architecture", "culture_traditions" -> 1.45f
+    "history", "mythology", "nature" -> 1.25f
+    else -> 1f
+}
 
 /** Logical window width and text preference, not physical pixels or model. */
 internal fun homeShelfColumns(widthDp: Float, fontScale: Float): Int = when {

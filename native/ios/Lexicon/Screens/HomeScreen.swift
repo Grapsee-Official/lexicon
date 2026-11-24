@@ -73,10 +73,13 @@ struct HomeScreen: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         LazyHStack(alignment: .top, spacing: gap) {
                             ForEach(LexiconData.categories) { category in
+                                let cellWidth = scheme == .dark
+                                    ? min(max(bookplateWidth, available - 2 * inset), bookplateWidth * continuationBookplateWidth(category.id))
+                                    : bookplateWidth
                                 CategoryCard(category: category,
                                     shelfArtworkHeight: min(96, max(46, bookplateWidth * (scheme == .dark ? 85.0 / 117.0 : 0.82))),
                                     referenceShelfWidth: scheme == .dark ? bookplateWidth : nil)
-                                    .frame(width: bookplateWidth)
+                                    .frame(width: cellWidth)
                             }
                         }
                         .padding(.horizontal, inset)
@@ -118,6 +121,16 @@ struct HomeScreen: View {
           }
         }
         .background(scheme == .dark ? Color.clear : LexiconColors.background)
+    }
+}
+
+// The first four cells are the actual reference bookplates; the longer
+// continuation captions need their own room at the same artwork scale.
+private func continuationBookplateWidth(_ id: String) -> CGFloat {
+    switch id {
+    case "art_architecture", "culture_traditions": return 1.45
+    case "history", "mythology", "nature": return 1.25
+    default: return 1
     }
 }
 
