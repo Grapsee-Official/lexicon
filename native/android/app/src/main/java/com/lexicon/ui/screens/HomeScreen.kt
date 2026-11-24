@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lexicon.BuildConfig
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import com.lexicon.data.Article
 import com.lexicon.data.LexiconData
 import com.lexicon.data.LexiconViewModel
@@ -136,7 +139,7 @@ private fun HomeFeed(viewModel: LexiconViewModel) {
             )
         }
 
-        // All 4 Category cards in an equal-width 4-column Row — ZERO clipping on "Science"!
+        // Ten original bookplates in canonical order; load only visible artwork.
         item(key = "categories") {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 SectionHeader(
@@ -147,17 +150,18 @@ private fun HomeFeed(viewModel: LexiconViewModel) {
                     modifier = Modifier.padding(horizontal = 16.dp),
                 )
                 androidx.compose.foundation.layout.BoxWithConstraints(Modifier.fillMaxWidth()) {
-                    // Keep four complete bookplates visible when width permits.
-                    // Narrow phones scroll; no compressed/clipped category labels.
-                    val readableWidth = ((maxWidth - 62.dp) / 4f).coerceIn(78.dp, 108.dp)
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .horizontalScroll(rememberScrollState())
-                            .padding(horizontal = 16.dp),
+                    val largeText = LocalConfiguration.current.fontScale > 1.2f
+                    val readableWidth = if (largeText) {
+                        (maxWidth * 0.43f).coerceIn(150.dp, 220.dp)
+                    } else {
+                        ((maxWidth - 62.dp) / 4f).coerceIn(94.dp, 116.dp)
+                    }
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(horizontal = 16.dp),
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
-                        LexiconData.categories.forEach { category ->
+                        items(LexiconData.categories, key = { it.id }) { category ->
                             CategoryCard(
                                 category = category,
                                 viewModel = viewModel,

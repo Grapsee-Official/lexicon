@@ -32,7 +32,7 @@ struct HomeScreen: View {
                 WordOfTheDayCard(word: displayedHomeWord)
                     .padding(.horizontal, 16)
 
-                // All 4 Category cards in an equal-width 4-column HStack — zero clipping on "Science"!
+                // Ten original bookplates in the same canonical order as Android.
                 VStack(spacing: 10) {
                     SectionHeader(
                         title: "Explore by Category",
@@ -40,22 +40,23 @@ struct HomeScreen: View {
                         divider: false,
                         onAction: { vm.setActiveTab(.dictionary) }
                     )
-                    // Four illustrated bookplates on a standard phone; on
-                    // narrow devices retain their readable size and scroll.
                     GeometryReader { layout in
                         let available = layout.size.width
-                        let bookplateWidth = max(78, min(108, (available - 32 - 30) / 4))
+                        let largeText = dynamicTypeSize.isAccessibilitySize
+                        let bookplateWidth = largeText
+                            ? max(150, min(220, available * 0.43))
+                            : max(94, min(116, (available - 62) / 4))
                         ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 10) {
-                                ForEach(LexiconData.categories) { c in
-                                    CategoryCard(category: c)
+                            LazyHStack(alignment: .top, spacing: 10) {
+                                ForEach(LexiconData.categories) { category in
+                                    CategoryCard(category: category)
                                         .frame(width: bookplateWidth)
                                 }
                             }
                             .padding(.horizontal, 16)
                         }
                     }
-                    .frame(height: dynamicTypeSize.isAccessibilitySize ? 144 : 105)
+                    .frame(height: dynamicTypeSize.isAccessibilitySize ? 230 : 145)
                 }
 
                 // From the Library (with horizontal hairline divider)

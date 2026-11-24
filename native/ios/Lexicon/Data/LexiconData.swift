@@ -361,11 +361,18 @@ enum LexiconData {
         ),
     ]
 
+    // Canonical Home order; one original illustration for both themes.
     static let categories: [LexiconCategory] = [
-        LexiconCategory(id: "vocabulary", title: "Vocabulary", subtitle: "Expand your words", illustration: "cat-vocabulary"),
-        LexiconCategory(id: "geography", title: "Geography", subtitle: "Places & names", illustration: "cat-geography"),
-        LexiconCategory(id: "literature", title: "Literature", subtitle: "Terms & references", illustration: "cat-literature"),
-        LexiconCategory(id: "science", title: "Science", subtitle: "Concepts & terms", illustration: "cat-science"),
+        LexiconCategory(id: "vocabulary", title: "Vocabulary", subtitle: "Expand your words", illustration: "cat-home-vocabulary"),
+        LexiconCategory(id: "geography", title: "Geography", subtitle: "Places & names", illustration: "cat-home-geography"),
+        LexiconCategory(id: "literature", title: "Literature", subtitle: "Terms & references", illustration: "cat-home-literature"),
+        LexiconCategory(id: "science", title: "Science", subtitle: "Concepts & terms", illustration: "cat-home-science"),
+        LexiconCategory(id: "history", title: "History", subtitle: "Civilizations & the past", illustration: "cat-home-history"),
+        LexiconCategory(id: "mythology", title: "Mythology", subtitle: "Legends & ancient tales", illustration: "cat-home-mythology"),
+        LexiconCategory(id: "philosophy", title: "Philosophy", subtitle: "Wisdom & ideas", illustration: "cat-home-philosophy"),
+        LexiconCategory(id: "art_architecture", title: "Art & Architecture", subtitle: "Creativity & design", illustration: "cat-home-art-architecture"),
+        LexiconCategory(id: "nature", title: "Nature", subtitle: "Flora, fauna & the earth", illustration: "cat-home-nature"),
+        LexiconCategory(id: "culture_traditions", title: "Culture & Traditions", subtitle: "Heritage & societies", illustration: "cat-home-culture-traditions"),
     ]
 
     static let exploreTopics: [ExploreTopic] = [

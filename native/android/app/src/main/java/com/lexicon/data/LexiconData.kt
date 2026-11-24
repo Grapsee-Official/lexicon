@@ -363,11 +363,18 @@ object LexiconData {
         ),
     )
 
+    // Canonical Home order; one original illustration for both themes.
     val categories: List<Category> = listOf(
-        Category("vocabulary", "Vocabulary", "Expand your words", "cat_vocabulary"),
-        Category("geography", "Geography", "Places & names", "cat_geography"),
-        Category("literature", "Literature", "Terms & references", "cat_literature"),
-        Category("science", "Science", "Concepts & terms", "cat_science"),
+        Category("vocabulary", "Vocabulary", "Expand your words", "cat_home_vocabulary"),
+        Category("geography", "Geography", "Places & names", "cat_home_geography"),
+        Category("literature", "Literature", "Terms & references", "cat_home_literature"),
+        Category("science", "Science", "Concepts & terms", "cat_home_science"),
+        Category("history", "History", "Civilizations & the past", "cat_home_history"),
+        Category("mythology", "Mythology", "Legends & ancient tales", "cat_home_mythology"),
+        Category("philosophy", "Philosophy", "Wisdom & ideas", "cat_home_philosophy"),
+        Category("art_architecture", "Art & Architecture", "Creativity & design", "cat_home_art_architecture"),
+        Category("nature", "Nature", "Flora, fauna & the earth", "cat_home_nature"),
+        Category("culture_traditions", "Culture & Traditions", "Heritage & societies", "cat_home_culture_traditions"),
     )
 
     // Page 1: 6 Explore Words cards
