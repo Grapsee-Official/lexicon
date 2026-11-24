@@ -44,6 +44,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lexicon.data.LexiconViewModel
 import com.lexicon.data.TabKey
+import com.lexicon.data.ScreenRoute
 import com.lexicon.ui.AccessibilityAudit
 import com.lexicon.ui.enforceTouchTarget
 import com.lexicon.ui.iconButton
@@ -76,8 +77,11 @@ fun BottomNav(
     val activeTab = state.activeTab
     val isDark = state.isDark
 
-    val barBg = if (isDark) DarkCard.copy(alpha = 0.96f) else CardSurface.copy(alpha = 0.96f)
-    val barBorder = if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.10f)
+    val homeNight = isDark && state.route == ScreenRoute.HOME
+    val barBg = if (homeNight) Color(0xFF0C151C).copy(alpha = 0.95f)
+        else if (isDark) DarkCard.copy(alpha = 0.96f) else CardSurface.copy(alpha = 0.96f)
+    val barBorder = if (homeNight) Color(0xFFB6A486).copy(alpha = 0.16f)
+        else if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.10f)
     val activeColor = if (isDark) DarkAccent else BrandGreen
     val inactiveColor = if (isDark) DarkAccent.copy(alpha = 0.78f) else DeepForest.copy(alpha = 0.88f)
 
@@ -185,7 +189,7 @@ fun BottomNav(
                     ) else Modifier
                 )
                 .clip(CircleShape)
-                .background(if (isDark) Color(0xFF101620) else BrandGreen)
+                .background(if (homeNight) Color(0xFF0A131B) else if (isDark) Color(0xFF101620) else BrandGreen)
                 .border(
                     width = if (isDark) 1.5.dp else 3.dp,
                     color = if (isDark) DarkAccent.copy(alpha = 0.70f) else CardSurface,

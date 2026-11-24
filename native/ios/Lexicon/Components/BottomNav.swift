@@ -10,6 +10,7 @@ struct BottomNav: View {
     @Environment(\.colorScheme) private var scheme
 
     private var isDark: Bool { scheme == .dark }
+    private var homeNight: Bool { isDark && vm.route == .home && !vm.libraryOpen }
 
     private var activeColor: Color {
         isDark ? LexiconColors.accentDark : LexiconColors.primary
@@ -45,7 +46,7 @@ struct BottomNav: View {
                     .font(.system(size: 17, weight: .medium))
                     .foregroundStyle(isDark ? LexiconColors.highlightDark : LexiconColors.primaryForeground)
                     .frame(width: 54, height: 54)
-                    .background(isDark ? Color(hex: "101620") : LexiconColors.primary)
+                    .background(homeNight ? Color(hex: "0A131B") : (isDark ? Color(hex: "101620") : LexiconColors.primary))
                     .clipShape(Circle())
                     .overlay(
                         Circle()
@@ -69,8 +70,8 @@ struct BottomNav: View {
         .padding(.vertical, 7)
         .background {
             Capsule()
-                .fill(lexiconPalette(scheme).card.opacity(0.96))
-                .overlay(Capsule().stroke(lexiconPalette(scheme).border, lineWidth: 1))
+                .fill(homeNight ? Color(hex: "0C151C").opacity(0.95) : lexiconPalette(scheme).card.opacity(0.96))
+                .overlay(Capsule().stroke(homeNight ? Color(hex: "B6A486").opacity(0.16) : lexiconPalette(scheme).border, lineWidth: 1))
         }
         .shadow(
             color: isDark ? .clear : LexiconColors.foreground.opacity(0.12),

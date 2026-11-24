@@ -163,7 +163,7 @@ private fun HomeFeed(viewModel: LexiconViewModel) {
                     val readableWidth = if (largeText) {
                         (maxWidth * 0.43f).coerceIn(150.dp, 220.dp)
                     } else {
-                        ((maxWidth - 62.dp) / 4f).coerceIn(94.dp, 116.dp)
+                        ((maxWidth - 62.dp) / 4f).coerceIn(if (state.isDark) 78.dp else 94.dp, 116.dp)
                     }
                     LazyRow(
                         modifier = Modifier.fillMaxWidth(),
@@ -174,7 +174,10 @@ private fun HomeFeed(viewModel: LexiconViewModel) {
                             CategoryCard(
                                 category = category,
                                 viewModel = viewModel,
-                                modifier = Modifier.width(readableWidth),
+                                modifier = Modifier.width(
+                                    if (state.isDark && !largeText && category.title.length > 15)
+                                        maxOf(readableWidth, 116.dp) else readableWidth
+                                ),
                             )
                         }
                     }

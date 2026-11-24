@@ -9,7 +9,11 @@ struct Hero: View {
     @Environment(\.colorScheme) private var scheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var measuredWidth: CGFloat = 390
-    var sharedNightScene: Bool = false
+    private let sharedNightScene: Bool
+
+    init(sharedNightScene: Bool = false) {
+        self.sharedNightScene = sharedNightScene
+    }
 
     private var adaptiveHeight: CGFloat {
         let compact = measuredWidth < 360

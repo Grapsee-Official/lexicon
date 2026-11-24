@@ -51,18 +51,19 @@ struct HomeScreen: View {
                         let largeText = dynamicTypeSize.isAccessibilitySize
                         let bookplateWidth = largeText
                             ? max(150, min(220, available * 0.43))
-                            : max(94, min(116, (available - 62) / 4))
+                            : max(scheme == .dark ? 78 : 94, min(116, (available - 62) / 4))
                         ScrollView(.horizontal, showsIndicators: false) {
                             LazyHStack(alignment: .top, spacing: 10) {
                                 ForEach(LexiconData.categories) { category in
                                     CategoryCard(category: category)
-                                        .frame(width: bookplateWidth)
+                                        .frame(width: scheme == .dark && !largeText && category.title.count > 15
+                                               ? max(bookplateWidth, 116) : bookplateWidth)
                                 }
                             }
                             .padding(.horizontal, 16)
                         }
                     }
-                    .frame(height: dynamicTypeSize.isAccessibilitySize ? 230 : 145)
+                    .frame(height: dynamicTypeSize.isAccessibilitySize ? 230 : (scheme == .dark ? 136 : 145))
                 }
 
                 // From the Library (with horizontal hairline divider)
