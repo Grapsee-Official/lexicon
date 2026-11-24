@@ -15,11 +15,14 @@ struct CategoryCard: View {
     // Prefer the new light-specific asset once supplied; keep the original
     // as a safe fallback. Never modify the original asset catalog.
     private var artName: String {
+        if isDark {
+            return "ref-home-" + category.id.replacingOccurrences(of: "_", with: "-")
+        }
         let light = category.illustration + "-light"
         return !isDark && UIImage(named: light) != nil ? light : category.illustration
     }
     private var artHeight: CGFloat { shelfArtworkHeight ?? (largeText ? 100 : 74) }
-    @ScaledMetric(relativeTo: .caption) private var captionHeight: CGFloat = 33
+    @ScaledMetric(relativeTo: .caption) private var captionHeight: CGFloat = 28
 
     var body: some View {
         let p = lexiconPalette(scheme)
@@ -31,25 +34,17 @@ struct CategoryCard: View {
             vm.setActiveTab(.dictionary)
         } label: {
             VStack(spacing: 0) {
-                // Dark artwork is graded to the page ink; light mode uses its
-                // separate original once supplied.
-                PreparedArtworkImage(name: artName, treatment: isDark ? .darkBookplate : .bookplate)
-                    .scaledToFit()
-                    .frame(maxWidth: .infinity)
-                    .frame(height: artHeight)
-                    .background {
-                        if isDark {
-                            GeometryReader { g in
-                                RadialGradient(
-                                    colors: [Color(hex: "20394D").opacity(0.15), .clear],
-                                    center: UnitPoint(x: 0.5, y: 0.48),
-                                    startRadius: 0,
-                                    endRadius: max(1, max(g.size.width, g.size.height) * 0.63)
-                                )
-                            }
-                        }
+                Group {
+                    if isDark {
+                        Image(artName).resizable().renderingMode(.original)
+                    } else {
+                        PreparedArtworkImage(name: artName, treatment: .bookplate)
                     }
-                    .accessibilityHidden(true)
+                }
+                .scaledToFit()
+                .frame(maxWidth: .infinity)
+                .frame(height: artHeight)
+                .accessibilityHidden(true)
 
                 Spacer(minLength: 0).frame(height: isDark && !largeText ? 0 : 5)
 

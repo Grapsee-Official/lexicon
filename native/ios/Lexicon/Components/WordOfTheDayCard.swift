@@ -219,38 +219,12 @@ private struct WordOfDayNightScene: View {
 
     var body: some View {
         GeometryReader { geo in
-            let width = geo.size.width
-            let height = geo.size.height
             ZStack(alignment: .trailing) {
                 Color(hex: "08121A")
-                PreparedArtworkImage(name: "wotd-home-dark", treatment: .dailyLandscape)
-                    .scaledToFill()
-                    .frame(width: width * 0.72, height: height, alignment: .trailing)
-                    .clipped()
-                    .frame(width: width, height: height, alignment: .trailing)
-                    .mask {
-                        LinearGradient(stops: [
-                            .init(color: .clear, location: 0),
-                            .init(color: .clear, location: 0.40),
-                            .init(color: .black.opacity(largeText ? 0.03 : 0.12), location: 0.51),
-                            .init(color: .black.opacity(largeText ? 0.13 : 0.42), location: 0.66),
-                            .init(color: .black.opacity(largeText ? 0.48 : 0.95), location: 0.84),
-                            .init(color: .black.opacity(largeText ? 0.60 : 1), location: 1)
-                        ], startPoint: .topLeading, endPoint: UnitPoint(x: 1, y: 0.78))
-                    }
-                    .mask {
-                        LinearGradient(stops: [
-                            .init(color: .black.opacity(0.90), location: 0),
-                            .init(color: .black, location: 0.12),
-                            .init(color: .black, location: 0.88),
-                            .init(color: .black.opacity(0.94), location: 1)
-                        ], startPoint: .top, endPoint: .bottom)
-                    }
-                RadialGradient(
-                    colors: [Color(hex: "08121A").opacity(0.56), .clear],
-                    center: UnitPoint(x: 0.62, y: 0.40),
-                    startRadius: 0, endRadius: max(1, width * 0.22)
-                )
+                Image("ref-home-daily")
+                    .resizable().renderingMode(.original)
+                    .frame(width: geo.size.width * (largeText ? 0.57 : 0.61),
+                           height: geo.size.height)
             }
         }
         .allowsHitTesting(false)

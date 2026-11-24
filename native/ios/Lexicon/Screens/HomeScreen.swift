@@ -25,7 +25,7 @@ struct HomeScreen: View {
         GeometryReader { window in
           ScrollView {
             VStack(spacing: 11) {
-                VStack(spacing: scheme == .dark ? 5 : 11) {
+                VStack(spacing: scheme == .dark ? 10 : 11) {
                     Hero(sharedNightScene: scheme == .dark && !dynamicTypeSize.isAccessibilitySize)
                         .background {
                             if scheme == .dark {
@@ -62,19 +62,23 @@ struct HomeScreen: View {
                     )
                     let available = min(640, window.size.width)
                     let count = homeShelfColumns(width: available, textSize: dynamicTypeSize)
-                    let bookplateWidth = max(56, (available - 32 - CGFloat(count - 1) * 8) / CGFloat(count))
+                    let gap = scheme == .dark ? min(12, max(7, available * 0.023)) : 8
+                    let inset = scheme == .dark ? min(24, max(14, available * 0.05)) : 16
+                    let peek = scheme == .dark && !dynamicTypeSize.isAccessibilitySize ? available * 0.045 : 0
+                    let bookplateWidth = max(56, (available - 2 * inset - CGFloat(count - 1) * gap - peek) / CGFloat(count))
                     ScrollView(.horizontal, showsIndicators: false) {
-                        LazyHStack(alignment: .top, spacing: 8) {
+                        LazyHStack(alignment: .top, spacing: gap) {
                             ForEach(LexiconData.categories) { category in
-                                CategoryCard(category: category, shelfArtworkHeight: min(96, max(50, bookplateWidth * 0.82)))
+                                CategoryCard(category: category, shelfArtworkHeight: min(96, max(46, bookplateWidth * (scheme == .dark ? 0.78 : 0.82))))
                                     .frame(width: bookplateWidth)
                             }
                         }
-                        .padding(.horizontal, 16)
+                        .padding(.horizontal, inset)
                     }
                     // Let the tallest visible caption determine shelf height.
                     // No fixed GeometryReader frame to clip large text.
                 }
+                .padding(.top, scheme == .dark ? 7 : 0)
 
                 // From the Library (with horizontal hairline divider)
                 VStack(spacing: 10) {
@@ -90,6 +94,10 @@ struct HomeScreen: View {
                             ForEach(LexiconData.articles) { a in
                                 ArticleCard(
                                     article: a,
+                                    shelfWidth: scheme == .dark && !dynamicTypeSize.isAccessibilitySize
+                                        ? (a.id == "a1" ? min(230, max(140, window.size.width * 0.40)) : min(200, max(122, window.size.width * 0.34))) : nil,
+                                    shelfHeight: scheme == .dark && !dynamicTypeSize.isAccessibilitySize
+                                        ? min(112, max(74, window.size.width * 0.207)) : nil,
                                     onOpen: { vm.openLibraryArticle(a.id) }
                                 )
                             }
@@ -97,6 +105,7 @@ struct HomeScreen: View {
                         .padding(.horizontal, scheme == .dark ? 18 : 16)
                     }
                 }
+                .padding(.top, scheme == .dark ? 6 : 0)
             }
             .padding(.top, 1)
             .padding(.bottom, 12)

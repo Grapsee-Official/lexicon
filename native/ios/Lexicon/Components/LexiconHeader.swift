@@ -44,7 +44,7 @@ struct LexiconHeader: View {
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     theme.toggle()
                 } label: {
-                    Image(isDark ? "lexicon-mark-dark" : "lexicon-mark")
+                    Image(homeNight ? "ref-home-crest" : (isDark ? "lexicon-mark-dark" : "lexicon-mark"))
                         .resizable()
                         .renderingMode(.original)
                         .scaledToFit()
@@ -88,11 +88,9 @@ struct LexiconHeader: View {
             }
 
             button(action: { vm.setActiveTab(.more) }, label: LexiconAccessibilityLabels.avatar) {
-                Image(isDark ? "avatar-dark" : "avatar-default")
+                Image(homeNight ? "ref-home-avatar" : (isDark ? "avatar-dark" : "avatar-default"))
                     .resizable()
                     .scaledToFill()
-                    .saturation(homeNight ? 0.78 : 1)
-                    .opacity(homeNight ? 0.87 : 1)
                     .frame(width: homeEditorial ? 32 : 36, height: homeEditorial ? 32 : 36)
                     .clipShape(Circle())
                     .overlay(

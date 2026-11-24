@@ -8,6 +8,8 @@ import SwiftUI
 struct ArticleCard: View {
     let article: Article
     @EnvironmentObject private var vm: LexiconViewModel
+    var shelfWidth: CGFloat? = nil
+    var shelfHeight: CGFloat? = nil
     var onOpen: () -> Void = {}
     @Environment(\.colorScheme) private var scheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -22,8 +24,8 @@ struct ArticleCard: View {
         isDark ? LexiconColors.accentDark : LexiconColors.highlight
     }
 
-    private var cardWidth: CGFloat { isDark ? (dynamicTypeSize.isAccessibilitySize ? 210 : 150) : 174 }
-    private var cardHeight: CGFloat { isDark ? (dynamicTypeSize.isAccessibilitySize ? 120 : 78) : 90 }
+    private var cardWidth: CGFloat { shelfWidth ?? (isDark ? (dynamicTypeSize.isAccessibilitySize ? 210 : 150) : 174) }
+    private var cardHeight: CGFloat { shelfHeight ?? (isDark ? (dynamicTypeSize.isAccessibilitySize ? 120 : 78) : 90) }
     private var corner: CGFloat { isDark ? 10 : 13 }
 
     var body: some View {
@@ -80,28 +82,19 @@ struct ArticleCard: View {
             .frame(width: cardWidth, height: cardHeight)
             .background(alignment: .leading) {
                 if isDark {
-                    PreparedArtworkImage(name: thumbName, treatment: .story)
-                        .scaledToFill()
-                        .frame(width: cardWidth * 0.34, height: cardHeight)
-                        .clipped()
-                        .mask {
-                            LinearGradient(stops: [
-                                .init(color: .black.opacity(0.88), location: 0),
-                                .init(color: .black, location: 0.14),
-                                .init(color: .black, location: 0.72),
-                                .init(color: .black.opacity(0.48), location: 0.90),
-                                .init(color: .clear, location: 1)
-                            ], startPoint: .leading, endPoint: .trailing)
+                    let vector = article.id == "a1" ? "ref-home-library-origin" :
+                        (article.id == "a2" ? "ref-home-library-lost" :
+                         (article.id == "a3" ? "ref-home-library-nature" : nil))
+                    Group {
+                        if let vector = vector {
+                            Image(vector).resizable().renderingMode(.original)
+                        } else {
+                            PreparedArtworkImage(name: thumbName, treatment: .story)
                         }
-                        .mask {
-                            LinearGradient(stops: [
-                                .init(color: .black.opacity(0.72), location: 0),
-                                .init(color: .black, location: 0.15),
-                                .init(color: .black, location: 0.83),
-                                .init(color: .black.opacity(0.65), location: 1)
-                            ], startPoint: .top, endPoint: .bottom)
-                        }
-                        .allowsHitTesting(false)
+                    }
+                    .frame(width: cardWidth * 0.34 - 6, height: cardHeight - 6)
+                    .padding(3)
+                    .allowsHitTesting(false)
                         .accessibilityHidden(true)
                 }
             }

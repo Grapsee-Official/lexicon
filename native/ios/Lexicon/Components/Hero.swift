@@ -75,7 +75,7 @@ struct Hero: View {
                     .foregroundStyle(subtextColor)
                     .lineSpacing(1.5)
                     .fixedSize(horizontal: false, vertical: true)
-                    .padding(.trailing, enlargedText ? 0 : 24)
+                    .padding(.trailing, enlargedText ? 0 : 12)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -208,51 +208,21 @@ struct HomeNightScene: View {
         GeometryReader { geo in
             let width = geo.size.width
             let height = geo.size.height
-            let largeText = dynamicTypeSize.isAccessibilitySize
-            let edge: CGFloat = 0.44
             let header = min(height, max(0, headerInset))
-            let contentHeight = max(1, height - header)
-            let hero = measuredHeroHeight > 0 ? min(measuredHeroHeight, contentHeight)
-                : contentHeight * (extendsBehindTags ? 0.86 : 1)
-            let artWidth = min(width * (largeText ? 0.85 : 0.99), largeText ? min(210, max(135, width * 0.48)) * 1.5 : contentHeight * 1.5 * 1.08)
-            let artX = width * 0.63 - artWidth * 0.539
-            let moonY = min(hero * 0.10, width * 0.055)
-            let bookBaseline = hero - 4 - width * 0.040
-            let naturalHeight = artWidth / 1.5
-            let artHeight = largeText ? naturalHeight
-                : min(naturalHeight * 1.14, max(naturalHeight * 0.88, (bookBaseline - moonY) / (0.88 - 0.17)))
-            let artY = header + (largeText ? bookBaseline - artHeight * 0.97 : moonY - artHeight * 0.17)
-            let fadeStart = min(0.95, max(0.55, (header + hero - width * 0.025) / max(1, height)))
-            let fadeEnd = min(0.99, fadeStart + (1 - fadeStart) * 0.75)
-
-            PreparedArtworkImage(name: "hero-dark", treatment: .moonlit)
-                // Resizable image fills this deliberately adjusted scene aspect.
+            let content = max(1, height - header)
+            let hero = measuredHeroHeight > 0 ? min(measuredHeroHeight, content)
+                : content * (extendsBehindTags ? 0.86 : 1)
+            let artWidth = dynamicTypeSize.isAccessibilitySize
+                ? min(width * 0.645, 210 * 381 / 361) : width * (381 / 591)
+            let artHeight = artWidth * (361 / 381)
+            // Reference crop x210..591 y125..486; search ends y478.
+            let artY = header + hero - artHeight * (353 / 361)
+            Image("ref-home-hero")
+                .resizable().renderingMode(.original)
                 .frame(width: artWidth, height: artHeight)
-                .position(x: artX + artWidth / 2, y: artY + artHeight / 2)
+                .position(x: width - artWidth / 2, y: artY + artHeight / 2)
                 .frame(width: width, height: height)
                 .clipped()
-                .mask {
-                    if largeText {
-                        Color.black
-                    } else {
-                        LinearGradient(stops: [
-                            .init(color: .clear, location: 0),
-                            .init(color: .clear, location: edge - 0.18),
-                            .init(color: .black.opacity(0.40), location: edge - 0.08),
-                            .init(color: .black, location: edge + 0.07),
-                            .init(color: .black, location: 1)
-                        ], startPoint: .topLeading,
-                           endPoint: UnitPoint(x: 1, y: contentHeight * 0.24 / max(1, height)))
-                    }
-                }
-                .mask {
-                    LinearGradient(stops: [
-                        .init(color: .black, location: 0),
-                        .init(color: .black, location: fadeStart),
-                        .init(color: .black.opacity(0.15), location: fadeEnd),
-                        .init(color: .clear, location: 1)
-                    ], startPoint: .top, endPoint: .bottom)
-                }
         }
         .allowsHitTesting(false)
         .accessibilityHidden(true)
@@ -265,7 +235,7 @@ private struct NightHeroLayout: Layout {
     private let leading: CGFloat = 20
     private let bottom: CGFloat = 4
     private let minimumGap: CGFloat = 10
-    private var top: CGFloat { enlargedText ? 8 : 16 }
+    private func top(for width: CGFloat) -> CGFloat { enlargedText ? 8 : min(42, max(22, width * 0.075)) }
 
     private func minimumHeight(for width: CGFloat) -> CGFloat {
         if enlargedText { return 0 }
@@ -273,7 +243,7 @@ private struct NightHeroLayout: Layout {
     }
 
     private func copyWidth(for width: CGFloat) -> CGFloat {
-        max(1, width * (enlargedText ? 1 : 0.51) - leading - (enlargedText ? 20 : 0))
+        max(1, width * (enlargedText ? 1 : 0.46) - leading - (enlargedText ? 20 : 0))
     }
 
     private func searchWidth(for width: CGFloat) -> CGFloat {
@@ -294,7 +264,7 @@ private struct NightHeroLayout: Layout {
         return CGSize(
             width: width,
             height: max(minimumHeight(for: width),
-                        top + copySize.height + minimumGap + (enlargedText ? min(210, max(135, width * 0.48)) : 0) + searchSize.height + bottom)
+                        top(for: width) + copySize.height + minimumGap + (enlargedText ? min(210, max(135, width * 0.48)) : 0) + searchSize.height + bottom)
         )
     }
 
@@ -306,11 +276,11 @@ private struct NightHeroLayout: Layout {
         let searchProposal = ProposedViewSize(width: searchWidth(for: bounds.width), height: nil)
         let copySize = subviews[0].sizeThatFits(copyProposal)
         let searchSize = subviews[1].sizeThatFits(searchProposal)
-        let searchY = max(bounds.minY + top + copySize.height + minimumGap,
+        let searchY = max(bounds.minY + top(for: bounds.width) + copySize.height + minimumGap,
                           bounds.maxY - bottom - searchSize.height)
 
         subviews[0].place(
-            at: CGPoint(x: bounds.minX + leading, y: bounds.minY + top),
+            at: CGPoint(x: bounds.minX + leading, y: bounds.minY + top(for: bounds.width)),
             anchor: .topLeading, proposal: copyProposal
         )
         subviews[1].place(
