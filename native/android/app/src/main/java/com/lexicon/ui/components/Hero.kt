@@ -304,6 +304,16 @@ private val referenceVectorCache = object : LruCache<String, ImageBitmap>(12 * 1
 }
 private val referenceVectorLock = Mutex()
 
+// All cached sizes for a given resource have the same aspect ratio.
+// Use an already rendered size while a new display texture is prepared.
+private fun cachedReferenceVector(resId: Int, width: Int): ImageBitmap? {
+    val prefix = "$resId:"
+    return referenceVectorCache.snapshot().entries
+        .filter { it.key.startsWith(prefix) }
+        .minByOrNull { kotlin.math.abs(it.value.width - width) }
+        ?.let { referenceVectorCache.get(it.key) }
+}
+
 @Composable
 internal fun rememberReferenceVector(
     resId: Int,
@@ -320,10 +330,21 @@ internal fun rememberReferenceVector(
     val height = if (width == 0) 0 else
         (width.toFloat() * viewportHeight / viewportWidth).roundToInt().coerceAtLeast(1)
     val cacheKey = "$resId:$width:$height"
-    return key(cacheKey) {
-        val prepared by produceState<ImageBitmap?>(referenceVectorCache.get(cacheKey), cacheKey) {
+    // Key by artwork identity, not display size. A rotation or split-screen
+    // resize must not clear the currently displayed picture.
+    return key(resId, viewportWidth, viewportHeight) {
+        val prepared by produceState<ImageBitmap?>(
+            initialValue = referenceVectorCache.get(cacheKey) ?: cachedReferenceVector(resId, width),
+            key1 = cacheKey,
+        ) {
             if (width == 0) return@produceState
-            value = withContext(Dispatchers.Default) {
+            val exact = referenceVectorCache.get(cacheKey)
+            if (exact != null) {
+                value = exact
+                return@produceState
+            }
+            if (value == null) value = cachedReferenceVector(resId, width)
+            val rendered = withContext(Dispatchers.Default) {
                 referenceVectorLock.withLock {
                     referenceVectorCache.get(cacheKey) ?: run {
                         var bitmap: Bitmap? = null
@@ -336,17 +357,22 @@ internal fun rememberReferenceVector(
                             drawable.setBounds(0, 0, width, height)
                             drawable.draw(android.graphics.Canvas(target))
                             target.asImageBitmap().also { referenceVectorCache.put(cacheKey, it) }
-                        } catch (_: Exception) {
+                        } catch (failure: Exception) {
                             bitmap?.recycle()
+                            android.util.Log.w("LexoraArtwork", "Unable to render reference vector $resId at ${width}x$height", failure)
                             null
-                        } catch (_: OutOfMemoryError) {
+                        } catch (failure: OutOfMemoryError) {
                             bitmap?.recycle()
                             referenceVectorCache.evictAll()
+                            android.util.Log.w("LexoraArtwork", "Reference vector texture allocation failed", failure)
                             null
                         }
                     }
                 }
             }
+            // Retain the last successful texture on a failed larger allocation.
+            // The artwork stays registered to the same native layout.
+            if (rendered != null) value = rendered
         }
         val ready = prepared
         if (ready != null) remember(ready) { BitmapPainter(ready) }
