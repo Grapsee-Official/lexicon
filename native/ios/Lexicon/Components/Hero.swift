@@ -6,7 +6,6 @@
 import SwiftUI
 
 struct Hero: View {
-    @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var measuredWidth: CGFloat = 390
@@ -57,10 +56,9 @@ struct Hero: View {
 
     private var darkHero: some View {
         let enlargedText = dynamicTypeSize.isAccessibilitySize
-        let textWidth = measuredWidth * (enlargedText ? 0.70 : 0.51)
-
-        // Real vertical layout: content can grow without crossing the search bar.
-        return VStack(alignment: .leading, spacing: 0) {
+        // Measure both children at their final width, then place Search at
+        // the bottom of the minimum hero or below the copy, whichever is lower.
+        return NightHeroLayout(enlargedText: enlargedText) {
             VStack(alignment: .leading, spacing: 6) {
                 headline
                 Text("A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.")
@@ -68,20 +66,13 @@ struct Hero: View {
                     .foregroundStyle(subtextColor)
                     .lineSpacing(2)
                     .fixedSize(horizontal: false, vertical: true)
+                    .padding(.trailing, enlargedText ? 0 : 12)
             }
-            .frame(width: max(1, textWidth - 20), alignment: .leading)
-            .padding(.leading, 20)
-            .padding(.top, enlargedText ? 8 : 15)
-
-            Spacer(minLength: 10)
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             FloatingSearchBar(sceneIntegrated: true)
-                .frame(width: measuredWidth * (enlargedText ? 0.85 : 0.73))
-                .padding(.leading, 20)
-                .padding(.bottom, 4)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .frame(minHeight: adaptiveHeight, alignment: .topLeading)
         .background {
             GeometryReader { geo in
                 let totalWidth = geo.size.width
@@ -228,6 +219,71 @@ struct Hero: View {
         .lexiconCombinedElement()
         .accessibilityLabel(Text("Discover the World of Words"))
         .lexiconAccessibilityHeading(.h1)
+    }
+}
+
+// ScrollView proposes an unbounded height. A Spacer alone cannot guarantee
+// bottom placement in that situation. This layout measures both controls
+// before calculating the hero height, without changing the light-mode path.
+private struct NightHeroLayout: Layout {
+    let enlargedText: Bool
+
+    private let leading: CGFloat = 20
+    private let bottom: CGFloat = 4
+    private let minimumGap: CGFloat = 10
+    private var top: CGFloat { enlargedText ? 8 : 15 }
+
+    private func minimumHeight(for width: CGFloat) -> CGFloat {
+        if width >= 600 { return enlargedText ? 425 : 365 }
+        if enlargedText { return 330 }
+        return width < 360 ? 250 : 242
+    }
+
+    private func copyWidth(for width: CGFloat) -> CGFloat {
+        max(1, width * (enlargedText ? 0.70 : 0.51) - leading)
+    }
+
+    private func searchWidth(for width: CGFloat) -> CGFloat {
+        max(1, (width - leading) * (enlargedText ? 0.85 : 0.73))
+    }
+
+    func sizeThatFits(
+        proposal: ProposedViewSize, subviews: Subviews, cache: inout ()
+    ) -> CGSize {
+        let width = proposal.width ?? 390
+        guard subviews.count == 2 else { return CGSize(width: width, height: 0) }
+        let copySize = subviews[0].sizeThatFits(
+            ProposedViewSize(width: copyWidth(for: width), height: nil)
+        )
+        let searchSize = subviews[1].sizeThatFits(
+            ProposedViewSize(width: searchWidth(for: width), height: nil)
+        )
+        return CGSize(
+            width: width,
+            height: max(minimumHeight(for: width),
+                        top + copySize.height + minimumGap + searchSize.height + bottom)
+        )
+    }
+
+    func placeSubviews(
+        in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()
+    ) {
+        guard subviews.count == 2 else { return }
+        let copyProposal = ProposedViewSize(width: copyWidth(for: bounds.width), height: nil)
+        let searchProposal = ProposedViewSize(width: searchWidth(for: bounds.width), height: nil)
+        let copySize = subviews[0].sizeThatFits(copyProposal)
+        let searchSize = subviews[1].sizeThatFits(searchProposal)
+        let searchY = max(bounds.minY + top + copySize.height + minimumGap,
+                          bounds.maxY - bottom - searchSize.height)
+
+        subviews[0].place(
+            at: CGPoint(x: bounds.minX + leading, y: bounds.minY + top),
+            anchor: .topLeading, proposal: copyProposal
+        )
+        subviews[1].place(
+            at: CGPoint(x: bounds.minX + leading, y: searchY),
+            anchor: .topLeading, proposal: searchProposal
+        )
     }
 }
 
