@@ -25,6 +25,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.layout.onSizeChanged
+import kotlin.math.roundToInt
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -284,8 +289,10 @@ fun WordOfTheDayCard(
 // foreground controls; the divider no longer separates two painted surfaces.
 @Composable
 private fun WordOfDayNightScene(modifier: Modifier, accessible: Boolean) {
-    val artwork = painterResource(R.drawable.ref_home_daily)
-    Canvas(modifier) {
+    var sceneWidthPx by remember { mutableIntStateOf(0) }
+    val artwork = rememberReferenceVector(R.drawable.ref_home_daily,
+        (sceneWidthPx * (if (accessible) 0.57f else 0.61f)).roundToInt(), 323, 174)
+    Canvas(modifier.onSizeChanged { sceneWidthPx = it.width }) {
         if (size.width <= 0f || size.height <= 0f) return@Canvas
         val width = size.width * (if (accessible) 0.57f else 0.61f)
         clipRect {

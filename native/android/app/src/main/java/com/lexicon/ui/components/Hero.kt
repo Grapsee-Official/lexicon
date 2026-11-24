@@ -36,6 +36,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.key
@@ -239,8 +243,13 @@ fun HomeNightScene(
 ) {
     val largeText = LocalConfiguration.current.fontScale >= 1.5f
     // The actual reference composition, not a regraded standalone PNG.
-    val painting = painterResource(R.drawable.ref_home_hero)
-    Canvas(modifier.graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }) {
+    var sceneWidthPx by remember { mutableIntStateOf(0) }
+    val maxAccessibleWidth = with(LocalDensity.current) { 210.dp.toPx() * 381f / 361f }
+    val requestedWidth = (if (largeText) minOf(sceneWidthPx * 0.645f, maxAccessibleWidth)
+        else sceneWidthPx * (381f / 591f)).roundToInt()
+    val painting = rememberReferenceVector(R.drawable.ref_home_hero, requestedWidth, 381, 361)
+    Canvas(modifier.onSizeChanged { sceneWidthPx = it.width }
+        .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }) {
         if (size.width <= 0f || size.height <= 0f) return@Canvas
         val header = headerInset.toPx().coerceIn(0f, size.height)
         val content = (size.height - header).coerceAtLeast(1f)
@@ -276,6 +285,67 @@ fun HomeNightScene(
 }
 
 // Legacy light artwork remains available until its separate reference is supplied.
+/**
+ * The canonical art remains editable SVG / VectorDrawable paths. Cache only
+ * the display raster, like a vector renderer's texture cache. The two complex
+ * landscape vectors contain hundreds of thousands of coordinates; parsing
+ * them on every screen entry can stall lower-memory Android phones.
+ */
+private val referenceVectorCache = object : LruCache<String, ImageBitmap>(12 * 1024 * 1024) {
+    override fun sizeOf(key: String, value: ImageBitmap): Int = value.width * value.height * 4
+}
+private val referenceVectorLock = Mutex()
+
+@Composable
+internal fun rememberReferenceVector(
+    resId: Int,
+    requestedWidthPx: Int,
+    viewportWidth: Int,
+    viewportHeight: Int,
+): Painter {
+    val context = LocalContext.current
+    val resources = context.resources
+    // Round up in small buckets so tiny window adjustments do not create
+    // a new multi-megabyte texture or another expensive vector parse.
+    val width = if (requestedWidthPx <= 0) 0 else
+        (((requestedWidthPx.coerceAtMost(1280) + 63) / 64) * 64).coerceIn(64, 1280)
+    val height = if (width == 0) 0 else
+        (width.toFloat() * viewportHeight / viewportWidth).roundToInt().coerceAtLeast(1)
+    val cacheKey = "$resId:$width:$height"
+    return key(cacheKey) {
+        val prepared by produceState<ImageBitmap?>(referenceVectorCache.get(cacheKey), cacheKey) {
+            if (width == 0) return@produceState
+            value = withContext(Dispatchers.Default) {
+                referenceVectorLock.withLock {
+                    referenceVectorCache.get(cacheKey) ?: run {
+                        var bitmap: Bitmap? = null
+                        try {
+                            // No Activity theme is retained by this cache. These vectors
+                            // use literal pigment colors, not theme-dependent resources.
+                            val drawable = resources.getDrawable(resId, null).mutate()
+                            val target = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                            bitmap = target
+                            drawable.setBounds(0, 0, width, height)
+                            drawable.draw(android.graphics.Canvas(target))
+                            target.asImageBitmap().also { referenceVectorCache.put(cacheKey, it) }
+                        } catch (_: Exception) {
+                            bitmap?.recycle()
+                            null
+                        } catch (_: OutOfMemoryError) {
+                            bitmap?.recycle()
+                            referenceVectorCache.evictAll()
+                            null
+                        }
+                    }
+                }
+            }
+        }
+        val ready = prepared
+        if (ready != null) remember(ready) { BitmapPainter(ready) }
+        else remember { ColorPainter(Color.Transparent) }
+    }
+}
+
 internal enum class ArtworkTreatment { MOONLIT, DAILY_LANDSCAPE, STORY, BOOKPLATE, DARK_BOOKPLATE }
 
 private val preparedArtworkCache = object : LruCache<String, ImageBitmap>(24 * 1024 * 1024) {
