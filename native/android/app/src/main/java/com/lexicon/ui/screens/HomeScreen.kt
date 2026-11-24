@@ -216,12 +216,13 @@ private fun HomeFeed(
                     val readableWidth = if (largeText) {
                         (maxWidth * 0.43f).coerceIn(150.dp, 220.dp)
                     } else {
-                        ((maxWidth - 62.dp) / 4f).coerceIn(if (state.isDark) 78.dp else 94.dp, 116.dp)
+                        if (state.isDark) ((maxWidth - 70.dp) / 4f).coerceIn(72.dp, 112.dp)
+                        else ((maxWidth - 62.dp) / 4f).coerceIn(94.dp, 116.dp)
                     }
                     LazyRow(
                         modifier = Modifier.fillMaxWidth(),
-                        contentPadding = PaddingValues(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        contentPadding = PaddingValues(horizontal = if (state.isDark) 18.dp else 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(if (state.isDark) 8.dp else 10.dp),
                     ) {
                         items(LexiconData.categories, key = { it.id }) { category ->
                             CategoryCard(

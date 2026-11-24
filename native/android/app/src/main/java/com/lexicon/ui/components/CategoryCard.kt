@@ -56,18 +56,22 @@ fun CategoryCard(
     val resId = ctx.resources.getIdentifier(category.illustration, "drawable", ctx.packageName)
     // Let the underlying page ink show through the bookplate rather than
     // introducing a second opaque rectangle around the original art.
-    val surface = if (isDark) Color(0xFF15212A).copy(alpha = 0.22f) else CardSurface
-    val lowerSurface = if (isDark) Color(0xFF15212A).copy(alpha = 0.47f) else Color(0xFFF8F1E6)
+    val surface = if (isDark) Color(0xFF16212B).copy(alpha = 0.42f) else CardSurface
+    val lowerSurface = if (isDark) Color(0xFF16212B).copy(alpha = 0.18f) else Color(0xFFF8F1E6)
     val ink = if (isDark) DarkForeground else DeepForest
     val muted = if (isDark) DarkMutedForeground else WarmGrey
     val border = if (isDark) Color(0xFFB6A486).copy(alpha = 0.12f) else DeepForest.copy(alpha = 0.10f)
-    val shape = RoundedCornerShape(12.dp)
+    val shape = RoundedCornerShape(if (isDark) 10.dp else 12.dp)
 
     Column(
         modifier = modifier
             .heightIn(min = if (largeText) 190.dp else if (isDark) 104.dp else 130.dp)
             .clip(shape)
-            .background(Brush.verticalGradient(listOf(surface, lowerSurface)))
+            .background(
+                if (isDark) Brush.verticalGradient(
+                    0f to surface, 0.60f to surface.copy(alpha = 0.29f), 1f to lowerSurface,
+                ) else Brush.verticalGradient(listOf(surface, lowerSurface))
+            )
             .border(1.dp, border, shape)
             .clickable(role = Role.Button) { viewModel.setActiveTab(TabKey.DICTIONARY) }
             .padding(horizontal = if (isDark) 5.dp else 7.dp, vertical = if (isDark && !largeText) 6.dp else 8.dp),

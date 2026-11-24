@@ -15,8 +15,8 @@ struct CategoryCard: View {
 
     var body: some View {
         let p = lexiconPalette(scheme)
-        let surface = isDark ? Color(hex: "15212A").opacity(0.22) : LexiconColors.card
-        let lowerSurface = isDark ? Color(hex: "15212A").opacity(0.47) : Color(hex: "F8F1E6")
+        let surface = isDark ? Color(hex: "16212B").opacity(0.42) : LexiconColors.card
+        let lowerSurface = isDark ? Color(hex: "16212B").opacity(0.18) : Color(hex: "F8F1E6")
         let border = isDark ? Color(hex: "B6A486").opacity(0.12) : LexiconColors.foreground.opacity(0.10)
         Button {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
@@ -48,13 +48,23 @@ struct CategoryCard: View {
             .padding(.vertical, isDark && !largeText ? 6 : 8)
             .frame(maxWidth: .infinity)
             .frame(minHeight: largeText ? 190 : (isDark ? 104 : 130), alignment: .top)
-            .background(LinearGradient(colors: [surface, lowerSurface], startPoint: .top, endPoint: .bottom))
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .background {
+                if isDark {
+                    LinearGradient(stops: [
+                        .init(color: surface, location: 0),
+                        .init(color: Color(hex: "16212B").opacity(0.29), location: 0.60),
+                        .init(color: lowerSurface, location: 1)
+                    ], startPoint: .top, endPoint: .bottom)
+                } else {
+                    LinearGradient(colors: [surface, lowerSurface], startPoint: .top, endPoint: .bottom)
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: isDark ? 10 : 12, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                RoundedRectangle(cornerRadius: isDark ? 10 : 12, style: .continuous)
                     .stroke(border, lineWidth: 1)
             )
-            .contentShape(RoundedRectangle(cornerRadius: 12))
+            .contentShape(RoundedRectangle(cornerRadius: isDark ? 10 : 12))
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .combine)
