@@ -217,6 +217,16 @@ final class LexiconViewModel: ObservableObject {
         }
         let prev = routeHistory.last ?? .home
         if !routeHistory.isEmpty { routeHistory.removeLast() }
+        switch prev {
+        case .home: activeTab = .home
+        case .dictionaryHome, .wordOfTheDay, .wordDetail, .searchResults, .expandedExploration:
+            activeTab = .dictionary
+        case .searchDiscovery: activeTab = .search
+        case .collections, .myNotes, .studyLists, .quickTemplates: activeTab = .collections
+        case .more: activeTab = .more
+        }
+        searchOpen = false
+        detailExpanded36 = prev == .expandedExploration
         route = prev
     }
 

@@ -136,9 +136,21 @@ class LexiconViewModel : ViewModel() {
     fun navigateBack() {
         _uiState.update { s ->
             val prev = s.routeHistory.lastOrNull() ?: ScreenRoute.HOME
+            val previousTab = when (prev) {
+                ScreenRoute.HOME -> TabKey.HOME
+                ScreenRoute.DICTIONARY_HOME, ScreenRoute.WORD_OF_THE_DAY, ScreenRoute.WORD_DETAIL,
+                ScreenRoute.SEARCH_RESULTS, ScreenRoute.EXPANDED_EXPLORATION -> TabKey.DICTIONARY
+                ScreenRoute.SEARCH_DISCOVERY -> TabKey.SEARCH
+                ScreenRoute.COLLECTIONS, ScreenRoute.MY_NOTES, ScreenRoute.STUDY_LISTS,
+                ScreenRoute.QUICK_TEMPLATES -> TabKey.COLLECTIONS
+                ScreenRoute.MORE -> TabKey.MORE
+            }
             s.copy(
                 route = prev,
+                activeTab = previousTab,
                 routeHistory = s.routeHistory.dropLast(1),
+                searchOpen = false,
+                detailExpanded36 = prev == ScreenRoute.EXPANDED_EXPLORATION,
             )
         }
     }
