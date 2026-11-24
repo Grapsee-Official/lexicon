@@ -17,7 +17,9 @@ struct ArticleCard: View {
     private var isDark: Bool { scheme == .dark }
 
     private var thumbName: String {
-        isDark ? "\(article.thumbnail)-dark" : article.thumbnail
+        let scene: String? = article.id == "a1" ? "home-library-origin" :
+            (article.id == "a2" ? "home-library-lost" : (article.id == "a3" ? "home-library-nature" : nil))
+        return countrysideImageName(article.thumbnail, isDark: isDark, scene: scene)
     }
 
     private var iconColor: Color {

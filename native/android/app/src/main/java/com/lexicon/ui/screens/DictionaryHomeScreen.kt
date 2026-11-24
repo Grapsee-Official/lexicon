@@ -219,7 +219,7 @@ fun DictionaryHomeScreen(viewModel: LexiconViewModel) {
             ) {
                 val paintingWidth = maxWidth.coerceAtMost(640.dp)
                 Image(
-                    painter = painterResource(resolveCountrysideDrawable("ill_banner_church", dark)),
+                    painter = painterResource(resolveCountrysideDrawable("ill_banner_church", dark, "dictionary-panorama")),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier

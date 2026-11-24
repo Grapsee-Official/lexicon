@@ -130,12 +130,8 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
         item(key = "dictionary_heading") {
             Box {
                 CountrysideHeroHeader("Dictionary", "", "ill_hero_cottage", dark,
-                    onHistoryClick = { viewModel.navigate(ScreenRoute.SEARCH_DISCOVERY) })
-                Box(Modifier.align(Alignment.TopStart).windowInsetsPadding(WindowInsets.statusBars)
-                    .padding(start = 12.dp).size(44.dp).clickable { viewModel.navigateBack() },
-                    contentAlignment = Alignment.Center) {
-                    Icon(Icons.AutoMirrored.Outlined.ArrowBack, "Back", tint = accent)
-                }
+                    onHistoryClick = { viewModel.navigate(ScreenRoute.SEARCH_DISCOVERY) },
+                    onBack = { viewModel.navigateBack() })
             }
         }
         item(key = "word") {
@@ -158,7 +154,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                     Text(word.definitions.firstOrNull().orEmpty(), color = ink,
                         style = TextStyle(fontFamily = LongFontFamily, fontSize = 15.sp, lineHeight = 21.sp),
                         modifier = Modifier.weight(1f))
-                    Image(painterResource(resolveCountrysideDrawable("ill_thumb_meadow", dark)), null,
+                    Image(painterResource(resolveCountrysideDrawable("ill_thumb_meadow", dark, "detail-meadow")), null,
                         modifier = Modifier.weight(.72f).height(94.dp), contentScale = ContentScale.Fit)
                 }
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
@@ -224,9 +220,9 @@ private fun IllustratedDailyWordScreen(viewModel: LexiconViewModel) {
     val muted = if (isDark) DarkMutedForeground else WarmGrey
     val accent = if (isDark) DarkAccent else OldWoodGold
 
-    val bridgeRes = resolveCountrysideDrawable("ill_hero_bridge", isDark)
+    val bridgeRes = resolveCountrysideDrawable("ill_hero_bridge", isDark, "daily-bridge")
     val booksRes = resolveCountrysideDrawable("ill_books_daisies", isDark)
-    val bayRes = resolveCountrysideDrawable("ill_banner_bay", isDark)
+    val bayRes = resolveCountrysideDrawable("ill_banner_bay", isDark, "daily-bay")
 
     LazyColumn(
         modifier = Modifier
@@ -1032,7 +1028,7 @@ fun ExpandedExplorationScreen(viewModel: LexiconViewModel) {
     var query by remember { mutableStateOf("") }
     var showAll36 by remember(state.detailExpanded36) { mutableStateOf(state.detailExpanded36) }
     val translations = remember(word.id) { LexiconData.translationsFor(word) }
-    val churchRes = resolveCountrysideDrawable("ill_banner_church", isDark)
+    val churchRes = resolveCountrysideDrawable("ill_banner_church", isDark, "dictionary-panorama")
 
     LazyColumn(
         modifier = Modifier

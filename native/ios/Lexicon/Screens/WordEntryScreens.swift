@@ -27,13 +27,7 @@ struct WordDetailProfileScreen: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 9) {
                 CountrysideHeroHeader(title: "Dictionary", subtitle: "", illustrationBase: "ill-hero-cottage",
-                    onHistoryClick: { vm.navigate(to: .searchDiscovery) }, onLogoToggleTheme: { vm.navigateBack() })
-                    .overlay(alignment: .topLeading) {
-                        Button { vm.navigateBack() } label: {
-                            Image(systemName: "chevron.left").font(.system(size: 20)).foregroundStyle(p.primary)
-                                .frame(width: 44, height: 44)
-                        }.buttonStyle(.plain).accessibilityLabel("Back")
-                    }
+                    onHistoryClick: { vm.navigate(to: .searchDiscovery) }, onBack: { vm.navigateBack() })
                 VStack(alignment: .leading, spacing: 7) {
                     Text(word.word).font(.lexiconDisplay(34)).foregroundStyle(ink)
                     HStack(spacing: 7) {
@@ -54,7 +48,7 @@ struct WordDetailProfileScreen: View {
                     HStack {
                         Text(word.definitions.first ?? "").font(.lexiconLong(15)).foregroundStyle(ink)
                             .fixedSize(horizontal: false, vertical: true).frame(maxWidth: .infinity, alignment: .leading)
-                        Image(countrysideImageName("ill-thumb-meadow", isDark: scheme == .dark))
+                        Image(countrysideImageName("ill-thumb-meadow", isDark: scheme == .dark, scene: "detail-meadow"))
                             .resizable().scaledToFit().frame(maxWidth: 125, maxHeight: 94).accessibilityHidden(true)
                     }
                     HStack(spacing: 7) {
@@ -118,7 +112,7 @@ private struct IllustratedDailyWordScreen: View {
         ScrollView {
             VStack(spacing: 11) {
                 ZStack(alignment: .topTrailing) {
-                    Image(countrysideImageName("ill-hero-bridge", isDark: isDark))
+                    Image(countrysideImageName("ill-hero-bridge", isDark: isDark, scene: "daily-bridge"))
                         .resizable()
                         .scaledToFit()
                         .frame(width: 282, height: 264, alignment: .topTrailing)
@@ -287,7 +281,7 @@ private struct IllustratedDailyWordScreen: View {
                             p.card
                             HStack(spacing: 0) {
                                 Spacer(minLength: 0)
-                                Image(countrysideImageName("ill-banner-bay", isDark: isDark))
+                                Image(countrysideImageName("ill-banner-bay", isDark: isDark, scene: "daily-bay"))
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: w, height: 94, alignment: .bottomTrailing)
@@ -930,7 +924,7 @@ struct ExpandedExplorationScreen: View {
                 .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(p.border, lineWidth: 1))
                 .padding(.horizontal, 16)
 
-                Image(countrysideImageName("ill-banner-church", isDark: isDark))
+                Image(countrysideImageName("ill-banner-church", isDark: isDark, scene: "dictionary-panorama"))
                     .resizable()
                     .scaledToFit()
                     .frame(height: 72)

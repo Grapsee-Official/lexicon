@@ -133,7 +133,7 @@ struct DictionaryHomeScreen: View {
                 // Preserve the entire original panorama, with the intrinsic
                 // 420:182 aspect rather than cropping it into a 76pt strip.
                 // On iPad it becomes a centred, generously sized bookplate.
-                Image(countrysideImageName("ill-banner-church", isDark: isDark))
+                Image(countrysideImageName("ill-banner-church", isDark: isDark, scene: "dictionary-panorama"))
                     .resizable()
                     .aspectRatio(758.0 / 132.0, contentMode: .fill)
                     .clipped()

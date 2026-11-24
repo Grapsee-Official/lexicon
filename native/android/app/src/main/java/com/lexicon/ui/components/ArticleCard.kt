@@ -72,7 +72,14 @@ fun ArticleCard(
 
     val ctx = LocalContext.current
     val thumbName = if (isDark) "${article.thumbnail}_dark" else article.thumbnail
-    val resId = ctx.resources.getIdentifier(thumbName, "drawable", ctx.packageName)
+    val boardName = when (article.id) {
+        "a1" -> "ref_light_home_library_origin"
+        "a2" -> "ref_light_home_library_lost"
+        "a3" -> "ref_light_home_library_nature"
+        else -> ""
+    }
+    val boardRes = if (!isDark && boardName.isNotEmpty()) ctx.resources.getIdentifier(boardName, "drawable", ctx.packageName) else 0
+    val resId = boardRes.takeIf { it != 0 } ?: ctx.resources.getIdentifier(thumbName, "drawable", ctx.packageName)
         .takeIf { it != 0 }
         ?: ctx.resources.getIdentifier(article.thumbnail, "drawable", ctx.packageName)
 
