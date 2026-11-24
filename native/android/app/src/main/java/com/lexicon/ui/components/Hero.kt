@@ -325,19 +325,32 @@ private fun prepareArtwork(
         inPreferredConfig = Bitmap.Config.ARGB_8888
     }) ?: return null
     var bitmap = source
-    if (treatment == ArtworkTreatment.BOOKPLATE && bitmap.hasAlpha()) {
+    if (treatment == ArtworkTreatment.BOOKPLATE) {
+        // Bound working memory before examining the transparent perimeter.
+        val longest = maxOf(bitmap.width, bitmap.height)
+        if (longest > 1280) {
+            val scale = 1280f / longest
+            bitmap = Bitmap.createScaledBitmap(bitmap,
+                (bitmap.width * scale).roundToInt().coerceAtLeast(1),
+                (bitmap.height * scale).roundToInt().coerceAtLeast(1), true)
+        }
         val w = bitmap.width
         val h = bitmap.height
-        val row = IntArray(w)
+        val pixels = IntArray(w * h)
+        bitmap.getPixels(pixels, 0, w, 0, 0, w, h)
+        // Already-transparent PNGs are left alone. An opaque, uniform neutral
+        // matte is removed only from regions connected to the perimeter.
+        if (removeNeutralBookplateMatte(pixels, w, h)) {
+            bitmap = Bitmap.createBitmap(pixels, w, h, Bitmap.Config.ARGB_8888)
+        }
         var left = w
         var top = h
         var right = -1
         var bottom = -1
         var transparent = 0L
         for (y in 0 until h) {
-            bitmap.getPixels(row, 0, w, 0, y, w, 1)
             for (x in 0 until w) {
-                val alpha = row[x] ushr 24
+                val alpha = pixels[y * w + x] ushr 24
                 if (alpha < 12) transparent++
                 if (alpha >= 16) {
                     left = minOf(left, x)
@@ -347,7 +360,6 @@ private fun prepareArtwork(
                 }
             }
         }
-        // Crop transparent storage margins only, never an opaque painting.
         if (right >= left && bottom >= top && transparent > w.toLong() * h / 8) {
             val pad = (maxOf(right - left + 1, bottom - top + 1) * 0.055f).roundToInt()
             left = (left - pad).coerceAtLeast(0)
@@ -413,3 +425,68 @@ private fun prepareArtwork(
     }
     Bitmap.createBitmap(pixels, w, h, Bitmap.Config.ARGB_8888).asImageBitmap()
 }.getOrNull()
+
+
+// Conservative matte recognition, not global chroma-keying. Require all
+// four borders AND an inset ring to match a nearly neutral opaque color.
+// Flood only edge-connected pixels, so enclosed light/dark details survive.
+private fun removeNeutralBookplateMatte(pixels: IntArray, w: Int, h: Int): Boolean {
+    if (w < 32 || h < 32 || pixels.any { (it ushr 24) < 250 }) return false
+    val matte = pixels[0]
+    val mr = (matte ushr 16) and 255
+    val mg = (matte ushr 8) and 255
+    val mb = matte and 255
+    val high = maxOf(mr, mg, mb)
+    val low = minOf(mr, mg, mb)
+    if (high - low > 16 || (high > 38 && low < 218)) return false
+    fun distance(p: Int): Int = maxOf(
+        kotlin.math.abs(((p ushr 16) and 255) - mr),
+        kotlin.math.abs(((p ushr 8) and 255) - mg),
+        kotlin.math.abs((p and 255) - mb),
+    )
+    val inset = (minOf(w, h) * 0.018f).roundToInt().coerceAtLeast(1)
+    for (ring in intArrayOf(0, inset)) {
+        for (sample in 0..24) {
+            val x = ring + (w - 1 - 2 * ring) * sample / 24
+            val y = ring + (h - 1 - 2 * ring) * sample / 24
+            if (distance(pixels[ring * w + x]) > 9 ||
+                distance(pixels[(h - 1 - ring) * w + x]) > 9 ||
+                distance(pixels[y * w + ring]) > 9 ||
+                distance(pixels[y * w + w - 1 - ring]) > 9) return false
+        }
+    }
+    val visited = ByteArray(pixels.size)
+    val queue = IntArray(pixels.size)
+    var head = 0
+    var tail = 0
+    fun offer(i: Int) {
+        if (visited[i].toInt() != 0) return
+        visited[i] = 1
+        if (distance(pixels[i]) < 26) queue[tail++] = i
+    }
+    for (x in 0 until w) { offer(x); offer((h - 1) * w + x) }
+    for (y in 0 until h) { offer(y * w); offer(y * w + w - 1) }
+    if (tail == 0) return false
+    while (head < tail) {
+        val i = queue[head++]
+        val p = pixels[i]
+        val alpha = smoothArtworkStep(8f, 26f, distance(p).toFloat())
+        if (alpha <= 0.001f) {
+            pixels[i] = 0
+        } else {
+            // Unmix the matte from the antialiased fringe before compositing.
+            fun unmix(c: Int, m: Int): Int =
+                ((c - m * (1f - alpha)) / alpha).roundToInt().coerceIn(0, 255)
+            pixels[i] = ((alpha * 255).roundToInt() shl 24) or
+                (unmix((p ushr 16) and 255, mr) shl 16) or
+                (unmix((p ushr 8) and 255, mg) shl 8) or unmix(p and 255, mb)
+        }
+        val x = i % w
+        val y = i / w
+        if (x > 0) offer(i - 1)
+        if (x + 1 < w) offer(i + 1)
+        if (y > 0) offer(i - w)
+        if (y + 1 < h) offer(i + w)
+    }
+    return true
+}

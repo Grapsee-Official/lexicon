@@ -416,6 +416,9 @@ private enum HomeArtworkProcessor {
 
         var left = w, top = h, right = -1, bottom = -1, transparent = 0
         if treatment == .bookplate {
+            // Match the Android pipeline: only a provably uniform, opaque
+            // neutral perimeter is treated as a matte, never the painting.
+            removeNeutralBookplateMatte(&bytes, width: w, height: h)
             for y in 0..<h {
                 for x in 0..<w {
                     let alpha = bytes[(y * w + x) * 4 + 3]
@@ -501,4 +504,65 @@ private enum HomeArtworkProcessor {
         cache.setObject(image, forKey: key, cost: result.width * result.height * 4)
         return image
     }
+
+    private static func removeNeutralBookplateMatte(_ bytes: inout [UInt8], width w: Int, height h: Int) {
+        guard w >= 32, h >= 32 else { return }
+        for i in stride(from: 3, to: bytes.count, by: 4) {
+            if bytes[i] < 250 { return }
+        }
+        let mr = Int(bytes[0]), mg = Int(bytes[1]), mb = Int(bytes[2])
+        let high = max(mr, max(mg, mb)), low = min(mr, min(mg, mb))
+        guard high - low <= 16, high <= 38 || low >= 218 else { return }
+        func distance(_ p: Int) -> Int {
+            let i = p * 4
+            return max(abs(Int(bytes[i]) - mr), max(abs(Int(bytes[i + 1]) - mg), abs(Int(bytes[i + 2]) - mb)))
+        }
+        let inset = max(1, Int((Double(min(w, h)) * 0.018).rounded()))
+        for ring in [0, inset] {
+            for sample in 0...24 {
+                let x = ring + (w - 1 - 2 * ring) * sample / 24
+                let y = ring + (h - 1 - 2 * ring) * sample / 24
+                if distance(ring * w + x) > 9 ||
+                    distance((h - 1 - ring) * w + x) > 9 ||
+                    distance(y * w + ring) > 9 ||
+                    distance(y * w + w - 1 - ring) > 9 { return }
+            }
+        }
+        var visited = [UInt8](repeating: 0, count: w * h)
+        var queue = [Int]()
+        queue.reserveCapacity(w * h / 4)
+        func offer(_ i: Int) {
+            guard visited[i] == 0 else { return }
+            visited[i] = 1
+            if distance(i) < 26 { queue.append(i) }
+        }
+        for x in 0..<w { offer(x); offer((h - 1) * w + x) }
+        for y in 0..<h { offer(y * w); offer(y * w + w - 1) }
+        var head = 0
+        while head < queue.count {
+            let p = queue[head]
+            head += 1
+            let i = p * 4
+            let alpha = smooth(8, 26, Float(distance(p)))
+            // Store premultiplied colors. Subtract the old matte's
+            // contribution before placing the painting on a new surface.
+            if alpha <= 0.001 {
+                bytes[i] = 0; bytes[i + 1] = 0; bytes[i + 2] = 0; bytes[i + 3] = 0
+            } else {
+                let r = Float(bytes[i]) / 255 - Float(mr) / 255 * (1 - alpha)
+                let g = Float(bytes[i + 1]) / 255 - Float(mg) / 255 * (1 - alpha)
+                let b = Float(bytes[i + 2]) / 255 - Float(mb) / 255 * (1 - alpha)
+                bytes[i] = byte(min(alpha, max(0, r)))
+                bytes[i + 1] = byte(min(alpha, max(0, g)))
+                bytes[i + 2] = byte(min(alpha, max(0, b)))
+                bytes[i + 3] = byte(alpha)
+            }
+            let x = p % w, y = p / w
+            if x > 0 { offer(p - 1) }
+            if x + 1 < w { offer(p + 1) }
+            if y > 0 { offer(p - w) }
+            if y + 1 < h { offer(p + w) }
+        }
+    }
+
 }
