@@ -421,7 +421,7 @@ private enum HomeArtworkProcessor {
                 for x in 0..<w {
                     let alpha = bytes[(y * w + x) * 4 + 3]
                     if alpha < 12 { transparent += 1 }
-                    if alpha >= 16 {
+                    if alpha >= 4 {
                         left = min(left, x); top = min(top, y)
                         right = max(right, x); bottom = max(bottom, y)
                     }
@@ -524,14 +524,29 @@ private enum HomeArtworkProcessor {
         }
         for x in 0..<w { offer(x); offer((h - 1) * w + x) }
         for y in 0..<h { offer(y * w); offer(y * w + w - 1) }
+        // Complete the region analysis before modifying the RGBA buffer.
         var head = 0
         while head < queue.count {
             let p = queue[head]
             head += 1
+            let x = p % w, y = p / w
+            if x > 0 { offer(p - 1) }
+            if x + 1 < w { offer(p + 1) }
+            if y > 0 { offer(p - w) }
+            if y + 1 < h { offer(p + w) }
+        }
+        let area = Double(w * h)
+        guard Double(queue.count) >= area * 0.08,
+              Double(queue.count) <= area * 0.94 else { return }
+        var clearCount = 0
+        for p in queue where distance(p) <= 8 { clearCount += 1 }
+        guard Double(clearCount) >= Double(queue.count) * 0.82 else { return }
+
+        for p in queue {
             let i = p * 4
             let alpha = smooth(8, 26, Float(distance(p)))
-            // Store premultiplied colors. Subtract the old matte's
-            // contribution before placing the painting on a new surface.
+            // Store premultiplied colors. Subtract the old matte before
+            // placing the painting on either native theme's surface.
             if alpha <= 0.001 {
                 bytes[i] = 0; bytes[i + 1] = 0; bytes[i + 2] = 0; bytes[i + 3] = 0
             } else {
@@ -543,11 +558,6 @@ private enum HomeArtworkProcessor {
                 bytes[i + 2] = byte(min(alpha, max(0, b)))
                 bytes[i + 3] = byte(alpha)
             }
-            let x = p % w, y = p / w
-            if x > 0 { offer(p - 1) }
-            if x + 1 < w { offer(p + 1) }
-            if y > 0 { offer(p - w) }
-            if y + 1 < h { offer(p + w) }
         }
     }
 

@@ -360,7 +360,7 @@ private fun prepareArtwork(
             for (x in 0 until w) {
                 val alpha = pixels[y * w + x] ushr 24
                 if (alpha < 12) transparent++
-                if (alpha >= 16) {
+                if (alpha >= 4) {
                     left = minOf(left, x)
                     top = minOf(top, y)
                     right = maxOf(right, x)
@@ -468,27 +468,40 @@ private fun removeNeutralBookplateMatte(pixels: IntArray, w: Int, h: Int): Boole
     }
     for (x in 0 until w) { offer(x); offer((h - 1) * w + x) }
     for (y in 0 until h) { offer(y * w); offer(y * w + w - 1) }
-    if (tail == 0) return false
+    // Discover the full connected region before changing a single pixel.
+    // A nearly uniform painting or an artwork touching most of the edges
+    // is ambiguous: keep it rather than risk erasing actual brushwork.
     while (head < tail) {
         val i = queue[head++]
-        val p = pixels[i]
-        val alpha = smoothArtworkStep(8f, 26f, distance(p).toFloat())
-        if (alpha <= 0.001f) {
-            pixels[i] = 0
-        } else {
-            // Unmix the matte from the antialiased fringe before compositing.
-            fun unmix(c: Int, m: Int): Int =
-                ((c - m * (1f - alpha)) / alpha).roundToInt().coerceIn(0, 255)
-            pixels[i] = ((alpha * 255).roundToInt() shl 24) or
-                (unmix((p ushr 16) and 255, mr) shl 16) or
-                (unmix((p ushr 8) and 255, mg) shl 8) or unmix(p and 255, mb)
-        }
         val x = i % w
         val y = i / w
         if (x > 0) offer(i - 1)
         if (x + 1 < w) offer(i + 1)
         if (y > 0) offer(i - w)
         if (y + 1 < h) offer(i + w)
+    }
+    if (tail < pixels.size * 0.08f || tail > pixels.size * 0.94f) return false
+    var clearCount = 0
+    for (j in 0 until tail) {
+        if (distance(pixels[queue[j]]) <= 8) clearCount++
+    }
+    // Most of the candidate region must be a truly flat matte rather than
+    // a gradual dark wash. Preserve uncertain art in its original form.
+    if (clearCount < tail * 0.82f) return false
+
+    for (j in 0 until tail) {
+        val i = queue[j]
+        val p = pixels[i]
+        val alpha = smoothArtworkStep(8f, 26f, distance(p).toFloat())
+        if (alpha <= 0.001f) {
+            pixels[i] = 0
+        } else {
+            fun unmix(c: Int, m: Int): Int =
+                ((c - m * (1f - alpha)) / alpha).roundToInt().coerceIn(0, 255)
+            pixels[i] = ((alpha * 255).roundToInt() shl 24) or
+                (unmix((p ushr 16) and 255, mr) shl 16) or
+                (unmix((p ushr 8) and 255, mg) shl 8) or unmix(p and 255, mb)
+        }
     }
     return true
 }
