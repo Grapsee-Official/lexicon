@@ -13,7 +13,11 @@ struct WordOfTheDayCard: View {
     @State private var measuredWidth: CGFloat = 390
 
     private var cardHeight: CGFloat {
-        dynamicTypeSize.isAccessibilitySize ? 186 : (measuredWidth < 360 ? 144 : 118)
+        if dynamicTypeSize.isAccessibilitySize { return 186 }
+        if !isDark { return measuredWidth < 360 ? 144 : 118 }
+        if (word.definitions.first ?? "").count > 105 { return 136 }
+        // measuredWidth excludes the two 16pt page margins.
+        return measuredWidth < 328 ? 116 : 112
     }
 
     private var isDark: Bool { scheme == .dark }
@@ -27,7 +31,7 @@ struct WordOfTheDayCard: View {
     }
 
     private var cardBorder: Color {
-        isDark ? Color(hex: "B6A486").opacity(0.19) : lexiconPalette(scheme).border
+        isDark ? Color(hex: "B6A486").opacity(0.17) : lexiconPalette(scheme).border
     }
 
     private var labelGold: Color {
@@ -55,7 +59,7 @@ struct WordOfTheDayCard: View {
             GeometryReader { geo in
                 let totalW = geo.size.width
                 let height = cardHeight
-                let compact = totalW < 360
+                let compact = totalW < (isDark ? 328 : 360)
                 let leftW = totalW * 0.39
                 let rightW = totalW - leftW - 1
 
@@ -89,7 +93,8 @@ struct WordOfTheDayCard: View {
                                 Image(systemName: "speaker.wave.2")
                                     .font(.system(size: 14, weight: .regular))
                                     .foregroundStyle(labelGold)
-                                    .frame(width: 32, height: 32)
+                                    .frame(width: isDark && !dynamicTypeSize.isAccessibilitySize ? 23 : 32,
+                                           height: isDark && !dynamicTypeSize.isAccessibilitySize ? 23 : 32)
                                     .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
@@ -111,7 +116,7 @@ struct WordOfTheDayCard: View {
                         }
                     }
                     .padding(.horizontal, 13)
-                    .padding(.vertical, 14)
+                    .padding(.vertical, isDark && !dynamicTypeSize.isAccessibilitySize ? 11 : 14)
                     .frame(width: leftW, height: height, alignment: .leading)
                     .background(leftBg)
 
@@ -148,7 +153,7 @@ struct WordOfTheDayCard: View {
                                 .foregroundStyle(defColor)
                                 .lineSpacing(2.5)
                                 .lineLimit(4)
-                                .frame(width: isDark ? max(1, rightW * (dynamicTypeSize.isAccessibilitySize ? 0.88 : 0.69) - 17) : rightW * 0.69, alignment: .leading)
+                                .frame(width: isDark ? max(1, rightW * (dynamicTypeSize.isAccessibilitySize ? 0.88 : 0.74) - 17) : rightW * 0.69, alignment: .leading)
 
                             Spacer(minLength: 4)
 
@@ -161,7 +166,7 @@ struct WordOfTheDayCard: View {
                             .foregroundStyle(exploreColor)
                         }
                         .padding(.leading, 13)
-                        .padding(.vertical, 13)
+                        .padding(.vertical, isDark && !dynamicTypeSize.isAccessibilitySize ? 11 : 13)
                     }
                     .frame(width: rightW, height: height)
                 }
@@ -214,10 +219,10 @@ private struct WordOfDayNightScene: View {
             let width = geo.size.width
             let height = geo.size.height
             ZStack(alignment: .trailing) {
-                Color(hex: "0B141C")
+                Color(hex: "08121A")
                 PreparedArtworkImage(name: "wotd-home-dark", treatment: .story)
                     .scaledToFill()
-                    .frame(width: width * 0.70, height: height, alignment: .trailing)
+                    .frame(width: width * 0.66, height: height, alignment: .trailing)
                     .clipped()
                     .frame(width: width, height: height, alignment: .trailing)
                     .mask {
@@ -225,18 +230,18 @@ private struct WordOfDayNightScene: View {
                             .init(color: .clear, location: 0),
                             .init(color: .clear, location: 0.28),
                             .init(color: .black.opacity(0.04), location: 0.40),
-                            .init(color: .black.opacity(largeText ? 0.10 : 0.25), location: 0.54),
-                            .init(color: .black.opacity(largeText ? 0.30 : 0.68), location: 0.70),
+                            .init(color: .black.opacity(largeText ? 0.08 : 0.18), location: 0.54),
+                            .init(color: .black.opacity(largeText ? 0.25 : 0.52), location: 0.70),
                             .init(color: .black.opacity(largeText ? 0.58 : 0.98), location: 0.88),
-                            .init(color: .black.opacity(largeText ? 0.54 : 0.88), location: 1)
+                            .init(color: .black.opacity(largeText ? 0.54 : 0.96), location: 1)
                         ], startPoint: .leading, endPoint: .trailing)
                     }
                     .mask {
                         LinearGradient(stops: [
-                            .init(color: .black.opacity(0.52), location: 0),
-                            .init(color: .black.opacity(0.90), location: 0.16),
-                            .init(color: .black, location: 0.70),
-                            .init(color: .black.opacity(0.54), location: 1)
+                            .init(color: .black.opacity(0.68), location: 0),
+                            .init(color: .black.opacity(0.96), location: 0.14),
+                            .init(color: .black, location: 0.84),
+                            .init(color: .black.opacity(0.76), location: 1)
                         ], startPoint: .top, endPoint: .bottom)
                     }
             }

@@ -71,13 +71,23 @@ fun WordOfTheDayCard(
     val config = LocalConfiguration.current
     val compact = config.screenWidthDp < 360
     val accessible = config.fontScale > 1.2f
-    val cardHeight = if (accessible) 186.dp else if (compact) 144.dp else 118.dp
+    val definition = word.definitions.firstOrNull().orEmpty()
+    // The reference is a compact editorial spread, not a tall two-panel tile.
+    // Give unusually long entries room, while matching the regular card to
+    // the reference's proportions at ordinary phone widths.
+    val cardHeight = when {
+        accessible -> 186.dp
+        !isDark -> if (compact) 144.dp else 118.dp
+        definition.length > 105 -> 136.dp
+        compact -> 116.dp
+        else -> 112.dp
+    }
 
     // Same ink family as the Home night backdrop, not a separate slate tile.
     val leftBg = if (isDark) Color.Transparent else BrandGreen
     val rightBg = if (isDark) Color.Transparent else WotdRightSurface
-    val nightInk = Color(0xFF0B141C)
-    val cardBorder = if (isDark) Color(0xFFB6A486).copy(alpha = 0.19f) else DeepForest.copy(alpha = 0.12f)
+    val nightInk = Color(0xFF08121A)
+    val cardBorder = if (isDark) Color(0xFFB6A486).copy(alpha = 0.17f) else DeepForest.copy(alpha = 0.12f)
     val labelGold = if (isDark) DarkAccent else WotdGoldLight
     val wordColor = if (isDark) DarkForeground else Color.White
     val phoneticColor = if (isDark) DarkMutedForeground else Color.White.copy(alpha = 0.78f)
@@ -89,7 +99,7 @@ fun WordOfTheDayCard(
     val wordSize = when {
         word.word.length >= 15 -> 12.sp
         word.word.length >= 11 -> if (compact || accessible) 13.sp else 14.sp
-        word.word.length >= 9 -> if (compact || accessible) 14.sp else 15.sp
+        word.word.length >= 9 -> if (isDark && !accessible) 17.sp else if (compact || accessible) 14.sp else 15.sp
         else -> if (compact || accessible) 17.sp else 20.sp
     }
 
@@ -123,7 +133,7 @@ fun WordOfTheDayCard(
                     .weight(0.39f)
                     .fillMaxHeight()
                     .background(leftBg)
-                    .padding(horizontal = 12.dp, vertical = 14.dp),
+                    .padding(horizontal = 12.dp, vertical = if (isDark && !accessible) 11.dp else 14.dp),
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 Row(
@@ -160,7 +170,7 @@ fun WordOfTheDayCard(
                     )
                     Box(
                         modifier = Modifier
-                            .size(28.dp)
+                            .size(if (isDark && !accessible) 23.dp else 28.dp)
                             .clip(CircleShape)
                             .iconButton(AccessibilityAudit.Descriptions.Volume)
                             .clickable(role = Role.Button) { viewModel.pronounce(word.word) },
@@ -228,12 +238,12 @@ fun WordOfTheDayCard(
                 Column(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .fillMaxWidth(if (isDark && accessible) 0.88f else 0.69f)
-                        .padding(start = 13.dp, top = 13.dp, bottom = 12.dp, end = 4.dp),
+                        .fillMaxWidth(if (isDark && accessible) 0.88f else if (isDark) 0.74f else 0.69f)
+                        .padding(start = 13.dp, top = if (isDark && !accessible) 11.dp else 13.dp, bottom = if (isDark && !accessible) 10.dp else 12.dp, end = 4.dp),
                     verticalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Text(
-                        text = word.definitions.firstOrNull().orEmpty(),
+                        text = definition,
                         color = defColor,
                         style = LexiconTextStyles.WotdDefinition,
                         maxLines = 4,
@@ -273,7 +283,7 @@ private fun WordOfDayNightScene(modifier: Modifier, accessible: Boolean) {
         val intrinsic = artwork.intrinsicSize
         val aspect = if (intrinsic.width > 0 && intrinsic.height > 0)
             intrinsic.width / intrinsic.height else 1.5f
-        val width = maxOf(size.width * 0.70f, size.height * aspect)
+        val width = maxOf(size.width * 0.66f, size.height * aspect)
         val height = width / aspect
         clipRect {
             translate(left = size.width - width, top = (size.height - height) / 2f) {
@@ -285,19 +295,19 @@ private fun WordOfDayNightScene(modifier: Modifier, accessible: Boolean) {
                 0f to Color.Transparent,
                 0.28f to Color.Transparent,
                 0.40f to Color.Black.copy(alpha = 0.04f),
-                0.54f to Color.Black.copy(alpha = if (accessible) 0.10f else 0.25f),
-                0.70f to Color.Black.copy(alpha = if (accessible) 0.30f else 0.68f),
+                0.54f to Color.Black.copy(alpha = if (accessible) 0.08f else 0.18f),
+                0.70f to Color.Black.copy(alpha = if (accessible) 0.25f else 0.52f),
                 0.88f to Color.Black.copy(alpha = if (accessible) 0.58f else 0.98f),
-                1f to Color.Black.copy(alpha = if (accessible) 0.54f else 0.88f),
+                1f to Color.Black.copy(alpha = if (accessible) 0.54f else 0.96f),
             ),
             blendMode = BlendMode.DstIn,
         )
         drawRect(
             brush = Brush.verticalGradient(
-                0f to Color.Black.copy(alpha = 0.52f),
-                0.16f to Color.Black.copy(alpha = 0.90f),
-                0.70f to Color.Black,
-                1f to Color.Black.copy(alpha = 0.54f),
+                0f to Color.Black.copy(alpha = 0.68f),
+                0.14f to Color.Black.copy(alpha = 0.96f),
+                0.84f to Color.Black,
+                1f to Color.Black.copy(alpha = 0.76f),
             ),
             blendMode = BlendMode.DstIn,
         )
