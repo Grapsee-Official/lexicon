@@ -6,7 +6,7 @@ mkdir -p qa-captures/android
 PYTHON="${RUNNER_TEMP}/lexicon-qa-venv/bin/python"
 test -x "$PYTHON" || { echo "::error::Screenshot validator is not installed"; exit 1; }
 
-adb install -r native/android/app/build/outputs/apk/debug/app-debug.apk
+timeout 120 adb install -r native/android/app/build/outputs/apk/debug/app-debug.apk
 adb shell settings put system font_scale 1.0
 adb shell wm size 1080x2400
 adb shell wm density 420
@@ -24,13 +24,17 @@ for theme in light dark; do
         adb shell am force-stop com.google.android.apps.nexuslauncher || true
       fi
       adb shell am force-stop com.lexicon.debug || true
-      adb shell am start -W -n com.lexicon.debug/com.lexicon.MainActivity --es lexora_theme "$theme" --es lexicon_screen "$screen"
+      timeout 45 adb shell am start -W -n com.lexicon.debug/com.lexicon.MainActivity --es lexora_theme "$theme" --es lexicon_screen "$screen"
       sleep 5
-      if ! adb shell pidof com.lexicon.debug >/dev/null; then
+      if ! timeout 15 adb shell pidof com.lexicon.debug >/dev/null; then
         echo "::warning::Lexora process is absent on $theme/$screen attempt $attempt"
         continue
       fi
-      adb exec-out screencap -p > "$output"
+      if ! timeout 30 adb exec-out screencap -p > "$output"; then
+        echo "::warning::ADB screenshot failed: $output"
+        rm -f "$output"
+        continue
+      fi
       if "$PYTHON" scripts/check_capture_quality.py "$output"; then
         valid=1
         break

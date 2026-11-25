@@ -39,10 +39,14 @@ for layout in compact tablet; do
           adb shell am force-stop com.google.android.apps.nexuslauncher || true
         fi
         adb shell am force-stop com.lexicon.debug || true
-        adb shell am start -W -n com.lexicon.debug/com.lexicon.MainActivity \
+        timeout 45 adb shell am start -W -n com.lexicon.debug/com.lexicon.MainActivity \
           --es lexora_theme "$theme" --es lexicon_screen "$screen"
         sleep 4
-        adb exec-out screencap -p > "$output"
+        if ! timeout 30 adb exec-out screencap -p > "$output"; then
+        echo "::warning::ADB screenshot failed: $output"
+        rm -f "$output"
+        continue
+      fi
         if "$PYTHON" scripts/check_capture_quality.py "$output"; then
           valid=1
           break

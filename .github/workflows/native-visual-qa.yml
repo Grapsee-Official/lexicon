@@ -17,6 +17,7 @@ on:
       - 'scripts/check_template_paper_alpha.py'
       - 'scripts/check_screen_diversity.py'
       - 'scripts/capture_android_adaptive.sh'
+      - 'scripts/capture_android_screens.sh'
       - 'artwork/vector/countryside-*-material.svg'
       - 'artwork/vector/lexora-*.svg'
       - 'docs/visual-qa/lexora-home-reference-contract.md'
@@ -87,10 +88,24 @@ jobs:
           arch: x86_64
           profile: pixel_6
           target: google_apis
-          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -memory 4096 -cores 2
           disable-animations: true
           disable-linux-hw-accel: false
           script: bash scripts/capture_android_screens.sh && bash scripts/capture_android_adaptive.sh
+      - name: Collect emulator diagnostics
+        if: always()
+        run: |
+          mkdir -p qa-captures/android-diagnostics
+          adb devices -l > qa-captures/android-diagnostics/devices.txt || true
+          timeout 15 adb logcat -d -t 1000 > qa-captures/android-diagnostics/logcat.txt 2>&1 || true
+          free -m > qa-captures/android-diagnostics/memory.txt
+          df -h > qa-captures/android-diagnostics/disk.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lexicon-android-emulator-diagnostics
+          path: qa-captures/android-diagnostics/*
+          retention-days: 7
       - name: Reject blank or missing Android visual evidence
         run: |
           "$RUNNER_TEMP/lexicon-qa-venv/bin/python" scripts/check_capture_quality.py qa-captures/android --expected-count 30
