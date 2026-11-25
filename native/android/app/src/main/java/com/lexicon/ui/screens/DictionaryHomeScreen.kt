@@ -51,18 +51,18 @@ fun DictionaryHomeScreen(viewModel: LexiconViewModel) {
                 illustrationBase = "ill_hero_cottage", isDark = dark,
                 onHistoryClick = { viewModel.navigate(ScreenRoute.SEARCH_DISCOVERY) },
                 onLogoToggleTheme = { viewModel.toggleTheme() }, heroHeight = 148.dp,
-            )
-        }
-        item {
-            CountrysideSearchPill(
-                value = draft, onValueChange = { draft = it },
-                placeholder = "Search for a word...", isDark = dark,
-                showFilter = true,
-                onFilterClick = { viewModel.navigate(ScreenRoute.SEARCH_DISCOVERY) },
-                onSubmit = {
-                    if (draft.isBlank()) viewModel.navigate(ScreenRoute.SEARCH_DISCOVERY)
-                    else viewModel.submitSearch(draft)
-                }, modifier = Modifier.padding(horizontal = 16.dp),
+                bottomContent = {
+                    CountrysideSearchPill(
+                        value = draft, onValueChange = { draft = it },
+                        placeholder = "Search for a word...", isDark = dark,
+                        showFilter = true,
+                        onFilterClick = { viewModel.navigate(ScreenRoute.SEARCH_DISCOVERY) },
+                        onSubmit = {
+                            if (draft.isBlank()) viewModel.navigate(ScreenRoute.SEARCH_DISCOVERY)
+                            else viewModel.submitSearch(draft)
+                        }, modifier = Modifier.padding(horizontal = 16.dp),
+                    )
+                },
             )
         }
         item {

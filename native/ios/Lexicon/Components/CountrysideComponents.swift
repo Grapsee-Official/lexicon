@@ -15,6 +15,31 @@ func countrysideImageName(_ base: String, isDark: Bool, scene: String? = nil) ->
     return isDark ? "\(clean)-dark" : clean
 }
 
+/// Fit the complete vector into its proposed region and blend only the
+/// artwork's alpha. Text, buttons and page texture remain independent.
+struct CountrysidePainting: View {
+    let name: String
+    var fadeLeft: CGFloat = 0.12
+    var fadeBottom: CGFloat = 0.08
+    var body: some View {
+        GeometryReader { geo in
+            let intrinsic = UIImage(named: name)?.size ?? CGSize(width: 1, height: 1)
+            let scale = min(geo.size.width / max(1, intrinsic.width), geo.size.height / max(1, intrinsic.height))
+            let w = intrinsic.width * scale
+            let h = intrinsic.height * scale
+            Image(name).resizable().renderingMode(.original).scaledToFit()
+                .frame(width: w, height: h)
+                .mask(LinearGradient(stops: [.init(color: fadeLeft > 0 ? .clear : .black, location: 0),
+                    .init(color: .black, location: fadeLeft), .init(color: .black, location: 1)],
+                    startPoint: .leading, endPoint: .trailing))
+                .mask(LinearGradient(stops: [.init(color: .black, location: 0),
+                    .init(color: .black, location: 1 - fadeBottom), .init(color: fadeBottom > 0 ? .clear : .black, location: 1)],
+                    startPoint: .top, endPoint: .bottom))
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+        }.accessibilityHidden(true).allowsHitTesting(false)
+    }
+}
+
 struct CountrysideHeroHeader: View {
     let title: String
     let subtitle: String
@@ -23,13 +48,15 @@ struct CountrysideHeroHeader: View {
     var onLogoToggleTheme: () -> Void = {}
     var heroHeight: CGFloat = 146
     var onBack: (() -> Void)? = nil
+    var bottomContent: (() -> AnyView)? = nil
 
     @Environment(\.colorScheme) private var scheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     private var isDark: Bool { scheme == .dark }
     @State private var measuredWidth: CGFloat = 390
     private var stacked: Bool { dynamicTypeSize >= .xxLarge || measuredWidth < 280 }
-    private var height: CGFloat { min(275, max(112, measuredWidth * (onBack != nil ? 255 : 310) / 832)) }
+    private var height: CGFloat { min(275, max(112, measuredWidth * (onBack != nil ? 255 : 285) / 832)) }
+    private var overlap: CGFloat { bottomContent == nil ? 0 : min(42, max(24, measuredWidth * 0.085)) }
     private var inset: CGFloat { measuredWidth * 42 / 832 }
     private var titleSize: CGFloat { min(37, max(19, measuredWidth * (title == "Quick Templates" ? 43 : 48) / 832)) }
     private var subtitleSize: CGFloat { min(18, max(11, measuredWidth * 23 / 832)) }
@@ -80,8 +107,7 @@ struct CountrysideHeroHeader: View {
         }
     }
     private var painting: some View {
-        Image(countrysideImageName(illustrationBase, isDark: isDark, scene: scene))
-            .resizable().scaledToFit().accessibilityHidden(true).allowsHitTesting(false)
+        CountrysidePainting(name: countrysideImageName(illustrationBase, isDark: isDark, scene: scene), fadeLeft: 0.14, fadeBottom: 0.12)
     }
 
     var body: some View {
@@ -91,24 +117,19 @@ struct CountrysideHeroHeader: View {
                     copy.padding(.leading, inset).padding(.trailing, inset + (title == "Search" ? 0 : 44)).padding(.top, 12)
                         .overlay(alignment: .topTrailing) { if title != "Search" { history.padding(.trailing, inset) } }
                     painting.frame(maxWidth: .infinity, alignment: .trailing).frame(height: height)
+                    if let bottomContent { bottomContent() }
                 }
             } else {
-                ZStack(alignment: .leading) {
-                    painting.frame(width: measuredWidth * 0.72, height: height, alignment: .bottomTrailing)
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                    let paper = isDark ? LexiconColors.backgroundDark : Color(hex: "FFF1D9")
-                    LinearGradient(stops: [
-                        .init(color: paper.opacity(0.76), location: 0),
-                        .init(color: paper.opacity(0.65), location: 0.44),
-                        .init(color: .clear, location: 1)
-                    ], startPoint: .leading, endPoint: .trailing)
-                    .frame(width: measuredWidth * 0.56, height: height)
-                    .allowsHitTesting(false)
-                    copy.frame(width: measuredWidth * (title == "Quick Templates" ? 0.60 : 0.53) - inset, alignment: .leading)
+                VStack(spacing: 0) {
+                    copy.frame(width: measuredWidth * (title == "Quick Templates" ? 0.60 : 0.50) - inset, alignment: .leading)
                         .padding(.leading, inset).padding(.top, 12).padding(.bottom, height * 0.06)
+                        .frame(maxWidth: .infinity, minHeight: height, alignment: .leading)
+                        .overlay(alignment: .topTrailing) { if title != "Search" { history.padding(.trailing, inset).padding(.top, 4) } }
+                    if let bottomContent { bottomContent() }
                 }
-                .frame(minHeight: height)
-                .overlay(alignment: .topTrailing) { if title != "Search" { history.padding(.trailing, inset).padding(.top, 4) } }
+                .background(alignment: .topTrailing) {
+                    painting.frame(width: measuredWidth * 0.76, height: height + overlap)
+                }
             }
         }
         .frame(maxWidth: .infinity)
@@ -327,17 +348,18 @@ struct CountrysideQuoteBanner: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @State private var measuredWidth: CGFloat = 350
     private var isDark: Bool { scheme == .dark }
-    private var cardBg: Color { isDark ? LexiconColors.cardDark : Color(hex: "F8EBD0") }
+    private var cardBg: Color { isDark ? LexiconColors.cardDark.opacity(0.32) : .clear }
     private var ratio: CGFloat {
         switch quoteScene {
         case "search-quote": return 0.30
         case "detail-quote": return 0.203
         case "dictionary-books": return 0.27
-        case "result-quote": return 0.25
-        default: return 0.25
+        case "result-quote": return 0.24
+        case "study-quote": return 0.232
+        default: return 0.245
         }
     }
-    private var bannerHeight: CGFloat { min(180, max(72, measuredWidth * ratio)) }
+    private var bannerHeight: CGFloat { min(180, max(64, measuredWidth * ratio)) }
     private var stacked: Bool { dynamicTypeSize >= .xxLarge || measuredWidth < 260 }
     private var painting: some View {
         Image(countrysideImageName(illustrationBase, isDark: isDark, scene: quoteScene))
@@ -365,27 +387,21 @@ struct CountrysideQuoteBanner: View {
                 }
             } else {
                 copy.frame(width: max(1, measuredWidth * 0.55 - 20))
-                    .padding(.leading, 15).padding(.trailing, 5).padding(.vertical, 10)
+                    .padding(.leading, 19).padding(.trailing, 5).padding(.vertical, 6)
                     .frame(minHeight: bannerHeight)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background {
                         GeometryReader { geo in
-                            let fieldWidth = geo.size.width * 0.67
-                            ZStack {
-                                Image(countrysideImageName(illustrationBase, isDark: isDark, scene: quoteScene))
-                                    .resizable().renderingMode(.original).scaledToFit()
-                                    .frame(width: fieldWidth, height: geo.size.height, alignment: .bottomTrailing)
-                                    .accessibilityHidden(true)
-                                LinearGradient(stops: [
-                                    .init(color: cardBg, location: 0),
-                                    .init(color: cardBg.opacity(0.70), location: 0.18),
-                                    .init(color: .clear, location: 0.44),
-                                    .init(color: .clear, location: 1)
-                                ], startPoint: .leading, endPoint: .trailing)
-                            }
-                            .frame(width: fieldWidth, height: geo.size.height)
-                            .frame(maxWidth: .infinity, alignment: .trailing)
+                            CountrysidePainting(name: countrysideImageName(illustrationBase, isDark: isDark, scene: quoteScene),
+                                fadeLeft: 0.24, fadeBottom: 0)
+                                .frame(width: geo.size.width * 0.72, height: geo.size.height)
+                                .frame(maxWidth: .infinity, alignment: .trailing)
                         }.allowsHitTesting(false)
+                        .overlay(alignment: .bottomLeading) {
+                            BotanicalSprig(color: (isDark ? LexiconColors.accentDark : LexiconColors.primary).opacity(0.62))
+                                .frame(width: min(48, max(24, measuredWidth * 0.10)), height: min(48, max(24, measuredWidth * 0.10)))
+                                .padding(5).allowsHitTesting(false)
+                        }
                     }
             }
         }

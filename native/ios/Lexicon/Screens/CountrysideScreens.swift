@@ -36,16 +36,17 @@ struct CollectionsHubScreen: View {
                     illustrationBase: "ill-hero-cottage",
                     onHistoryClick: { vm.navigate(to: .searchDiscovery) },
                     onLogoToggleTheme: { theme.toggle() },
-                    heroHeight: 140
+                    heroHeight: 140,
+                    bottomContent: { AnyView(
+                        CountrysideSearchPill(
+                            text: $query,
+                            placeholder: "Search in your collections...",
+                            showFilter: true,
+                            onFilterClick: { showCategoryPicker = true }
+                        )
+                        .padding(.horizontal, 16)
+                    ) }
                 )
-
-                CountrysideSearchPill(
-                    text: $query,
-                    placeholder: "Search in your collections...",
-                    showFilter: true,
-                    onFilterClick: { showCategoryPicker = true }
-                )
-                .padding(.horizontal, 16)
 
                 CountrysideFilterPills(
                     items: [
@@ -284,14 +285,15 @@ struct MyNotesScreen: View {
                     illustrationBase: "ill-hero-notes",
                     onHistoryClick: { vm.navigate(to: .searchDiscovery) },
                     onLogoToggleTheme: { theme.toggle() },
-                    heroHeight: 142
+                    heroHeight: 142,
+                    bottomContent: { AnyView(
+                        CountrysideSearchPill(
+                            text: $query, placeholder: "Search your notes...", showFilter: true,
+                            onFilterClick: { showCategoryPicker = true }
+                        )
+                            .padding(.horizontal, 16)
+                    ) }
                 )
-
-                CountrysideSearchPill(
-                    text: $query, placeholder: "Search your notes...", showFilter: true,
-                    onFilterClick: { showCategoryPicker = true }
-                )
-                    .padding(.horizontal, 16)
 
                 CountrysideFilterPills(
                     items: [
@@ -552,16 +554,17 @@ struct StudyListsScreen: View {
                     illustrationBase: "ill-hero-cottage",
                     onHistoryClick: { vm.navigate(to: .searchDiscovery) },
                     onLogoToggleTheme: { theme.toggle() },
-                    heroHeight: 140
+                    heroHeight: 140,
+                    bottomContent: { AnyView(
+                        CountrysideSearchPill(
+                            text: $query,
+                            placeholder: "Search your study lists...",
+                            showFilter: true,
+                            onFilterClick: { showStudyFilter = true }
+                        )
+                        .padding(.horizontal, 16)
+                    ) }
                 )
-
-                CountrysideSearchPill(
-                    text: $query,
-                    placeholder: "Search your study lists...",
-                    showFilter: true,
-                    onFilterClick: { showStudyFilter = true }
-                )
-                .padding(.horizontal, 16)
 
                 // 4 Stat Cards
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 7), count: dynamicTypeSize >= .xxLarge || pageWidth < 302 ? 2 : 4), spacing: 7) {
@@ -996,14 +999,15 @@ struct QuickTemplatesScreen: View {
                     illustrationBase: "ill-hero-cottage",
                     onHistoryClick: { vm.navigate(to: .searchDiscovery) },
                     onLogoToggleTheme: { theme.toggle() },
-                    heroHeight: 140
+                    heroHeight: 140,
+                    bottomContent: { AnyView(
+                        CountrysideSearchPill(
+                            text: $query, placeholder: "Search templates...", showFilter: true,
+                            onFilterClick: { showCategoryPicker = true }
+                        )
+                            .padding(.horizontal, 16)
+                    ) }
                 )
-
-                CountrysideSearchPill(
-                    text: $query, placeholder: "Search templates...", showFilter: true,
-                    onFilterClick: { showCategoryPicker = true }
-                )
-                    .padding(.horizontal, 16)
 
                 CountrysideFilterPills(
                     items: [
@@ -1244,16 +1248,17 @@ struct SearchDiscoveryScreen: View {
                     illustrationBase: "ill-hero-cottage",
                     onHistoryClick: { vm.navigate(to: .dictionaryHome) },
                     onLogoToggleTheme: { theme.toggle() },
-                    heroHeight: 140
+                    heroHeight: 140,
+                    bottomContent: { AnyView(
+                        CountrysideSearchPill(
+                            text: $draft,
+                            placeholder: "Search for a word...",
+                            onSubmit: { if !trimmed.isEmpty { vm.submitSearch(trimmed) } },
+                            showMicOnly: true
+                        )
+                        .padding(.horizontal, 16)
+                    ) }
                 )
-
-                CountrysideSearchPill(
-                    text: $draft,
-                    placeholder: "Search for a word...",
-                    onSubmit: { if !trimmed.isEmpty { vm.submitSearch(trimmed) } },
-                    showMicOnly: true
-                )
-                .padding(.horizontal, 16)
 
                 CountrysideFilterPills(
                     items: [

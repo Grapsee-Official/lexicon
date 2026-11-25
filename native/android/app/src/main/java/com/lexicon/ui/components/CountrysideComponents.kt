@@ -45,6 +45,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -85,6 +90,46 @@ import com.lexicon.ui.theme.OldWoodGold
 import com.lexicon.ui.theme.SearchPillLight
 import com.lexicon.ui.theme.WarmGrey
 
+/**
+ * Paint independently of text and controls. Fit preserves the complete image.
+ * Feather the actual painted bounds with alpha, not a solid paper-colored veil.
+ */
+@Composable
+fun CountrysidePainting(
+    painter: Painter,
+    modifier: Modifier = Modifier,
+    fadeLeft: Float = .12f,
+    fadeBottom: Float = .08f,
+) {
+    Image(painter, null, modifier.graphicsLayer {
+        compositingStrategy = CompositingStrategy.Offscreen
+    }.drawWithContent {
+        drawContent()
+        val intrinsic = painter.intrinsicSize
+        val scale = if (intrinsic.width.isFinite() && intrinsic.height.isFinite() &&
+            intrinsic.width > 0f && intrinsic.height > 0f) {
+            minOf(size.width / intrinsic.width, size.height / intrinsic.height)
+        } else 1f
+        val paintedWidth = if (intrinsic.width.isFinite() && intrinsic.width > 0f)
+            (intrinsic.width * scale).coerceAtMost(size.width) else size.width
+        val paintedHeight = if (intrinsic.height.isFinite() && intrinsic.height > 0f)
+            (intrinsic.height * scale).coerceAtMost(size.height) else size.height
+        if (fadeLeft > 0f && paintedWidth > 0f) {
+            val left = size.width - paintedWidth
+            drawRect(Brush.horizontalGradient(
+                colors = listOf(Color.Transparent, Color.Black),
+                startX = left, endX = left + paintedWidth * fadeLeft
+            ), blendMode = BlendMode.DstIn)
+        }
+        if (fadeBottom > 0f && paintedHeight > 0f) {
+            drawRect(Brush.verticalGradient(
+                colors = listOf(Color.Black, Color.Transparent),
+                startY = size.height - paintedHeight * fadeBottom, endY = size.height
+            ), blendMode = BlendMode.DstIn)
+        }
+    }, contentScale = ContentScale.Fit, alignment = Alignment.BottomEnd)
+}
+
 @Composable
 fun resolveCountrysideDrawable(baseName: String, isDark: Boolean, scene: String? = null): Int {
     val ctx = LocalContext.current
@@ -118,6 +163,7 @@ fun CountrysideHeroHeader(
     onLogoToggleTheme: () -> Unit = {},
     heroHeight: Dp = 146.dp,
     onBack: (() -> Unit)? = null,
+    bottomContent: (@Composable () -> Unit)? = null,
 ) {
     val titleColor = if (isDark) DarkForeground else Color(0xFF31462F)
     val subColor = if (isDark) DarkForeground.copy(alpha = .88f) else Color(0xFF31462F)
@@ -141,7 +187,8 @@ fun CountrysideHeroHeader(
         // their own title, subtitle and painting.
         val inset = w * (42f / 832f)
         val stacked = fontScale >= 1.25f || w.value / fontScale.coerceAtLeast(1f) < 280f
-        val height = (w * (if (onBack != null) 255f / 832f else 310f / 832f)).coerceIn(110.dp, 275.dp)
+        val height = (w * (if (onBack != null) 255f / 832f else 285f / 832f)).coerceIn(110.dp, 275.dp)
+        val overlap = if (bottomContent != null) (w * .085f).coerceIn(24.dp, 42.dp) else 0.dp
         val titleSize = (w.value * (if (title == "Quick Templates") 43f / 832f else 48f / 832f)).coerceIn(18f, 37f)
         val subtitleSize = (w.value * (23f / 832f)).coerceIn(11f, 18f)
         val sprigSize = (w * (50f / 832f)).coerceIn(22.dp, 38.dp)
@@ -175,8 +222,7 @@ fun CountrysideHeroHeader(
             }
         }
         val painting: @Composable (Modifier) -> Unit = { position ->
-            Image(painter = rememberCountrysidePainter(resId, w * .70f), contentDescription = null,
-                contentScale = ContentScale.Fit, alignment = Alignment.BottomEnd, modifier = position)
+            CountrysidePainting(rememberCountrysidePainter(resId, w * .76f), position, fadeLeft = .14f, fadeBottom = .12f)
         }
         if (stacked) {
             Column(Modifier.fillMaxWidth()) {
@@ -185,20 +231,19 @@ fun CountrysideHeroHeader(
                     if (title != "Search") history(Modifier.align(Alignment.TopEnd).padding(end = inset))
                 }
                 painting(Modifier.fillMaxWidth().height(height))
+                bottomContent?.invoke()
             }
         } else {
-            Box(Modifier.fillMaxWidth().heightIn(min = height)) {
-                painting(Modifier.align(Alignment.BottomEnd).fillMaxWidth(.72f).height(height))
-                // A thin local edge wash; avoid a full-screen cream veil over
-                // the cottage, church spire and foliage.
-                Box(Modifier.align(Alignment.CenterStart).fillMaxWidth(.56f).height(height)
-                    .background(Brush.horizontalGradient(
-                        0f to (if (isDark) Color(0xFF07121C) else Color(0xFFFFF1D9)).copy(alpha = .76f),
-                        .44f to (if (isDark) Color(0xFF07121C) else Color(0xFFFFF1D9)).copy(alpha = .65f),
-                        1f to Color.Transparent)))
-                copy(Modifier.align(Alignment.CenterStart).fillMaxWidth(if (title == "Quick Templates") .60f else .53f)
-                    .padding(start = inset, end = 2.dp, top = 12.dp, bottom = height * .06f))
-                if (title != "Search") history(Modifier.align(Alignment.TopEnd).padding(end = inset, top = 4.dp))
+            Box(Modifier.fillMaxWidth()) {
+                painting(Modifier.align(Alignment.TopEnd).fillMaxWidth(.76f).height(height + overlap))
+                Column(Modifier.fillMaxWidth()) {
+                    Box(Modifier.fillMaxWidth().heightIn(min = height)) {
+                        copy(Modifier.align(Alignment.CenterStart).fillMaxWidth(if (title == "Quick Templates") .60f else .50f)
+                            .padding(start = inset, end = 2.dp, top = 12.dp, bottom = height * .06f))
+                        if (title != "Search") history(Modifier.align(Alignment.TopEnd).padding(end = inset, top = 4.dp))
+                    }
+                    bottomContent?.invoke()
+                }
             }
         }
     }
@@ -475,7 +520,7 @@ fun CountrysideQuoteBanner(
     isDark: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val cardBg = if (isDark) DarkCard else Color(0xFFF8EBD0)
+    val cardBg = if (isDark) DarkCard.copy(alpha = .32f) else Color.Transparent
     val border = if (isDark) DarkChipBorder else OldWoodGold.copy(alpha = .27f)
     val quoteColor = if (isDark) DarkForeground else Color(0xFF243B37)
     val attrColor = if (isDark) DarkAccent else Color(0xFF657D5A)
@@ -498,10 +543,11 @@ fun CountrysideQuoteBanner(
             "search-quote" -> .30f
             "detail-quote" -> .203f
             "dictionary-books" -> .27f
-            "result-quote" -> .25f
-            else -> .25f
+            "result-quote" -> .24f
+            "study-quote" -> .232f
+            else -> .245f
         }
-        val bannerHeight = (width * ratio).coerceIn(72.dp, 180.dp)
+        val bannerHeight = (width * ratio).coerceIn(64.dp, 180.dp)
         val stacked = fontScale >= 1.3f || width.value / fontScale.coerceAtLeast(1f) < 260f
         val painter = rememberCountrysidePainter(resId, width * if (stacked) 1f else .66f)
         val copy: @Composable (Modifier) -> Unit = { position ->
@@ -525,17 +571,14 @@ fun CountrysideQuoteBanner(
             }
         } else {
             Box(surface.heightIn(min = bannerHeight)) {
-                Box(Modifier.matchParentSize(), contentAlignment = Alignment.CenterEnd) {
-                    Box(Modifier.fillMaxWidth(.67f).fillMaxHeight().clip(RoundedCornerShape(0.dp))) {
-                        Image(painter, null, Modifier.matchParentSize(),
-                            contentScale = ContentScale.Fit, alignment = Alignment.BottomEnd)
-                        Box(Modifier.matchParentSize().background(Brush.horizontalGradient(
-                            0f to cardBg, .18f to cardBg.copy(alpha = .70f),
-                            .44f to Color.Transparent, 1f to Color.Transparent)))
-                    }
+                Box(Modifier.matchParentSize(), contentAlignment = Alignment.BottomEnd) {
+                    CountrysidePainting(painter, Modifier.fillMaxWidth(.72f).fillMaxHeight(),
+                        fadeLeft = .24f, fadeBottom = 0f)
                 }
+                LeafSprig(color = attrColor.copy(alpha = .62f),
+                    modifier = Modifier.align(Alignment.BottomStart).padding(5.dp).size((width * .10f).coerceIn(24.dp, 48.dp)))
                 copy(Modifier.align(Alignment.CenterStart).fillMaxWidth(.55f)
-                    .padding(start = 15.dp, end = 5.dp, top = 10.dp, bottom = 10.dp))
+                    .padding(start = 19.dp, end = 5.dp, top = 6.dp, bottom = 6.dp))
             }
         }
     }

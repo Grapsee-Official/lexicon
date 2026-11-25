@@ -17,20 +17,21 @@ struct DictionaryHomeScreen: View {
                     title: "Dictionary", subtitle: "Look up any word, anytime.",
                     illustrationBase: "ill-hero-cottage",
                     onHistoryClick: { vm.navigate(to: .searchDiscovery) },
-                    onLogoToggleTheme: { theme.toggle() }, heroHeight: 148
+                    onLogoToggleTheme: { theme.toggle() }, heroHeight: 148,
+                    bottomContent: { AnyView(
+                        CountrysideSearchPill(
+                            text: $draft, placeholder: "Search for a word...",
+                            onSubmit: {
+                                if draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                    vm.navigate(to: .searchDiscovery)
+                                } else { vm.submitSearch(draft) }
+                            },
+                            showFilter: true,
+                            onFilterClick: { vm.navigate(to: .searchDiscovery) }
+                        )
+                        .padding(.horizontal, 16)
+                    ) }
                 )
-
-                CountrysideSearchPill(
-                    text: $draft, placeholder: "Search for a word...",
-                    onSubmit: {
-                        if draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                            vm.navigate(to: .searchDiscovery)
-                        } else { vm.submitSearch(draft) }
-                    },
-                    showFilter: true,
-                    onFilterClick: { vm.navigate(to: .searchDiscovery) }
-                )
-                .padding(.horizontal, 16)
 
                 VStack(spacing: 8) {
                     BotanicalSectionTitle(

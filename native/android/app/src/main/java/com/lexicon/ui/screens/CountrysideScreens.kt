@@ -170,18 +170,17 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
                 onHistoryClick = { viewModel.navigate(ScreenRoute.SEARCH_DISCOVERY) },
                 onLogoToggleTheme = { viewModel.toggleTheme() },
                 heroHeight = 142.dp,
-            )
-        }
-
-        item(key = "search") {
-            CountrysideSearchPill(
-                value = query,
-                onValueChange = { query = it },
-                placeholder = "Search in your collections...",
-                isDark = isDark,
-                showFilter = true,
-                onFilterClick = { showCategoryPicker = true },
-                modifier = Modifier.padding(horizontal = 16.dp),
+                bottomContent = {
+                    CountrysideSearchPill(
+                        value = query,
+                        onValueChange = { query = it },
+                        placeholder = "Search in your collections...",
+                        isDark = isDark,
+                        showFilter = true,
+                        onFilterClick = { showCategoryPicker = true },
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                    )
+                },
             )
         }
 
@@ -464,18 +463,17 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                 onHistoryClick = { viewModel.navigate(ScreenRoute.SEARCH_DISCOVERY) },
                 onLogoToggleTheme = { viewModel.toggleTheme() },
                 heroHeight = 144.dp,
-            )
-        }
-
-        item(key = "search") {
-            CountrysideSearchPill(
-                value = query,
-                onValueChange = { query = it },
-                placeholder = "Search your notes...",
-                isDark = isDark,
-                showFilter = true,
-                onFilterClick = { showCategoryPicker = true },
-                modifier = Modifier.padding(horizontal = 16.dp),
+                bottomContent = {
+                    CountrysideSearchPill(
+                        value = query,
+                        onValueChange = { query = it },
+                        placeholder = "Search your notes...",
+                        isDark = isDark,
+                        showFilter = true,
+                        onFilterClick = { showCategoryPicker = true },
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                    )
+                },
             )
         }
 
@@ -821,18 +819,17 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                 onHistoryClick = { viewModel.navigate(ScreenRoute.SEARCH_DISCOVERY) },
                 onLogoToggleTheme = { viewModel.toggleTheme() },
                 heroHeight = 142.dp,
-            )
-        }
-
-        item(key = "search") {
-            CountrysideSearchPill(
-                value = query,
-                onValueChange = { query = it },
-                placeholder = "Search your study lists...",
-                isDark = isDark,
-                showFilter = true,
-                onFilterClick = { showStudyFilter = true },
-                modifier = Modifier.padding(horizontal = 16.dp),
+                bottomContent = {
+                    CountrysideSearchPill(
+                        value = query,
+                        onValueChange = { query = it },
+                        placeholder = "Search your study lists...",
+                        isDark = isDark,
+                        showFilter = true,
+                        onFilterClick = { showStudyFilter = true },
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                    )
+                },
             )
         }
 
@@ -1295,18 +1292,17 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                 onHistoryClick = { viewModel.navigate(ScreenRoute.SEARCH_DISCOVERY) },
                 onLogoToggleTheme = { viewModel.toggleTheme() },
                 heroHeight = 142.dp,
-            )
-        }
-
-        item(key = "search") {
-            CountrysideSearchPill(
-                value = query,
-                onValueChange = { query = it },
-                placeholder = "Search templates...",
-                isDark = isDark,
-                showFilter = true,
-                onFilterClick = { showCategoryPicker = true },
-                modifier = Modifier.padding(horizontal = 16.dp),
+                bottomContent = {
+                    CountrysideSearchPill(
+                        value = query,
+                        onValueChange = { query = it },
+                        placeholder = "Search templates...",
+                        isDark = isDark,
+                        showFilter = true,
+                        onFilterClick = { showCategoryPicker = true },
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                    )
+                },
             )
         }
 
@@ -1654,20 +1650,19 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
                 onHistoryClick = { viewModel.navigate(ScreenRoute.DICTIONARY_HOME) },
                 onLogoToggleTheme = { viewModel.toggleTheme() },
                 heroHeight = 142.dp,
-            )
-        }
-
-        item(key = "search_bar") {
-            CountrysideSearchPill(
-                value = draft,
-                onValueChange = { draft = it },
-                placeholder = "Search for a word...",
-                isDark = isDark,
-                showMicOnly = true,
-                onSubmit = {
-                    if (draft.isNotBlank()) viewModel.submitSearch(draft)
+                bottomContent = {
+                    CountrysideSearchPill(
+                        value = draft,
+                        onValueChange = { draft = it },
+                        placeholder = "Search for a word...",
+                        isDark = isDark,
+                        showMicOnly = true,
+                        onSubmit = {
+                            if (draft.isNotBlank()) viewModel.submitSearch(draft)
+                        },
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                    )
                 },
-                modifier = Modifier.padding(horizontal = 16.dp),
             )
         }
 
