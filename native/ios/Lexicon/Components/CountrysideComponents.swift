@@ -7,6 +7,21 @@ import SwiftUI
 import UIKit
 
 func countrysideImageName(_ base: String, isDark: Bool, scene: String? = nil) -> String {
+    // Preserve the original daylight brushwork for matched reference plates.
+    // Dark mode keeps its separately authored nocturnal artwork.
+    if !isDark, let scene {
+        switch scene {
+        case "study-vocab": return "ill-thumb-lavender"
+        case "study-exam": return "ill-thumb-cottage"
+        case "study-advanced": return "ill-thumb-books"
+        case "study-travel": return "ill-thumb-meadow"
+        case "template-vocab": return "ill-tpl-daily"
+        case "template-exam": return "ill-tpl-exam"
+        case "template-writing": return "ill-tpl-write"
+        case "template-travel": return "ill-tpl-travel"
+        default: break
+        }
+    }
     if let scene {
         let reference = "ref-" + (isDark ? "dark-" : "light-") + scene
         if UIImage(named: reference) != nil { return reference }
@@ -88,8 +103,8 @@ struct CountrysideHeroHeader: View {
         Group {
             if stacked {
                 VStack(spacing: 0) {
-                    copy.padding(.leading, inset).padding(.trailing, inset + 44).padding(.top, 12)
-                        .overlay(alignment: .topTrailing) { history.padding(.trailing, inset) }
+                    copy.padding(.leading, inset).padding(.trailing, inset + (title == "Search" ? 0 : 44)).padding(.top, 12)
+                        .overlay(alignment: .topTrailing) { if title != "Search" { history.padding(.trailing, inset) } }
                     painting.frame(maxWidth: .infinity, alignment: .trailing).frame(height: height)
                 }
             } else {
@@ -108,7 +123,7 @@ struct CountrysideHeroHeader: View {
                         .padding(.leading, inset).padding(.top, 12).padding(.bottom, height * 0.06)
                 }
                 .frame(minHeight: height)
-                .overlay(alignment: .topTrailing) { history.padding(.trailing, inset).padding(.top, 4) }
+                .overlay(alignment: .topTrailing) { if title != "Search" { history.padding(.trailing, inset).padding(.top, 4) } }
             }
         }
         .frame(maxWidth: .infinity)
@@ -371,9 +386,9 @@ struct CountrysideQuoteBanner: View {
                             let fieldWidth = geo.size.width * 0.67
                             ZStack {
                                 Image(countrysideImageName(illustrationBase, isDark: isDark, scene: quoteScene))
-                                    .resizable().renderingMode(.original).scaledToFill()
+                                    .resizable().renderingMode(.original).scaledToFit()
                                     .frame(width: fieldWidth, height: geo.size.height, alignment: .trailing)
-                                    .clipped().accessibilityHidden(true)
+                                    .accessibilityHidden(true)
                                 LinearGradient(stops: [
                                     .init(color: cardBg, location: 0),
                                     .init(color: cardBg.opacity(0.70), location: 0.18),

@@ -444,7 +444,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                 subtitle = "Capture thoughts, meanings and your language journey.",
                 illustrationBase = "ill_hero_notes",
                 isDark = isDark,
-                onHistoryClick = { viewModel.navigate(ScreenRoute.COLLECTIONS) },
+                onHistoryClick = { viewModel.navigate(ScreenRoute.SEARCH_DISCOVERY) },
                 onLogoToggleTheme = { viewModel.toggleTheme() },
                 heroHeight = 144.dp,
             )
@@ -780,7 +780,7 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                 subtitle = "Learn, practice and grow one word at a time.",
                 illustrationBase = "ill_hero_cottage",
                 isDark = isDark,
-                onHistoryClick = { viewModel.navigate(ScreenRoute.QUICK_TEMPLATES) },
+                onHistoryClick = { viewModel.navigate(ScreenRoute.SEARCH_DISCOVERY) },
                 onLogoToggleTheme = { viewModel.toggleTheme() },
                 heroHeight = 142.dp,
             )
@@ -1175,7 +1175,7 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                 subtitle = "Start with a template, or create your own.",
                 illustrationBase = "ill_hero_cottage",
                 isDark = isDark,
-                onHistoryClick = { viewModel.navigate(ScreenRoute.MY_NOTES) },
+                onHistoryClick = { viewModel.navigate(ScreenRoute.SEARCH_DISCOVERY) },
                 onLogoToggleTheme = { viewModel.toggleTheme() },
                 heroHeight = 142.dp,
             )
