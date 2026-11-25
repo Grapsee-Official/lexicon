@@ -511,7 +511,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                     ) {
                         val config = androidx.compose.ui.platform.LocalConfiguration.current
                         val noteColumns = countrysideAdaptiveColumns(
-                            config.screenWidthDp, config.fontScale, maxColumns = 4,
+                            config.screenWidthDp, config.fontScale, maxColumns = 2,
                         )
                         (if (showAllNotes) filteredNotes else filteredNotes.take(4))
                             .chunked(noteColumns)
@@ -522,10 +522,11 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                             ) {
                                 rowNotes.forEach { note ->
                                     val artRes = resolveCountrysideDrawable(note.illustration ?: "ill_note_flowers", isDark)
+                                    var menuOpen by remember(note.id) { mutableStateOf(false) }
                                     Box(
                                         modifier = Modifier
                                             .weight(1f)
-                                            .height(if (androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f) 218.dp else 128.dp)
+                                            .then(if (config.fontScale >= 1.3f) Modifier.heightIn(min = 218.dp) else Modifier.aspectRatio(368f / 249f))
                                             .clip(RoundedCornerShape(16.dp))
                                             .background(cardBg)
                                             .border(1.dp, border, RoundedCornerShape(16.dp))
@@ -542,10 +543,10 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                             alignment = Alignment.BottomEnd,
                                             modifier = Modifier
                                                 .align(Alignment.BottomEnd)
-                                                .fillMaxHeight(0.94f)
+                                                 .fillMaxHeight(0.86f)
                                                 // Preserve the complete original watercolor in
                                                 // its own right-hand zone, without a cream mask.
-                                                .fillMaxWidth(0.46f),
+                                                .fillMaxWidth(if (config.fontScale >= 1.3f) 0.32f else 0.42f),
                                         )
                                         Column(
                                             modifier = Modifier
@@ -566,14 +567,27 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                                 ) {
                                                     Text(note.category.label, color = fg, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 8.5.sp))
                                                 }
-                                                Icon(Icons.Outlined.MoreHoriz, contentDescription = null, tint = muted, modifier = Modifier.size(16.dp))
+                                                Box {
+                                                    Icon(Icons.Outlined.MoreHoriz, contentDescription = "Note options", tint = muted,
+                                                        modifier = Modifier.size(24.dp).clickable(role = Role.Button) { menuOpen = true })
+                                                    DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                                                        DropdownMenuItem(text = { Text("Edit note") }, onClick = {
+                                                            menuOpen = false
+                                                            editorTitle = note.title
+                                                            editorBody = note.body
+                                                            editingNote = note
+                                                        })
+                                                        DropdownMenuItem(text = { Text(if (note.bookmarked) "Remove bookmark" else "Bookmark note") },
+                                                            onClick = { menuOpen = false; viewModel.toggleNoteBookmark(note.id) })
+                                                    }
+                                                }
                                             }
                                             Column(
-                                                modifier = Modifier.fillMaxWidth(0.50f),
+                                                modifier = Modifier.fillMaxWidth(if (config.fontScale >= 1.3f) .72f else .70f),
                                                 verticalArrangement = Arrangement.spacedBy(2.dp),
                                             ) {
-                                                Text(note.title, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 14.sp), maxLines = if (androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f) 2 else 1, overflow = TextOverflow.Ellipsis)
-                                                Text(note.body, color = fg.copy(alpha = 0.8f), style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.5.sp, lineHeight = 15.sp), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                                Text(note.title, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 13.sp), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                                Text(note.body, color = fg.copy(alpha = 0.8f), style = TextStyle(fontFamily = LongFontFamily, fontSize = 10.5.sp, lineHeight = 13.5.sp), maxLines = if (config.fontScale >= 1.3f) 4 else 3, overflow = TextOverflow.Ellipsis)
                                             }
                                             Row(
                                                 modifier = Modifier.fillMaxWidth(),
@@ -586,11 +600,11 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                                 }
                                                 Icon(
                                                     imageVector = if (note.bookmarked) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
-                                                    contentDescription = null,
+                                                    contentDescription = if (note.bookmarked) "Remove note bookmark" else "Bookmark note",
                                                     tint = if (note.bookmarked) accent else muted,
                                                     modifier = Modifier
-                                                        .size(14.dp)
-                                                        .clickable { viewModel.toggleNoteBookmark(note.id) },
+                                                        .size(20.dp)
+                                                        .clickable(role = Role.Button) { viewModel.toggleNoteBookmark(note.id) },
                                                 )
                                             }
                                         }
@@ -638,7 +652,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                         Column(
                             modifier = Modifier
                                 .weight(1f)
-                                .height(62.dp)
+                                .heightIn(min = 49.dp)
                                 .clip(RoundedCornerShape(13.dp))
                                 .background(cardBg)
                                 .border(1.dp, border, RoundedCornerShape(13.dp))
@@ -657,7 +671,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                         ) {
                             Icon(ic, contentDescription = null, tint = if (isDark) DarkAccent else BrandGreen, modifier = Modifier.size(16.dp))
                             Spacer(Modifier.height(4.dp))
-                            Text(label, color = fg, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 9.5.sp), maxLines = 1)
+                            Text(label, color = fg, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 9.5.sp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                         }
                     }
                 }
@@ -695,7 +709,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                 }
             },
             confirmButton = {
-                TextButton(onClick = {
+                TextButton(enabled = editorTitle.isNotBlank(), onClick = {
                     if (note.id == "__new_note__") {
                         viewModel.addNote(note.category, editorTitle, editorBody)
                     } else {

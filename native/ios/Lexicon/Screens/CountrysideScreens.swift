@@ -160,7 +160,6 @@ struct CollectionsHubScreen: View {
             }
             .padding(.bottom, 16)
         }
-        .background(p.background)
         .onAppear { filter = vm.collectionFilter }
     }
 
@@ -273,7 +272,7 @@ struct MyNotesScreen: View {
                         actionLabel: showAllNotes ? "Show less" : "View all",
                         onAction: { selectedCat = "All"; query = ""; showAllNotes.toggle() }
                     )
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: dynamicTypeSize.isAccessibilitySize ? 260 : 165), spacing: 8)], spacing: 8) {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: dynamicTypeSize.isAccessibilitySize ? 1 : 2), spacing: 8) {
                         if filtered.isEmpty {
                             Text("No notes match your search. Choose a Quick Template to start.")
                                 .font(.lexiconBody(13))
@@ -286,8 +285,8 @@ struct MyNotesScreen: View {
                                 Image(countrysideImageName(note.illustration ?? "ill-note-flowers", isDark: isDark))
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(width: card.size.width * 0.46,
-                                           height: card.size.height * 0.90,
+                                    .frame(width: card.size.width * (dynamicTypeSize.isAccessibilitySize ? 0.32 : 0.42),
+                                           height: card.size.height * 0.86,
                                            alignment: .bottomTrailing)
 
                                 VStack(alignment: .leading, spacing: 0) {
@@ -300,25 +299,35 @@ struct MyNotesScreen: View {
                                             .background(p.highlight.opacity(0.22))
                                             .clipShape(Capsule())
                                         Spacer()
-                                        Image(systemName: "ellipsis")
-                                            .font(.system(size: 12))
-                                            .foregroundStyle(p.mutedForeground)
+                                        Menu {
+                                            Button("Edit note") {
+                                                editorTitle = note.title
+                                                editorBody = note.body
+                                                editingNote = note
+                                            }
+                                            Button(note.bookmarked ? "Remove bookmark" : "Bookmark note") {
+                                                vm.toggleNoteBookmark(note.id)
+                                            }
+                                        } label: {
+                                            Image(systemName: "ellipsis").font(.system(size: 13))
+                                                .foregroundStyle(p.mutedForeground)
+                                                .frame(width: 26, height: 24)
+                                        }.accessibilityLabel("Note options")
                                     }
                                     Spacer(minLength: 4)
                                     // The ink and watercolor each have room to breathe.
                                     // Keep all paint visible without adding an opaque patch.
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(note.title)
-                                            .font(.lexiconDisplay(16))
+                                            .font(.lexiconDisplay(13))
                                             .foregroundStyle(p.foreground)
                                             .lineLimit(2)
-                                            .minimumScaleFactor(0.85)
                                         Text(note.body)
-                                            .font(.lexiconBody(11.5))
+                                            .font(.lexiconLong(10.5))
                                             .foregroundStyle(p.foreground.opacity(0.8))
-                                            .lineLimit(3)
+                                            .lineLimit(dynamicTypeSize.isAccessibilitySize ? 4 : 3)
                                     }
-                                    .frame(width: card.size.width * 0.44, alignment: .leading)
+                                    .frame(width: card.size.width * (dynamicTypeSize.isAccessibilitySize ? 0.72 : 0.70) - 11, alignment: .leading)
                                     Spacer(minLength: 4)
                                     HStack {
                                         HStack(spacing: 4) {
@@ -336,12 +345,13 @@ struct MyNotesScreen: View {
                                                 .foregroundStyle(note.bookmarked ? p.highlight : p.mutedForeground)
                                         }
                                         .buttonStyle(.plain)
+                                        .accessibilityLabel(note.bookmarked ? "Remove note bookmark" : "Bookmark note")
                                     }
                                 }
                                 .padding(11)
                                 }
                             }
-                            .frame(height: dynamicTypeSize.isAccessibilitySize ? 218 : 148)
+                            .aspectRatio(dynamicTypeSize.isAccessibilitySize ? 1.45 : 368.0 / 249.0, contentMode: .fit)
                             .background(p.card)
                             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                             .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(p.border, lineWidth: 1))
@@ -373,7 +383,7 @@ struct MyNotesScreen: View {
                         ("Idea", "lightbulb", .idea),
                         ("Favourite", "star", .personal),
                     ]
-                    HStack(spacing: 7) {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 7), count: dynamicTypeSize.isAccessibilitySize ? 2 : 4), spacing: 7) {
                         ForEach(starters, id: \.0) { s in
                             Button {
                                 editorTitle = "New \(s.0)"
@@ -390,10 +400,9 @@ struct MyNotesScreen: View {
                                     Text(s.0)
                                         .font(.lexiconBody(9.5))
                                         .foregroundStyle(p.foreground)
-                                        .lineLimit(1)
                                 }
                                 .frame(maxWidth: .infinity)
-                                .frame(height: 60)
+                                .frame(minHeight: 49)
                                 .background(p.card)
                                 .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
                                 .overlay(RoundedRectangle(cornerRadius: 13, style: .continuous).stroke(p.border, lineWidth: 1))
@@ -413,7 +422,6 @@ struct MyNotesScreen: View {
             }
             .padding(.bottom, 16)
         }
-        .background(p.background)
         .sheet(item: $editingNote) { note in
             NavigationStack {
                 Form {
@@ -440,7 +448,7 @@ struct MyNotesScreen: View {
                                 vm.updateNote(note.id, title: editorTitle, body: editorBody)
                             }
                             editingNote = nil
-                        }
+                        }.disabled(editorTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     }
                 }
             }
@@ -663,7 +671,6 @@ struct StudyListsScreen: View {
             }
             .padding(.bottom, 16)
         }
-        .background(p.background)
         .sheet(item: $practicingList) { list in
             reviewSheet(list)
                 .presentationDragIndicator(.visible)
@@ -757,8 +764,7 @@ struct StudyListsScreen: View {
                 .tint(p.primary)
             }
             .padding(24)
-            .background(p.background)
-            .navigationTitle(current.title)
+                .navigationTitle(current.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -972,7 +978,6 @@ struct QuickTemplatesScreen: View {
             }
             .padding(.bottom, 16)
         }
-        .background(p.background)
         .sheet(isPresented: $showCreateTemplate) {
             NavigationStack {
                 Form {
