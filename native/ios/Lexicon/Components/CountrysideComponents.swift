@@ -88,8 +88,8 @@ struct CountrysideHeroHeader: View {
         Group {
             if stacked {
                 VStack(spacing: 0) {
-                    copy.padding(.leading, inset).padding(.trailing, inset + 44).padding(.top, 12)
-                        .overlay(alignment: .topTrailing) { history.padding(.trailing, inset) }
+                    copy.padding(.leading, inset).padding(.trailing, inset + (title == "Search" ? 0 : 44)).padding(.top, 12)
+                        .overlay(alignment: .topTrailing) { if title != "Search" { history.padding(.trailing, inset) } }
                     painting.frame(maxWidth: .infinity, alignment: .trailing).frame(height: height)
                 }
             } else {
@@ -108,7 +108,7 @@ struct CountrysideHeroHeader: View {
                         .padding(.leading, inset).padding(.top, 12).padding(.bottom, height * 0.06)
                 }
                 .frame(minHeight: height)
-                .overlay(alignment: .topTrailing) { history.padding(.trailing, inset).padding(.top, 4) }
+                .overlay(alignment: .topTrailing) { if title != "Search" { history.padding(.trailing, inset).padding(.top, 4) } }
             }
         }
         .frame(maxWidth: .infinity)
@@ -371,9 +371,9 @@ struct CountrysideQuoteBanner: View {
                             let fieldWidth = geo.size.width * 0.67
                             ZStack {
                                 Image(countrysideImageName(illustrationBase, isDark: isDark, scene: quoteScene))
-                                    .resizable().renderingMode(.original).scaledToFill()
-                                    .frame(width: fieldWidth, height: geo.size.height, alignment: .trailing)
-                                    .clipped().accessibilityHidden(true)
+                                    .resizable().renderingMode(.original).scaledToFit()
+                                    .frame(width: fieldWidth, height: geo.size.height, alignment: .bottomTrailing)
+                                    .accessibilityHidden(true)
                                 LinearGradient(stops: [
                                     .init(color: cardBg, location: 0),
                                     .init(color: cardBg.opacity(0.70), location: 0.18),

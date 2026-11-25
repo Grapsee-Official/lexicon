@@ -181,8 +181,8 @@ fun CountrysideHeroHeader(
         if (stacked) {
             Column(Modifier.fillMaxWidth()) {
                 Box(Modifier.fillMaxWidth()) {
-                    copy(Modifier.fillMaxWidth().padding(start = inset, end = inset + 44.dp, top = 12.dp))
-                    history(Modifier.align(Alignment.TopEnd).padding(end = inset))
+                    copy(Modifier.fillMaxWidth().padding(start = inset, end = inset + (if (title == "Search") 0.dp else 44.dp), top = 12.dp))
+                    if (title != "Search") history(Modifier.align(Alignment.TopEnd).padding(end = inset))
                 }
                 painting(Modifier.fillMaxWidth().height(height))
             }
@@ -198,7 +198,7 @@ fun CountrysideHeroHeader(
                         1f to Color.Transparent)))
                 copy(Modifier.align(Alignment.CenterStart).fillMaxWidth(if (title == "Quick Templates") .60f else .53f)
                     .padding(start = inset, end = 2.dp, top = 12.dp, bottom = height * .06f))
-                history(Modifier.align(Alignment.TopEnd).padding(end = inset, top = 4.dp))
+                if (title != "Search") history(Modifier.align(Alignment.TopEnd).padding(end = inset, top = 4.dp))
             }
         }
     }
@@ -527,7 +527,7 @@ fun CountrysideQuoteBanner(
                 Box(Modifier.matchParentSize(), contentAlignment = Alignment.CenterEnd) {
                     Box(Modifier.fillMaxWidth(.67f).fillMaxHeight().clip(RoundedCornerShape(0.dp))) {
                         Image(painter, null, Modifier.matchParentSize(),
-                            contentScale = ContentScale.Crop, alignment = Alignment.CenterEnd)
+                            contentScale = ContentScale.Fit, alignment = Alignment.BottomEnd)
                         Box(Modifier.matchParentSize().background(Brush.horizontalGradient(
                             0f to cardBg, .18f to cardBg.copy(alpha = .70f),
                             .44f to Color.Transparent, 1f to Color.Transparent)))
