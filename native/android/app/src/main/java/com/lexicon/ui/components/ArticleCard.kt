@@ -151,7 +151,7 @@ fun ArticleCard(
                 ) {
                     if (resId != 0) {
                         Image(
-                            painter = painterResource(resId),
+                            painter = rememberCountrysidePainter(resId, width * .33f),
                             contentDescription = null,
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop,

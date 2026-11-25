@@ -120,7 +120,7 @@ fun Hero(
                 }
             } else {
                 Image(
-                    painter = painterResource(resolveCountrysideDrawable("hero_light", false, "home-hero")),
+                    painter = rememberCountrysidePainter(resolveCountrysideDrawable("hero_light", false, "home-hero"), maxWidth * .70f),
                     contentDescription = null,
                     contentScale = ContentScale.Fit,
                     alignment = Alignment.BottomEnd,
@@ -359,6 +359,50 @@ internal fun rememberReferenceVector(
         if (ready != null) remember(ready) { BitmapPainter(ready) }
         else remember { ColorPainter(Color.Transparent) }
     }
+}
+
+/**
+ * Large reference paths are inflated once on the worker dispatcher at the
+ * measured display size. This keeps the source SVG/VectorDrawable intact
+ * without parsing hundreds of thousands of coordinates on the UI thread.
+ * Static references also keep the artwork reachable in resource shrinking.
+ */
+@Composable
+internal fun rememberCountrysidePainter(resId: Int, width: Dp? = null): Painter {
+    val viewport = when (resId) {
+        R.drawable.ref_light_daily_bay -> 320 to 174
+        R.drawable.ref_light_daily_bridge -> 256 to 260
+        R.drawable.ref_light_detail_hero -> 260 to 152
+        R.drawable.ref_light_detail_meadow -> 260 to 219
+        R.drawable.ref_light_detail_quote -> 260 to 114
+        R.drawable.ref_light_dictionary_books -> 260 to 140
+        R.drawable.ref_light_dictionary_hero -> 260 to 164
+        R.drawable.ref_light_dictionary_panorama -> 260 to 44
+        R.drawable.ref_light_home_daily -> 260 to 215
+        R.drawable.ref_light_home_geography -> 141 to 119
+        R.drawable.ref_light_home_hero -> 320 to 290
+        R.drawable.ref_light_home_library_lost -> 93 to 159
+        R.drawable.ref_light_home_library_nature -> 92 to 159
+        R.drawable.ref_light_home_library_origin -> 100 to 159
+        R.drawable.ref_light_home_literature -> 141 to 119
+        R.drawable.ref_light_home_science -> 141 to 119
+        R.drawable.ref_light_home_vocabulary -> 141 to 119
+        R.drawable.ref_light_notes_hero -> 260 to 168
+        R.drawable.ref_light_notes_quote -> 260 to 128
+        R.drawable.ref_light_result_hero -> 260 to 164
+        R.drawable.ref_light_result_quote -> 260 to 120
+        R.drawable.ref_light_search_hero -> 260 to 162
+        R.drawable.ref_light_search_quote -> 260 to 160
+        R.drawable.ref_light_study_hero -> 260 to 166
+        R.drawable.ref_light_study_quote -> 260 to 121
+        R.drawable.ref_light_templates_hero -> 260 to 167
+        R.drawable.ref_light_templates_quote -> 260 to 128
+        else -> null
+    }
+    if (viewport == null) return painterResource(resId)
+    val page = LocalConfiguration.current.screenWidthDp.coerceAtMost(640).dp
+    val requested = with(LocalDensity.current) { (width ?: page * .70f).toPx().roundToInt() }
+    return rememberReferenceVector(resId, requested, viewport.first, viewport.second)
 }
 
 internal enum class ArtworkTreatment { MOONLIT, DAILY_LANDSCAPE, STORY, BOOKPLATE, DARK_BOOKPLATE }

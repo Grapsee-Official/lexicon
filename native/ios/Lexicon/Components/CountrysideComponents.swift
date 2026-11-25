@@ -321,59 +321,72 @@ struct CountrysideQuoteBanner: View {
     }
 
     @Environment(\.colorScheme) private var scheme
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @State private var measuredWidth: CGFloat = 350
     private var isDark: Bool { scheme == .dark }
-
+    private var cardBg: Color { isDark ? LexiconColors.cardDark : Color(hex: "F8EBD0") }
+    private var ratio: CGFloat {
+        switch quoteScene {
+        case "search-quote": return 0.30
+        case "detail-quote": return 0.20
+        default: return 0.25
+        }
+    }
+    private var bannerHeight: CGFloat { min(180, max(72, measuredWidth * ratio)) }
+    private var stacked: Bool { dynamicTypeSize.isAccessibilitySize || measuredWidth < 250 }
+    private var painting: some View {
+        Image(countrysideImageName(illustrationBase, isDark: isDark, scene: quoteScene))
+            .resizable().renderingMode(.original).scaledToFit()
+            .accessibilityHidden(true).allowsHitTesting(false)
+    }
+    private var copy: some View {
+        VStack(spacing: 6) {
+            Text("“\(quote)”")
+                .font(.lexiconLong(min(20, max(12, measuredWidth * 0.037))).italic())
+                .foregroundStyle(isDark ? LexiconColors.foregroundDark : Color(hex: "243B37"))
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+            Text("— \(attribution) —").font(.lexiconLong(11))
+                .foregroundStyle(isDark ? LexiconColors.accentDark : LexiconColors.primary)
+        }
+    }
     var body: some View {
-        let cardBg = lexiconPalette(scheme).card
-        // Regular-width layouts deserve a broader watercolor bookplate.
-        // Keep the painting intact instead of asking scaledToFill to crop it.
-        let bannerHeight: CGFloat = horizontalSizeClass == .regular ? 156
-            : (dynamicTypeSize.isAccessibilitySize ? 120 : 92)
-        GeometryReader { geo in
-            let w = geo.size.width
-            ZStack(alignment: .leading) {
-                cardBg
-
-                HStack(spacing: 0) {
-                    Spacer(minLength: 0)
-                    Image(countrysideImageName(illustrationBase, isDark: isDark, scene: quoteScene))
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: w, height: bannerHeight, alignment: .bottomTrailing)
+        Group {
+            if stacked {
+                VStack(spacing: 0) {
+                    copy.frame(maxWidth: .infinity).padding(16)
+                    painting.frame(maxWidth: .infinity, alignment: .trailing)
+                        .frame(height: min(180, max(90, measuredWidth * 0.36)))
                 }
-
-                LinearGradient(
-                    stops: [
-                        .init(color: cardBg.opacity(0.22), location: 0.0),
-                        .init(color: cardBg.opacity(0.14), location: 0.33),
-                        .init(color: .clear, location: 0.74),
-                    ],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("“\(quote)”")
-                        .font(.lexiconDisplay(13, weight: .regular).italic())
-                        .foregroundStyle(lexiconPalette(scheme).foreground)
-                        .lineLimit(dynamicTypeSize.isAccessibilitySize ? 3 : 2)
-                    Text("— \(attribution) —")
-                        .font(.lexiconBody(10))
-                        .tracking(0.5)
-                        .foregroundStyle(lexiconPalette(scheme).highlight)
-                }
-                .frame(width: w * 0.58, alignment: .leading)
-                .padding(.leading, 16)
+            } else {
+                copy.frame(width: max(1, measuredWidth * 0.55 - 20))
+                    .padding(.leading, 15).padding(.trailing, 5).padding(.vertical, 10)
+                    .frame(minHeight: bannerHeight)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background {
+                        ZStack(alignment: .trailing) {
+                            painting.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
+                            LinearGradient(stops: [
+                                .init(color: cardBg.opacity(0.42), location: 0),
+                                .init(color: cardBg.opacity(0.32), location: 0.32),
+                                .init(color: .clear, location: 0.58),
+                                .init(color: .clear, location: 1)
+                            ], startPoint: .leading, endPoint: .trailing)
+                        }
+                    }
             }
         }
-        .frame(height: bannerHeight)
+        .frame(maxWidth: .infinity)
+        .background(cardBg)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(lexiconPalette(scheme).border, lineWidth: 1)
-        )
+        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous)
+            .stroke(isDark ? lexiconPalette(scheme).border : LexiconColors.highlight.opacity(0.27), lineWidth: 1))
+        .background {
+            GeometryReader { geo in
+                Color.clear.onAppear { measuredWidth = geo.size.width }
+                    .onChange(of: geo.size.width) { measuredWidth = $0 }
+            }
+        }
     }
 }
 

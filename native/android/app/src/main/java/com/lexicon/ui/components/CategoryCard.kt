@@ -112,7 +112,8 @@ fun CategoryCard(
     ) {
         if (resId != 0) {
             // Reference vectors already contain their edge and color treatment.
-            val painting = if (isDark || boardRes != 0) painterResource(resId)
+            val painting = if (boardRes != 0) rememberCountrysidePainter(resId, referenceShelfWidth ?: artHeight)
+                else if (isDark) painterResource(resId)
                 else rememberPreparedArtwork(resId, ArtworkTreatment.BOOKPLATE)
             Image(
                 painter = painting,

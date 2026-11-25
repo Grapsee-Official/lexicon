@@ -82,6 +82,7 @@ import com.lexicon.ui.components.CountrysideSearchPill
 import com.lexicon.ui.components.LeafSprig
 import com.lexicon.ui.components.NocturneAtmosphere
 import com.lexicon.ui.components.resolveCountrysideDrawable
+import com.lexicon.ui.components.rememberCountrysidePainter
 import com.lexicon.ui.theme.BodyFontFamily
 import com.lexicon.ui.theme.BrandGreen
 import com.lexicon.ui.theme.CardSurface
@@ -154,7 +155,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                     Text(word.definitions.firstOrNull().orEmpty(), color = ink,
                         style = TextStyle(fontFamily = LongFontFamily, fontSize = 15.sp, lineHeight = 21.sp),
                         modifier = Modifier.weight(1f))
-                    Image(painterResource(resolveCountrysideDrawable("ill_thumb_meadow", dark, "detail-meadow")), null,
+                    Image(rememberCountrysidePainter(resolveCountrysideDrawable("ill_thumb_meadow", dark, "detail-meadow"), 180.dp), null,
                         modifier = Modifier.weight(.72f).height(94.dp), contentScale = ContentScale.Fit)
                 }
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
@@ -238,7 +239,7 @@ private fun IllustratedDailyWordScreen(viewModel: LexiconViewModel) {
                     .windowInsetsPadding(WindowInsets.statusBars),
             ) {
                 Image(
-                    painter = painterResource(bridgeRes),
+                    painter = rememberCountrysidePainter(bridgeRes),
                     contentDescription = null,
                     contentScale = ContentScale.Fit,
                     alignment = Alignment.TopEnd,
@@ -607,7 +608,7 @@ private fun IllustratedDailyWordScreen(viewModel: LexiconViewModel) {
                         .border(1.dp, border, shape),
                 ) {
                     Image(
-                        painter = painterResource(bayRes),
+                        painter = rememberCountrysidePainter(bayRes),
                         contentDescription = null,
                         contentScale = ContentScale.Fit,
                         alignment = Alignment.CenterEnd,
@@ -1282,7 +1283,7 @@ fun ExpandedExplorationScreen(viewModel: LexiconViewModel) {
         // Panoramic English church meadow strip
         item(key = "church_panorama") {
             Image(
-                painter = painterResource(churchRes),
+                painter = rememberCountrysidePainter(churchRes),
                 contentDescription = null,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier

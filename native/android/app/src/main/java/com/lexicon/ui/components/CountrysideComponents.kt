@@ -172,7 +172,7 @@ fun CountrysideHeroHeader(
             }
         }
         val painting: @Composable (Modifier) -> Unit = { position ->
-            Image(painter = painterResource(resId), contentDescription = null,
+            Image(painter = rememberCountrysidePainter(resId, w * .70f), contentDescription = null,
                 contentScale = ContentScale.Fit, alignment = Alignment.BottomEnd, modifier = position)
         }
         if (stacked) {
@@ -471,10 +471,10 @@ fun CountrysideQuoteBanner(
     isDark: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val cardBg = if (isDark) DarkCard else CardSurface
-    val border = if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.11f)
-    val quoteColor = if (isDark) DarkForeground else DeepForest
-    val attrColor = if (isDark) DarkAccent else OldWoodGold
+    val cardBg = if (isDark) DarkCard else Color(0xFFF8EBD0)
+    val border = if (isDark) DarkChipBorder else OldWoodGold.copy(alpha = .27f)
+    val quoteColor = if (isDark) DarkForeground else Color(0xFF243B37)
+    val attrColor = if (isDark) DarkAccent else Color(0xFF657D5A)
     val scene = when (quote) {
         "A well-written note is a small step towards wisdom." -> "notes-quote"
         "Knowledge is a journey, not a destination." -> "study-quote"
@@ -486,72 +486,46 @@ fun CountrysideQuoteBanner(
     }
     val resId = resolveCountrysideDrawable(illustrationBase, isDark, scene)
     val shape = RoundedCornerShape(16.dp)
-    val config = androidx.compose.ui.platform.LocalConfiguration.current
-    // The 94dp phone banner is too shallow for an 800dp tablet: the
-    // complete watercolor becomes a tiny isolated thumbnail. Scale its
-    // bookplate height with usable width, but never crop the original art.
-    val scaledHeight = ((config.screenWidthDp - 32).coerceAtLeast(0) * 0.20f)
-        .dp.coerceIn(94.dp, 164.dp)
-    val bannerHeight = if (config.fontScale >= 1.3f) maxOf(scaledHeight, 120.dp) else scaledHeight
-
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(bannerHeight)
-            .clip(shape)
-            .background(cardBg)
-            .border(1.dp, border, shape),
-    ) {
-        Image(
-            painter = painterResource(resId),
-            contentDescription = null,
-            contentScale = ContentScale.Fit,
-            alignment = Alignment.CenterEnd,
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .fillMaxSize(),
-        )
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.horizontalGradient(
-                        0.0f to cardBg.copy(alpha = 0.22f),
-                        0.33f to cardBg.copy(alpha = 0.14f),
-                        0.72f to Color.Transparent,
-                    )
-                ),
-        )
-
-        Column(
-            modifier = Modifier
-                .align(Alignment.CenterStart)
-                .fillMaxWidth(0.58f)
-                .padding(start = 16.dp, end = 6.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            Text(
-                text = "“$quote”",
-                color = quoteColor,
-                style = TextStyle(
-                    fontFamily = DisplayFontFamily,
-                    fontStyle = FontStyle.Italic,
-                    fontSize = 13.sp,
-                    lineHeight = 17.sp,
-                ),
-                maxLines = if (config.fontScale >= 1.3f) 3 else 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Text(
-                text = "— $attribution —",
-                color = attrColor,
-                style = TextStyle(
-                    fontFamily = BodyFontFamily,
-                    fontSize = 10.sp,
-                    letterSpacing = 0.5.sp,
-                ),
-            )
+    val fontScale = androidx.compose.ui.platform.LocalConfiguration.current.fontScale
+    androidx.compose.foundation.layout.BoxWithConstraints(modifier.fillMaxWidth()) {
+        val width = maxWidth
+        val ratio = when (scene) {
+            "search-quote" -> .30f
+            "detail-quote" -> .20f
+            else -> .25f
+        }
+        val bannerHeight = (width * ratio).coerceIn(72.dp, 180.dp)
+        val stacked = fontScale >= 1.4f || width.value / fontScale.coerceAtLeast(1f) < 250f
+        val painter = rememberCountrysidePainter(resId, width * if (stacked) 1f else .66f)
+        val copy: @Composable (Modifier) -> Unit = { position ->
+            Column(position, horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterVertically)) {
+                Text("“$quote”", color = quoteColor,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    style = TextStyle(fontFamily = LongFontFamily, fontStyle = FontStyle.Italic,
+                        fontSize = (width.value * .037f).coerceIn(12f, 20f).sp,
+                        lineHeight = (width.value * .047f).coerceIn(16f, 26f).sp))
+                Text("— $attribution —", color = attrColor,
+                    style = TextStyle(fontFamily = LongFontFamily, fontSize = 11.sp))
+            }
+        }
+        val surface = Modifier.fillMaxWidth().clip(shape).background(cardBg).border(1.dp, border, shape)
+        if (stacked) {
+            Column(surface) {
+                copy(Modifier.fillMaxWidth().padding(16.dp))
+                Image(painter, null, Modifier.fillMaxWidth().height((width * .36f).coerceIn(90.dp, 180.dp)),
+                    contentScale = ContentScale.Fit, alignment = Alignment.BottomEnd)
+            }
+        } else {
+            Box(surface.heightIn(min = bannerHeight)) {
+                Image(painter, null, Modifier.matchParentSize(),
+                    contentScale = ContentScale.Fit, alignment = Alignment.CenterEnd)
+                Box(Modifier.matchParentSize().background(Brush.horizontalGradient(
+                    0f to cardBg.copy(alpha = .42f), .32f to cardBg.copy(alpha = .32f),
+                    .58f to Color.Transparent, 1f to Color.Transparent)))
+                copy(Modifier.align(Alignment.CenterStart).fillMaxWidth(.55f)
+                    .padding(start = 15.dp, end = 5.dp, top = 10.dp, bottom = 10.dp))
+            }
         }
     }
 }
