@@ -38,7 +38,9 @@ extension Color {
 
 enum LexiconColors {
     // MARK: - Light Palette ("Cotswolds Scholarly")
-    static let background        = Color(hex: "FBF5EB")
+    static let background        = Color(hex: "FBF4EB")
+    static let agedPaper         = Color(hex: "F3EBDD")
+    static let botanicalDeep    = Color(hex: "31462F")
     static let primary           = Color(hex: "657D5A")
     static let foreground        = Color(hex: "252926")
     static let secondary         = Color(hex: "7C9297")
@@ -58,6 +60,7 @@ enum LexiconColors {
     static let midnightPaperDark   = Color(hex: "1A1F28")
     static let foregroundDark      = Color(hex: "EDE4D2")
     static let primaryDark         = Color(hex: "1D2A3A")
+    static let deepDark            = Color(hex: "0F1622")
     static let secondaryDark       = Color(hex: "334A5E")
     static let accentDark          = Color(hex: "D4A45A")
     static let highlightDark       = Color(hex: "F0D89A")

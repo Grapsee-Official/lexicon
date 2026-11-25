@@ -25,8 +25,10 @@ import androidx.compose.ui.graphics.Color
 
 // === Light palette ===
 val BrandGreen        = Color(0xFF657D5A) // Primary (#657D5A)
+val BotanicalDeep    = Color(0xFF31462F) // Brand deep: old books and foliage
+val AgedPaper         = Color(0xFFF3EBDD) // Brand background swatch
 val DeepForest        = Color(0xFF252926) // Printed book-ink for headings and body
-val WarmCream         = Color(0xFFFBF5EB) // Pale aged-paper reference canvas
+val WarmCream         = Color(0xFFFBF4EB) // Sampled light Home paper, distinct from the brand swatch
 val DustyBlue         = Color(0xFF7C9297) // Secondary (#7C9297)
 val Terracotta        = Color(0xFFC98267) // Accent (#C98267)
 val OldWoodGold       = Color(0xFFA58A61) // Small Highlight (#A58A61)

@@ -24,10 +24,6 @@ struct Hero: View {
         self.sharedNightScene = sharedNightScene
     }
 
-    private var adaptiveHeight: CGFloat {
-        min(390, max(180, measuredWidth * 356 / 591))
-    }
-
     private var isDark: Bool { scheme == .dark }
 
     private var headlineMain: Color {
@@ -93,83 +89,48 @@ struct Hero: View {
     }
 
     private var accessibleLightHero: some View {
-        NightHeroLayout(enlargedText: true) {
+        VStack(alignment: .leading, spacing: 8) {
             VStack(alignment: .leading, spacing: 6) {
                 headline
                 Text("A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.")
-                    .font(.lexiconBody(11.5))
-                    .foregroundStyle(subtextColor)
+                    .font(.lexiconBody(12)).foregroundStyle(subtextColor)
                     .fixedSize(horizontal: false, vertical: true)
-            }
-            FloatingSearchBar()
-        }
-        .background(alignment: .bottomTrailing) {
+            }.padding(.horizontal, 20).padding(.top, 8)
             Image(countrysideImageName("hero-light", isDark: false, scene: "home-hero"))
-                .resizable().scaledToFit()
-                .frame(height: 180)
-                .accessibilityHidden(true)
-                .allowsHitTesting(false)
-        }
+                .resizable().scaledToFit().frame(height: min(210, max(135, measuredWidth * 0.48)))
+                .frame(maxWidth: .infinity, alignment: .trailing).accessibilityHidden(true)
+            FloatingSearchBar().padding(.horizontal, 20)
+        }.padding(.bottom, 4)
     }
 
     private var lightHero: some View {
-        GeometryReader { geo in
-            let totalWidth = geo.size.width
-            let compact = totalWidth < 360
-            let enlargedText = dynamicTypeSize.isAccessibilitySize
-            let heroHeight = geo.size.height
-            let textWidth = totalWidth * 0.40
-
-            ZStack(alignment: .topLeading) {
-                HStack(spacing: 0) {
-                    Spacer(minLength: 0)
+        NightHeroLayout(enlargedText: false) {
+            VStack(alignment: .leading, spacing: 6) {
+                headline
+                Text("A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.")
+                    .font(.lexiconBody(min(14, max(9, measuredWidth * 13.5 / 591))))
+                    .foregroundStyle(subtextColor).lineSpacing(1.5)
+                    .fixedSize(horizontal: false, vertical: true)
+            }.frame(maxWidth: .infinity, alignment: .leading)
+            FloatingSearchBar(referencePageWidth: measuredWidth)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background {
+            GeometryReader { geo in
+                ZStack(alignment: .bottomTrailing) {
                     Image(countrysideImageName("hero-light", isDark: false, scene: "home-hero"))
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: totalWidth * 0.70, height: heroHeight, alignment: .bottomTrailing)
-                        .lexiconDecorative()
-                }
-                .frame(width: totalWidth, height: heroHeight)
-
-                LinearGradient(
-                    stops: [
+                        .resizable().scaledToFit()
+                        .frame(width: geo.size.width * 0.70, height: geo.size.height, alignment: .bottomTrailing)
+                    LinearGradient(stops: [
                         .init(color: LexiconColors.background.opacity(0.94), location: 0),
                         .init(color: LexiconColors.background.opacity(0.72), location: 0.42),
                         .init(color: .clear, location: 1)
-                    ],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-                .frame(width: totalWidth * 0.49, height: heroHeight)
-                .allowsHitTesting(false)
-                .accessibilityHidden(true)
-                VStack(alignment: .leading, spacing: 6) {
-                    headline
-                    Text("A timeless dictionary crafted for curious minds. Explore meanings, origins, and stories behind every word.")
-                        .font(.lexiconBody(min(14, max(9, totalWidth * 13.5 / 591))))
-                        .frame(maxWidth: textWidth * 0.97, alignment: .leading)
-                        .foregroundStyle(subtextColor)
-                        .lineSpacing(2)
-                        .fixedSize(horizontal: false, vertical: true)
+                    ], startPoint: .leading, endPoint: .trailing)
+                    .frame(width: geo.size.width * 0.49, height: geo.size.height)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .frame(width: textWidth, alignment: .leading)
-                .padding(.leading, totalWidth * 32 / 591)
-                .padding(.top, totalWidth * 44 / 591)
-
-                VStack {
-                    Spacer()
-                    HStack(spacing: 0) {
-                        FloatingSearchBar(referencePageWidth: totalWidth)
-                            .frame(width: totalWidth * 427 / 591)
-                        Spacer(minLength: 0)
-                    }
-                    .padding(.leading, totalWidth * 30 / 591)
-                    .padding(.bottom, 4)
-                }
-                .frame(width: totalWidth, height: heroHeight)
-            }
+            }.accessibilityHidden(true).allowsHitTesting(false)
         }
-        .frame(height: adaptiveHeight)
     }
 
     @ViewBuilder

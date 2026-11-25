@@ -81,8 +81,8 @@ fun WordOfTheDayCard(
     val fontScale = config.fontScale
     BoxWithConstraints(modifier.fillMaxWidth()) {
     val compact = maxWidth < 328.dp
-    val accessible = fontScale >= 1.5f || maxWidth.value / fontScale.coerceAtLeast(1f) < 250f
     val definition = word.definitions.firstOrNull().orEmpty()
+    val accessible = fontScale >= 1.35f || maxWidth.value / fontScale.coerceAtLeast(1f) < 250f || definition.length > 155 || word.word.length > 16
     val editorial = !accessible
     val shortDefinition = editorial && definition.length <= 72
     // The reference is a compact editorial spread, not a tall two-panel tile.
@@ -91,7 +91,7 @@ fun WordOfTheDayCard(
     val referenceHeight = maxWidth * (175f / 531f)
     val cardHeight = when {
         accessible -> (128.dp * config.fontScale).coerceIn(190.dp, 320.dp)
-        definition.length > 105 -> maxOf(136.dp, referenceHeight)
+        definition.length > 95 -> maxOf(140.dp, referenceHeight * 1.18f)
         else -> maxOf(96.dp, referenceHeight) * config.fontScale.coerceIn(1f, 1.25f)
     }
 
@@ -178,7 +178,7 @@ fun WordOfTheDayCard(
                         text = word.word,
                         color = wordColor,
                         style = LexiconTextStyles.WotdWord.copy(fontSize = wordSize),
-                        maxLines = if (word.word.length > 14 || accessible) 2 else 1,
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
                             .weight(1f, fill = false)
@@ -264,7 +264,7 @@ fun WordOfTheDayCard(
                         color = defColor,
                         style = if (editorial) LexiconTextStyles.WotdDefinition.copy(fontSize = 9.5.sp, lineHeight = 13.sp)
                             else LexiconTextStyles.WotdDefinition,
-                        maxLines = 4,
+                        maxLines = 6,
                         overflow = TextOverflow.Ellipsis,
                     )
 

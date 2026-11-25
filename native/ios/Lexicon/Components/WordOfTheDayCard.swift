@@ -14,12 +14,12 @@ struct WordOfTheDayCard: View {
 
     private var cardHeight: CGFloat {
         if dynamicTypeSize.isAccessibilitySize { return 186 }
-        if (word.definitions.first ?? "").count > 105 { return max(136, measuredWidth * 175 / 531) }
+        if (word.definitions.first ?? "").count > 95 { return max(140, measuredWidth * 175 / 531 * 1.18) }
         return max(96, measuredWidth * 175 / 531)
     }
 
     private var isDark: Bool { scheme == .dark }
-    private var stacked: Bool { dynamicTypeSize.isAccessibilitySize || measuredWidth < 250 || (measuredWidth < 310 && dynamicTypeSize >= .xxLarge) }
+    private var stacked: Bool { dynamicTypeSize >= .xxLarge || measuredWidth < 250 || (word.definitions.first ?? "").count > 155 || word.word.count > 16 }
 
     private var leftBg: Color {
         isDark ? .clear : LexiconColors.primary
@@ -96,7 +96,7 @@ struct WordOfTheDayCard: View {
                             Text(word.word)
                                 .font(.lexiconDisplay(totalW < 350 ? 18.5 : 21.5, weight: .regular))
                                 .foregroundStyle(wordColor)
-                                .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
+                                .lineLimit(2)
                                 .minimumScaleFactor(0.70)
 
                             Button { vm.pronounce(word.word) } label: {
@@ -162,7 +162,7 @@ struct WordOfTheDayCard: View {
                                 .font(.lexiconBody(editorial ? 9.5 : 11.5))
                                 .foregroundStyle(defColor)
                                 .lineSpacing(editorial ? 1.5 : 2.5)
-                                .lineLimit(4)
+                                .lineLimit(6)
                                 .frame(width: isDark ? max(1, rightW * (dynamicTypeSize.isAccessibilitySize ? 0.88 : 0.79) - 17) : rightW * 0.69, alignment: .leading)
 
                             if !shortDefinition { Spacer(minLength: 4) }

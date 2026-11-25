@@ -89,8 +89,6 @@ fun Hero(
     // Use the actual content width, including split-screen and tablet windows.
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         val largeText = stackedLayout ?: referenceHeroStacks(maxWidth.value, configuration.fontScale)
-        val compact = maxWidth < 360.dp
-        val expanded = maxWidth >= 600.dp
         val heroHeight = when {
             largeText -> 0.dp
             else -> (maxWidth * (356f / 591f)).coerceIn(180.dp, 390.dp)
@@ -112,13 +110,13 @@ fun Hero(
 
         Box(
             modifier = Modifier.fillMaxWidth()
-                .then(if (isDark || largeText) Modifier.heightIn(min = heroHeight) else Modifier.height(heroHeight)),
+                .heightIn(min = heroHeight),
         ) {
             if (isDark) {
                 if (!sharedNightScene) {
                     HomeNightScene(Modifier.matchParentSize(), stackedLayout = largeText)
                 }
-            } else {
+            } else if (!largeText) {
                 Image(
                     painter = rememberCountrysidePainter(resolveCountrysideDrawable("hero_light", false, "home-hero"), maxWidth * .70f),
                     contentDescription = null,
@@ -147,7 +145,7 @@ fun Hero(
             val heroCopy: @Composable (Modifier) -> Unit = { copyModifier ->
                 Column(
                     modifier = copyModifier,
-                    verticalArrangement = Arrangement.spacedBy(if (isDark) 6.dp else 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     Column(modifier = Modifier.sectionHeading(1)) {
                         Text(
@@ -179,7 +177,7 @@ fun Hero(
                         color = subtextColor,
                         style = paragraphStyle,
                         modifier = Modifier.fillMaxWidth(if (largeText) 1f else 0.95f),
-                        maxLines = if (isDark || largeText) Int.MAX_VALUE else 7,
+                        maxLines = Int.MAX_VALUE,
                     )
                 }
             }
@@ -198,7 +196,12 @@ fun Hero(
                             .padding(start = if (largeText) 20.dp else maxWidth * (32f / 591f), end = if (largeText) 20.dp else 0.dp,
                                 top = if (largeText) 8.dp else maxWidth * (44f / 591f), bottom = 6.dp),
                     )
-                    if (largeText) Spacer(Modifier.height((maxWidth * 0.48f).coerceIn(135.dp, 210.dp)))
+                    if (largeText) {
+                        val paintingHeight = (maxWidth * 0.48f).coerceIn(135.dp, 210.dp)
+                        if (isDark) Spacer(Modifier.height(paintingHeight))
+                        else Image(rememberCountrysidePainter(resolveCountrysideDrawable("hero_light", false, "home-hero"), maxWidth * .85f), null,
+                            Modifier.fillMaxWidth().height(paintingHeight), contentScale = ContentScale.Fit, alignment = Alignment.BottomEnd)
+                    }
                     FloatingSearchBar(
                         viewModel = viewModel,
                         sceneIntegrated = isDark,
