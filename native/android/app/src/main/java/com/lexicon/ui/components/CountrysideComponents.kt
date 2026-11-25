@@ -88,8 +88,11 @@ import com.lexicon.ui.theme.WarmGrey
 @Composable
 fun resolveCountrysideDrawable(baseName: String, isDark: Boolean, scene: String? = null): Int {
     val ctx = LocalContext.current
-    if (!isDark && scene != null) {
-        val reference = ctx.resources.getIdentifier("ref_light_" + scene.replace('-', '_'), "drawable", ctx.packageName)
+    if (scene != null) {
+        // Interior scenes share geometry, but each appearance has its own
+        // authored vector pigments. Dark Home retains its dedicated artwork.
+        val appearance = if (isDark) "dark" else "light"
+        val reference = ctx.resources.getIdentifier("ref_${appearance}_" + scene.replace('-', '_'), "drawable", ctx.packageName)
         if (reference != 0) return reference
     }
     val target = if (isDark) "${baseName}_dark" else baseName

@@ -373,28 +373,28 @@ internal fun rememberReferenceVector(
 @Composable
 internal fun rememberCountrysidePainter(resId: Int, width: Dp? = null): Painter {
     val viewport = when (resId) {
-        R.drawable.ref_light_notes_flowers -> 115 to 130
-        R.drawable.ref_light_notes_books -> 142 to 130
-        R.drawable.ref_light_notes_quill -> 117 to 130
-        R.drawable.ref_light_notes_lantern -> 125 to 130
-        R.drawable.ref_light_template_vocab -> 170 to 66
-        R.drawable.ref_light_template_exam -> 170 to 66
-        R.drawable.ref_light_template_writing -> 170 to 70
-        R.drawable.ref_light_template_travel -> 170 to 69
-        R.drawable.ref_light_template_create -> 170 to 84
-        R.drawable.ref_light_study_books -> 170 to 121
-        R.drawable.ref_light_study_vocab -> 126 to 89
-        R.drawable.ref_light_study_exam -> 126 to 90
-        R.drawable.ref_light_study_advanced -> 126 to 91
-        R.drawable.ref_light_study_travel -> 126 to 92
-        R.drawable.ref_light_daily_bay -> 320 to 174
-        R.drawable.ref_light_daily_bridge -> 256 to 260
-        R.drawable.ref_light_detail_hero -> 260 to 152
-        R.drawable.ref_light_detail_meadow -> 260 to 219
-        R.drawable.ref_light_detail_quote -> 260 to 114
-        R.drawable.ref_light_dictionary_books -> 260 to 140
-        R.drawable.ref_light_dictionary_hero -> 260 to 164
-        R.drawable.ref_light_dictionary_panorama -> 260 to 44
+        R.drawable.ref_light_notes_flowers, R.drawable.ref_dark_notes_flowers -> 115 to 130
+        R.drawable.ref_light_notes_books, R.drawable.ref_dark_notes_books -> 142 to 130
+        R.drawable.ref_light_notes_quill, R.drawable.ref_dark_notes_quill -> 117 to 130
+        R.drawable.ref_light_notes_lantern, R.drawable.ref_dark_notes_lantern -> 125 to 130
+        R.drawable.ref_light_template_vocab, R.drawable.ref_dark_template_vocab -> 170 to 66
+        R.drawable.ref_light_template_exam, R.drawable.ref_dark_template_exam -> 170 to 66
+        R.drawable.ref_light_template_writing, R.drawable.ref_dark_template_writing -> 170 to 70
+        R.drawable.ref_light_template_travel, R.drawable.ref_dark_template_travel -> 170 to 69
+        R.drawable.ref_light_template_create, R.drawable.ref_dark_template_create -> 170 to 84
+        R.drawable.ref_light_study_books, R.drawable.ref_dark_study_books -> 170 to 121
+        R.drawable.ref_light_study_vocab, R.drawable.ref_dark_study_vocab -> 126 to 89
+        R.drawable.ref_light_study_exam, R.drawable.ref_dark_study_exam -> 126 to 90
+        R.drawable.ref_light_study_advanced, R.drawable.ref_dark_study_advanced -> 126 to 91
+        R.drawable.ref_light_study_travel, R.drawable.ref_dark_study_travel -> 126 to 92
+        R.drawable.ref_light_daily_bay, R.drawable.ref_dark_daily_bay -> 320 to 174
+        R.drawable.ref_light_daily_bridge, R.drawable.ref_dark_daily_bridge -> 256 to 260
+        R.drawable.ref_light_detail_hero, R.drawable.ref_dark_detail_hero -> 260 to 152
+        R.drawable.ref_light_detail_meadow, R.drawable.ref_dark_detail_meadow -> 260 to 219
+        R.drawable.ref_light_detail_quote, R.drawable.ref_dark_detail_quote -> 260 to 114
+        R.drawable.ref_light_dictionary_books, R.drawable.ref_dark_dictionary_books -> 260 to 140
+        R.drawable.ref_light_dictionary_hero, R.drawable.ref_dark_dictionary_hero -> 260 to 164
+        R.drawable.ref_light_dictionary_panorama, R.drawable.ref_dark_dictionary_panorama -> 260 to 44
         R.drawable.ref_light_home_daily -> 260 to 215
         R.drawable.ref_light_home_geography -> 141 to 119
         R.drawable.ref_light_home_hero -> 320 to 290
@@ -404,16 +404,16 @@ internal fun rememberCountrysidePainter(resId: Int, width: Dp? = null): Painter 
         R.drawable.ref_light_home_literature -> 141 to 119
         R.drawable.ref_light_home_science -> 141 to 119
         R.drawable.ref_light_home_vocabulary -> 141 to 119
-        R.drawable.ref_light_notes_hero -> 260 to 168
-        R.drawable.ref_light_notes_quote -> 260 to 128
-        R.drawable.ref_light_result_hero -> 260 to 164
-        R.drawable.ref_light_result_quote -> 260 to 120
-        R.drawable.ref_light_search_hero -> 260 to 162
-        R.drawable.ref_light_search_quote -> 260 to 160
-        R.drawable.ref_light_study_hero -> 260 to 166
-        R.drawable.ref_light_study_quote -> 260 to 121
-        R.drawable.ref_light_templates_hero -> 260 to 167
-        R.drawable.ref_light_templates_quote -> 260 to 128
+        R.drawable.ref_light_notes_hero, R.drawable.ref_dark_notes_hero -> 260 to 168
+        R.drawable.ref_light_notes_quote, R.drawable.ref_dark_notes_quote -> 260 to 128
+        R.drawable.ref_light_result_hero, R.drawable.ref_dark_result_hero -> 260 to 164
+        R.drawable.ref_light_result_quote, R.drawable.ref_dark_result_quote -> 260 to 120
+        R.drawable.ref_light_search_hero, R.drawable.ref_dark_search_hero -> 260 to 162
+        R.drawable.ref_light_search_quote, R.drawable.ref_dark_search_quote -> 260 to 160
+        R.drawable.ref_light_study_hero, R.drawable.ref_dark_study_hero -> 260 to 166
+        R.drawable.ref_light_study_quote, R.drawable.ref_dark_study_quote -> 260 to 121
+        R.drawable.ref_light_templates_hero, R.drawable.ref_dark_templates_hero -> 260 to 167
+        R.drawable.ref_light_templates_quote, R.drawable.ref_dark_templates_quote -> 260 to 128
         else -> null
     }
     if (viewport == null) return painterResource(resId)

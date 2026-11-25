@@ -7,8 +7,8 @@ import SwiftUI
 import UIKit
 
 func countrysideImageName(_ base: String, isDark: Bool, scene: String? = nil) -> String {
-    if !isDark, let scene {
-        let reference = "ref-light-" + scene
+    if let scene {
+        let reference = "ref-" + (isDark ? "dark-" : "light-") + scene
         if UIImage(named: reference) != nil { return reference }
     }
     let clean = base.replacingOccurrences(of: "_", with: "-")
