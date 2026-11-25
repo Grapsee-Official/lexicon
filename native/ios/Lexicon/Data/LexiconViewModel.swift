@@ -15,6 +15,14 @@ final class LexiconViewModel: ObservableObject {
     @Published var activeTab: LexiconTab = .home
     @Published var route: ScreenRoute = .home
     @Published var routeHistory: [ScreenRoute] = []
+    private struct ReadingContext {
+        let word: WordEntry
+        let query: String
+        let categoryId: String
+        let collectionFilter: String
+        let expanded: Bool
+    }
+    private var readingHistory: [ReadingContext] = []
 
     @Published var selectedWord: WordEntry? = nil
     @Published var detailWord: WordEntry = LexiconData.serendipityEntry
@@ -180,7 +188,8 @@ final class LexiconViewModel: ObservableObject {
         libraryArticleId = nil
     }
 
-    func navigate(to target: ScreenRoute, word: WordEntry? = nil, expand36: Bool = false) {
+    func navigate(to target: ScreenRoute, word: WordEntry? = nil, expand36: Bool = false,
+                  query: String? = nil, categoryId: String? = nil, collection: String? = nil) {
         closeLibrary()
         let nextTab: LexiconTab
         switch target {
@@ -196,6 +205,13 @@ final class LexiconViewModel: ObservableObject {
             nextTab = .more
         }
         routeHistory = Array((routeHistory + [route]).suffix(12))
+        let reading = ReadingContext(word: detailWord, query: searchQuery,
+                                     categoryId: selectedCategoryId, collectionFilter: collectionFilter,
+                                     expanded: detailExpanded36)
+        readingHistory = Array((readingHistory + [reading]).suffix(12))
+        if let query { searchQuery = query }
+        if let categoryId { selectedCategoryId = categoryId }
+        if let collection { collectionFilter = collection }
         if let w = word ?? (target == .wordOfTheDay ? LexiconData.featuredWord() : nil) {
             detailWord = w
             recentlyViewedIds = Array(([w.id] + recentlyViewedIds.filter { $0 != w.id }).prefix(8))
@@ -218,6 +234,7 @@ final class LexiconViewModel: ObservableObject {
         }
         let prev = routeHistory.last ?? .home
         if !routeHistory.isEmpty { routeHistory.removeLast() }
+        let reading = readingHistory.popLast()
         switch prev {
         case .home: activeTab = .home
         case .dictionaryHome, .categoryDirectory, .categoryDetail, .wordOfTheDay, .wordDetail, .searchResults, .expandedExploration:
@@ -227,7 +244,13 @@ final class LexiconViewModel: ObservableObject {
         case .more: activeTab = .more
         }
         searchOpen = false
-        detailExpanded36 = prev == .expandedExploration
+        if let reading {
+            detailWord = reading.word
+            searchQuery = reading.query
+            selectedCategoryId = reading.categoryId
+            collectionFilter = reading.collectionFilter
+        }
+        detailExpanded36 = reading?.expanded ?? (prev == .expandedExploration)
         route = prev
     }
 
@@ -235,6 +258,7 @@ final class LexiconViewModel: ObservableObject {
         closeLibrary()
         activeTab = tab
         routeHistory = []
+        readingHistory = []
         searchOpen = false
         switch tab {
         case .home: route = .home
@@ -247,8 +271,7 @@ final class LexiconViewModel: ObservableObject {
 
     func openCategory(_ id: String) {
         guard LexiconData.categories.contains(where: { $0.id == id }) else { return }
-        selectedCategoryId = id
-        navigate(to: .categoryDetail)
+        navigate(to: .categoryDetail, categoryId: id)
     }
 
     func lookupCategoryTerm(_ term: String) {
@@ -261,8 +284,7 @@ final class LexiconViewModel: ObservableObject {
     }
 
     func openCollectionFilter(_ filter: String) {
-        collectionFilter = ["All", "Favorites", "Bookmarks"].contains(filter) ? filter : "All"
-        navigate(to: .collections)
+        navigate(to: .collections, collection: ["All", "Favorites", "Bookmarks"].contains(filter) ? filter : "All")
     }
 
     /// Speak the word with Apple's native pronunciation engine.
@@ -313,10 +335,9 @@ final class LexiconViewModel: ObservableObject {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
         addRecentSearch(trimmed)
-        searchQuery = trimmed
         let top = searchWords(trimmed, limit: 1).first
         selectedWord = nil
-        navigate(to: .searchResults, word: top)
+        navigate(to: .searchResults, word: top, query: trimmed)
     }
 
     func searchFilterOptions(_ which: String) -> [String] {

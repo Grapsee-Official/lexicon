@@ -16,10 +16,21 @@ import java.util.Locale
 
 enum class TabKey { HOME, DICTIONARY, SEARCH, COLLECTIONS, MORE }
 
+// Preserve the reading context, not just the route name. A related word
+// or second search must not overwrite the page behind it.
+data class ReadingContext(
+    val word: WordEntry,
+    val query: String,
+    val categoryId: String,
+    val collectionFilter: String,
+    val expanded: Boolean,
+)
+
 data class LexiconUiState(
     val activeTab: TabKey = TabKey.HOME,
     val route: ScreenRoute = ScreenRoute.HOME,
     val routeHistory: List<ScreenRoute> = emptyList(),
+    val readingHistory: List<ReadingContext> = emptyList(),
     val selectedWord: WordEntry? = null,
     val detailWord: WordEntry = LexiconData.serendipityEntry,
     val detailExpanded36: Boolean = false,
@@ -101,7 +112,12 @@ class LexiconViewModel : ViewModel() {
         }
     }
 
-    fun navigate(to: ScreenRoute, word: WordEntry? = null, expand36: Boolean = false) {
+    private fun LexiconUiState.readingContext() = ReadingContext(
+        detailWord, searchQuery, selectedCategoryId, collectionFilter, detailExpanded36
+    )
+
+    fun navigate(to: ScreenRoute, word: WordEntry? = null, expand36: Boolean = false,
+                 categoryId: String? = null, collection: String? = null) {
         _uiState.update { s ->
             val nextTab = when (to) {
                 ScreenRoute.HOME -> TabKey.HOME
@@ -127,6 +143,9 @@ class LexiconViewModel : ViewModel() {
                 activeTab = nextTab,
                 route = to,
                 routeHistory = (s.routeHistory + s.route).takeLast(12),
+                readingHistory = (s.readingHistory + s.readingContext()).takeLast(12),
+                selectedCategoryId = categoryId ?: s.selectedCategoryId,
+                collectionFilter = collection ?: s.collectionFilter,
                 detailWord = resolvedWord,
                 detailExpanded36 = expand36,
                 recentlyViewedIds = nextViewed,
@@ -139,6 +158,7 @@ class LexiconViewModel : ViewModel() {
     fun navigateBack() {
         _uiState.update { s ->
             val prev = s.routeHistory.lastOrNull() ?: ScreenRoute.HOME
+            val reading = s.readingHistory.lastOrNull()
             val previousTab = when (prev) {
                 ScreenRoute.HOME -> TabKey.HOME
                 ScreenRoute.DICTIONARY_HOME, ScreenRoute.CATEGORY_DIRECTORY, ScreenRoute.CATEGORY_DETAIL,
@@ -153,8 +173,13 @@ class LexiconViewModel : ViewModel() {
                 route = prev,
                 activeTab = previousTab,
                 routeHistory = s.routeHistory.dropLast(1),
+                readingHistory = s.readingHistory.dropLast(1),
+                detailWord = reading?.word ?: s.detailWord,
+                searchQuery = reading?.query ?: s.searchQuery,
+                selectedCategoryId = reading?.categoryId ?: s.selectedCategoryId,
+                collectionFilter = reading?.collectionFilter ?: s.collectionFilter,
                 searchOpen = false,
-                detailExpanded36 = prev == ScreenRoute.EXPANDED_EXPLORATION,
+                detailExpanded36 = reading?.expanded ?: (prev == ScreenRoute.EXPANDED_EXPLORATION),
             )
         }
     }
@@ -179,6 +204,7 @@ class LexiconViewModel : ViewModel() {
                 activeTab = tab,
                 route = targetRoute,
                 routeHistory = emptyList(),
+                readingHistory = emptyList(),
                 searchOpen = false,
             )
         }
@@ -186,8 +212,7 @@ class LexiconViewModel : ViewModel() {
 
     fun openCategory(id: String) {
         if (LexiconData.categories.none { it.id == id }) return
-        _uiState.update { it.copy(selectedCategoryId = id) }
-        navigate(ScreenRoute.CATEGORY_DETAIL)
+        navigate(ScreenRoute.CATEGORY_DETAIL, categoryId = id)
     }
 
     fun lookupCategoryTerm(term: String) {
@@ -197,8 +222,7 @@ class LexiconViewModel : ViewModel() {
     }
 
     fun openCollectionFilter(filter: String) {
-        _uiState.update { it.copy(collectionFilter = if (filter in setOf("All", "Favorites", "Bookmarks")) filter else "All") }
-        navigate(ScreenRoute.COLLECTIONS)
+        navigate(ScreenRoute.COLLECTIONS, collection = if (filter in setOf("All", "Favorites", "Bookmarks")) filter else "All")
     }
 
     /** Speak an English dictionary word using the device's native voice. */
@@ -273,6 +297,9 @@ class LexiconViewModel : ViewModel() {
                 selectedWord = null,
                 route = ScreenRoute.SEARCH_RESULTS,
                 routeHistory = (current.routeHistory + current.route).takeLast(12),
+                readingHistory = (current.readingHistory + current.readingContext()).takeLast(12),
+                detailExpanded36 = false,
+                searchOpen = false,
                 activeTab = TabKey.DICTIONARY,
             )
         }

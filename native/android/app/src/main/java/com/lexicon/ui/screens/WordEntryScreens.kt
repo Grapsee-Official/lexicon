@@ -205,8 +205,9 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                 BoxWithConstraints(Modifier.fillMaxWidth()) {
                     val large = maxWidth < 280.dp || androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f
                     val art = rememberCountrysidePainter(resolveCountrysideDrawable("ill_books_daisies", dark, "study-books"), maxWidth * .40f)
+                    val exampleArtHeight = (maxWidth * .39f).coerceIn(115.dp, 210.dp)
                     Box(Modifier.fillMaxWidth()) {
-                        if (!large) Image(art, null, Modifier.align(Alignment.BottomEnd).fillMaxWidth(.40f).height((maxWidth * .39f).coerceIn(115.dp, 210.dp)),
+                        if (!large) Image(art, null, Modifier.align(Alignment.BottomEnd).fillMaxWidth(.40f).height(exampleArtHeight),
                             contentScale = ContentScale.Fit, alignment = Alignment.BottomEnd)
                         Column(Modifier.fillMaxWidth(if (large) 1f else .58f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             word.examples.forEach { example ->
