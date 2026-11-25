@@ -115,21 +115,20 @@ fun DictionaryHomeScreen(viewModel: LexiconViewModel) {
                     modifier = Modifier.padding(horizontal = 16.dp),
                 )
                 Column(
-                    Modifier.fillMaxWidth().padding(horizontal = 16.dp)
-                        .clip(RoundedCornerShape(17.dp)).background(card)
-                        .border(1.dp, border, RoundedCornerShape(17.dp)),
+                    Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     if (state.recentSearches.isEmpty()) {
                         Text("Search for a word to begin your journey.", color = muted,
                             modifier = Modifier.padding(16.dp))
                     }
-                    state.recentSearches.take(3).forEachIndexed { index, word ->
-                        if (index > 0) Box(Modifier.fillMaxWidth().height(1.dp).background(border))
+                    state.recentSearches.take(3).forEach { word ->
                         val entry = LexiconData.getWordById(word)
                         Row(
-                            Modifier.fillMaxWidth()
+                            Modifier.fillMaxWidth().clip(RoundedCornerShape(17.dp))
+                                .background(card).border(1.dp, border, RoundedCornerShape(17.dp))
                                 .clickable(role = Role.Button) { viewModel.submitSearch(word) }
-                                .padding(horizontal = 14.dp, vertical = 12.dp),
+                                .heightIn(min = 44.dp).padding(horizontal = 14.dp, vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
@@ -137,12 +136,11 @@ fun DictionaryHomeScreen(viewModel: LexiconViewModel) {
                                 tint = highlight, modifier = Modifier.size(20.dp))
                             Column(Modifier.weight(1f)) {
                                 Text(word, color = fg,
-                                    style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 16.sp),
-                                    maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                    style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 16.sp))
                                 Text(
                                     entry?.let { it.partOfSpeech.label() + " · " + it.phonetic }
                                         ?: "Search again for details",
-                                    color = muted, maxLines = 1,
+                                    color = muted,
                                     style = TextStyle(fontFamily = BodyFontFamily,
                                         fontSize = 10.5.sp, fontStyle = FontStyle.Italic),
                                 )
@@ -168,7 +166,8 @@ fun DictionaryHomeScreen(viewModel: LexiconViewModel) {
                 Text("Jump to useful tools and features.", color = muted,
                     style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.sp))
                 val fontScale = androidx.compose.ui.platform.LocalConfiguration.current.fontScale
-                val columns = if (fontScale >= 1.4f) 2 else 4
+                val screenWidth = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp
+                val columns = if (fontScale >= 1.3f || screenWidth < 340) 2 else 4
                 val tiles =
                     listOf(
                         Triple("Word of the Day", Icons.AutoMirrored.Outlined.MenuBook, ScreenRoute.WORD_OF_THE_DAY),
@@ -198,7 +197,7 @@ fun DictionaryHomeScreen(viewModel: LexiconViewModel) {
                             Icon(icon, contentDescription = null, tint = highlight,
                                 modifier = Modifier.size(23.dp))
                             Spacer(Modifier.height(6.dp))
-                            Text(title, color = fg, maxLines = 2,
+                            Text(title, color = fg,
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                                 style = TextStyle(fontFamily = BodyFontFamily,
                                     fontSize = 10.sp, lineHeight = 12.sp))

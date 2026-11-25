@@ -74,14 +74,13 @@ struct DictionaryHomeScreen: View {
                         title: "Recently Searched", actionLabel: "View all",
                         onAction: { vm.navigate(to: .searchDiscovery) }
                     )
-                    VStack(spacing: 0) {
+                    VStack(spacing: 4) {
                         if vm.recentSearches.isEmpty {
                             Text("Search for a word to begin your journey.")
                                 .font(.lexiconBody(12)).foregroundStyle(p.mutedForeground)
                                 .padding(16)
                         }
-                        ForEach(Array(vm.recentSearches.prefix(3).enumerated()), id: \.offset) { index, word in
-                            if index > 0 { Rectangle().fill(p.border).frame(height: 1) }
+                        ForEach(Array(vm.recentSearches.prefix(3).enumerated()), id: \.offset) { _, word in
                             let entry = LexiconData.getWordById(word)
                             Button { vm.submitSearch(word) } label: {
                                 HStack(spacing: 12) {
@@ -89,24 +88,23 @@ struct DictionaryHomeScreen: View {
                                         .foregroundStyle(p.highlight)
                                     VStack(alignment: .leading, spacing: 3) {
                                         Text(word).font(.lexiconDisplay(16))
-                                            .foregroundStyle(p.foreground).lineLimit(1)
+                                            .foregroundStyle(p.foreground).fixedSize(horizontal: false, vertical: true)
                                         Text(entry.map { $0.partOfSpeech.displayValue + " · " + $0.phonetic }
                                             ?? "Search again for details")
                                             .font(.lexiconBody(10.5).italic())
-                                            .foregroundStyle(p.mutedForeground).lineLimit(1)
+                                            .foregroundStyle(p.mutedForeground).fixedSize(horizontal: false, vertical: true)
                                     }
                                     Spacer()
                                     Image(systemName: "chevron.right").foregroundStyle(p.foreground)
                                 }
-                                .padding(.horizontal, 14).padding(.vertical, 11)
+                                .padding(.horizontal, 14).padding(.vertical, 8)
+                                .frame(minHeight: 44)
+                                .background(p.card, in: RoundedRectangle(cornerRadius: 17))
+                                .overlay(RoundedRectangle(cornerRadius: 17).stroke(p.border, lineWidth: 1))
                             }
                             .buttonStyle(.plain)
                         }
                     }
-                    .background(p.card)
-                    .clipShape(RoundedRectangle(cornerRadius: 17, style: .continuous))
-                    .overlay(RoundedRectangle(cornerRadius: 17, style: .continuous)
-                        .stroke(p.border, lineWidth: 1))
                     .padding(.horizontal, 16)
                 }
 
@@ -115,7 +113,7 @@ struct DictionaryHomeScreen: View {
                         .foregroundStyle(p.foreground)
                     Text("Jump to useful tools and features.")
                         .font(.lexiconBody(11)).foregroundStyle(p.mutedForeground)
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 7), count: dynamicTypeSize.isAccessibilitySize ? 2 : 4), spacing: 7) {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 7), count: dynamicTypeSize >= .xxLarge ? 2 : 4), spacing: 7) {
                         quickAccess("Word of the Day", icon: "book", route: .wordOfTheDay, p: p)
                         quickAccess("Favourite Words", icon: "star", route: .collections, p: p)
                         quickAccess("Bookmarks", icon: "bookmark", route: .collections, p: p)
@@ -139,6 +137,7 @@ struct DictionaryHomeScreen: View {
                     .clipped()
                     .frame(maxWidth: 640)
                     .background(p.card)
+                    .clipShape(RoundedRectangle(cornerRadius: 15))
                     .overlay(RoundedRectangle(cornerRadius: 15)
                         .stroke(p.border, lineWidth: 1))
                     .padding(.horizontal, 16)
@@ -161,7 +160,7 @@ struct DictionaryHomeScreen: View {
                     .foregroundStyle(isDark ? LexiconColors.accentDark : LexiconColors.primary)
                 Text(title).font(.lexiconBody(10))
                     .foregroundStyle(p.foreground)
-                    .multilineTextAlignment(.center).lineLimit(2)
+                    .multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, minHeight: 62)
             .background(p.background.opacity(0.55))
