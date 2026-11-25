@@ -140,8 +140,8 @@ fun CountrysideHeroHeader(
         // All boards share the same 832-wide editorial grid, but retain
         // their own title, subtitle and painting.
         val inset = w * (42f / 832f)
-        val stacked = fontScale >= 1.4f || w.value / fontScale.coerceAtLeast(1f) < 260f
-        val height = (w * (if (onBack != null) 255f / 832f else 296f / 832f)).coerceIn(110.dp, 240.dp)
+        val stacked = fontScale >= 1.25f || w.value / fontScale.coerceAtLeast(1f) < 280f
+        val height = (w * (if (onBack != null) 255f / 832f else 310f / 832f)).coerceIn(110.dp, 275.dp)
         val titleSize = (w.value * (if (title == "Quick Templates") 43f / 832f else 48f / 832f)).coerceIn(18f, 37f)
         val subtitleSize = (w.value * (23f / 832f)).coerceIn(11f, 18f)
         val sprigSize = (w * (50f / 832f)).coerceIn(22.dp, 38.dp)
@@ -187,17 +187,17 @@ fun CountrysideHeroHeader(
                 painting(Modifier.fillMaxWidth().height(height))
             }
         } else {
-            Box(Modifier.fillMaxWidth().height(height)) {
-                painting(Modifier.align(Alignment.BottomEnd).fillMaxWidth(.70f).height(height))
+            Box(Modifier.fillMaxWidth().heightIn(min = height)) {
+                painting(Modifier.align(Alignment.BottomEnd).fillMaxWidth(.72f).height(height))
                 // A thin local edge wash; avoid a full-screen cream veil over
                 // the cottage, church spire and foliage.
-                Box(Modifier.align(Alignment.CenterStart).fillMaxWidth(.56f).fillMaxHeight()
+                Box(Modifier.align(Alignment.CenterStart).fillMaxWidth(.56f).height(height)
                     .background(Brush.horizontalGradient(
                         0f to (if (isDark) Color(0xFF07121C) else Color(0xFFFFF1D9)).copy(alpha = .76f),
                         .44f to (if (isDark) Color(0xFF07121C) else Color(0xFFFFF1D9)).copy(alpha = .65f),
                         1f to Color.Transparent)))
                 copy(Modifier.align(Alignment.CenterStart).fillMaxWidth(if (title == "Quick Templates") .60f else .53f)
-                    .padding(start = inset, end = 2.dp, bottom = height * .06f))
+                    .padding(start = inset, end = 2.dp, top = 12.dp, bottom = height * .06f))
                 history(Modifier.align(Alignment.TopEnd).padding(end = inset, top = 4.dp))
             }
         }
@@ -495,11 +495,13 @@ fun CountrysideQuoteBanner(
         val width = maxWidth
         val ratio = when (scene) {
             "search-quote" -> .30f
-            "detail-quote" -> .20f
+            "detail-quote" -> .203f
+            "dictionary-books" -> .27f
+            "result-quote" -> .25f
             else -> .25f
         }
         val bannerHeight = (width * ratio).coerceIn(72.dp, 180.dp)
-        val stacked = fontScale >= 1.4f || width.value / fontScale.coerceAtLeast(1f) < 250f
+        val stacked = fontScale >= 1.3f || width.value / fontScale.coerceAtLeast(1f) < 260f
         val painter = rememberCountrysidePainter(resId, width * if (stacked) 1f else .66f)
         val copy: @Composable (Modifier) -> Unit = { position ->
             Column(position, horizontalAlignment = Alignment.CenterHorizontally,
@@ -522,11 +524,15 @@ fun CountrysideQuoteBanner(
             }
         } else {
             Box(surface.heightIn(min = bannerHeight)) {
-                Image(painter, null, Modifier.matchParentSize(),
-                    contentScale = ContentScale.Fit, alignment = Alignment.CenterEnd)
-                Box(Modifier.matchParentSize().background(Brush.horizontalGradient(
-                    0f to cardBg.copy(alpha = .42f), .32f to cardBg.copy(alpha = .32f),
-                    .58f to Color.Transparent, 1f to Color.Transparent)))
+                Box(Modifier.matchParentSize(), contentAlignment = Alignment.CenterEnd) {
+                    Box(Modifier.fillMaxWidth(.67f).fillMaxHeight().clip(RoundedCornerShape(0.dp))) {
+                        Image(painter, null, Modifier.matchParentSize(),
+                            contentScale = ContentScale.Crop, alignment = Alignment.CenterEnd)
+                        Box(Modifier.matchParentSize().background(Brush.horizontalGradient(
+                            0f to cardBg, .18f to cardBg.copy(alpha = .70f),
+                            .44f to Color.Transparent, 1f to Color.Transparent)))
+                    }
+                }
                 copy(Modifier.align(Alignment.CenterStart).fillMaxWidth(.55f)
                     .padding(start = 15.dp, end = 5.dp, top = 10.dp, bottom = 10.dp))
             }

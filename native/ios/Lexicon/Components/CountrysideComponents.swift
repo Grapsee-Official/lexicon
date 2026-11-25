@@ -28,8 +28,8 @@ struct CountrysideHeroHeader: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     private var isDark: Bool { scheme == .dark }
     @State private var measuredWidth: CGFloat = 390
-    private var stacked: Bool { dynamicTypeSize.isAccessibilitySize || measuredWidth < 275 || (measuredWidth < 390 && dynamicTypeSize >= .xxLarge) }
-    private var height: CGFloat { min(240, max(112, measuredWidth * (onBack != nil ? 255 : 296) / 832)) }
+    private var stacked: Bool { dynamicTypeSize >= .xxLarge || measuredWidth < 280 }
+    private var height: CGFloat { min(275, max(112, measuredWidth * (onBack != nil ? 255 : 310) / 832)) }
     private var inset: CGFloat { measuredWidth * 42 / 832 }
     private var titleSize: CGFloat { min(37, max(19, measuredWidth * (title == "Quick Templates" ? 43 : 48) / 832)) }
     private var subtitleSize: CGFloat { min(18, max(11, measuredWidth * 23 / 832)) }
@@ -94,7 +94,7 @@ struct CountrysideHeroHeader: View {
                 }
             } else {
                 ZStack(alignment: .leading) {
-                    painting.frame(width: measuredWidth * 0.70, height: height, alignment: .bottomTrailing)
+                    painting.frame(width: measuredWidth * 0.72, height: height, alignment: .bottomTrailing)
                         .frame(maxWidth: .infinity, alignment: .trailing)
                     let paper = isDark ? LexiconColors.backgroundDark : Color(hex: "FFF1D9")
                     LinearGradient(stops: [
@@ -105,9 +105,9 @@ struct CountrysideHeroHeader: View {
                     .frame(width: measuredWidth * 0.56, height: height)
                     .allowsHitTesting(false)
                     copy.frame(width: measuredWidth * (title == "Quick Templates" ? 0.60 : 0.53) - inset, alignment: .leading)
-                        .padding(.leading, inset).padding(.bottom, height * 0.06)
+                        .padding(.leading, inset).padding(.top, 12).padding(.bottom, height * 0.06)
                 }
-                .frame(height: height)
+                .frame(minHeight: height)
                 .overlay(alignment: .topTrailing) { history.padding(.trailing, inset).padding(.top, 4) }
             }
         }
@@ -329,12 +329,14 @@ struct CountrysideQuoteBanner: View {
     private var ratio: CGFloat {
         switch quoteScene {
         case "search-quote": return 0.30
-        case "detail-quote": return 0.20
+        case "detail-quote": return 0.203
+        case "dictionary-books": return 0.27
+        case "result-quote": return 0.25
         default: return 0.25
         }
     }
     private var bannerHeight: CGFloat { min(180, max(72, measuredWidth * ratio)) }
-    private var stacked: Bool { dynamicTypeSize.isAccessibilitySize || measuredWidth < 250 }
+    private var stacked: Bool { dynamicTypeSize >= .xxLarge || measuredWidth < 260 }
     private var painting: some View {
         Image(countrysideImageName(illustrationBase, isDark: isDark, scene: quoteScene))
             .resizable().renderingMode(.original).scaledToFit()
@@ -365,15 +367,23 @@ struct CountrysideQuoteBanner: View {
                     .frame(minHeight: bannerHeight)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background {
-                        ZStack(alignment: .trailing) {
-                            painting.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
-                            LinearGradient(stops: [
-                                .init(color: cardBg.opacity(0.42), location: 0),
-                                .init(color: cardBg.opacity(0.32), location: 0.32),
-                                .init(color: .clear, location: 0.58),
-                                .init(color: .clear, location: 1)
-                            ], startPoint: .leading, endPoint: .trailing)
-                        }
+                        GeometryReader { geo in
+                            let fieldWidth = geo.size.width * 0.67
+                            ZStack {
+                                Image(countrysideImageName(illustrationBase, isDark: isDark, scene: quoteScene))
+                                    .resizable().renderingMode(.original).scaledToFill()
+                                    .frame(width: fieldWidth, height: geo.size.height, alignment: .trailing)
+                                    .clipped().accessibilityHidden(true)
+                                LinearGradient(stops: [
+                                    .init(color: cardBg, location: 0),
+                                    .init(color: cardBg.opacity(0.70), location: 0.18),
+                                    .init(color: .clear, location: 0.44),
+                                    .init(color: .clear, location: 1)
+                                ], startPoint: .leading, endPoint: .trailing)
+                            }
+                            .frame(width: fieldWidth, height: geo.size.height)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                        }.allowsHitTesting(false)
                     }
             }
         }
