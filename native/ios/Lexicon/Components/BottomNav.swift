@@ -96,7 +96,14 @@ struct BottomNav: View {
 
     @ViewBuilder
     private func navItem(_ tab: LexiconTab, label: String, system: String) -> some View {
-        let active = vm.activeTab == tab
+        let visualTab: LexiconTab
+        switch vm.route {
+        case .myNotes, .studyLists, .quickTemplates, .searchDiscovery:
+            visualTab = .dictionary
+        default:
+            visualTab = vm.activeTab
+        }
+        let active = visualTab == tab
         Button {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
             vm.setActiveTab(tab)

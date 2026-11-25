@@ -76,7 +76,13 @@ fun BottomNav(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val compactLabels = LocalConfiguration.current.screenWidthDp < 400 || LocalConfiguration.current.fontScale >= 1.2f
-    val activeTab = state.activeTab
+    // Reference editorial tools retain the Dictionary's visual selection.
+    // Keep the actual route and navigation history independent of this ink state.
+    val activeTab = when (state.route) {
+        ScreenRoute.MY_NOTES, ScreenRoute.STUDY_LISTS,
+        ScreenRoute.QUICK_TEMPLATES, ScreenRoute.SEARCH_DISCOVERY -> TabKey.DICTIONARY
+        else -> state.activeTab
+    }
     val isDark = state.isDark
 
     val homeNight = isDark && state.route == ScreenRoute.HOME

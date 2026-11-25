@@ -759,6 +759,8 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
     var practicingListId by remember { mutableStateOf<String?>(null) }
     var answerRevealed by remember { mutableStateOf(false) }
     var showCreateList by remember { mutableStateOf(false) }
+    var showStudyFilter by remember { mutableStateOf(false) }
+    var studyFilter by remember { mutableStateOf("All lists") }
     var newListTitle by remember { mutableStateOf("") }
     var newListWords by remember { mutableStateOf("") }
     var listError by remember { mutableStateOf(false) }
@@ -792,7 +794,8 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                 onValueChange = { query = it },
                 placeholder = "Search your study lists...",
                 isDark = isDark,
-                showFilter = false,
+                showFilter = true,
+                onFilterClick = { showStudyFilter = true },
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
         }
@@ -932,7 +935,12 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                     verticalArrangement = Arrangement.spacedBy(7.dp),
                 ) {
                     val visibleStudyLists = state.studyLists.filter {
-                        query.isBlank() || it.title.contains(query, ignoreCase = true)
+                        (query.isBlank() || it.title.contains(query, ignoreCase = true)) &&
+                            when (studyFilter) {
+                                "In progress" -> it.completedWords < it.totalWords
+                                "Completed" -> it.totalWords > 0 && it.completedWords >= it.totalWords
+                                else -> true
+                            }
                     }
                     if (visibleStudyLists.isEmpty()) {
                         Text("No study lists match your search.", color = muted,
@@ -1031,6 +1039,24 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
             )
         }
     }
+    if (showStudyFilter) {
+        AlertDialog(
+            onDismissRequest = { showStudyFilter = false },
+            title = { Text("Study lists") },
+            text = {
+                Column {
+                    listOf("All lists", "In progress", "Completed").forEach { option ->
+                        TextButton(onClick = {
+                            studyFilter = option
+                            showStudyFilter = false
+                        }) { Text(if (studyFilter == option) "✓ $option" else option) }
+                    }
+                }
+            },
+            confirmButton = { TextButton(onClick = { showStudyFilter = false }) { Text("Done") } },
+        )
+    }
+
     if (showCreateList) {
         AlertDialog(
             onDismissRequest = { showCreateList = false; listError = false },

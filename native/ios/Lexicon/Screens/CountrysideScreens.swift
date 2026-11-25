@@ -503,6 +503,8 @@ struct StudyListsScreen: View {
     @State private var practicingList: StudyListItem? = nil
     @State private var answerRevealed = false
     @State private var showCreateList = false
+    @State private var showStudyFilter = false
+    @State private var studyFilter = "All lists"
     @State private var newListTitle = ""
     @State private var newListWords = ""
     @State private var listError = false
@@ -514,6 +516,14 @@ struct StudyListsScreen: View {
         let completedWords = vm.studyLists.reduce(0) { $0 + $1.completedWords }
         let overallPct = totalWords > 0 ? (completedWords * 100) / totalWords : 0
         let ringProgress = Double(vm.todayStudiedWords) / Double(max(1, vm.todayGoalWords))
+        let visibleLists = vm.studyLists.filter { list in
+            guard query.isEmpty || list.title.localizedCaseInsensitiveContains(query) else { return false }
+            switch studyFilter {
+            case "In progress": return list.completedWords < list.totalWords
+            case "Completed": return list.totalWords > 0 && list.completedWords >= list.totalWords
+            default: return true
+            }
+        }
 
         ScrollView {
             VStack(spacing: 11) {
@@ -529,7 +539,8 @@ struct StudyListsScreen: View {
                 CountrysideSearchPill(
                     text: $query,
                     placeholder: "Search your study lists...",
-                    showFilter: false
+                    showFilter: true,
+                    onFilterClick: { showStudyFilter = true }
                 )
                 .padding(.horizontal, 16)
 
@@ -625,13 +636,13 @@ struct StudyListsScreen: View {
                         onAction: { listError = false; showCreateList = true }
                     )
                     VStack(spacing: 7) {
-                        if !query.isEmpty && !vm.studyLists.contains(where: { $0.title.localizedCaseInsensitiveContains(query) }) {
+                        if visibleLists.isEmpty {
                             Text("No study lists match your search.")
                                 .font(.lexiconBody(13))
                                 .foregroundStyle(p.mutedForeground)
                                 .padding(12)
                         }
-                        ForEach(vm.studyLists.filter { query.isEmpty || $0.title.localizedCaseInsensitiveContains(query) }) { sl in
+                        ForEach(visibleLists) { sl in
                             let narrow = dynamicTypeSize >= .xLarge
                             HStack(spacing: 7) {
                                 Image(countrysideImageName(sl.thumbnail, isDark: isDark, scene: studyScene(sl.thumbnail)))
@@ -705,6 +716,12 @@ struct StudyListsScreen: View {
                 .padding(.horizontal, 16)
             }
             .padding(.bottom, 16)
+        }
+        .confirmationDialog("Study lists", isPresented: $showStudyFilter, titleVisibility: .visible) {
+            ForEach(["All lists", "In progress", "Completed"], id: \.self) { option in
+                Button(studyFilter == option ? "✓ " + option : option) { studyFilter = option }
+            }
+            Button("Cancel", role: .cancel) {}
         }
         .sheet(item: $practicingList) { list in
             reviewSheet(list)
