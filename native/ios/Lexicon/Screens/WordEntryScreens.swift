@@ -518,9 +518,11 @@ struct SearchResultsScreen: View {
                                 Text(w.word.lowercased())
                                     .font(.lexiconDisplay(27))
                                     .foregroundStyle(p.foreground)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
                             }
                             .buttonStyle(.plain)
-                            Spacer()
+                            .layoutPriority(1)
                             Text(w.partOfSpeech.displayValue)
                                 .font(.lexiconLong(11.5).italic())
                                 .foregroundStyle(p.foreground)
@@ -538,7 +540,7 @@ struct SearchResultsScreen: View {
                                 Image(systemName: "speaker.wave.2")
                                     .font(.system(size: 16))
                                     .foregroundStyle(p.mutedForeground)
-                                    .frame(width: 34, height: 34)
+                                    .frame(width: 44, height: 44).contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
                             .accessibilityLabel("Pronounce word")
@@ -550,8 +552,9 @@ struct SearchResultsScreen: View {
                             Rectangle().fill(p.border).frame(height: 1)
                         }
 
-                        Text(w.definitions.first ?? "")
-                            .font(.lexiconLong(14))
+                        Text(w.definitions.first ?? "No definition available yet.")
+                            .font(.lexiconLong(15))
+                            .fixedSize(horizontal: false, vertical: true)
                             .foregroundStyle(p.foreground)
 
                         if let ex = w.examples.first {
@@ -585,17 +588,15 @@ struct SearchResultsScreen: View {
                                 }
                                 .buttonStyle(.plain)
 
-                                ScrollView(.horizontal, showsIndicators: false) {
-                                    HStack(spacing: 6) {
-                                        ForEach(w.relatedWords, id: \.self) { rw in
-                                            Text(rw)
-                                                .font(.lexiconBody(10.5))
+                                ResultWordWrap(spacing: 6) {
+                                    ForEach(w.relatedWords, id: \.self) { rw in
+                                        Button { vm.submitSearch(rw) } label: {
+                                            Text(rw).font(.lexiconBody(10.5))
                                                 .foregroundStyle(p.foreground)
-                                                .padding(.horizontal, 11)
-                                                .padding(.vertical, 4.5)
-                                                .background(p.highlight.opacity(0.18))
-                                                .clipShape(Capsule())
-                                        }
+                                                .padding(.horizontal, 11).padding(.vertical, 6)
+                                                .frame(minHeight: 32)
+                                                .background(p.primary.opacity(0.18), in: Capsule())
+                                        }.buttonStyle(.plain)
                                     }
                                 }
                             }
@@ -614,6 +615,7 @@ struct SearchResultsScreen: View {
                             }
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
+                            .frame(minHeight: 44)
                             .background(fav ? p.highlight.opacity(0.22) : p.background.opacity(0.75))
                             .clipShape(Capsule())
                             .overlay(Capsule().stroke(p.border, lineWidth: 1))
@@ -627,10 +629,10 @@ struct SearchResultsScreen: View {
                     .padding(.horizontal, 16)
                 } else {
                     VStack(spacing: 6) {
-                        Text("No matching entries")
+                        Text(vm.searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Search the dictionary" : "No matching entries")
                             .font(.lexiconDisplay(18))
                             .foregroundStyle(p.foreground)
-                        Text("Try searching for “serendipity”, “solitude”, or “eloquence”.")
+                        Text(vm.searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "Enter a word above to discover its meaning." : "Try another spelling, language or filter.")
                             .font(.lexiconBody(12))
                             .foregroundStyle(p.mutedForeground)
                     }
@@ -641,7 +643,7 @@ struct SearchResultsScreen: View {
                     .padding(.horizontal, 16)
                 }
 
-                if matches.count > 1 {
+                if vm.searchScopeTab != "Idioms" && matches.count > 1 {
                     VStack(alignment: .leading, spacing: 7) {
                         Text("More Matches")
                             .font(.lexiconDisplay(17))
@@ -691,9 +693,9 @@ struct SearchResultsScreen: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title).font(.lexiconDisplay(14.5)).foregroundStyle(p.foreground)
                     Text(value)
-                        .font(.lexiconBody(11.5))
+                        .font(.lexiconLong(12))
                         .foregroundStyle(p.mutedForeground)
-                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
                         .multilineTextAlignment(.leading)
                 }
                 Spacer()
@@ -703,6 +705,42 @@ struct SearchResultsScreen: View {
             }
         }
         .buttonStyle(.plain)
+    }
+}
+
+// Wrap real related-word controls onto the next line instead of hiding them off-screen.
+private struct ResultWordWrap: Layout {
+    var spacing: CGFloat = 6
+
+    private func arrange(width: CGFloat, subviews: Subviews) -> (CGSize, [CGPoint]) {
+        var x: CGFloat = 0, y: CGFloat = 0, rowHeight: CGFloat = 0
+        var positions: [CGPoint] = []
+        var used: CGFloat = 0
+        for view in subviews {
+            let size = view.sizeThatFits(ProposedViewSize(width: width, height: nil))
+            if x > 0 && x + size.width > width {
+                y += rowHeight + spacing
+                x = 0
+                rowHeight = 0
+            }
+            positions.append(CGPoint(x: x, y: y))
+            used = max(used, x + size.width)
+            x += size.width + spacing
+            rowHeight = max(rowHeight, size.height)
+        }
+        return (CGSize(width: used, height: y + rowHeight), positions)
+    }
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        arrange(width: max(1, proposal.width ?? 320), subviews: subviews).0
+    }
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let width = max(1, bounds.width)
+        let (_, positions) = arrange(width: width, subviews: subviews)
+        for (index, view) in subviews.enumerated() {
+            let size = view.sizeThatFits(ProposedViewSize(width: width, height: nil))
+            view.place(at: CGPoint(x: bounds.minX + positions[index].x, y: bounds.minY + positions[index].y),
+                anchor: .topLeading, proposal: ProposedViewSize(size))
+        }
     }
 }
 

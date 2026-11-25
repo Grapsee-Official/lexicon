@@ -676,9 +676,9 @@ private fun IllustratedDailyWordScreen(viewModel: LexiconViewModel) {
 fun SearchResultsScreen(viewModel: LexiconViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
-    val bg = if (isDark) DarkBackground else WarmCream
-    val cardBg = if (isDark) DarkCard else CardSurface
-    val border = if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.11f)
+    val bg = if (isDark) DarkBackground else Color(0xFFFFF1D9)
+    val cardBg = if (isDark) DarkCard else Color(0xFFFFF8EA).copy(alpha = .55f)
+    val border = if (isDark) DarkChipBorder else OldWoodGold.copy(alpha = .27f)
     val fg = if (isDark) DarkForeground else DeepForest
     val muted = if (isDark) DarkMutedForeground else WarmGrey
     val accent = if (isDark) DarkAccent else OldWoodGold
@@ -788,14 +788,14 @@ fun SearchResultsScreen(viewModel: LexiconViewModel) {
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
                             text = primaryWord.word.lowercase(),
                             color = fg,
                             style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 27.sp),
-                            modifier = Modifier.clickable { viewModel.openWord(primaryWord) },
+                            modifier = Modifier.weight(1f).clickable(role = Role.Button) { viewModel.openWord(primaryWord) },
                         )
                         Box(
                             modifier = Modifier
@@ -808,14 +808,12 @@ fun SearchResultsScreen(viewModel: LexiconViewModel) {
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(primaryWord.phonetic, color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 12.5.sp))
-                        Icon(
-                            Icons.AutoMirrored.Outlined.VolumeUp,
-                            contentDescription = "Pronounce word",
-                            tint = muted,
-                            modifier = Modifier.size(24.dp)
-                                .clickable { viewModel.pronounce(primaryWord.word) },
-                        )
+                        Text(primaryWord.phonetic, color = muted, style = TextStyle(fontFamily = LongFontFamily, fontSize = 13.sp),
+                            modifier = Modifier.weight(1f, fill = false))
+                        Box(Modifier.size(44.dp).clickable(role = Role.Button) { viewModel.pronounce(primaryWord.word) },
+                            contentAlignment = Alignment.Center) {
+                            Icon(Icons.AutoMirrored.Outlined.VolumeUp, "Pronounce word", tint = accent, modifier = Modifier.size(20.dp))
+                        }
                     }
 
                     Row(
@@ -831,7 +829,7 @@ fun SearchResultsScreen(viewModel: LexiconViewModel) {
                     Text(
                         text = primaryWord.definitions.firstOrNull() ?: "No definition available yet.",
                         color = fg,
-                        style = TextStyle(fontFamily = LongFontFamily, fontSize = 14.sp, lineHeight = 20.sp),
+                        style = TextStyle(fontFamily = LongFontFamily, fontSize = 15.sp, lineHeight = 21.sp),
                     )
 
                     if (primaryWord.examples.isNotEmpty()) {
@@ -898,8 +896,11 @@ fun SearchResultsScreen(viewModel: LexiconViewModel) {
                                     Box(
                                         modifier = Modifier
                                             .clip(CircleShape)
-                                            .background(accent.copy(alpha = 0.18f))
-                                            .padding(horizontal = 11.dp, vertical = 4.5.dp),
+                                            .background((if (isDark) accent else BrandGreen).copy(alpha = 0.18f))
+                                            .clickable(role = Role.Button) { viewModel.submitSearch(rw) }
+                                            .heightIn(min = 32.dp)
+                                            .padding(horizontal = 11.dp, vertical = 6.dp),
+                                        contentAlignment = Alignment.Center,
                                     ) {
                                         Text(rw, color = fg, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 10.5.sp))
                                     }
@@ -916,6 +917,7 @@ fun SearchResultsScreen(viewModel: LexiconViewModel) {
                             .background(if (fav) accent.copy(alpha = 0.22f) else bg.copy(alpha = 0.75f))
                             .border(1.dp, border, CircleShape)
                             .clickable(role = Role.Button) { viewModel.toggleFavorite(primaryWord.id) }
+                            .heightIn(min = 44.dp)
                             .padding(vertical = 10.dp),
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically,
@@ -937,7 +939,7 @@ fun SearchResultsScreen(viewModel: LexiconViewModel) {
             }
         }
 
-        if (matches.size > 1) {
+        if (state.searchScopeTab != "Idioms" && matches.size > 1) {
             item(key = "more_matches") {
                 Column(
                     modifier = Modifier.padding(horizontal = 16.dp),
@@ -1002,7 +1004,7 @@ private fun ResultDetailRow(
         LeafSprig(color = accent, modifier = Modifier.size(15.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(label, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 14.5.sp))
-            Text(value, color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.5.sp, lineHeight = 15.sp), maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(value, color = muted, style = TextStyle(fontFamily = LongFontFamily, fontSize = 12.sp, lineHeight = 16.sp))
         }
         Icon(Icons.Outlined.ChevronRight, contentDescription = null, tint = muted, modifier = Modifier.size(18.dp))
     }
