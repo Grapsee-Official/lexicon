@@ -233,3 +233,111 @@ fun DictionaryHomeScreen(viewModel: LexiconViewModel) {
         }
     }
 }
+
+
+// Editorial lookup prompts, not an exhaustive subject index.
+private val categoryLookupTerms = mapOf(
+    "vocabulary" to listOf("serendipity", "eloquence", "ephemeral", "limerence", "ethereal", "solitude"),
+    "geography" to listOf("archipelago", "estuary", "peninsula", "longitude", "latitude", "watershed"),
+    "literature" to listOf("metaphor", "allegory", "sonnet", "prologue", "elegy", "alliteration"),
+    "science" to listOf("photosynthesis", "osmosis", "gravity", "molecule", "entropy", "ecosystem"),
+    "history" to listOf("civilization", "chronicle", "dynasty", "renaissance", "archaeology", "antiquity"),
+    "mythology" to listOf("myth", "oracle", "phoenix", "labyrinth", "titan", "legend"),
+    "philosophy" to listOf("ethics", "epistemology", "ontology", "stoicism", "virtue", "reason"),
+    "art_architecture" to listOf("fresco", "perspective", "arch", "colonnade", "mosaic", "facade"),
+    "nature" to listOf("petrichor", "meadow", "hedgerow", "canopy", "flora", "fauna"),
+    "culture_traditions" to listOf("heritage", "folklore", "ritual", "custom", "festival", "tradition"),
+)
+
+@Composable
+fun CategoryDirectoryScreen(viewModel: LexiconViewModel) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    BoxWithConstraints(Modifier.fillMaxSize()) {
+        val fontScale = androidx.compose.ui.platform.LocalConfiguration.current.fontScale
+        val columns = when {
+            fontScale >= 1.6f || maxWidth < 280.dp -> 1
+            maxWidth >= 540.dp && fontScale < 1.3f -> 3
+            else -> 2
+        }
+        LazyColumn(contentPadding = PaddingValues(bottom = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            item {
+                CountrysideHeroHeader("Explore Categories", "Wander through the world of words.",
+                    "ill_hero_cottage", state.isDark,
+                    onHistoryClick = { viewModel.openSearch() }, onBack = { viewModel.navigateBack() })
+            }
+            LexiconData.categories.chunked(columns).forEach { row ->
+                item(key = row.first().id) {
+                    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        row.forEach { category ->
+                            CategoryCard(category, viewModel, Modifier.weight(1f),
+                                shelfArtworkHeight = if (columns == 1) 112.dp else 90.dp)
+                        }
+                        repeat(columns - row.size) { Spacer(Modifier.weight(1f)) }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun CategoryDetailScreen(viewModel: LexiconViewModel) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val category = LexiconData.categories.firstOrNull { it.id == state.selectedCategoryId }
+        ?: LexiconData.categories.first()
+    val dark = state.isDark
+    val ink = if (dark) DarkForeground else DeepForest
+    val muted = if (dark) DarkMutedForeground else WarmGrey
+    val accent = if (dark) DarkAccent else BrandGreen
+    val surface = if (dark) DarkCard else Color(0xFFFFF8EA).copy(alpha = .55f)
+    val border = if (dark) DarkChipBorder else OldWoodGold.copy(alpha = .27f)
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    val darkArt = if (dark) ctx.resources.getIdentifier("ref_home_" + category.id, "drawable", ctx.packageName) else 0
+    val res = if (darkArt != 0) darkArt else resolveCountrysideDrawable(category.illustration, dark, "home-" + category.id.replace('_', '-'))
+    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(11.dp)) {
+        item {
+            Column(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).padding(horizontal = 16.dp)) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(44.dp).clickable(role = Role.Button) { viewModel.navigateBack() },
+                        contentAlignment = Alignment.Center) {
+                        Icon(Icons.Outlined.ChevronLeft, "Back", tint = accent)
+                    }
+                    Text(category.title, modifier = Modifier.weight(1f), color = ink,
+                        style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 26.sp))
+                }
+                Text(category.subtitle, color = muted, modifier = Modifier.padding(start = 10.dp),
+                    style = TextStyle(fontFamily = LongFontFamily, fontSize = 14.sp))
+                Image(rememberCountrysidePainter(res, 220.dp), null,
+                    Modifier.fillMaxWidth().height(130.dp), contentScale = ContentScale.Fit)
+            }
+        }
+        item {
+            BotanicalSectionTitle("Words to discover", dark, actionLabel = null,
+                modifier = Modifier.padding(horizontal = 16.dp))
+        }
+        categoryLookupTerms[category.id].orEmpty().forEach { term ->
+            item(key = term) {
+                Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                    .clip(RoundedCornerShape(14.dp)).background(surface)
+                    .border(1.dp, border, RoundedCornerShape(14.dp))
+                    .clickable(role = Role.Button) { viewModel.lookupCategoryTerm(term) }
+                    .heightIn(min = 52.dp).padding(horizontal = 14.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    LeafSprig(accent, Modifier.size(18.dp))
+                    Text(term, Modifier.weight(1f), color = ink,
+                        style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 17.sp))
+                    Icon(Icons.Outlined.ChevronRight, null, tint = accent)
+                }
+            }
+        }
+        item {
+            Text("Suggested terms to look up in the dictionary.", color = muted,
+                modifier = Modifier.padding(horizontal = 20.dp),
+                style = TextStyle(fontFamily = BodyFontFamily, fontSize = 12.sp))
+        }
+    }
+}

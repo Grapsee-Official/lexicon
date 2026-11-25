@@ -142,5 +142,7 @@ enum class ScreenRoute {
     SEARCH_DISCOVERY,       // Page 8: Search & Discovery (tabs, Recent Searches, 4 Search Filters)
     SEARCH_RESULTS,         // Page 9: Search Results / Dictionary Search inline card + matched entries
     EXPANDED_EXPLORATION,   // Page 10: Dictionary Lookup Hub + Expanded 36-Language Word Exploration
+    CATEGORY_DIRECTORY,
+    CATEGORY_DETAIL,
     MORE,                   // Settings & Appearance
 }

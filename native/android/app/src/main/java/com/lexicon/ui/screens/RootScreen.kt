@@ -64,6 +64,8 @@ fun RootScreen(viewModel: LexiconViewModel) {
             when (currentRoute) {
                 ScreenRoute.HOME -> HomeScreen(viewModel = viewModel)
                 ScreenRoute.DICTIONARY_HOME -> DictionaryHomeScreen(viewModel = viewModel)
+                ScreenRoute.CATEGORY_DIRECTORY -> CategoryDirectoryScreen(viewModel)
+                ScreenRoute.CATEGORY_DETAIL -> CategoryDetailScreen(viewModel)
                 ScreenRoute.WORD_OF_THE_DAY -> WordOfTheDayScreen(viewModel = viewModel)
                 ScreenRoute.WORD_DETAIL -> WordDetailProfileScreen(viewModel = viewModel)
                 ScreenRoute.COLLECTIONS -> CollectionsHubScreen(viewModel = viewModel)

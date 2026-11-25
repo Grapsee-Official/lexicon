@@ -233,7 +233,7 @@ private fun HomeFeed(
                     title = "Explore by Category",
                     actionLabel = "View all",
                     divider = false,
-                    onAction = { viewModel.setActiveTab(TabKey.DICTIONARY) },
+                    onAction = { viewModel.navigate(com.lexicon.data.ScreenRoute.CATEGORY_DIRECTORY) },
                     modifier = Modifier.padding(horizontal = pageInset),
                     homeEditorial = true,
                 )

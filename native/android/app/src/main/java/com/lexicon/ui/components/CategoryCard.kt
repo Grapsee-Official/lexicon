@@ -105,7 +105,7 @@ fun CategoryCard(
                 ) else Brush.verticalGradient(listOf(surface, lowerSurface))
             )
             .border(1.dp, border, shape)
-            .clickable(role = Role.Button) { viewModel.setActiveTab(TabKey.DICTIONARY) }
+            .clickable(role = Role.Button) { viewModel.openCategory(category.id) }
             .padding(horizontal = if (largeText) 7.dp else 3.dp, vertical = if (isDark && !largeText) 4.dp else 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top,
@@ -113,7 +113,7 @@ fun CategoryCard(
         if (resId != 0) {
             // Reference vectors already contain their edge and color treatment.
             val painting = if (boardRes != 0) rememberCountrysidePainter(resId, referenceShelfWidth ?: artHeight)
-                else if (isDark) painterResource(resId)
+                else if (isDark) rememberCountrysidePainter(resId, referenceShelfWidth ?: artHeight)
                 else rememberPreparedArtwork(resId, ArtworkTreatment.BOOKPLATE)
             Image(
                 painter = painting,

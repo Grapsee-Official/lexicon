@@ -27,6 +27,7 @@ data class LexiconUiState(
     val menuOpen: Boolean = false,
     val searchQuery: String = "serendipity",
     val collectionFilter: String = "All",
+    val selectedCategoryId: String = "vocabulary",
     val searchScopeTab: String = "All",
     val filterLanguage: String = "All Languages",
     val filterPos: String = "All Types",
@@ -105,6 +106,8 @@ class LexiconViewModel : ViewModel() {
             val nextTab = when (to) {
                 ScreenRoute.HOME -> TabKey.HOME
                 ScreenRoute.DICTIONARY_HOME,
+                ScreenRoute.CATEGORY_DIRECTORY,
+                ScreenRoute.CATEGORY_DETAIL,
                 ScreenRoute.WORD_OF_THE_DAY,
                 ScreenRoute.WORD_DETAIL,
                 ScreenRoute.SEARCH_RESULTS,
@@ -138,7 +141,8 @@ class LexiconViewModel : ViewModel() {
             val prev = s.routeHistory.lastOrNull() ?: ScreenRoute.HOME
             val previousTab = when (prev) {
                 ScreenRoute.HOME -> TabKey.HOME
-                ScreenRoute.DICTIONARY_HOME, ScreenRoute.WORD_OF_THE_DAY, ScreenRoute.WORD_DETAIL,
+                ScreenRoute.DICTIONARY_HOME, ScreenRoute.CATEGORY_DIRECTORY, ScreenRoute.CATEGORY_DETAIL,
+                ScreenRoute.WORD_OF_THE_DAY, ScreenRoute.WORD_DETAIL,
                 ScreenRoute.SEARCH_RESULTS, ScreenRoute.EXPANDED_EXPLORATION -> TabKey.DICTIONARY
                 ScreenRoute.SEARCH_DISCOVERY -> TabKey.SEARCH
                 ScreenRoute.COLLECTIONS, ScreenRoute.MY_NOTES, ScreenRoute.STUDY_LISTS,
@@ -178,6 +182,18 @@ class LexiconViewModel : ViewModel() {
                 searchOpen = false,
             )
         }
+    }
+
+    fun openCategory(id: String) {
+        if (LexiconData.categories.none { it.id == id }) return
+        _uiState.update { it.copy(selectedCategoryId = id) }
+        navigate(ScreenRoute.CATEGORY_DETAIL)
+    }
+
+    fun lookupCategoryTerm(term: String) {
+        _uiState.update { it.copy(searchScopeTab = "All", filterLanguage = "All Languages",
+            filterPos = "All Types", filterDifficulty = "Any Level", filterSort = "Relevance") }
+        submitSearch(term)
     }
 
     fun openCollectionFilter(filter: String) {
