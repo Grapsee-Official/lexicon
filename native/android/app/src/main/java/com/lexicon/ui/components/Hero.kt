@@ -370,6 +370,20 @@ internal fun rememberReferenceVector(
 @Composable
 internal fun rememberCountrysidePainter(resId: Int, width: Dp? = null): Painter {
     val viewport = when (resId) {
+        R.drawable.ref_light_notes_flowers -> 115 to 130
+        R.drawable.ref_light_notes_books -> 142 to 130
+        R.drawable.ref_light_notes_quill -> 117 to 130
+        R.drawable.ref_light_notes_lantern -> 125 to 130
+        R.drawable.ref_light_template_vocab -> 170 to 66
+        R.drawable.ref_light_template_exam -> 170 to 66
+        R.drawable.ref_light_template_writing -> 170 to 70
+        R.drawable.ref_light_template_travel -> 170 to 69
+        R.drawable.ref_light_template_create -> 170 to 84
+        R.drawable.ref_light_study_books -> 170 to 121
+        R.drawable.ref_light_study_vocab -> 126 to 89
+        R.drawable.ref_light_study_exam -> 126 to 90
+        R.drawable.ref_light_study_advanced -> 126 to 91
+        R.drawable.ref_light_study_travel -> 126 to 92
         R.drawable.ref_light_daily_bay -> 320 to 174
         R.drawable.ref_light_daily_bridge -> 256 to 260
         R.drawable.ref_light_detail_hero -> 260 to 152

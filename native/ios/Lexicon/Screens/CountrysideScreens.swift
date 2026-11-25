@@ -221,6 +221,15 @@ struct MyNotesScreen: View {
     @State private var editorBody = ""
     private var isDark: Bool { scheme == .dark }
 
+    private func noteScene(_ category: NoteCategory) -> String {
+        switch category {
+        case .wordNote: return "notes-flowers"
+        case .study: return "notes-books"
+        case .personal: return "notes-quill"
+        case .idea: return "notes-lantern"
+        }
+    }
+
     var body: some View {
         let p = lexiconPalette(scheme)
         let filtered = vm.notes.filter { n in
@@ -282,7 +291,7 @@ struct MyNotesScreen: View {
                         ForEach(showAllNotes ? filtered : Array(filtered.prefix(4))) { note in
                             GeometryReader { card in
                                 ZStack(alignment: .bottomTrailing) {
-                                Image(countrysideImageName(note.illustration ?? "ill-note-flowers", isDark: isDark))
+                                Image(countrysideImageName(note.illustration ?? "ill-note-flowers", isDark: isDark, scene: noteScene(note.category)))
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: card.size.width * (dynamicTypeSize.isAccessibilitySize ? 0.32 : 0.42),
@@ -566,7 +575,7 @@ struct StudyListsScreen: View {
                         .frame(maxWidth: .infinity)
 
                         if !dynamicTypeSize.isAccessibilitySize {
-                            Image(countrysideImageName("ill-books-daisies", isDark: isDark))
+                            Image(countrysideImageName("ill-books-daisies", isDark: isDark, scene: "study-books"))
                                 .resizable().scaledToFit()
                                 .frame(width: 112, height: 88, alignment: .bottomTrailing)
                                 .accessibilityHidden(true)
@@ -598,7 +607,7 @@ struct StudyListsScreen: View {
                         ForEach(vm.studyLists.filter { query.isEmpty || $0.title.localizedCaseInsensitiveContains(query) }) { sl in
                             let narrow = dynamicTypeSize >= .xLarge
                             HStack(spacing: 7) {
-                                Image(countrysideImageName(sl.thumbnail, isDark: isDark))
+                                Image(countrysideImageName(sl.thumbnail, isDark: isDark, scene: studyScene(sl.thumbnail)))
                                     .resizable()
                                     .scaledToFit()
                                          .frame(width: narrow ? 48 : 60, height: 44)
@@ -715,6 +724,16 @@ struct StudyListsScreen: View {
 
     }
 
+    private func studyScene(_ name: String) -> String? {
+        switch name {
+        case "ill-thumb-lavender": return "study-vocab"
+        case "ill-thumb-cottage": return "study-exam"
+        case "ill-thumb-books": return "study-advanced"
+        case "ill-thumb-meadow": return "study-travel"
+        default: return nil
+        }
+    }
+
     private func studyProgress(_ percent: Int, p: LexiconPalette) -> some View {
         GeometryReader { geo in
             ZStack(alignment: .leading) {
@@ -824,6 +843,16 @@ struct QuickTemplatesScreen: View {
     @State private var newTemplateCategory: TemplateCategory = .learning
     private var isDark: Bool { scheme == .dark }
 
+    private func templateScene(_ name: String) -> String? {
+        switch name {
+        case "ill-tpl-daily": return "template-vocab"
+        case "ill-tpl-exam": return "template-exam"
+        case "ill-tpl-write": return "template-writing"
+        case "ill-tpl-travel": return "template-travel"
+        default: return nil
+        }
+    }
+
     var body: some View {
         let p = lexiconPalette(scheme)
         let filtered = vm.templates.filter { t in
@@ -869,7 +898,7 @@ struct QuickTemplatesScreen: View {
                         actionLabel: showAllTemplates ? "Show less" : "View all",
                         onAction: { filter = "All"; query = ""; showAllTemplates.toggle() }
                     )
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: dynamicTypeSize.isAccessibilitySize ? 270 : 165), spacing: 8)], spacing: 8) {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: dynamicTypeSize.isAccessibilitySize ? 1 : 2), spacing: 8) {
                         if filtered.isEmpty {
                             Text("No templates match your search or category.")
                                 .font(.lexiconBody(13))
@@ -881,15 +910,17 @@ struct QuickTemplatesScreen: View {
                                 ZStack(alignment: .topTrailing) {
                                     // Full watercolor aspect, never a fixed-height
                                     // thumbnail; the native star sits on blank paper.
-                                    Image(countrysideImageName(tpl.illustration, isDark: isDark))
+                                    Image(countrysideImageName(tpl.illustration, isDark: isDark, scene: templateScene(tpl.illustration)))
                                         .resizable()
                                         .aspectRatio(370.0 / 152.0, contentMode: .fit)
                                         .frame(maxWidth: .infinity)
                                         .accessibilityHidden(true)
                                     Button { vm.toggleTemplateStar(tpl.id) } label: {
                                         Image(systemName: tpl.starred ? "star.fill" : "star")
-                                            .font(.system(size: 17, weight: .medium))
+                                            .font(.system(size: 14, weight: .medium))
                                             .foregroundStyle(p.highlight)
+                                            .frame(width: 22, height: 22)
+                                            .background(p.card, in: Circle())
                                             .frame(width: 44, height: 44)
                                             .contentShape(Rectangle())
                                     }
@@ -898,6 +929,7 @@ struct QuickTemplatesScreen: View {
                                     .buttonStyle(.plain)
                                 }
 
+                                Rectangle().fill(p.border).frame(height: 1)
                                 Button {
                                     templateNoteTitle = tpl.title
                                     templateNoteBody = tpl.sampleWords.isEmpty
@@ -909,7 +941,7 @@ struct QuickTemplatesScreen: View {
                                             Text(tpl.title)
                                                 .font(.lexiconDisplay(13))
                                                 .foregroundStyle(p.foreground)
-                                                .lineLimit(dynamicTypeSize.isAccessibilitySize ? 2 : 1)
+                                                .lineLimit(2)
                                             Text(tpl.subtitle)
                                                 .font(.lexiconBody(9.5))
                                                 .foregroundStyle(p.mutedForeground)
@@ -924,7 +956,8 @@ struct QuickTemplatesScreen: View {
                                             .overlay(Circle().stroke(p.border, lineWidth: 1))
                                     }
                                     .padding(.horizontal, 10)
-                                    .padding(.vertical, 9)
+                                    .padding(.vertical, 6)
+                                    .frame(minHeight: 47)
                                 }
                                 .buttonStyle(.plain)
                             }
@@ -947,7 +980,7 @@ struct QuickTemplatesScreen: View {
                         showCreateTemplate = true
                     } label: {
                         ZStack(alignment: .trailing) {
-                            Image(countrysideImageName("ill-note-flowers", isDark: isDark))
+                            Image(countrysideImageName("ill-note-flowers", isDark: isDark, scene: "template-create"))
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 132, height: 74)

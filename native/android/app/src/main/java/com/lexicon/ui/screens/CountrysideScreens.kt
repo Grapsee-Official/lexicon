@@ -88,6 +88,7 @@ import com.lexicon.data.TemplateCategory
 import com.lexicon.ui.components.BotanicalSectionTitle
 import com.lexicon.ui.components.CountrysideFilterPills
 import com.lexicon.ui.components.CountrysideHeroHeader
+import com.lexicon.ui.components.rememberCountrysidePainter
 import com.lexicon.ui.components.CountrysideQuoteBanner
 import com.lexicon.ui.components.CountrysideSearchPill
 import com.lexicon.ui.components.LeafSprig
@@ -521,7 +522,13 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                             ) {
                                 rowNotes.forEach { note ->
-                                    val artRes = resolveCountrysideDrawable(note.illustration ?: "ill_note_flowers", isDark)
+                                    val noteScene = when (note.category) {
+                                        NoteCategory.WORD_NOTE -> "notes-flowers"
+                                        NoteCategory.STUDY -> "notes-books"
+                                        NoteCategory.PERSONAL -> "notes-quill"
+                                        NoteCategory.IDEA -> "notes-lantern"
+                                    }
+                                    val artRes = resolveCountrysideDrawable(note.illustration ?: "ill_note_flowers", isDark, noteScene)
                                     var menuOpen by remember(note.id) { mutableStateOf(false) }
                                     Box(
                                         modifier = Modifier
@@ -537,7 +544,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                             },
                                     ) {
                                         Image(
-                                            painter = painterResource(artRes),
+                                            painter = rememberCountrysidePainter(artRes, 112.dp),
                                             contentDescription = null,
                                             contentScale = ContentScale.Fit,
                                             alignment = Alignment.BottomEnd,
@@ -758,7 +765,7 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
     var expandedListMenu by remember { mutableStateOf<String?>(null) }
     val totalWords = state.studyLists.sumOf { it.totalWords }
     val overallPct = if (totalWords > 0) (state.studyLists.sumOf { it.completedWords } * 100) / totalWords else 0
-    val booksRes = resolveCountrysideDrawable("ill_books_daisies", isDark)
+    val booksRes = resolveCountrysideDrawable("ill_books_daisies", isDark, "study-books")
 
     LazyColumn(
         modifier = Modifier
@@ -900,7 +907,7 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                     }
 
                     if (!enlarged) Image(
-                        painter = painterResource(booksRes),
+                        painter = rememberCountrysidePainter(booksRes, 112.dp),
                         contentDescription = null,
                         contentScale = ContentScale.Fit,
                         alignment = Alignment.BottomEnd,
@@ -933,7 +940,14 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                             modifier = Modifier.padding(12.dp))
                     }
                     visibleStudyLists.forEach { sl ->
-                            val thumbRes = resolveCountrysideDrawable(sl.thumbnail, isDark)
+                            val scene = when (sl.thumbnail) {
+                                "ill_thumb_lavender" -> "study-vocab"
+                                "ill_thumb_cottage" -> "study-exam"
+                                "ill_thumb_books" -> "study-advanced"
+                                "ill_thumb_meadow" -> "study-travel"
+                                else -> null
+                            }
+                            val thumbRes = resolveCountrysideDrawable(sl.thumbnail, isDark, scene)
                             BoxWithConstraints(Modifier.fillMaxWidth()) {
                             val fontScale = androidx.compose.ui.platform.LocalConfiguration.current.fontScale
                             val narrow = maxWidth < 330.dp || fontScale >= 1.2f
@@ -954,7 +968,7 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                                 horizontalArrangement = Arrangement.spacedBy(7.dp),
                             ) {
                                 Image(
-                                    painter = painterResource(thumbRes),
+                                    painter = rememberCountrysidePainter(thumbRes, 60.dp),
                                     contentDescription = null,
                                     contentScale = ContentScale.Fit,
                                     modifier = Modifier
@@ -1221,7 +1235,7 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                     val templateColumns = countrysideAdaptiveColumns(
                         config.screenWidthDp,
                         config.fontScale,
-                        maxColumns = 4,
+                        maxColumns = 2,
                         accessibleMinCardWidthDp = 270,
                     )
                     (if (showAllTemplates) filtered else filtered.take(4))
@@ -1232,7 +1246,14 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             rowItems.forEach { tpl ->
-                                val artRes = resolveCountrysideDrawable(tpl.illustration, isDark)
+                                val scene = when (tpl.illustration) {
+                                    "ill_tpl_daily" -> "template-vocab"
+                                    "ill_tpl_exam" -> "template-exam"
+                                    "ill_tpl_write" -> "template-writing"
+                                    "ill_tpl_travel" -> "template-travel"
+                                    else -> null
+                                }
+                                val artRes = resolveCountrysideDrawable(tpl.illustration, isDark, scene)
                                 Column(
                                     modifier = Modifier
                                         .weight(1f)
@@ -1248,7 +1269,7 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                                     // Preserve the original 370:152 painting at every width.
                                     Box(modifier = Modifier.fillMaxWidth().aspectRatio(370f / 152f)) {
                                         Image(
-                                            painter = painterResource(artRes),
+                                            painter = rememberCountrysidePainter(artRes, 200.dp),
                                             contentDescription = null,
                                             contentScale = ContentScale.Fit,
                                             modifier = Modifier.fillMaxSize(),
@@ -1264,23 +1285,28 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                                                 },
                                             contentAlignment = Alignment.Center,
                                         ) {
-                                            Icon(
-                                                imageVector = if (tpl.starred) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                                                contentDescription = if (tpl.starred) "Unstar ${tpl.title}" else "Star ${tpl.title}",
-                                                tint = accent,
-                                                modifier = Modifier.size(18.dp),
-                                            )
+                                            Box(Modifier.size(22.dp).clip(CircleShape).background(cardBg),
+                                                contentAlignment = Alignment.Center) {
+                                                Icon(
+                                                    imageVector = if (tpl.starred) Icons.Filled.Star else Icons.Outlined.StarOutline,
+                                                    contentDescription = if (tpl.starred) "Unstar ${tpl.title}" else "Star ${tpl.title}",
+                                                    tint = accent,
+                                                    modifier = Modifier.size(14.dp),
+                                                )
+                                            }
                                         }
                                     }
+                                    Box(Modifier.fillMaxWidth().height(1.dp).background(border))
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(horizontal = 10.dp, vertical = 9.dp),
+                                            .heightIn(min = 47.dp)
+                                            .padding(horizontal = 10.dp, vertical = 6.dp),
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.SpaceBetween,
                                     ) {
                                         Column(modifier = Modifier.weight(1f)) {
-                                            Text(tpl.title, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 13.sp), maxLines = if (config.fontScale >= 1.3f) 2 else 1, overflow = TextOverflow.Ellipsis)
+                                            Text(tpl.title, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 13.sp), maxLines = 2, overflow = TextOverflow.Ellipsis)
                                             Text(tpl.subtitle, color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.sp, lineHeight = 14.sp), maxLines = 2)
                                         }
                                         Box(
@@ -1306,7 +1332,7 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
 
         // Create Your Own ("+ New Template")
         item(key = "create_own") {
-            val floralsRes = resolveCountrysideDrawable("ill_note_flowers", isDark)
+            val floralsRes = resolveCountrysideDrawable("ill_note_flowers", isDark, "template-create")
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 BotanicalSectionTitle(
                     title = "Create Your Own",
@@ -1328,7 +1354,7 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                         },
                 ) {
                     Image(
-                        painter = painterResource(floralsRes),
+                        painter = rememberCountrysidePainter(floralsRes, 132.dp),
                         contentDescription = null,
                         contentScale = ContentScale.Fit,
                         modifier = Modifier
