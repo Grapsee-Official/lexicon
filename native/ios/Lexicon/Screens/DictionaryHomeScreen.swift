@@ -171,3 +171,86 @@ struct DictionaryHomeScreen: View {
         .buttonStyle(.plain)
     }
 }
+
+
+// Editorial lookup prompts, not an exhaustive subject index.
+private let categoryLookupTerms: [String: [String]] = [
+    "vocabulary": ["serendipity", "eloquence", "ephemeral", "limerence", "ethereal", "solitude"],
+    "geography": ["archipelago", "estuary", "peninsula", "longitude", "latitude", "watershed"],
+    "literature": ["metaphor", "allegory", "sonnet", "prologue", "elegy", "alliteration"],
+    "science": ["photosynthesis", "osmosis", "gravity", "molecule", "entropy", "ecosystem"],
+    "history": ["civilization", "chronicle", "dynasty", "renaissance", "archaeology", "antiquity"],
+    "mythology": ["myth", "oracle", "phoenix", "labyrinth", "titan", "legend"],
+    "philosophy": ["ethics", "epistemology", "ontology", "stoicism", "virtue", "reason"],
+    "art_architecture": ["fresco", "perspective", "arch", "colonnade", "mosaic", "facade"],
+    "nature": ["petrichor", "meadow", "hedgerow", "canopy", "flora", "fauna"],
+    "culture_traditions": ["heritage", "folklore", "ritual", "custom", "festival", "tradition"],
+]
+
+struct CategoryDirectoryScreen: View {
+    @EnvironmentObject private var vm: LexiconViewModel
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 12) {
+                CountrysideHeroHeader(title: "Explore Categories", subtitle: "Wander through the world of words.",
+                    illustrationBase: "ill-hero-cottage", onHistoryClick: { vm.openSearch() },
+                    onBack: { vm.navigateBack() })
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: dynamicTypeSize.isAccessibilitySize ? 280 : 132), spacing: 10)], spacing: 12) {
+                    ForEach(LexiconData.categories) { category in
+                        CategoryCard(category: category, shelfArtworkHeight: 90)
+                    }
+                }.padding(.horizontal, 16)
+            }.padding(.bottom, 16)
+        }
+    }
+}
+
+struct CategoryDetailScreen: View {
+    @EnvironmentObject private var vm: LexiconViewModel
+    @Environment(\.colorScheme) private var scheme
+    var body: some View {
+        let p = lexiconPalette(scheme)
+        let category = LexiconData.categories.first(where: { $0.id == vm.selectedCategoryId }) ?? LexiconData.categories[0]
+        let scene = "home-" + category.id.replacingOccurrences(of: "_", with: "-")
+        let name = scheme == .dark ? "ref-" + scene :
+            countrysideImageName(category.illustration, isDark: false, scene: scene)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 11) {
+                HStack {
+                    Button { vm.navigateBack() } label: {
+                        Image(systemName: "chevron.left").foregroundStyle(p.primary)
+                            .frame(width: 44, height: 44)
+                    }.buttonStyle(.plain).accessibilityLabel("Back")
+                    Text(category.title).font(.lexiconDisplay(26)).foregroundStyle(p.foreground)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer(minLength: 0)
+                }
+                Text(category.subtitle).font(.lexiconLong(14)).foregroundStyle(p.mutedForeground)
+                    .padding(.leading, 10)
+                Image(name).resizable().scaledToFit().frame(height: 130)
+                    .frame(maxWidth: .infinity).accessibilityHidden(true)
+                HStack(spacing: 6) {
+                    BotanicalSprig(color: p.highlight).frame(width: 18, height: 18)
+                    Text("Words to discover").font(.lexiconDisplay(18)).foregroundStyle(p.foreground)
+                }
+                ForEach(categoryLookupTerms[category.id] ?? [], id: \.self) { term in
+                    Button { vm.lookupCategoryTerm(term) } label: {
+                        HStack(spacing: 10) {
+                            BotanicalSprig(color: p.highlight).frame(width: 18, height: 18)
+                            Text(term).font(.lexiconDisplay(17)).foregroundStyle(p.foreground)
+                                .fixedSize(horizontal: false, vertical: true)
+                            Spacer()
+                            Image(systemName: "chevron.right").foregroundStyle(p.primary)
+                        }.padding(.horizontal, 14).padding(.vertical, 10)
+                            .frame(minHeight: 52)
+                            .background(p.card, in: RoundedRectangle(cornerRadius: 14))
+                            .overlay(RoundedRectangle(cornerRadius: 14).stroke(p.border, lineWidth: 1))
+                    }.buttonStyle(.plain)
+                }
+                Text("Suggested terms to look up in the dictionary.").font(.lexiconBody(12))
+                    .foregroundStyle(p.mutedForeground).padding(.horizontal, 4)
+            }.padding(.horizontal, 16).padding(.bottom, 16)
+        }
+    }
+}

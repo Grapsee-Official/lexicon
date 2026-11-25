@@ -61,7 +61,7 @@ struct HomeScreen: View {
                         title: "Explore by Category",
                         actionLabel: "View all",
                         divider: false,
-                        onAction: { vm.setActiveTab(.dictionary) },
+                        onAction: { vm.navigate(to: .categoryDirectory) },
                         homeEditorial: true, homeInset: pageInset
                     )
                     let available = min(640, window.size.width)

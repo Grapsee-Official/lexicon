@@ -30,6 +30,7 @@ final class LexiconViewModel: ObservableObject {
 
     @Published var searchQuery: String = "serendipity"
     @Published var collectionFilter: String = "All"
+    @Published var selectedCategoryId: String = "vocabulary"
     @Published var searchScopeTab: String = "All"
     @Published var filterLanguage: String = "All Languages"
     @Published var filterPos: String = "All Types"
@@ -185,7 +186,7 @@ final class LexiconViewModel: ObservableObject {
         switch target {
         case .home:
             nextTab = .home
-        case .dictionaryHome, .wordOfTheDay, .wordDetail, .searchResults, .expandedExploration:
+        case .dictionaryHome, .categoryDirectory, .categoryDetail, .wordOfTheDay, .wordDetail, .searchResults, .expandedExploration:
             nextTab = .dictionary
         case .searchDiscovery:
             nextTab = .search
@@ -219,7 +220,7 @@ final class LexiconViewModel: ObservableObject {
         if !routeHistory.isEmpty { routeHistory.removeLast() }
         switch prev {
         case .home: activeTab = .home
-        case .dictionaryHome, .wordOfTheDay, .wordDetail, .searchResults, .expandedExploration:
+        case .dictionaryHome, .categoryDirectory, .categoryDetail, .wordOfTheDay, .wordDetail, .searchResults, .expandedExploration:
             activeTab = .dictionary
         case .searchDiscovery: activeTab = .search
         case .collections, .myNotes, .studyLists, .quickTemplates: activeTab = .collections
@@ -242,6 +243,21 @@ final class LexiconViewModel: ObservableObject {
         case .collections: route = .collections
         case .more: route = .more
         }
+    }
+
+    func openCategory(_ id: String) {
+        guard LexiconData.categories.contains(where: { $0.id == id }) else { return }
+        selectedCategoryId = id
+        navigate(to: .categoryDetail)
+    }
+
+    func lookupCategoryTerm(_ term: String) {
+        searchScopeTab = "All"
+        filterLanguage = "All Languages"
+        filterPos = "All Types"
+        filterDifficulty = "Any Level"
+        filterSort = "Relevance"
+        submitSearch(term)
     }
 
     func openCollectionFilter(_ filter: String) {

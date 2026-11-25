@@ -212,6 +212,10 @@ struct ContentView: View {
             HomeScreen()
         case .dictionaryHome:
             DictionaryHomeScreen()
+        case .categoryDirectory:
+            CategoryDirectoryScreen()
+        case .categoryDetail:
+            CategoryDetailScreen()
         case .wordOfTheDay:
             WordOfTheDayScreen()
         case .wordDetail:

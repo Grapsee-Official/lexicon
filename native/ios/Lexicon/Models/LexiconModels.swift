@@ -148,5 +148,7 @@ enum ScreenRoute: String, CaseIterable, Codable {
     case searchDiscovery     = "search_discovery"     // Page 8
     case searchResults       = "search_results"       // Page 9
     case expandedExploration = "expanded_exploration" // Page 10
+    case categoryDirectory   = "category_directory"
+    case categoryDetail      = "category_detail"
     case more                = "more"
 }

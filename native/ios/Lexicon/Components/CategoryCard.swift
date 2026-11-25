@@ -41,7 +41,7 @@ struct CategoryCard: View {
         let border = isDark ? Color(hex: "B6A486").opacity(0.10) : LexiconColors.foreground.opacity(0.10)
         Button {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
-            vm.setActiveTab(.dictionary)
+            vm.openCategory(category.id)
         } label: {
             VStack(spacing: 0) {
                 Group {
