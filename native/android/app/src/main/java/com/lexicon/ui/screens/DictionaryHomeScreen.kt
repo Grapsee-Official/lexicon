@@ -258,12 +258,30 @@ fun CategoryDirectoryScreen(viewModel: LexiconViewModel) {
             maxWidth >= 540.dp && fontScale < 1.3f -> 3
             else -> 2
         }
+        val cellWidth = (maxWidth - 32.dp - 10.dp * (columns - 1)) / columns
+        val artHeight = (cellWidth * .62f).coerceIn(76.dp, 154.dp)
         LazyColumn(contentPadding = PaddingValues(bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)) {
             item {
-                CountrysideHeroHeader("Explore Categories", "Wander through the world of words.",
-                    "ill_hero_cottage", state.isDark,
-                    onHistoryClick = { viewModel.openSearch() }, onBack = { viewModel.navigateBack() })
+                val ink = if (state.isDark) DarkForeground else DeepForest
+                val accent = if (state.isDark) DarkAccent else BrandGreen
+                Column(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars)
+                    .padding(horizontal = 16.dp, vertical = 6.dp)) {
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.size(44.dp).clickable(role = Role.Button) { viewModel.navigateBack() },
+                            contentAlignment = Alignment.Center) {
+                            Icon(Icons.Outlined.ChevronLeft, "Back", tint = accent)
+                        }
+                        Spacer(Modifier.weight(1f))
+                        Box(Modifier.size(44.dp).clickable(role = Role.Button) { viewModel.openSearch() },
+                            contentAlignment = Alignment.Center) {
+                            Icon(Icons.Outlined.Search, "Search dictionary", tint = accent)
+                        }
+                    }
+                    Text("Explore\nCategories", color = ink,
+                        style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 26.sp, lineHeight = 30.sp),
+                        modifier = Modifier.padding(start = 4.dp, bottom = 4.dp))
+                }
             }
             LexiconData.categories.chunked(columns).forEach { row ->
                 item(key = row.first().id) {
@@ -271,7 +289,7 @@ fun CategoryDirectoryScreen(viewModel: LexiconViewModel) {
                         horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         row.forEach { category ->
                             CategoryCard(category, viewModel, Modifier.weight(1f),
-                                shelfArtworkHeight = if (columns == 1) 112.dp else 90.dp)
+                                shelfArtworkHeight = artHeight)
                         }
                         repeat(columns - row.size) { Spacer(Modifier.weight(1f)) }
                     }

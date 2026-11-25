@@ -189,19 +189,37 @@ private let categoryLookupTerms: [String: [String]] = [
 struct CategoryDirectoryScreen: View {
     @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.colorScheme) private var scheme
+    @State private var pageWidth: CGFloat = 390
+    private var columns: Int { dynamicTypeSize.isAccessibilitySize || pageWidth < 280 ? 1 : (pageWidth >= 540 && dynamicTypeSize < .xxLarge ? 3 : 2) }
+    private var artHeight: CGFloat { min(154, max(76, (pageWidth - 32 - CGFloat(columns - 1) * 10) / CGFloat(columns) * 0.62)) }
     var body: some View {
         ScrollView {
             VStack(spacing: 12) {
-                CountrysideHeroHeader(title: "Explore Categories", subtitle: "Wander through the world of words.",
-                    illustrationBase: "ill-hero-cottage", onHistoryClick: { vm.openSearch() },
-                    onBack: { vm.navigateBack() })
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: dynamicTypeSize.isAccessibilitySize ? 280 : 132), spacing: 10)], spacing: 12) {
+                let p = lexiconPalette(scheme)
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Button { vm.navigateBack() } label: {
+                            Image(systemName: "chevron.left").frame(width: 44, height: 44)
+                        }.buttonStyle(.plain).accessibilityLabel("Back")
+                        Spacer()
+                        Button { vm.openSearch() } label: {
+                            Image(systemName: "magnifyingglass").frame(width: 44, height: 44)
+                        }.buttonStyle(.plain).accessibilityLabel("Search dictionary")
+                    }.foregroundStyle(p.primary)
+                    Text("Explore\nCategories").font(.lexiconDisplay(26))
+                        .foregroundStyle(p.foreground).fixedSize(horizontal: false, vertical: true)
+                        .padding(.leading, 4)
+                }.padding(.horizontal, 16).padding(.vertical, 6)
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: columns), spacing: 12) {
                     ForEach(LexiconData.categories) { category in
-                        CategoryCard(category: category, shelfArtworkHeight: 90)
+                        CategoryCard(category: category, shelfArtworkHeight: artHeight)
                     }
                 }.padding(.horizontal, 16)
             }.padding(.bottom, 16)
-        }
+        }.background { GeometryReader { geo in
+            Color.clear.onAppear { pageWidth = geo.size.width }.onChange(of: geo.size.width) { pageWidth = $0 }
+        } }
     }
 }
 
