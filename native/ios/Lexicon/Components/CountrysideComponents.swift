@@ -29,9 +29,9 @@ struct CountrysideHeroHeader: View {
     private var isDark: Bool { scheme == .dark }
     @State private var measuredWidth: CGFloat = 390
     private var stacked: Bool { dynamicTypeSize.isAccessibilitySize || measuredWidth < 275 || (measuredWidth < 390 && dynamicTypeSize >= .xxLarge) }
-    private var height: CGFloat { min(240, max(112, measuredWidth * 282 / 832)) }
+    private var height: CGFloat { min(240, max(112, measuredWidth * (onBack != nil ? 255 : 296) / 832)) }
     private var inset: CGFloat { measuredWidth * 42 / 832 }
-    private var titleSize: CGFloat { min(37, max(19, measuredWidth * 48 / 832)) }
+    private var titleSize: CGFloat { min(37, max(19, measuredWidth * (title == "Quick Templates" ? 43 : 48) / 832)) }
     private var subtitleSize: CGFloat { min(18, max(11, measuredWidth * 23 / 832)) }
     private var sprigSize: CGFloat { min(38, max(22, measuredWidth * 50 / 832)) }
     private var ink: Color { isDark ? LexiconColors.foregroundDark : Color(hex: "31462F") }
@@ -53,8 +53,10 @@ struct CountrysideHeroHeader: View {
                 Text(title).font(.lexiconDisplay(titleSize)).tracking(-0.4)
                     .foregroundStyle(ink).fixedSize(horizontal: false, vertical: true)
             }
-            Text(subtitle).font(.lexiconLong(subtitleSize)).foregroundStyle(ink.opacity(0.88))
-                .fixedSize(horizontal: false, vertical: true)
+            if !subtitle.isEmpty {
+                Text(subtitle).font(.lexiconLong(subtitleSize)).foregroundStyle(ink.opacity(0.88))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -92,18 +94,18 @@ struct CountrysideHeroHeader: View {
                 }
             } else {
                 ZStack(alignment: .leading) {
-                    painting.frame(width: measuredWidth * 0.78, height: height, alignment: .bottomTrailing)
+                    painting.frame(width: measuredWidth * 0.70, height: height, alignment: .bottomTrailing)
                         .frame(maxWidth: .infinity, alignment: .trailing)
-                    let paper = isDark ? LexiconColors.backgroundDark : Color(hex: "FBF1DF")
+                    let paper = isDark ? LexiconColors.backgroundDark : Color(hex: "FFF1D9")
                     LinearGradient(stops: [
-                        .init(color: paper.opacity(0.92), location: 0),
-                        .init(color: paper.opacity(0.76), location: 0.58),
+                        .init(color: paper.opacity(0.76), location: 0),
+                        .init(color: paper.opacity(0.65), location: 0.44),
                         .init(color: .clear, location: 1)
                     ], startPoint: .leading, endPoint: .trailing)
                     .frame(width: measuredWidth * 0.56, height: height)
                     .allowsHitTesting(false)
-                    copy.frame(width: measuredWidth * 0.53 - inset, alignment: .leading)
-                        .padding(.leading, inset).padding(.bottom, height * 0.10)
+                    copy.frame(width: measuredWidth * (title == "Quick Templates" ? 0.60 : 0.53) - inset, alignment: .leading)
+                        .padding(.leading, inset).padding(.bottom, height * 0.06)
                 }
                 .frame(height: height)
                 .overlay(alignment: .topTrailing) { history.padding(.trailing, inset).padding(.top, 4) }
@@ -446,35 +448,38 @@ struct CountrysideMaterialOverlay: View {
 
     var body: some View {
         Canvas { context, size in
-            let pigment = isDark ? Color(hex: "F0D89A") : Color(hex: "8A7152")
-            let wash = isDark ? Color(hex: "334A5E") : Color(hex: "C98267")
+            let pigment = isDark ? Color(hex: "8B99A0") : Color(hex: "B08A52")
+            let wash = isDark ? Color(hex: "334A5E") : Color(hex: "E0A95D")
             let side = min(size.width, size.height)
-
-            let radiusA = side * 0.27
-            let centerA = CGPoint(x: size.width * 0.04, y: size.height * 0.16)
-            context.fill(Path(ellipseIn: CGRect(
-                x: centerA.x - radiusA, y: centerA.y - radiusA,
-                width: radiusA * 2, height: radiusA * 2)),
-                with: .color(wash.opacity(isDark ? 0.025 : 0.022))
-            )
-            let radiusB = side * 0.34
-            let centerB = CGPoint(x: size.width * 0.96, y: size.height * 0.77)
-            context.fill(Path(ellipseIn: CGRect(
-                x: centerB.x - radiusB, y: centerB.y - radiusB,
-                width: radiusB * 2, height: radiusB * 2)),
-                with: .color(wash.opacity(isDark ? 0.025 : 0.018))
-            )
-            // Fine, non-repeating print/paper granulation. All marks remain
-            // editable native geometry and share coordinates with the SVGs.
-            for i in 0..<620 {
-                let x = CGFloat((i * 73 + 19) % 997) / 997
-                let y = CGFloat((i * 101 + 37) % 991) / 991
-                let radius = 0.36 + CGFloat(i % 5) * 0.13
-                context.fill(Path(ellipseIn: CGRect(
-                    x: size.width * x - radius, y: size.height * y - radius,
-                    width: radius * 2, height: radius * 2)),
-                    with: .color(pigment.opacity(isDark ? 0.045 : 0.062))
-                )
+            guard side > 0 else { return }
+            func fraction(_ i: Int, _ salt: Int) -> CGFloat {
+                let n = ((Int64(i + 1) * 73856093) ^ (Int64(salt) * 19349663)) & 0x7fffffff
+                return CGFloat((n * 48271) % 2147483647) / 2147483647
+            }
+            if !isDark {
+                let full = Path(CGRect(origin: .zero, size: size))
+                context.fill(full, with: .radialGradient(
+                    Gradient(colors: [Color(hex: "FFFAEF").opacity(0.72), .clear]),
+                    center: CGPoint(x: size.width * 0.51, y: size.height * 0.46),
+                    startRadius: 0, endRadius: size.height * 0.57))
+                for i in 0..<46 {
+                    let x = fraction(i, 4), y = fraction(i, 7)
+                    let edge = min(1, abs(x - 0.5) * 2)
+                    let center = CGPoint(x: size.width * x, y: size.height * y)
+                    let radius = side * (0.035 + fraction(i, 19) * 0.17)
+                    let field = Path(ellipseIn: CGRect(x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2))
+                    context.fill(field, with: .radialGradient(
+                        Gradient(colors: [wash.opacity(Double(0.015 + edge * 0.08)), .clear]),
+                        center: center, startRadius: 0, endRadius: radius))
+                }
+            }
+            for i in 0..<(isDark ? 650 : 1800) {
+                let x = fraction(i, 11) * size.width, y = fraction(i, 31) * size.height
+                let length = 0.65 + fraction(i, 37) * 1.4
+                var fiber = Path()
+                fiber.move(to: CGPoint(x: x, y: y))
+                fiber.addLine(to: CGPoint(x: x + length, y: y + length * (fraction(i, 43) - 0.5)))
+                context.stroke(fiber, with: .color(pigment.opacity(isDark ? 0.035 : 0.065)), style: StrokeStyle(lineWidth: 0.35, lineCap: .round))
             }
         }
         .allowsHitTesting(false)

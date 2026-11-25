@@ -82,9 +82,9 @@ struct LexiconPalette {
     var accent: Color          { isDark ? LexiconColors.accentDark          : LexiconColors.accent }
     var highlight: Color       { isDark ? LexiconColors.accentDark          : LexiconColors.highlight }
     var glowHighlight: Color   { isDark ? LexiconColors.highlightDark       : LexiconColors.highlight }
-    var card: Color            { isDark ? LexiconColors.cardDark            : LexiconColors.card }
+    var card: Color            { isDark ? LexiconColors.cardDark            : LexiconColors.card.opacity(0.78) }
     var searchPill: Color      { isDark ? LexiconColors.cardDark.opacity(0.94) : LexiconColors.searchPill }
     var muted: Color           { isDark ? LexiconColors.mutedDark           : LexiconColors.muted }
     var mutedForeground: Color { isDark ? LexiconColors.mutedForegroundDark : LexiconColors.mutedForeground }
-    var border: Color          { isDark ? LexiconColors.borderDark          : LexiconColors.border }
+    var border: Color          { isDark ? LexiconColors.borderDark          : LexiconColors.highlight.opacity(0.25) }
 }

@@ -138,8 +138,8 @@ fun CountrysideHeroHeader(
         // their own title, subtitle and painting.
         val inset = w * (42f / 832f)
         val stacked = fontScale >= 1.4f || w.value / fontScale.coerceAtLeast(1f) < 260f
-        val height = (w * (282f / 832f)).coerceIn(112.dp, 240.dp)
-        val titleSize = (w.value * (48f / 832f)).coerceIn(19f, 37f)
+        val height = (w * (if (onBack != null) 255f / 832f else 296f / 832f)).coerceIn(110.dp, 240.dp)
+        val titleSize = (w.value * (if (title == "Quick Templates") 43f / 832f else 48f / 832f)).coerceIn(18f, 37f)
         val subtitleSize = (w.value * (23f / 832f)).coerceIn(11f, 18f)
         val sprigSize = (w * (50f / 832f)).coerceIn(22.dp, 38.dp)
         val copy: @Composable (Modifier) -> Unit = { copyModifier ->
@@ -185,16 +185,16 @@ fun CountrysideHeroHeader(
             }
         } else {
             Box(Modifier.fillMaxWidth().height(height)) {
-                painting(Modifier.align(Alignment.BottomEnd).fillMaxWidth(.78f).height(height))
+                painting(Modifier.align(Alignment.BottomEnd).fillMaxWidth(.70f).height(height))
                 // A thin local edge wash; avoid a full-screen cream veil over
                 // the cottage, church spire and foliage.
                 Box(Modifier.align(Alignment.CenterStart).fillMaxWidth(.56f).fillMaxHeight()
                     .background(Brush.horizontalGradient(
-                        0f to (if (isDark) Color(0xFF07121C) else Color(0xFFFBF1DF)).copy(alpha = .92f),
-                        .58f to (if (isDark) Color(0xFF07121C) else Color(0xFFFBF1DF)).copy(alpha = .76f),
+                        0f to (if (isDark) Color(0xFF07121C) else Color(0xFFFFF1D9)).copy(alpha = .76f),
+                        .44f to (if (isDark) Color(0xFF07121C) else Color(0xFFFFF1D9)).copy(alpha = .65f),
                         1f to Color.Transparent)))
-                copy(Modifier.align(Alignment.CenterStart).fillMaxWidth(.53f)
-                    .padding(start = inset, end = 2.dp, bottom = height * .10f))
+                copy(Modifier.align(Alignment.CenterStart).fillMaxWidth(if (title == "Quick Templates") .60f else .53f)
+                    .padding(start = inset, end = 2.dp, bottom = height * .06f))
                 history(Modifier.align(Alignment.TopEnd).padding(end = inset, top = 4.dp))
             }
         }
@@ -638,29 +638,38 @@ fun NocturneAtmosphere(modifier: Modifier = Modifier) {
 @Composable
 fun CountrysideMaterialOverlay(isDark: Boolean, modifier: Modifier = Modifier) {
     Canvas(modifier = modifier) {
-        val pigment = if (isDark) Color(0xFFF0D89A) else Color(0xFF8A7152)
-        val wash = if (isDark) Color(0xFF334A5E) else Color(0xFFC98267)
+        val pigment = if (isDark) Color(0xFF8B99A0) else Color(0xFFB08A52)
+        val wash = if (isDark) Color(0xFF334A5E) else Color(0xFFE0A95D)
         val side = size.minDimension
-        drawCircle(
-            color = wash.copy(alpha = if (isDark) 0.025f else 0.022f),
-            radius = side * 0.27f,
-            center = Offset(size.width * 0.04f, size.height * 0.16f),
-        )
-        drawCircle(
-            color = wash.copy(alpha = if (isDark) 0.025f else 0.018f),
-            radius = side * 0.34f,
-            center = Offset(size.width * 0.96f, size.height * 0.77f),
-        )
-        // Fine non-repeating page granulation. Same normalised editable
-        // geometry as SwiftUI and the companion source SVGs.
-        repeat(620) { i ->
-            val x = ((i * 73 + 19) % 997).toFloat() / 997f
-            val y = ((i * 101 + 37) % 991).toFloat() / 991f
-            drawCircle(
-                color = pigment.copy(alpha = if (isDark) 0.045f else 0.062f),
-                radius = (0.36f + (i % 5) * 0.13f).dp.toPx(),
-                center = Offset(size.width * x, size.height * y),
-            )
+        if (side <= 0f) return@Canvas
+        fun fraction(i: Int, salt: Int): Float {
+            val n = ((i + 1) * 73856093L xor salt * 19349663L) and 0x7fffffff
+            return ((n * 48271L) % 2147483647L).toFloat() / 2147483647f
+        }
+        // The unpainted paper is warmer along the edges and cooler in the
+        // reading field, matching the interior reference rather than Home.
+        if (!isDark) {
+            drawRect(Brush.radialGradient(
+                colors = listOf(Color(0xFFFFFAEF).copy(alpha = .72f), Color.Transparent),
+                center = Offset(size.width * .51f, size.height * .46f), radius = size.height * .57f))
+            repeat(46) { i ->
+                val x = fraction(i, 4)
+                val y = fraction(i, 7)
+                val edge = (kotlin.math.abs(x - .5f) * 2f).coerceIn(0f, 1f)
+                val center = Offset(size.width * x, size.height * y)
+                val radius = side * (.035f + fraction(i, 19) * .17f)
+                drawCircle(brush = Brush.radialGradient(
+                    colors = listOf(wash.copy(alpha = .015f + edge * .08f), Color.Transparent),
+                    center = center, radius = radius), radius = radius, center = center)
+            }
+        }
+        repeat(if (isDark) 650 else 1800) { i ->
+            val x = fraction(i, 11) * size.width
+            val y = fraction(i, 31) * size.height
+            val length = (.65f + fraction(i, 37) * 1.4f).dp.toPx()
+            drawLine(pigment.copy(alpha = if (isDark) .035f else .065f),
+                Offset(x, y), Offset(x + length, y + length * (fraction(i, 43) - .5f)),
+                strokeWidth = .35.dp.toPx(), cap = StrokeCap.Round)
         }
     }
 }

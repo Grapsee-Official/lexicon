@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lexicon.data.LexiconViewModel
@@ -38,7 +39,7 @@ import com.lexicon.ui.theme.WarmCream
 fun RootScreen(viewModel: LexiconViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val route = state.route
-    val bg = if (state.isDark) DarkBackground else WarmCream
+    val bg = if (state.isDark) DarkBackground else if (route == ScreenRoute.HOME) WarmCream else Color(0xFFFFF1D9)
 
     BackHandler(enabled = state.routeHistory.isNotEmpty()) {
         viewModel.navigateBack()

@@ -43,7 +43,7 @@ struct ContentView: View {
                         .allowsHitTesting(false)
                 }
             } else {
-                lexiconPalette(scheme).background.ignoresSafeArea()
+                (scheme == .dark || isHome ? lexiconPalette(scheme).background : Color(hex: "FFF1D9")).ignoresSafeArea()
                 if !isHome {
                     CountrysideMaterialOverlay(isDark: scheme == .dark).ignoresSafeArea()
                         .allowsHitTesting(false).accessibilityHidden(true)
@@ -79,7 +79,7 @@ struct ContentView: View {
                 if !vm.libraryOpen {
                     BottomNav(docked: true)
                         .frame(maxWidth: 640)
-                        .background(isHome && scheme == .dark ? Color(hex: "08111A") : lexiconPalette(scheme).background)
+                        .background(isHome && scheme == .dark ? Color(hex: "08111A") : (isHome || scheme == .dark ? lexiconPalette(scheme).background : Color(hex: "FFF1D9")))
                 }
             }
 
