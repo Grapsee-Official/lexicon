@@ -6,6 +6,9 @@ on:
     paths:
       - '.github/workflows/android-test-apk.yml'
       - 'native/android/app/src/main/java/com/lexicon/ui/components/Hero.kt'
+      - 'native/android/app/src/main/java/com/lexicon/ui/components/CountrysideComponents.kt'
+      - 'native/android/app/src/main/java/com/lexicon/ui/screens/WordEntryScreens.kt'
+      - 'native/android/app/src/main/res/drawable-nodpi/paint_light_*'
       - 'native/android/app/src/main/java/com/lexicon/ui/components/WordOfTheDayCard.kt'
       - 'native/android/app/src/main/java/com/lexicon/ui/components/CategoryCard.kt'
       - 'native/android/app/src/main/res/drawable-nodpi/hero_dark.png'

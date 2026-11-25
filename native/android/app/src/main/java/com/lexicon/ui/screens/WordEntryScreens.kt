@@ -595,7 +595,8 @@ private fun IllustratedDailyWordScreen(viewModel: LexiconViewModel) {
             if (word.didYouKnow.isNotBlank()) {
                 val shape = RoundedCornerShape(16.dp)
                 BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-                val referenceHeight = (maxWidth * .244f).coerceIn(72.dp, 160.dp)
+                val bannerWidth = maxWidth
+                val referenceHeight = (bannerWidth * .244f).coerceIn(72.dp, 160.dp)
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -605,7 +606,7 @@ private fun IllustratedDailyWordScreen(viewModel: LexiconViewModel) {
                         .border(1.dp, border, shape),
                 ) {
                     Box(Modifier.matchParentSize()) {
-                        CountrysidePainting(rememberCountrysidePainter(bayRes, maxWidth * .58f),
+                        CountrysidePainting(rememberCountrysidePainter(bayRes, bannerWidth * .58f),
                             Modifier.align(Alignment.BottomEnd).fillMaxWidth(.60f).fillMaxHeight(),
                             fadeLeft = .25f, fadeBottom = 0f)
                     }
