@@ -7,6 +7,10 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
+import com.lexicon.R
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.Column
@@ -39,7 +43,7 @@ import com.lexicon.ui.theme.WarmCream
 fun RootScreen(viewModel: LexiconViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val route = state.route
-    val bg = if (state.isDark) DarkBackground else if (route == ScreenRoute.HOME) WarmCream else Color(0xFFFFF1D9)
+    val bg = if (state.isDark) DarkBackground else if (route == ScreenRoute.HOME) WarmCream else Color(0xFFF3EBDD)
 
     BackHandler(enabled = state.routeHistory.isNotEmpty()) {
         viewModel.navigateBack()
@@ -51,6 +55,8 @@ fun RootScreen(viewModel: LexiconViewModel) {
             .background(bg),
     ) {
         if (route != ScreenRoute.HOME) {
+            if (!state.isDark) Image(painterResource(R.drawable.paper_texture), null,
+                Modifier.fillMaxSize(), contentScale = ContentScale.FillBounds, alpha = .20f)
             CountrysideMaterialOverlay(isDark = state.isDark, modifier = Modifier.fillMaxSize())
         }
         Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {

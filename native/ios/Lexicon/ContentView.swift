@@ -43,8 +43,12 @@ struct ContentView: View {
                         .allowsHitTesting(false)
                 }
             } else {
-                (scheme == .dark || isHome ? lexiconPalette(scheme).background : Color(hex: "FFF1D9")).ignoresSafeArea()
+                (scheme == .dark || isHome ? lexiconPalette(scheme).background : Color(hex: "F3EBDD")).ignoresSafeArea()
                 if !isHome {
+                    if scheme != .dark {
+                        Image("paper-texture").resizable().opacity(0.20).ignoresSafeArea()
+                            .allowsHitTesting(false).accessibilityHidden(true)
+                    }
                     CountrysideMaterialOverlay(isDark: scheme == .dark).ignoresSafeArea()
                         .allowsHitTesting(false).accessibilityHidden(true)
                 }
@@ -79,7 +83,7 @@ struct ContentView: View {
                 if !vm.libraryOpen {
                     BottomNav(docked: true)
                         .frame(maxWidth: 640)
-                        .background(isHome && scheme == .dark ? Color(hex: "08111A") : (isHome || scheme == .dark ? lexiconPalette(scheme).background : Color(hex: "FFF1D9")))
+                        .background(isHome && scheme == .dark ? Color(hex: "08111A") : (isHome || scheme == .dark ? lexiconPalette(scheme).background : Color(hex: "F3EBDD")))
                 }
             }
 

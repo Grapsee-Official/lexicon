@@ -35,19 +35,12 @@ struct WordDetailProfileScreen: View {
                     let artHeight = min(260, max(130, (pageWidth - 36) * 0.47))
                     ZStack(alignment: .trailing) {
                         if !enlarged {
-                            Image(countrysideImageName("ill-thumb-meadow", isDark: scheme == .dark, scene: "detail-meadow"))
-                                .resizable().scaledToFit()
-                                .frame(width: (pageWidth - 36) * 0.56, height: artHeight, alignment: .bottomTrailing)
-                                .accessibilityHidden(true)
-                            let paper = scheme == .dark ? p.background : Color(hex: "FFF1D9")
-                            LinearGradient(stops: [.init(color: paper.opacity(0.45), location: 0),
-                                .init(color: paper.opacity(0.8), location: 0.56), .init(color: .clear, location: 1)],
-                                startPoint: .leading, endPoint: .trailing)
-                                .frame(width: (pageWidth - 36) * 0.62, height: artHeight)
-                                .frame(maxWidth: .infinity, alignment: .leading).allowsHitTesting(false)
+                            CountrysidePainting(name: countrysideImageName("ill-thumb-meadow", isDark: scheme == .dark, scene: "detail-meadow"),
+                                fadeLeft: 0.13, fadeBottom: 0.09)
+                                .frame(width: (pageWidth - 36) * 0.56, height: artHeight)
                         }
                         VStack(alignment: .leading, spacing: 7) {
-                            Text(word.word).font(.lexiconDisplay(min(54, max(30, (pageWidth - 36) * 0.105))))
+                            Text(word.word.lowercased()).font(.lexiconDisplay(min(54, max(30, (pageWidth - 36) * 0.105))))
                                 .foregroundStyle(ink).fixedSize(horizontal: false, vertical: true)
                             HStack(spacing: 7) {
                                 Text(word.phonetic).font(.lexiconLong(15)).foregroundStyle(ink)
@@ -91,11 +84,7 @@ struct WordDetailProfileScreen: View {
                 if !word.examples.isEmpty {
                     BotanicalSectionTitle(title: "Usage Examples", actionLabel: nil)
                     ZStack(alignment: .bottomTrailing) {
-                        if !enlarged {
-                            Image(countrysideImageName("ill-books-daisies", isDark: scheme == .dark, scene: "study-books"))
-                                .resizable().scaledToFit().frame(width: (pageWidth - 36) * 0.40, height: min(210, max(115, (pageWidth - 36) * 0.39)))
-                                .accessibilityHidden(true)
-                        }
+
                         VStack(spacing: 6) {
                             ForEach(Array(word.examples.enumerated()), id: \.offset) { _, example in
                                 HStack(alignment: .top, spacing: 6) {
@@ -103,7 +92,7 @@ struct WordDetailProfileScreen: View {
                                     Text(example).font(.lexiconLong(13)).foregroundStyle(ink)
                                         .fixedSize(horizontal: false, vertical: true)
                                         .frame(maxWidth: .infinity, alignment: .leading)
-                                }.padding(11).background(p.card)
+                                }.padding(11).background(scheme == .dark ? p.card.opacity(0.45) : Color.clear)
                                     .clipShape(RoundedRectangle(cornerRadius: 14))
                                     .overlay(RoundedRectangle(cornerRadius: 14).stroke(rule, lineWidth: 1))
                             }
@@ -114,6 +103,16 @@ struct WordDetailProfileScreen: View {
                         }
                         .frame(maxWidth: enlarged ? .infinity : (pageWidth - 36) * 0.58)
                         .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .background(alignment: .bottomTrailing) {
+                        if !enlarged {
+                            GeometryReader { geo in
+                                CountrysidePainting(name: countrysideImageName("ill-books-daisies", isDark: scheme == .dark, scene: "study-books"),
+                                    fadeLeft: 0.10, fadeBottom: 0.08)
+                                    .frame(width: geo.size.width * 0.42, height: geo.size.height)
+                                    .frame(maxWidth: .infinity, alignment: .trailing)
+                            }
+                        }
                     }.padding(.horizontal, 18)
                 }
                 CountrysideQuoteBanner(quote: "Sometimes, the best things in life are found by chance.", illustrationBase: "ill-banner-church")
@@ -138,7 +137,7 @@ struct WordDetailProfileScreen: View {
                 if let title { Text(title).font(.lexiconDisplay(17)) }
                 Text(body).font(.lexiconLong(13)).fixedSize(horizontal: false, vertical: true)
             }.foregroundStyle(ink).frame(maxWidth: .infinity, alignment: .leading)
-        }.padding(13).background(scheme == .dark ? p.card : Color(hex: "FFF2DF").opacity(0.72))
+        }.padding(13).background(scheme == .dark ? p.card.opacity(0.45) : Color.clear)
             .clipShape(RoundedRectangle(cornerRadius: 14))
             .overlay(RoundedRectangle(cornerRadius: 14).stroke(rule, lineWidth: 1))
             .padding(.horizontal, 18)
@@ -163,16 +162,9 @@ private struct IllustratedDailyWordScreen: View {
             VStack(spacing: 11) {
                 ZStack(alignment: .topTrailing) {
                     if !enlarged {
-                        Image(countrysideImageName("ill-hero-bridge", isDark: isDark, scene: "daily-bridge"))
-                            .resizable().scaledToFit()
-                            .frame(width: pageWidth * 0.72, height: artHeight, alignment: .topTrailing)
-                            .accessibilityHidden(true).allowsHitTesting(false)
-                        let paper = isDark ? p.background : Color(hex: "FFF1D9")
-                        LinearGradient(stops: [.init(color: paper, location: 0),
-                            .init(color: paper.opacity(0.82), location: 0.52),
-                            .init(color: .clear, location: 1)], startPoint: .leading, endPoint: .trailing)
-                            .frame(width: pageWidth * 0.65, height: artHeight)
-                            .frame(maxWidth: .infinity, alignment: .leading).allowsHitTesting(false)
+                        CountrysidePainting(name: countrysideImageName("ill-hero-bridge", isDark: isDark, scene: "daily-bridge"),
+                            fadeLeft: 0.14, fadeBottom: 0.10)
+                            .frame(width: pageWidth * 0.76, height: artHeight)
                     }
 
                     VStack(alignment: .leading, spacing: 6) {
@@ -238,9 +230,9 @@ private struct IllustratedDailyWordScreen: View {
                             .clipShape(Capsule())
 
                         Text(word.definitions.first ?? "")
-                            .font(.lexiconLong(13))
+                            .font(.lexiconLong(14))
                             .foregroundStyle(p.foreground)
-                            .frame(maxWidth: enlarged ? .infinity : pageWidth * 0.55, alignment: .leading)
+                            .frame(maxWidth: enlarged ? .infinity : pageWidth * 0.54, alignment: .leading)
                             .fixedSize(horizontal: false, vertical: true)
                         if enlarged {
                             Image(countrysideImageName("ill-hero-bridge", isDark: isDark, scene: "daily-bridge"))
@@ -307,6 +299,34 @@ private struct IllustratedDailyWordScreen: View {
 
                 etymologyUsageCards(word: word, p: p)
 
+                if !word.didYouKnow.isEmpty {
+                    VStack(alignment: .leading, spacing: 5) {
+                        HStack(spacing: 5) {
+                            Image(systemName: "lightbulb").foregroundStyle(p.highlight)
+                            Text("Did You Know?").font(.lexiconDisplay(14))
+                        }
+                        Text(word.didYouKnow).font(.lexiconBody(11))
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: enlarged ? .infinity : pageWidth * 0.54, alignment: .leading)
+                    }
+                    .foregroundStyle(p.foreground).padding(10)
+                    .frame(maxWidth: .infinity, minHeight: min(160, max(72, (pageWidth - 32) * 0.244)), alignment: .leading)
+                    .background(alignment: .trailing) {
+                        if !enlarged {
+                            GeometryReader { geo in
+                                CountrysidePainting(name: countrysideImageName("ill-banner-bay", isDark: isDark, scene: "daily-bay"),
+                                    fadeLeft: 0.25, fadeBottom: 0)
+                                    .frame(width: geo.size.width * 0.60, height: geo.size.height)
+                                    .frame(maxWidth: .infinity, alignment: .trailing)
+                            }
+                        }
+                    }
+                    .background(isDark ? p.card.opacity(0.45) : Color.clear)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .overlay(RoundedRectangle(cornerRadius: 16).stroke(p.border, lineWidth: 1))
+                    .padding(.horizontal, 16)
+                }
+
                 // Progressive Expansion to Page 10 (36 Languages)
                 Button {
                     vm.openWordExpanded(word)
@@ -330,30 +350,6 @@ private struct IllustratedDailyWordScreen: View {
                 }
                 .buttonStyle(.plain)
                 .padding(.horizontal, 16)
-
-                if !word.didYouKnow.isEmpty {
-                    VStack(alignment: .leading, spacing: 5) {
-                        HStack(spacing: 5) {
-                            Image(systemName: "lightbulb").foregroundStyle(p.highlight)
-                            Text("Did You Know?").font(.lexiconDisplay(14))
-                        }
-                        Text(word.didYouKnow).font(.lexiconBody(11))
-                            .fixedSize(horizontal: false, vertical: true)
-                            .frame(maxWidth: enlarged ? .infinity : pageWidth * 0.54, alignment: .leading)
-                    }
-                    .foregroundStyle(p.foreground).padding(13)
-                    .frame(maxWidth: .infinity, minHeight: 94, alignment: .leading)
-                    .background(alignment: .trailing) {
-                        if !enlarged {
-                            Image(countrysideImageName("ill-banner-bay", isDark: isDark, scene: "daily-bay"))
-                                .resizable().scaledToFit().accessibilityHidden(true)
-                        }
-                    }
-                    .background(p.card)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                    .overlay(RoundedRectangle(cornerRadius: 16).stroke(p.border, lineWidth: 1))
-                    .padding(.horizontal, 16)
-                }
             }
             .padding(.bottom, 16)
         }
@@ -369,19 +365,26 @@ private struct IllustratedDailyWordScreen: View {
     private func etymologyUsageCards(word: WordEntry, p: LexiconPalette) -> some View {
         let layout = enlarged || pageWidth < 324 ? AnyLayout(VStackLayout(spacing: 8)) : AnyLayout(HStackLayout(alignment: .top, spacing: 8))
         return layout {
+            let origin = word.etymology.isEmpty ? "Origin information is not available." : word.etymology
+            let shortOrigin = origin.count <= 160
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 5) {
-                    BotanicalSprig(color: p.highlight).frame(width: 15, height: 15)
+                    BotanicalSprig(color: p.highlight).frame(width: 17, height: 17)
                     Text("Etymology").font(.lexiconDisplay(15))
                 }
-                Text(word.etymology.isEmpty ? "Origin information is not available." : word.etymology)
+                Text(origin)
                     .font(.lexiconLong(12)).fixedSize(horizontal: false, vertical: true)
-                Image(countrysideImageName("ill-books-daisies", isDark: isDark, scene: "study-books"))
-                    .resizable().scaledToFit().frame(height: 68)
-                    .frame(maxWidth: .infinity, alignment: .trailing).accessibilityHidden(true)
+                    .frame(maxWidth: shortOrigin && !enlarged ? (pageWidth - 48) * 0.35 : .infinity, alignment: .leading)
+                    .padding(.bottom, shortOrigin && !enlarged ? 0 : 48)
             }
-            .padding(11).frame(maxWidth: .infinity, alignment: .leading)
-            .foregroundStyle(p.foreground).background(p.card)
+            .padding(11).frame(maxWidth: .infinity, minHeight: 126, alignment: .topLeading)
+            .foregroundStyle(p.foreground)
+            .background(alignment: .bottomTrailing) {
+                CountrysidePainting(name: countrysideImageName("ill-books-daisies", isDark: isDark, scene: "study-books"),
+                    fadeLeft: 0.15, fadeBottom: 0)
+                    .frame(width: min(88, pageWidth * 0.22), height: 76)
+            }
+            .background(isDark ? p.card.opacity(0.45) : Color.clear)
             .clipShape(RoundedRectangle(cornerRadius: 15))
             .overlay(RoundedRectangle(cornerRadius: 15).stroke(p.border, lineWidth: 1))
             VStack(alignment: .leading, spacing: 10) {

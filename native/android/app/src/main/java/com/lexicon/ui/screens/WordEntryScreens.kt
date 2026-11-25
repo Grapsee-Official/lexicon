@@ -79,6 +79,7 @@ import com.lexicon.data.ScreenRoute
 import com.lexicon.data.WordEntry
 import com.lexicon.ui.components.BotanicalSectionTitle
 import com.lexicon.ui.components.CountrysideHeroHeader
+import com.lexicon.ui.components.CountrysidePainting
 import com.lexicon.ui.components.CountrysideQuoteBanner
 import com.lexicon.ui.components.CountrysideSearchPill
 import com.lexicon.ui.components.LeafSprig
@@ -124,7 +125,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
     val dark = state.isDark
     val ink = if (dark) DarkForeground else Color(0xFF243B37)
     val accent = if (dark) DarkAccent else BrandGreen
-    val card = if (dark) DarkCard else Color(0xFFFFF2DF).copy(alpha = .72f)
+    val card = if (dark) DarkCard.copy(alpha = .45f) else Color.Transparent
     val rule = if (dark) DarkChipBorder else OldWoodGold.copy(alpha = .34f)
     val shape = RoundedCornerShape(14.dp)
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 16.dp),
@@ -144,15 +145,11 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                 val meadow = rememberCountrysidePainter(resolveCountrysideDrawable("ill_thumb_meadow", dark, "detail-meadow"), w * .56f)
                 Box(Modifier.fillMaxWidth().heightIn(min = artHeight)) {
                     if (!enlarged) {
-                        Image(meadow, null, Modifier.align(Alignment.CenterEnd).fillMaxWidth(.56f).height(artHeight),
-                            contentScale = ContentScale.Fit, alignment = Alignment.BottomEnd)
-                        val paper = if (dark) DarkBackground else Color(0xFFFFF1D9)
-                        Box(Modifier.align(Alignment.CenterStart).fillMaxWidth(.62f).height(artHeight)
-                            .background(Brush.horizontalGradient(0f to paper.copy(alpha = .45f),
-                                .56f to paper.copy(alpha = .80f), 1f to Color.Transparent)))
+                        CountrysidePainting(meadow, Modifier.align(Alignment.BottomEnd).fillMaxWidth(.56f).height(artHeight),
+                            fadeLeft = .13f, fadeBottom = .09f)
                     }
                     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(7.dp)) {
-                        Text(word.word, color = ink,
+                        Text(word.word.lowercase(), color = ink,
                             style = TextStyle(fontFamily = DisplayFontFamily,
                                 fontSize = (w.value * .105f).coerceIn(30f, 54f).sp))
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
@@ -205,11 +202,15 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                 BoxWithConstraints(Modifier.fillMaxWidth()) {
                     val large = maxWidth < 280.dp || androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f
                     val art = rememberCountrysidePainter(resolveCountrysideDrawable("ill_books_daisies", dark, "study-books"), maxWidth * .40f)
-                    val exampleArtHeight = (maxWidth * .39f).coerceIn(115.dp, 210.dp)
+                    val exampleArtHeight = (maxWidth * .34f).coerceIn(86.dp, 160.dp)
                     Box(Modifier.fillMaxWidth()) {
-                        if (!large) Image(art, null, Modifier.align(Alignment.BottomEnd).fillMaxWidth(.40f).height(exampleArtHeight),
-                            contentScale = ContentScale.Fit, alignment = Alignment.BottomEnd)
-                        Column(Modifier.fillMaxWidth(if (large) 1f else .58f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        if (!large) {
+                            Box(Modifier.matchParentSize()) {
+                                CountrysidePainting(art, Modifier.align(Alignment.BottomEnd).fillMaxWidth(.42f).fillMaxHeight(),
+                                    fadeLeft = .10f, fadeBottom = .08f)
+                            }
+                        }
+                        Column(Modifier.fillMaxWidth(if (large) 1f else .58f).heightIn(min = if (large) 0.dp else if (word.examples.size > 1) exampleArtHeight else 0.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             word.examples.forEach { example ->
                                 Row(Modifier.fillMaxWidth().clip(shape).background(card).border(1.dp, rule, shape).padding(11.dp),
                                     horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -249,7 +250,7 @@ private fun IllustratedDailyWordScreen(viewModel: LexiconViewModel) {
     val shareContext = androidx.compose.ui.platform.LocalContext.current
 
     val bg = if (isDark) DarkBackground else Color(0xFFFFF1D9)
-    val cardBg = if (isDark) DarkCard else Color(0xFFFFF8EA).copy(alpha = .55f)
+    val cardBg = if (isDark) DarkCard.copy(alpha = .45f) else Color.Transparent
     val border = if (isDark) DarkChipBorder else OldWoodGold.copy(alpha = .27f)
     val fg = if (isDark) DarkForeground else DeepForest
     val muted = if (isDark) DarkMutedForeground else WarmGrey
@@ -273,19 +274,11 @@ private fun IllustratedDailyWordScreen(viewModel: LexiconViewModel) {
                 val enlarged = fontScale >= 1.3f || pageWidth < 300.dp
                 val artHeight = (pageWidth * (440f / 832f)).coerceIn(150.dp, 320.dp)
                 Box(Modifier.fillMaxWidth().heightIn(min = artHeight)) {
-                if (!enlarged) Image(
-                    painter = rememberCountrysidePainter(bridgeRes, pageWidth * .70f),
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit,
-                    alignment = Alignment.TopEnd,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .fillMaxWidth(0.72f)
-                        .height(artHeight),
+                if (!enlarged) CountrysidePainting(
+                    rememberCountrysidePainter(bridgeRes, pageWidth * .76f),
+                    Modifier.align(Alignment.BottomEnd).fillMaxWidth(.76f).height(artHeight),
+                    fadeLeft = .14f, fadeBottom = .10f,
                 )
-
-                if (!enlarged) Box(Modifier.align(Alignment.CenterStart).fillMaxWidth(.65f).height(artHeight)
-                    .background(Brush.horizontalGradient(0f to bg, .52f to bg.copy(alpha = .82f), 1f to Color.Transparent)))
 
                 Column(
                     modifier = Modifier
@@ -381,8 +374,8 @@ private fun IllustratedDailyWordScreen(viewModel: LexiconViewModel) {
                     Text(
                         text = word.definitions.firstOrNull().orEmpty(),
                         color = fg,
-                        style = TextStyle(fontFamily = LongFontFamily, fontSize = 13.sp, lineHeight = 18.sp),
-                        modifier = Modifier.fillMaxWidth(if (enlarged) 1f else 0.57f),
+                        style = TextStyle(fontFamily = LongFontFamily, fontSize = 14.sp, lineHeight = 19.sp),
+                        modifier = Modifier.fillMaxWidth(if (enlarged) 1f else 0.54f),
                     )
                     if (enlarged) Image(rememberCountrysidePainter(bridgeRes, pageWidth), null,
                         modifier = Modifier.fillMaxWidth().height(artHeight), contentScale = ContentScale.Fit)
@@ -540,17 +533,24 @@ private fun IllustratedDailyWordScreen(viewModel: LexiconViewModel) {
         item(key = "etym_usage") {
             val shape = RoundedCornerShape(15.dp)
             val etymology: @Composable (Modifier) -> Unit = { layout ->
-                Column(layout.clip(shape).background(cardBg).border(1.dp, border, shape).padding(11.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                        LeafSprig(color = accent, modifier = Modifier.size(15.dp))
-                        Text("Etymology", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 15.sp))
+                val origin = word.etymology.ifBlank { "Origin information is not available." }
+                val shortOrigin = origin.length <= 160
+                Box(layout.clip(shape).background(cardBg).border(1.dp, border, shape)) {
+                    Box(Modifier.matchParentSize()) {
+                        CountrysidePainting(rememberCountrysidePainter(booksRes, 110.dp),
+                            Modifier.align(Alignment.BottomEnd).fillMaxWidth(if (shortOrigin) .45f else .36f).height(76.dp),
+                            fadeLeft = .15f, fadeBottom = 0f)
                     }
-                    Text(word.etymology.ifBlank { "Origin information is not available." }, color = fg,
-                        style = TextStyle(fontFamily = LongFontFamily, fontSize = 12.sp, lineHeight = 16.sp))
-                    Image(rememberCountrysidePainter(booksRes, 110.dp), null,
-                        modifier = Modifier.align(Alignment.End).fillMaxWidth(.72f).height(68.dp),
-                        contentScale = ContentScale.Fit, alignment = Alignment.BottomEnd)
+                    Column(Modifier.fillMaxWidth().padding(11.dp)
+                        .heightIn(min = 104.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                            LeafSprig(color = accent, modifier = Modifier.size(17.dp))
+                            Text("Etymology", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 15.sp))
+                        }
+                        Text(origin, color = fg, modifier = Modifier.fillMaxWidth(if (shortOrigin) .70f else 1f)
+                            .padding(bottom = if (shortOrigin) 0.dp else 48.dp),
+                            style = TextStyle(fontFamily = LongFontFamily, fontSize = 12.sp, lineHeight = 16.sp))
+                    }
                 }
             }
             val examples: @Composable (Modifier) -> Unit = { layout ->
@@ -584,6 +584,46 @@ private fun IllustratedDailyWordScreen(viewModel: LexiconViewModel) {
             }
         }
 
+        // Did You Know? panoramic bay card
+        item(key = "did_you_know") {
+            if (word.didYouKnow.isNotBlank()) {
+                val shape = RoundedCornerShape(16.dp)
+                BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+                val referenceHeight = (maxWidth * .244f).coerceIn(72.dp, 160.dp)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = referenceHeight)
+                        .clip(shape)
+                        .background(cardBg)
+                        .border(1.dp, border, shape),
+                ) {
+                    Box(Modifier.matchParentSize()) {
+                        CountrysidePainting(rememberCountrysidePainter(bayRes, maxWidth * .58f),
+                            Modifier.align(Alignment.BottomEnd).fillMaxWidth(.60f).fillMaxHeight(),
+                            fadeLeft = .25f, fadeBottom = 0f)
+                    }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth(0.57f)
+                            .padding(10.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                            Icon(Icons.Outlined.Lightbulb, contentDescription = null, tint = accent, modifier = Modifier.size(15.dp))
+                            Text("Did You Know?", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 14.5.sp))
+                        }
+                        Text(
+                            text = word.didYouKnow,
+                            color = fg.copy(alpha = 0.85f),
+                            style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.sp, lineHeight = 14.sp),
+                        )
+                    }
+                }
+                }
+            }
+        }
+
         // Progressive Link to Page 10 (36-Language Expanded Word Exploration)
         item(key = "expand_36_btn") {
             Row(
@@ -607,59 +647,6 @@ private fun IllustratedDailyWordScreen(viewModel: LexiconViewModel) {
                     )
                 }
                 Icon(Icons.AutoMirrored.Outlined.ArrowForward, contentDescription = null, tint = accent, modifier = Modifier.size(15.dp))
-            }
-        }
-
-        // Did You Know? panoramic bay card
-        item(key = "did_you_know") {
-            if (word.didYouKnow.isNotBlank()) {
-                val shape = RoundedCornerShape(16.dp)
-                Box(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .fillMaxWidth()
-                        .heightIn(min = 98.dp)
-                        .clip(shape)
-                        .background(cardBg)
-                        .border(1.dp, border, shape),
-                ) {
-                    Image(
-                        painter = rememberCountrysidePainter(bayRes),
-                        contentDescription = null,
-                        contentScale = ContentScale.Fit,
-                        alignment = Alignment.CenterEnd,
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .matchParentSize(),
-                    )
-                    Box(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .background(
-                                Brush.horizontalGradient(
-                                    0.0f to cardBg.copy(alpha = 0.22f),
-                                    0.33f to cardBg.copy(alpha = 0.14f),
-                                    0.72f to Color.Transparent,
-                                )
-                            ),
-                    )
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth(0.64f)
-                            .padding(13.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                            Icon(Icons.Outlined.Lightbulb, contentDescription = null, tint = accent, modifier = Modifier.size(15.dp))
-                            Text("Did You Know?", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 14.5.sp))
-                        }
-                        Text(
-                            text = word.didYouKnow,
-                            color = fg.copy(alpha = 0.85f),
-                            style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.sp, lineHeight = 15.sp),
-                        )
-                    }
-                }
             }
         }
     }
