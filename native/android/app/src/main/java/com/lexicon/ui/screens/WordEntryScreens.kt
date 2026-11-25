@@ -7,6 +7,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -214,15 +216,15 @@ private fun IllustratedDailyWordScreen(viewModel: LexiconViewModel) {
     val saved = state.savedWordIds.contains(word.id)
     val shareContext = androidx.compose.ui.platform.LocalContext.current
 
-    val bg = if (isDark) DarkBackground else WarmCream
-    val cardBg = if (isDark) DarkCard else CardSurface
-    val border = if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.11f)
+    val bg = if (isDark) DarkBackground else Color(0xFFFFF1D9)
+    val cardBg = if (isDark) DarkCard else Color(0xFFFFF8EA).copy(alpha = .55f)
+    val border = if (isDark) DarkChipBorder else OldWoodGold.copy(alpha = .27f)
     val fg = if (isDark) DarkForeground else DeepForest
     val muted = if (isDark) DarkMutedForeground else WarmGrey
     val accent = if (isDark) DarkAccent else OldWoodGold
 
     val bridgeRes = resolveCountrysideDrawable("ill_hero_bridge", isDark, "daily-bridge")
-    val booksRes = resolveCountrysideDrawable("ill_books_daisies", isDark)
+    val booksRes = resolveCountrysideDrawable("ill_books_daisies", isDark, "study-books")
     val bayRes = resolveCountrysideDrawable("ill_banner_bay", isDark, "daily-bay")
 
     LazyColumn(
@@ -233,26 +235,25 @@ private fun IllustratedDailyWordScreen(viewModel: LexiconViewModel) {
         verticalArrangement = Arrangement.spacedBy(11.dp),
     ) {
         item(key = "detail_hero") {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .windowInsetsPadding(WindowInsets.statusBars),
-            ) {
-                Image(
-                    painter = rememberCountrysidePainter(bridgeRes),
+            BoxWithConstraints(Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars)) {
+                val pageWidth = maxWidth
+                val fontScale = androidx.compose.ui.platform.LocalConfiguration.current.fontScale
+                val enlarged = fontScale >= 1.3f || pageWidth < 300.dp
+                val artHeight = (pageWidth * (440f / 832f)).coerceIn(150.dp, 320.dp)
+                Box(Modifier.fillMaxWidth().heightIn(min = artHeight)) {
+                if (!enlarged) Image(
+                    painter = rememberCountrysidePainter(bridgeRes, pageWidth * .70f),
                     contentDescription = null,
                     contentScale = ContentScale.Fit,
                     alignment = Alignment.TopEnd,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .fillMaxWidth(0.84f)
-                        .height(266.dp)
-                        .offset(y = 16.dp),
+                        .fillMaxWidth(0.72f)
+                        .height(artHeight),
                 )
 
-                if (isDark) {
-                    NocturneAtmosphere(Modifier.fillMaxWidth().height(266.dp))
-                }
+                if (!enlarged) Box(Modifier.align(Alignment.CenterStart).fillMaxWidth(.65f).height(artHeight)
+                    .background(Brush.horizontalGradient(0f to bg, .52f to bg.copy(alpha = .82f), 1f to Color.Transparent)))
 
                 Column(
                     modifier = Modifier
@@ -318,7 +319,8 @@ private fun IllustratedDailyWordScreen(viewModel: LexiconViewModel) {
                         Text(
                             text = word.word,
                             color = fg,
-                            style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 31.sp),
+                            style = TextStyle(fontFamily = DisplayFontFamily, fontSize = (pageWidth.value * 62f / 832f).coerceIn(24f, 44f).sp),
+                            modifier = Modifier.weight(1f, fill = false),
                         )
                         Icon(
                             Icons.AutoMirrored.Outlined.VolumeUp,
@@ -348,8 +350,11 @@ private fun IllustratedDailyWordScreen(viewModel: LexiconViewModel) {
                         text = word.definitions.firstOrNull().orEmpty(),
                         color = fg,
                         style = TextStyle(fontFamily = LongFontFamily, fontSize = 13.sp, lineHeight = 18.sp),
-                        modifier = Modifier.fillMaxWidth(0.58f),
+                        modifier = Modifier.fillMaxWidth(if (enlarged) 1f else 0.57f),
                     )
+                    if (enlarged) Image(rememberCountrysidePainter(bridgeRes, pageWidth), null,
+                        modifier = Modifier.fillMaxWidth().height(artHeight), contentScale = ContentScale.Fit)
+                }
                 }
             }
         }
@@ -362,13 +367,17 @@ private fun IllustratedDailyWordScreen(viewModel: LexiconViewModel) {
                 Triple(Icons.Outlined.StarOutline, "Frequency", word.frequency),
                 Triple(Icons.Outlined.AutoStories, "Level", word.level),
             )
+            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                val columns = if (maxWidth < 310.dp || androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f) 2 else 4
+                Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                    metas.chunked(columns).forEach { group ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(7.dp),
             ) {
-                metas.forEach { (ic, label, value) ->
+                group.forEach { (ic, label, value) ->
                     Column(
                         modifier = Modifier
                             .weight(1f)
@@ -381,7 +390,10 @@ private fun IllustratedDailyWordScreen(viewModel: LexiconViewModel) {
                     ) {
                         Icon(ic, contentDescription = null, tint = if (isDark) DarkAccent else BrandGreen, modifier = Modifier.size(16.dp))
                         Text(label, color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 9.sp))
-                        Text(value, color = fg, style = TextStyle(fontFamily = BodyFontFamily, fontWeight = FontWeight.Medium, fontSize = 10.sp), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(value, color = fg, style = TextStyle(fontFamily = BodyFontFamily, fontWeight = FontWeight.Medium, fontSize = 10.sp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                    }
+                }
+            }
                     }
                 }
             }
@@ -494,76 +506,48 @@ private fun IllustratedDailyWordScreen(viewModel: LexiconViewModel) {
 
         // Side-by-side Etymology & Usage Examples
         item(key = "etym_usage") {
-            // The illustrated lower corner must stay below up to six lines of
-            // etymology. A 162dp card painted over the last lines on real phones.
-            val detailCardHeight = if (
-                androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f
-            ) 262.dp else 216.dp
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(detailCardHeight)
-                        .clip(RoundedCornerShape(15.dp))
-                        .background(cardBg)
-                        .border(1.dp, border, RoundedCornerShape(15.dp))
-                        .padding(11.dp),
-                ) {
-                    Image(
-                        painter = painterResource(booksRes),
-                        contentDescription = null,
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .size(96.dp),
-                    )
-                    Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                            LeafSprig(color = accent, modifier = Modifier.size(13.dp))
-                            Text("Etymology", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 14.sp))
-                        }
-                        Text(
-                            text = word.etymology,
-                            color = fg.copy(alpha = 0.85f),
-                            style = TextStyle(fontFamily = LongFontFamily, fontSize = 10.sp, lineHeight = 14.sp),
-                            maxLines = 6,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                }
-
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(detailCardHeight)
-                        .clip(RoundedCornerShape(15.dp))
-                        .background(cardBg)
-                        .border(1.dp, border, RoundedCornerShape(15.dp))
-                        .padding(11.dp),
-                    verticalArrangement = Arrangement.SpaceBetween,
-                ) {
+            val shape = RoundedCornerShape(15.dp)
+            val etymology: @Composable (Modifier) -> Unit = { layout ->
+                Column(layout.clip(shape).background(cardBg).border(1.dp, border, shape).padding(11.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                        LeafSprig(color = accent, modifier = Modifier.size(13.dp))
-                        Text("Usage Examples", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 14.sp))
+                        LeafSprig(color = accent, modifier = Modifier.size(15.dp))
+                        Text("Etymology", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 15.sp))
                     }
-                    Text(
-                        text = "“${word.examples.firstOrNull() ?: ""}”",
-                        color = fg.copy(alpha = 0.88f),
-                        style = TextStyle(fontFamily = LongFontFamily, fontStyle = FontStyle.Italic, fontSize = 10.5.sp, lineHeight = 14.sp),
-                        maxLines = 3,
-                    )
-                    Box(Modifier.fillMaxWidth().height(1.dp).background(border))
-                    Text(
-                        text = "“${word.examples.lastOrNull() ?: ""}”",
-                        color = fg.copy(alpha = 0.88f),
-                        style = TextStyle(fontFamily = LongFontFamily, fontStyle = FontStyle.Italic, fontSize = 10.5.sp, lineHeight = 14.sp),
-                        maxLines = 2,
-                    )
+                    Text(word.etymology.ifBlank { "Origin information is not available." }, color = fg,
+                        style = TextStyle(fontFamily = LongFontFamily, fontSize = 12.sp, lineHeight = 16.sp))
+                    Image(rememberCountrysidePainter(booksRes, 110.dp), null,
+                        modifier = Modifier.align(Alignment.End).fillMaxWidth(.72f).height(68.dp),
+                        contentScale = ContentScale.Fit, alignment = Alignment.BottomEnd)
+                }
+            }
+            val examples: @Composable (Modifier) -> Unit = { layout ->
+                Column(layout.clip(shape).background(cardBg).border(1.dp, border, shape).padding(11.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                        LeafSprig(color = accent, modifier = Modifier.size(15.dp))
+                        Text("Usage Examples", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 15.sp))
+                    }
+                    word.examples.distinct().forEachIndexed { index, example ->
+                        if (index > 0) Box(Modifier.fillMaxWidth().height(1.dp).background(border))
+                        Text("“$example”", color = fg, style = TextStyle(fontFamily = LongFontFamily,
+                            fontStyle = FontStyle.Italic, fontSize = 12.sp, lineHeight = 16.sp))
+                    }
+                    if (word.examples.isEmpty()) Text("No usage examples available.", color = muted,
+                        style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.sp))
+                }
+            }
+            BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+                if (maxWidth < 290.dp || androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        etymology(Modifier.fillMaxWidth())
+                        examples(Modifier.fillMaxWidth())
+                    }
+                } else {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.Top) {
+                        etymology(Modifier.weight(1.12f))
+                        examples(Modifier.weight(.88f))
+                    }
                 }
             }
         }
@@ -602,7 +586,7 @@ private fun IllustratedDailyWordScreen(viewModel: LexiconViewModel) {
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .fillMaxWidth()
-                        .height(98.dp)
+                        .heightIn(min = 98.dp)
                         .clip(shape)
                         .background(cardBg)
                         .border(1.dp, border, shape),
@@ -614,11 +598,11 @@ private fun IllustratedDailyWordScreen(viewModel: LexiconViewModel) {
                         alignment = Alignment.CenterEnd,
                         modifier = Modifier
                             .align(Alignment.CenterEnd)
-                            .fillMaxSize(),
+                            .matchParentSize(),
                     )
                     Box(
                         modifier = Modifier
-                            .fillMaxSize()
+                            .matchParentSize()
                             .background(
                                 Brush.horizontalGradient(
                                     0.0f to cardBg.copy(alpha = 0.22f),
@@ -640,8 +624,7 @@ private fun IllustratedDailyWordScreen(viewModel: LexiconViewModel) {
                         Text(
                             text = word.didYouKnow,
                             color = fg.copy(alpha = 0.85f),
-                            style = TextStyle(fontFamily = BodyFontFamily, fontSize = 10.sp, lineHeight = 14.sp),
-                            maxLines = 3,
+                            style = TextStyle(fontFamily = BodyFontFamily, fontSize = 11.sp, lineHeight = 15.sp),
                         )
                     }
                 }

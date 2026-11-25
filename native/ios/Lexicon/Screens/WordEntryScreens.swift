@@ -103,6 +103,9 @@ private struct IllustratedDailyWordScreen: View {
     @Environment(\.colorScheme) private var scheme
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     private var isDark: Bool { scheme == .dark }
+    @State private var pageWidth: CGFloat = 390
+    private var enlarged: Bool { dynamicTypeSize >= .xxLarge || pageWidth < 300 }
+    private var artHeight: CGFloat { min(320, max(150, pageWidth * 440 / 832)) }
 
     var body: some View {
         let p = lexiconPalette(scheme)
@@ -112,17 +115,17 @@ private struct IllustratedDailyWordScreen: View {
         ScrollView {
             VStack(spacing: 11) {
                 ZStack(alignment: .topTrailing) {
-                    Image(countrysideImageName("ill-hero-bridge", isDark: isDark, scene: "daily-bridge"))
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 282, height: 264, alignment: .topTrailing)
-                         .offset(y: 16)
-                        .allowsHitTesting(false)
-
-                    if isDark {
-                        NocturneAtmosphere()
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 264)
+                    if !enlarged {
+                        Image(countrysideImageName("ill-hero-bridge", isDark: isDark, scene: "daily-bridge"))
+                            .resizable().scaledToFit()
+                            .frame(width: pageWidth * 0.72, height: artHeight, alignment: .topTrailing)
+                            .accessibilityHidden(true).allowsHitTesting(false)
+                        let paper = isDark ? p.background : Color(hex: "FFF1D9")
+                        LinearGradient(stops: [.init(color: paper, location: 0),
+                            .init(color: paper.opacity(0.82), location: 0.52),
+                            .init(color: .clear, location: 1)], startPoint: .leading, endPoint: .trailing)
+                            .frame(width: pageWidth * 0.65, height: artHeight)
+                            .frame(maxWidth: .infinity, alignment: .leading).allowsHitTesting(false)
                     }
 
                     VStack(alignment: .leading, spacing: 6) {
@@ -162,7 +165,8 @@ private struct IllustratedDailyWordScreen: View {
 
                         HStack(spacing: 8) {
                             Text(word.word)
-                                .font(.lexiconDisplay(30))
+                                .font(.lexiconDisplay(min(44, max(24, pageWidth * 62 / 832))))
+                                .fixedSize(horizontal: false, vertical: true)
                                 .foregroundStyle(p.foreground)
                             Button { vm.pronounce(word.word) } label: {
                                 Image(systemName: "speaker.wave.2")
@@ -189,13 +193,19 @@ private struct IllustratedDailyWordScreen: View {
                         Text(word.definitions.first ?? "")
                             .font(.lexiconLong(13))
                             .foregroundStyle(p.foreground)
-                            .frame(maxWidth: 215, alignment: .leading)
+                            .frame(maxWidth: enlarged ? .infinity : pageWidth * 0.55, alignment: .leading)
+                            .fixedSize(horizontal: false, vertical: true)
+                        if enlarged {
+                            Image(countrysideImageName("ill-hero-bridge", isDark: isDark, scene: "daily-bridge"))
+                                .resizable().scaledToFit().frame(height: artHeight).accessibilityHidden(true)
+                        }
                     }
                     .padding(.horizontal, 16)
                 }
+                .frame(minHeight: enlarged ? 0 : artHeight, alignment: .top)
 
                 // 4 Metadata Cards
-                HStack(spacing: 7) {
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 7), count: enlarged ? 2 : 4), spacing: 7) {
                     metaTile("book", "Language", word.language.components(separatedBy: " ").first ?? "English", p: p)
                     metaTile("globe", "Origin", word.originPeriod, p: p)
                     metaTile("star", "Frequency", word.frequency, p: p)
@@ -275,52 +285,34 @@ private struct IllustratedDailyWordScreen: View {
                 .padding(.horizontal, 16)
 
                 if !word.didYouKnow.isEmpty {
-                    GeometryReader { geo in
-                        let w = geo.size.width
-                        ZStack(alignment: .leading) {
-                            p.card
-                            HStack(spacing: 0) {
-                                Spacer(minLength: 0)
-                                Image(countrysideImageName("ill-banner-bay", isDark: isDark, scene: "daily-bay"))
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: w, height: 94, alignment: .bottomTrailing)
-                            }
-                            LinearGradient(
-                                stops: [
-                                    .init(color: p.card.opacity(0.22), location: 0.0),
-                                    .init(color: p.card.opacity(0.14), location: 0.33),
-                                    .init(color: .clear, location: 0.72),
-                                ],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                            VStack(alignment: .leading, spacing: 4) {
-                                HStack(spacing: 5) {
-                                    Image(systemName: "lightbulb")
-                                        .font(.system(size: 12))
-                                        .foregroundStyle(p.highlight)
-                                    Text("Did You Know?")
-                                        .font(.lexiconDisplay(14))
-                                        .foregroundStyle(p.foreground)
-                                }
-                                Text(word.didYouKnow)
-                                    .font(.lexiconBody(10))
-                                    .foregroundStyle(p.foreground.opacity(0.86))
-                                    .lineLimit(3)
-                            }
-                            .frame(width: w * 0.63, alignment: .leading)
-                            .padding(.leading, 13)
+                    VStack(alignment: .leading, spacing: 5) {
+                        HStack(spacing: 5) {
+                            Image(systemName: "lightbulb").foregroundStyle(p.highlight)
+                            Text("Did You Know?").font(.lexiconDisplay(14))
+                        }
+                        Text(word.didYouKnow).font(.lexiconBody(11))
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: enlarged ? .infinity : pageWidth * 0.54, alignment: .leading)
+                    }
+                    .foregroundStyle(p.foreground).padding(13)
+                    .frame(maxWidth: .infinity, minHeight: 94, alignment: .leading)
+                    .background(alignment: .trailing) {
+                        if !enlarged {
+                            Image(countrysideImageName("ill-banner-bay", isDark: isDark, scene: "daily-bay"))
+                                .resizable().scaledToFit().accessibilityHidden(true)
                         }
                     }
-                    .frame(height: 94)
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                    .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(p.border, lineWidth: 1))
+                    .background(p.card)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .overlay(RoundedRectangle(cornerRadius: 16).stroke(p.border, lineWidth: 1))
                     .padding(.horizontal, 16)
                 }
             }
             .padding(.bottom, 16)
         }
+        .background { GeometryReader { geo in
+            Color.clear.onAppear { pageWidth = geo.size.width }.onChange(of: geo.size.width) { pageWidth = $0 }
+        } }
     }
 
 
@@ -328,65 +320,42 @@ private struct IllustratedDailyWordScreen: View {
     // for Swift's type checker. Reserve space for the complete watercolor
     // below the etymology copy rather than cutting the painting or text.
     private func etymologyUsageCards(word: WordEntry, p: LexiconPalette) -> some View {
-        let detailCardHeight: CGFloat = dynamicTypeSize.isAccessibilitySize ? 262 : 216
-        return HStack(spacing: 8) {
-            ZStack(alignment: .bottomTrailing) {
-                VStack(alignment: .leading, spacing: 5) {
-                    HStack(spacing: 5) {
-                        BotanicalSprig(color: p.highlight)
-                            .frame(width: 13, height: 13)
-                        Text("Etymology")
-                            .font(.lexiconDisplay(14))
-                            .foregroundStyle(p.foreground)
-                    }
-                    Text(word.etymology)
-                        .font(.lexiconLong(10))
-                        .foregroundStyle(p.foreground.opacity(0.86))
-                        .lineLimit(6)
-                    Spacer(minLength: 0)
-                }
-                .padding(11)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-
-                Image(countrysideImageName("ill-books-daisies", isDark: isDark))
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 96, height: 96)
-                    .accessibilityHidden(true)
-            }
-            .frame(maxWidth: .infinity)
-            .frame(height: detailCardHeight)
-            .background(p.card)
-            .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous).stroke(p.border, lineWidth: 1))
-
+        let layout = enlarged || pageWidth < 324 ? AnyLayout(VStackLayout(spacing: 8)) : AnyLayout(HStackLayout(alignment: .top, spacing: 8))
+        return layout {
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 5) {
-                    BotanicalSprig(color: p.highlight)
-                        .frame(width: 13, height: 13)
-                    Text("Usage Examples")
-                        .font(.lexiconDisplay(14))
-                        .foregroundStyle(p.foreground)
+                    BotanicalSprig(color: p.highlight).frame(width: 15, height: 15)
+                    Text("Etymology").font(.lexiconDisplay(15))
                 }
-                Text("“\(word.examples.first ?? "")”")
-                    .font(.lexiconLong(10.5).italic())
-                    .foregroundStyle(p.foreground.opacity(0.88))
-                    .lineLimit(3)
-                Rectangle().fill(p.border).frame(height: 1)
-                Text("“\(word.examples.last ?? "")”")
-                    .font(.lexiconLong(10.5).italic())
-                    .foregroundStyle(p.foreground.opacity(0.88))
-                    .lineLimit(2)
-                Spacer(minLength: 0)
+                Text(word.etymology.isEmpty ? "Origin information is not available." : word.etymology)
+                    .font(.lexiconLong(12)).fixedSize(horizontal: false, vertical: true)
+                Image(countrysideImageName("ill-books-daisies", isDark: isDark, scene: "study-books"))
+                    .resizable().scaledToFit().frame(height: 68)
+                    .frame(maxWidth: .infinity, alignment: .trailing).accessibilityHidden(true)
             }
-            .padding(11)
-            .frame(maxWidth: .infinity)
-            .frame(height: detailCardHeight)
-            .background(p.card)
-            .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous).stroke(p.border, lineWidth: 1))
-        }
-        .padding(.horizontal, 16)
+            .padding(11).frame(maxWidth: .infinity, alignment: .leading)
+            .foregroundStyle(p.foreground).background(p.card)
+            .clipShape(RoundedRectangle(cornerRadius: 15))
+            .overlay(RoundedRectangle(cornerRadius: 15).stroke(p.border, lineWidth: 1))
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 5) {
+                    BotanicalSprig(color: p.highlight).frame(width: 15, height: 15)
+                    Text("Usage Examples").font(.lexiconDisplay(15))
+                }
+                ForEach(Array(word.examples.enumerated()), id: \.offset) { index, example in
+                    if index > 0 { Rectangle().fill(p.border).frame(height: 1) }
+                    Text("“\(example)”").font(.lexiconLong(12).italic())
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                if word.examples.isEmpty {
+                    Text("No usage examples available.").font(.lexiconBody(11)).foregroundStyle(p.mutedForeground)
+                }
+            }
+            .padding(11).frame(maxWidth: .infinity, alignment: .leading)
+            .foregroundStyle(p.foreground).background(p.card)
+            .clipShape(RoundedRectangle(cornerRadius: 15))
+            .overlay(RoundedRectangle(cornerRadius: 15).stroke(p.border, lineWidth: 1))
+        }.padding(.horizontal, 16)
     }
 
     private func metaTile(_ icon: String, _ label: String, _ value: String, p: LexiconPalette) -> some View {
@@ -400,8 +369,8 @@ private struct IllustratedDailyWordScreen: View {
             Text(value)
                 .font(.lexiconBody(10, weight: .medium))
                 .foregroundStyle(p.foreground)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 9)
