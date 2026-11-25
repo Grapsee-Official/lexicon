@@ -110,7 +110,8 @@ fun HomeScreen(viewModel: LexiconViewModel) {
         contentAlignment = Alignment.TopCenter,
     ) {
       BoxWithConstraints(Modifier.widthIn(max = 640.dp).fillMaxSize().clipToBounds()) {
-        val stackedHero = referenceHeroStacks(maxWidth.value, LocalConfiguration.current.fontScale)
+        val referenceWidth = maxWidth
+        val stackedHero = referenceHeroStacks(referenceWidth.value, LocalConfiguration.current.fontScale)
         // Render the painting once in the PAGE coordinate space. Its upper
         // sky can cross the header/feed boundary; it is not clipped by LazyColumn.
         // Its translation tracks the masthead, while header controls stay fixed.
@@ -140,7 +141,7 @@ fun HomeScreen(viewModel: LexiconViewModel) {
             Box(Modifier.fillMaxWidth().then(headerSurface)) {
                 LexiconHeader(
                     viewModel = viewModel,
-                    referencePageWidth = maxWidth,
+                    referencePageWidth = referenceWidth,
                     modifier = Modifier.onSizeChanged { headerHeightPx = it.height },
                 )
             }
@@ -149,14 +150,14 @@ fun HomeScreen(viewModel: LexiconViewModel) {
                 modifier = Modifier.weight(1f).clipToBounds(),
                 feedState = feedState,
                 stackedHero = stackedHero,
-                pageWidth = maxWidth,
+                pageWidth = referenceWidth,
                 onMastheadMeasured = { mastheadHeightPx = it },
                 onHeroMeasured = { heroHeightPx = it },
             )
             // Real reserved space for navigation, including the raised search seal.
-            BottomNav(viewModel = viewModel, referencePageWidth = maxWidth, modifier = Modifier
+            BottomNav(viewModel = viewModel, referencePageWidth = referenceWidth, modifier = Modifier
                 .background(if (state.isDark) Color(0xFF08111A) else WarmCream)
-                .padding(top = if (state.isDark) maxWidth * (4f / 591f) else 8.dp))
+                .padding(top = if (state.isDark) referenceWidth * (4f / 591f) else 8.dp))
         }
       }
     }

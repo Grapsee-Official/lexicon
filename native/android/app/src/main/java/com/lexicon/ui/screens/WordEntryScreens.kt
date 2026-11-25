@@ -179,7 +179,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
             Row(Modifier.padding(horizontal = 18.dp), verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(7.dp)) {
                 Box(Modifier.weight(1f).height(1.dp).background(rule))
-                LeafSprig(accent, Modifier.size(19.dp))
+                LeafSprig(color = accent, modifier = Modifier.size(19.dp))
                 Box(Modifier.weight(1f).height(1.dp).background(rule))
             }
         }
@@ -191,7 +191,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                 Row(Modifier.padding(horizontal = 18.dp).fillMaxWidth().clip(shape).background(card)
                     .border(1.dp, rule, shape).padding(13.dp),
                     horizontalArrangement = Arrangement.spacedBy(9.dp)) {
-                    LeafSprig(accent, Modifier.size(19.dp))
+                    LeafSprig(color = accent, modifier = Modifier.size(19.dp))
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                         Text(title, color = ink, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 17.sp))
                         Text(body, color = ink, style = TextStyle(fontFamily = LongFontFamily, fontSize = 13.sp, lineHeight = 18.sp))

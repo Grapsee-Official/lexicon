@@ -344,7 +344,7 @@ fun CategoryDetailScreen(viewModel: LexiconViewModel) {
                     .heightIn(min = 52.dp).padding(horizontal = 14.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    LeafSprig(accent, Modifier.size(18.dp))
+                    LeafSprig(color = accent, modifier = Modifier.size(18.dp))
                     Text(term, Modifier.weight(1f), color = ink,
                         style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 17.sp))
                     Icon(Icons.Outlined.ChevronRight, null, tint = accent)

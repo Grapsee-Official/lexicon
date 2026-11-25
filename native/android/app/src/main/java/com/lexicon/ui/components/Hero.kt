@@ -88,23 +88,24 @@ fun Hero(
     val configuration = LocalConfiguration.current
     // Use the actual content width, including split-screen and tablet windows.
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
-        val largeText = stackedLayout ?: referenceHeroStacks(maxWidth.value, configuration.fontScale)
+        val referenceWidth = maxWidth
+        val largeText = stackedLayout ?: referenceHeroStacks(referenceWidth.value, configuration.fontScale)
         val heroHeight = when {
             largeText -> 0.dp
-            else -> (maxWidth * (356f / 591f)).coerceIn(180.dp, 390.dp)
+            else -> (referenceWidth * (356f / 591f)).coerceIn(180.dp, 390.dp)
         }
         val textWidth = when {
             largeText -> 1f
             else -> 0.455f
         }
         val headlineStyle = LexiconTextStyles.HeroHeadline.copy(
-                fontSize = (maxWidth.value * (33f / 591f)).coerceIn(18f, 35f).sp,
-                lineHeight = (maxWidth.value * (40f / 591f)).coerceIn(22f, 43f).sp,
+                fontSize = (referenceWidth.value * (33f / 591f)).coerceIn(18f, 35f).sp,
+                lineHeight = (referenceWidth.value * (40f / 591f)).coerceIn(22f, 43f).sp,
             )
         val paragraphStyle = if (!largeText) {
             LexiconTextStyles.HeroParagraph.copy(
-                fontSize = (maxWidth.value * (13.5f / 591f)).coerceIn(9f, 14f).sp,
-                lineHeight = (maxWidth.value * (20f / 591f)).coerceIn(12f, 21f).sp,
+                fontSize = (referenceWidth.value * (13.5f / 591f)).coerceIn(9f, 14f).sp,
+                lineHeight = (referenceWidth.value * (20f / 591f)).coerceIn(12f, 21f).sp,
             )
         } else LexiconTextStyles.HeroParagraph
 
@@ -118,7 +119,7 @@ fun Hero(
                 }
             } else if (!largeText) {
                 Image(
-                    painter = rememberCountrysidePainter(resolveCountrysideDrawable("hero_light", false, "home-hero"), maxWidth * .70f),
+                    painter = rememberCountrysidePainter(resolveCountrysideDrawable("hero_light", false, "home-hero"), referenceWidth * .70f),
                     contentDescription = null,
                     contentScale = ContentScale.Fit,
                     alignment = Alignment.BottomEnd,
@@ -193,22 +194,22 @@ fun Hero(
                 ) {
                     heroCopy(
                         Modifier.fillMaxWidth(textWidth)
-                            .padding(start = if (largeText) 20.dp else maxWidth * (32f / 591f), end = if (largeText) 20.dp else 0.dp,
-                                top = if (largeText) 8.dp else maxWidth * (44f / 591f), bottom = 6.dp),
+                            .padding(start = if (largeText) 20.dp else referenceWidth * (32f / 591f), end = if (largeText) 20.dp else 0.dp,
+                                top = if (largeText) 8.dp else referenceWidth * (44f / 591f), bottom = 6.dp),
                     )
                     if (largeText) {
-                        val paintingHeight = (maxWidth * 0.48f).coerceIn(135.dp, 210.dp)
+                        val paintingHeight = (referenceWidth * 0.48f).coerceIn(135.dp, 210.dp)
                         if (isDark) Spacer(Modifier.height(paintingHeight))
-                        else Image(rememberCountrysidePainter(resolveCountrysideDrawable("hero_light", false, "home-hero"), maxWidth * .85f), null,
+                        else Image(rememberCountrysidePainter(resolveCountrysideDrawable("hero_light", false, "home-hero"), referenceWidth * .85f), null,
                             Modifier.fillMaxWidth().height(paintingHeight), contentScale = ContentScale.Fit, alignment = Alignment.BottomEnd)
                     }
                     FloatingSearchBar(
                         viewModel = viewModel,
                         sceneIntegrated = isDark,
-                        referencePageWidth = if (!largeText) maxWidth else null,
+                        referencePageWidth = if (!largeText) referenceWidth else null,
                         modifier = if (largeText) Modifier.padding(start = 20.dp).fillMaxWidth(0.90f)
-                            else Modifier.padding(start = maxWidth * (30f / 591f))
-                                .width(maxWidth * (427f / 591f)),
+                            else Modifier.padding(start = referenceWidth * (30f / 591f))
+                                .width(referenceWidth * (427f / 591f)),
                     )
                 }
             }

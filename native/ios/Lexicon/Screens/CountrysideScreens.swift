@@ -471,6 +471,7 @@ struct StudyListsScreen: View {
     @EnvironmentObject private var vm: LexiconViewModel
     @EnvironmentObject private var theme: LexiconThemeState
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     @State private var query: String = ""
     @State private var practicingList: StudyListItem? = nil
