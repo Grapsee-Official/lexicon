@@ -826,6 +826,7 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
         // Today's Study Card (6/10 circular progress ring + Keep going! + stacked books art)
         item(key = "todays_study") {
             val ringColor = if (isDark) DarkAccent else BrandGreen
+            val enlarged = androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f
             val trackColor = border
             val progress = (state.todayStudiedWords.toFloat() / state.todayGoalWords.coerceAtLeast(1).toFloat()).coerceIn(0f, 1f)
 
@@ -853,9 +854,9 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Box(modifier = Modifier.size(84.dp), contentAlignment = Alignment.Center) {
+                    Box(modifier = Modifier.size(if (enlarged) 100.dp else 76.dp), contentAlignment = Alignment.Center) {
                         Canvas(modifier = Modifier.fillMaxSize()) {
                             drawArc(
                                 color = trackColor,
@@ -882,14 +883,14 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                         }
                     }
 
-                    Box(Modifier.width(1.dp).height(62.dp).background(border))
+                    Box(Modifier.width(1.dp).height(66.dp).background(border))
 
                     Column(
                         modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
-                        Text("Keep going!", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 15.sp))
+                        Text(if (progress >= 1f) "Goal reached!" else "Keep going!", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 15.sp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                         Text(
                             text = "“Small steps\nlead to big progress.”",
                             color = muted,
@@ -898,14 +899,12 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                         )
                     }
 
-                    Image(
+                    if (!enlarged) Image(
                         painter = painterResource(booksRes),
                         contentDescription = null,
                         contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .width(88.dp)
-                            .height(74.dp)
-                            .clip(RoundedCornerShape(10.dp)),
+                        alignment = Alignment.BottomEnd,
+                        modifier = Modifier.width(112.dp).height(88.dp),
                     )
                 }
             }
@@ -935,6 +934,10 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                     }
                     visibleStudyLists.forEach { sl ->
                             val thumbRes = resolveCountrysideDrawable(sl.thumbnail, isDark)
+                            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                            val fontScale = androidx.compose.ui.platform.LocalConfiguration.current.fontScale
+                            val narrow = maxWidth < 330.dp || fontScale >= 1.2f
+                            val barWidth = (maxWidth * (210f / 760f)).coerceIn(56.dp, 112.dp)
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -946,47 +949,34 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                                             LexiconData.getWordById(id)?.let { viewModel.openWord(it) }
                                         }
                                     }
-                                    .padding(8.dp),
+                                    .padding(5.dp),
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                horizontalArrangement = Arrangement.spacedBy(7.dp),
                             ) {
                                 Image(
                                     painter = painterResource(thumbRes),
                                     contentDescription = null,
                                     contentScale = ContentScale.Fit,
                                     modifier = Modifier
-                                        .width(56.dp)
-                                        .height(42.dp)
+                                        .width(if (narrow) 48.dp else 60.dp)
+                                        .height(if (narrow) 48.dp else 44.dp)
                                         .clip(RoundedCornerShape(9.dp)),
                                 )
                                 Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                                    Text(sl.title, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 13.5.sp), maxLines = 1)
+                                    Text(sl.title, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 13.5.sp), maxLines = if (narrow) 3 else 2, overflow = TextOverflow.Ellipsis)
                                     Text("${sl.totalWords} words • ${sl.percentComplete}% complete", color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 9.5.sp))
+                                    if (narrow) StudyListProgress(sl.percentComplete, border, ringTint = if (isDark) DarkAccent else BrandGreen, modifier = Modifier.fillMaxWidth())
                                 }
+                                if (!narrow) StudyListProgress(sl.percentComplete, border, ringTint = if (isDark) DarkAccent else BrandGreen, modifier = Modifier.width(barWidth))
                                 Box(
                                     modifier = Modifier
-                                        .width(68.dp)
-                                        .height(6.dp)
-                                        .clip(CircleShape)
-                                        .background(border),
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxHeight()
-                                            .fillMaxWidth(sl.percentComplete / 100f)
-                                            .clip(CircleShape)
-                                            .background(if (isDark) DarkAccent else BrandGreen),
-                                    )
-                                }
-                                Box(
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .clip(CircleShape)
-                                        .background(if (isDark) DarkAccent else BrandGreen)
+                                        .size(44.dp)
                                         .clickable(role = Role.Button) { practicingListId = sl.id; answerRevealed = false },
                                     contentAlignment = Alignment.Center,
                                 ) {
-                                    Icon(Icons.Filled.PlayArrow, contentDescription = "Practice", tint = if (isDark) DarkBackground else Color.White, modifier = Modifier.size(16.dp))
+                                    Box(Modifier.size(26.dp).clip(CircleShape).background(if (isDark) DarkAccent else BrandGreen), contentAlignment = Alignment.Center) {
+                                        Icon(Icons.Filled.PlayArrow, contentDescription = "Practice ${sl.title}", tint = if (isDark) DarkBackground else Color.White, modifier = Modifier.size(16.dp))
+                                    }
                                 }
                                 Box {
                                     Icon(
@@ -1010,6 +1000,7 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                                         }
                                     }
                                 }
+                            }
                             }
                         }
                 }
@@ -1117,6 +1108,14 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
             dismissButton = { TextButton(onClick = { practicingListId = null; answerRevealed = false }) { Text("Close") } },
             containerColor = cardBg,
         )
+    }
+}
+
+@Composable
+private fun StudyListProgress(percent: Int, track: Color, ringTint: Color, modifier: Modifier = Modifier) {
+    val progress = percent.coerceIn(0, 100) / 100f
+    Box(modifier.height(5.dp).clip(CircleShape).background(track)) {
+        Box(Modifier.fillMaxHeight().fillMaxWidth(progress).clip(CircleShape).background(ringTint))
     }
 }
 

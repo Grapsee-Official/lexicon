@@ -550,12 +550,12 @@ struct StudyListsScreen: View {
                                     .foregroundStyle(p.mutedForeground)
                             }
                         }
-                        .frame(width: 80, height: 80)
+                        .frame(width: dynamicTypeSize.isAccessibilitySize ? 100 : 76, height: dynamicTypeSize.isAccessibilitySize ? 100 : 76)
 
                         Rectangle().fill(p.border).frame(width: 1, height: 60)
 
                         VStack(spacing: 4) {
-                            Text("Keep going!")
+                            Text(ringProgress >= 1 ? "Goal reached!" : "Keep going!")
                                 .font(.lexiconDisplay(15))
                                 .foregroundStyle(p.foreground)
                             Text("“Small steps\nlead to big progress.”")
@@ -565,10 +565,12 @@ struct StudyListsScreen: View {
                         }
                         .frame(maxWidth: .infinity)
 
-                        Image(countrysideImageName("ill-books-daisies", isDark: isDark))
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 95, height: 82)
+                        if !dynamicTypeSize.isAccessibilitySize {
+                            Image(countrysideImageName("ill-books-daisies", isDark: isDark))
+                                .resizable().scaledToFit()
+                                .frame(width: 112, height: 88, alignment: .bottomTrailing)
+                                .accessibilityHidden(true)
+                        }
                     }
                     .padding(.horizontal, 14)
                     .padding(.bottom, 4)
@@ -594,11 +596,12 @@ struct StudyListsScreen: View {
                                 .padding(12)
                         }
                         ForEach(vm.studyLists.filter { query.isEmpty || $0.title.localizedCaseInsensitiveContains(query) }) { sl in
-                            HStack(spacing: 10) {
+                            let narrow = dynamicTypeSize >= .xLarge
+                            HStack(spacing: 7) {
                                 Image(countrysideImageName(sl.thumbnail, isDark: isDark))
                                     .resizable()
                                     .scaledToFit()
-                                         .frame(width: 56, height: 42)
+                                         .frame(width: narrow ? 48 : 60, height: 44)
                                     .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
 
                                 Button {
@@ -610,34 +613,30 @@ struct StudyListsScreen: View {
                                         Text(sl.title)
                                             .font(.lexiconDisplay(13.5))
                                             .foregroundStyle(p.foreground)
-                                            .lineLimit(1)
+                                            .lineLimit(narrow ? 3 : 2)
                                         Text("\(sl.totalWords) words • \(sl.percentComplete)% complete")
                                             .font(.lexiconBody(9.5))
                                             .foregroundStyle(p.mutedForeground)
+                                        if narrow { studyProgress(sl.percentComplete, p: p) }
                                     }
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                 }
                                 .buttonStyle(.plain)
 
-                                GeometryReader { barGeo in
-                                    ZStack(alignment: .leading) {
-                                        Capsule().fill(p.border)
-                                        Capsule()
-                                            .fill(p.primary)
-                                            .frame(width: barGeo.size.width * CGFloat(sl.percentComplete) / 100.0)
-                                    }
-                                }
-                                .frame(width: 64, height: 6)
+                                if !narrow { studyProgress(sl.percentComplete, p: p).frame(maxWidth: 96) }
 
                                 Button { practicingList = sl; answerRevealed = false } label: {
                                     Image(systemName: "play.fill")
                                         .font(.system(size: 10))
                                         .foregroundStyle(isDark ? LexiconColors.backgroundDark : .white)
-                                        .frame(width: 28, height: 28)
+                                        .frame(width: 26, height: 26)
                                         .background(p.primary)
                                         .clipShape(Circle())
+                                        .frame(width: 44, height: 44)
+                                        .contentShape(Rectangle())
                                 }
                                 .buttonStyle(.plain)
+                                .accessibilityLabel("Practice \(sl.title)")
 
                                 Menu {
                                     Button("Reset progress") { vm.resetStudyList(sl.id) }
@@ -653,7 +652,7 @@ struct StudyListsScreen: View {
                                 }
                                 .accessibilityLabel("Manage \(sl.title)")
                             }
-                            .padding(8)
+                            .padding(5)
                             .background(p.card)
                             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                             .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(p.border, lineWidth: 1))
@@ -714,6 +713,16 @@ struct StudyListsScreen: View {
             .presentationDragIndicator(.visible)
         }
 
+    }
+
+    private func studyProgress(_ percent: Int, p: LexiconPalette) -> some View {
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
+                Capsule().fill(p.border)
+                Capsule().fill(p.primary)
+                    .frame(width: geo.size.width * CGFloat(min(100, max(0, percent))) / 100)
+            }
+        }.frame(height: 5).accessibilityHidden(true)
     }
 
     private func reviewSheet(_ list: StudyListItem) -> some View {
