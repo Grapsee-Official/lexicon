@@ -47,7 +47,7 @@ jobs:
           cp native/android/app/build/outputs/apk/debug/app-debug.apk dist/lexicon-android-test.apk
           "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify dist/lexicon-android-test.apk
           TAG="android-test-${GITHUB_SHA:0:12}"
-          NOTES="Debug APK for testing commit $GITHUB_SHA. Uses a separate debug application ID. Includes the original moonlit countryside artwork, with trailing overscan, page-integrated foreground and reference-aligned hero spacing. Source assets and APK dimensions verified. Not a stable release."
+          NOTES="Debug APK for testing commit $GITHUB_SHA. Uses a separate debug application ID. Includes the current native countryside screens and bundled artwork. The packaged moonlit hero and APK signature are verified. Not a stable release."
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$TAG" dist/lexicon-android-test.apk --clobber --repo "$GITHUB_REPOSITORY"
           else
