@@ -127,7 +127,6 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
     val card = if (dark) DarkCard else Color(0xFFFFF2DF).copy(alpha = .72f)
     val rule = if (dark) DarkChipBorder else OldWoodGold.copy(alpha = .34f)
     val shape = RoundedCornerShape(14.dp)
-    val context = androidx.compose.ui.platform.LocalContext.current
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(9.dp)) {
         item(key = "dictionary_heading") {
@@ -138,33 +137,50 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
             }
         }
         item(key = "word") {
-            Column(Modifier.fillMaxWidth().padding(horizontal = 18.dp),
-                verticalArrangement = Arrangement.spacedBy(7.dp)) {
-                Text(word.word, color = ink, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 34.sp))
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                    Text(word.phonetic, color = ink, style = TextStyle(fontFamily = LongFontFamily, fontSize = 15.sp),
-                        modifier = Modifier.weight(1f, fill = false))
-                    Box(Modifier.size(44.dp).clip(CircleShape).background(card).clickable { viewModel.pronounce(word.word) },
-                        contentAlignment = Alignment.Center) { Icon(Icons.AutoMirrored.Outlined.VolumeUp, "Pronounce word", tint = accent) }
-                    Icon(if (state.savedWordIds.contains(word.id)) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
-                        "Bookmark word", tint = accent, modifier = Modifier.size(24.dp).clickable { viewModel.toggleSave(word.id) })
+            BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = 18.dp)) {
+                val w = maxWidth
+                val enlarged = w < 280.dp || androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f
+                val artHeight = (w * .45f).coerceIn(120.dp, 250.dp)
+                val meadow = rememberCountrysidePainter(resolveCountrysideDrawable("ill_thumb_meadow", dark, "detail-meadow"), w * .56f)
+                Box(Modifier.fillMaxWidth().heightIn(min = artHeight)) {
+                    if (!enlarged) {
+                        Image(meadow, null, Modifier.align(Alignment.CenterEnd).fillMaxWidth(.56f).height(artHeight),
+                            contentScale = ContentScale.Fit, alignment = Alignment.BottomEnd)
+                        val paper = if (dark) DarkBackground else Color(0xFFFFF1D9)
+                        Box(Modifier.align(Alignment.CenterStart).fillMaxWidth(.62f).height(artHeight)
+                            .background(Brush.horizontalGradient(0f to paper.copy(alpha = .45f),
+                                .56f to paper.copy(alpha = .80f), 1f to Color.Transparent)))
+                    }
+                    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                        Text(word.word, color = ink,
+                            style = TextStyle(fontFamily = DisplayFontFamily,
+                                fontSize = (w.value * .096f).coerceIn(27f, 49f).sp))
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                            Text(word.phonetic, color = ink, style = TextStyle(fontFamily = LongFontFamily, fontSize = 15.sp),
+                                modifier = Modifier.weight(1f, fill = false))
+                            Box(Modifier.size(44.dp).clip(CircleShape).background(card).clickable(role = Role.Button) { viewModel.pronounce(word.word) },
+                                contentAlignment = Alignment.Center) { Icon(Icons.AutoMirrored.Outlined.VolumeUp, "Pronounce word", tint = accent) }
+                            Box(Modifier.size(44.dp).clickable(role = Role.Button) { viewModel.toggleSave(word.id) }, contentAlignment = Alignment.Center) {
+                                Icon(if (state.savedWordIds.contains(word.id)) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
+                                    "Bookmark word", tint = accent, modifier = Modifier.size(20.dp))
+                            }
+                        }
+                        Text(word.partOfSpeech.label(), color = if (dark) DarkHighlight else Color.White,
+                            style = TextStyle(fontFamily = LongFontFamily, fontStyle = FontStyle.Italic, fontSize = 13.sp),
+                            modifier = Modifier.clip(CircleShape).background(if (dark) DarkCard else BrandGreen)
+                                .padding(horizontal = 14.dp, vertical = 5.dp))
+                        Text(word.definitions.firstOrNull().orEmpty(), color = ink,
+                            style = TextStyle(fontFamily = LongFontFamily, fontSize = 15.sp, lineHeight = 21.sp),
+                            modifier = Modifier.fillMaxWidth(if (enlarged) 1f else .56f))
+                        if (enlarged) Image(meadow, null, Modifier.fillMaxWidth().height(artHeight), contentScale = ContentScale.Fit)
+                    }
                 }
-                Text(word.partOfSpeech.label(), color = if (dark) DarkHighlight else Color.White,
-                    style = TextStyle(fontFamily = LongFontFamily, fontStyle = FontStyle.Italic, fontSize = 13.sp),
-                    modifier = Modifier.clip(CircleShape).background(if (dark) DarkCard else BrandGreen)
-                        .padding(horizontal = 14.dp, vertical = 5.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(word.definitions.firstOrNull().orEmpty(), color = ink,
-                        style = TextStyle(fontFamily = LongFontFamily, fontSize = 15.sp, lineHeight = 21.sp),
-                        modifier = Modifier.weight(1f))
-                    Image(rememberCountrysidePainter(resolveCountrysideDrawable("ill_thumb_meadow", dark, "detail-meadow"), 180.dp), null,
-                        modifier = Modifier.weight(.72f).height(94.dp), contentScale = ContentScale.Fit)
-                }
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                    Box(Modifier.weight(1f).height(1.dp).background(rule))
-                    LeafSprig(accent, Modifier.size(19.dp))
-                    Box(Modifier.weight(1f).height(1.dp).background(rule))
-                }
+            }
+            Row(Modifier.padding(horizontal = 18.dp), verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                Box(Modifier.weight(1f).height(1.dp).background(rule))
+                LeafSprig(accent, Modifier.size(19.dp))
+                Box(Modifier.weight(1f).height(1.dp).background(rule))
             }
         }
         val sections = listOf("Synonyms" to word.synonyms.joinToString(", "),
@@ -186,10 +202,23 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
         if (word.examples.isNotEmpty()) item(key = "examples") {
             Column(Modifier.padding(horizontal = 18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 BotanicalSectionTitle("Usage Examples", dark, actionLabel = null)
-                word.examples.forEach { example ->
-                    Text("“$example”", color = ink,
-                        style = TextStyle(fontFamily = LongFontFamily, fontStyle = FontStyle.Italic, fontSize = 13.sp, lineHeight = 19.sp),
-                        modifier = Modifier.fillMaxWidth().clip(shape).background(card).border(1.dp, rule, shape).padding(12.dp))
+                BoxWithConstraints(Modifier.fillMaxWidth()) {
+                    val large = maxWidth < 280.dp || androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f
+                    val art = rememberCountrysidePainter(resolveCountrysideDrawable("ill_books_daisies", dark, "study-books"), maxWidth * .43f)
+                    Box(Modifier.fillMaxWidth()) {
+                        if (!large) Image(art, null, Modifier.align(Alignment.BottomEnd).fillMaxWidth(.43f).height(126.dp),
+                            contentScale = ContentScale.Fit, alignment = Alignment.BottomEnd)
+                        Column(Modifier.fillMaxWidth(if (large) 1f else .60f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            word.examples.forEach { example ->
+                                Row(Modifier.fillMaxWidth().clip(shape).background(card).border(1.dp, rule, shape).padding(11.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    Text("“", color = accent, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 22.sp))
+                                    Text(example, color = ink, modifier = Modifier.weight(1f),
+                                        style = TextStyle(fontFamily = LongFontFamily, fontSize = 13.sp, lineHeight = 18.sp))
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -201,7 +230,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
             }
         }
         item(key = "closing") {
-            CountrysideQuoteBanner("Discover the beauty in every word.", "Lexora", "ill_banner_church",
+            CountrysideQuoteBanner("Sometimes, the best things in life are found by chance.", "Lexora", "ill_banner_church",
                 dark, Modifier.padding(horizontal = 18.dp))
         }
     }

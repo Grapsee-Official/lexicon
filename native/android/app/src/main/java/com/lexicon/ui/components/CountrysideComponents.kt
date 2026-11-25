@@ -481,7 +481,8 @@ fun CountrysideQuoteBanner(
         "Better words. A brighter mind." -> "templates-quote"
         "A word is a doorway to a bigger world." -> "search-quote"
         "Words are doors to new worlds." -> "dictionary-books"
-        "Discover the beauty in every word." -> if (illustrationBase == "ill_banner_church") "detail-quote" else "result-quote"
+        "Sometimes, the best things in life are found by chance." -> "detail-quote"
+        "Discover the beauty in every word." -> "result-quote"
         else -> null
     }
     val resId = resolveCountrysideDrawable(illustrationBase, isDark, scene)

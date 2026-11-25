@@ -315,7 +315,8 @@ struct CountrysideQuoteBanner: View {
         case "Better words. A brighter mind.": return "templates-quote"
         case "A word is a doorway to a bigger world.": return "search-quote"
         case "Words are doors to new worlds.": return "dictionary-books"
-        case "Discover the beauty in every word.": return illustrationBase == "ill-banner-church" ? "detail-quote" : "result-quote"
+        case "Sometimes, the best things in life are found by chance.": return "detail-quote"
+        case "Discover the beauty in every word.": return "result-quote"
         default: return nil
         }
     }
