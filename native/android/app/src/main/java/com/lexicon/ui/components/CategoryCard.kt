@@ -64,8 +64,8 @@ fun CategoryCard(
     val referenceTitle = referenceShelfWidth?.value?.let { (it * 14f / 117f).coerceIn(9.5f, 14f) }
     val referenceSubtitle = referenceShelfWidth?.value?.let { (it * 10f / 117f).coerceIn(7.5f, 11f) }
     val ctx = LocalContext.current
-    // Future light bookplates have separate names; keep the current art
-    // as a fallback until the ten new illustrations are supplied.
+    // All ten known categories have separate light and dark native vectors.
+    // Keep the original artwork only as a fallback for future categories.
     val boardRes = if (!isDark) ctx.resources.getIdentifier("ref_light_home_" + category.id, "drawable", ctx.packageName) else 0
     val lightRes = if (!isDark) ctx.resources.getIdentifier(
         "${category.illustration}_light", "drawable", ctx.packageName

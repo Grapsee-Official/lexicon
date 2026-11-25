@@ -395,6 +395,12 @@ internal fun rememberCountrysidePainter(resId: Int, width: Dp? = null): Painter 
         R.drawable.ref_light_dictionary_books, R.drawable.ref_dark_dictionary_books -> 260 to 140
         R.drawable.ref_light_dictionary_hero, R.drawable.ref_dark_dictionary_hero -> 260 to 164
         R.drawable.ref_light_dictionary_panorama, R.drawable.ref_dark_dictionary_panorama -> 260 to 44
+        R.drawable.ref_light_home_history, R.drawable.ref_home_history -> 104 to 85
+        R.drawable.ref_light_home_mythology, R.drawable.ref_home_mythology -> 104 to 85
+        R.drawable.ref_light_home_philosophy, R.drawable.ref_home_philosophy -> 104 to 85
+        R.drawable.ref_light_home_art_architecture, R.drawable.ref_home_art_architecture -> 104 to 85
+        R.drawable.ref_light_home_nature, R.drawable.ref_home_nature -> 104 to 85
+        R.drawable.ref_light_home_culture_traditions, R.drawable.ref_home_culture_traditions -> 104 to 85
         R.drawable.ref_light_home_daily -> 260 to 215
         R.drawable.ref_light_home_geography -> 141 to 119
         R.drawable.ref_light_home_hero -> 320 to 290

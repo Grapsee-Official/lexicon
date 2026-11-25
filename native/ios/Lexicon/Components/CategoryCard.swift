@@ -13,8 +13,8 @@ struct CategoryCard: View {
 
     private var isDark: Bool { scheme == .dark }
     private var largeText: Bool { dynamicTypeSize.isAccessibilitySize }
-    // Prefer the new light-specific asset once supplied; keep the original
-    // as a safe fallback. Never modify the original asset catalog.
+    // All ten known categories have separate light and dark native vectors.
+    // Retain original assets as a fallback for future categories.
     private var artName: String {
         if isDark {
             return "ref-home-" + category.id.replacingOccurrences(of: "_", with: "-")
