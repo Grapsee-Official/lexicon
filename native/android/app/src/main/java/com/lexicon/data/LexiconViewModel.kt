@@ -282,6 +282,30 @@ class LexiconViewModel : ViewModel() {
         _uiState.update { it.copy(searchScopeTab = scope) }
     }
 
+    fun searchFilterOptions(which: String): List<String> = when (which) {
+        "language" -> listOf("All Languages") + LexiconData.dictionary
+            .map { it.language.substringBefore(" (") }.distinct().sorted()
+        "pos" -> listOf("All Types") + LexiconData.dictionary
+            .map { it.partOfSpeech.label() }.distinct().sorted()
+        "difficulty" -> listOf("Any Level") + LexiconData.dictionary
+            .map { it.level }.distinct().sorted()
+        "sort" -> listOf("Relevance", "Alphabetical")
+        else -> emptyList()
+    }
+
+    fun selectSearchFilter(which: String, value: String) {
+        if (value !in searchFilterOptions(which)) return
+        _uiState.update { state ->
+            when (which) {
+                "language" -> state.copy(filterLanguage = value)
+                "pos" -> state.copy(filterPos = value)
+                "difficulty" -> state.copy(filterDifficulty = value)
+                "sort" -> state.copy(filterSort = value)
+                else -> state
+            }
+        }
+    }
+
     fun cycleSearchFilter(which: String) {
         _uiState.update { s ->
             when (which) {

@@ -1325,8 +1325,18 @@ struct SearchDiscoveryScreen: View {
     }
 
     private func filterTile(_ icon: String, _ title: String, _ value: String, key: String, p: LexiconPalette) -> some View {
-        Button {
-            vm.cycleSearchFilter(key)
+        Menu {
+            ForEach(vm.searchFilterOptions(key), id: \.self) { option in
+                Button {
+                    vm.selectSearchFilter(key, value: option)
+                } label: {
+                    if option == value {
+                        Label(option, systemImage: "checkmark")
+                    } else {
+                        Text(option)
+                    }
+                }
+            }
         } label: {
             VStack(spacing: 3) {
                 Image(systemName: icon)

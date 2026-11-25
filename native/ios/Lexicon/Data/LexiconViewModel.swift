@@ -319,6 +319,30 @@ final class LexiconViewModel: ObservableObject {
         navigate(to: .searchResults, word: top)
     }
 
+    func searchFilterOptions(_ which: String) -> [String] {
+        switch which {
+        case "language":
+            return ["All Languages"] + Array(Set(LexiconData.dictionary.map {
+                String($0.language.split(separator: "(").first ?? "").trimmingCharacters(in: .whitespaces)
+            })).sorted()
+        case "pos": return ["All Types"] + Array(Set(LexiconData.dictionary.map { $0.partOfSpeech.displayValue })).sorted()
+        case "difficulty": return ["Any Level"] + Array(Set(LexiconData.dictionary.map { $0.level })).sorted()
+        case "sort": return ["Relevance", "Alphabetical"]
+        default: return []
+        }
+    }
+
+    func selectSearchFilter(_ which: String, value: String) {
+        guard searchFilterOptions(which).contains(value) else { return }
+        switch which {
+        case "language": filterLanguage = value
+        case "pos": filterPos = value
+        case "difficulty": filterDifficulty = value
+        case "sort": filterSort = value
+        default: break
+        }
+    }
+
     func cycleSearchFilter(_ which: String) {
         switch which {
         case "language":

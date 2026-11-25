@@ -345,9 +345,10 @@ fun CountrysideFilterPills(
     modifier: Modifier = Modifier,
 ) {
     val scroll = rememberScrollState()
+    val compact = androidx.compose.ui.platform.LocalConfiguration.current.fontScale < 1.2f
     Row(
         modifier = modifier.horizontalScroll(scroll),
-        horizontalArrangement = Arrangement.spacedBy(7.dp),
+        horizontalArrangement = Arrangement.spacedBy(if (compact) 6.dp else 7.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         items.forEach { (label, icon) ->
@@ -372,9 +373,9 @@ fun CountrysideFilterPills(
                     .background(bg)
                     .border(1.dp, border, CircleShape)
                     .clickable(role = Role.Tab) { onSelect(label) }
-                    .padding(horizontal = 13.dp, vertical = 6.dp),
+                    .padding(horizontal = if (compact) 9.dp else 13.dp, vertical = 6.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                horizontalArrangement = Arrangement.spacedBy(if (compact) 4.dp else 5.dp),
             ) {
                 if (icon != null) {
                     Icon(icon, contentDescription = null, tint = fg, modifier = Modifier.size(13.dp))
@@ -385,7 +386,7 @@ fun CountrysideFilterPills(
                     style = TextStyle(
                         fontFamily = BodyFontFamily,
                         fontWeight = if (active) FontWeight.Medium else FontWeight.Normal,
-                        fontSize = 11.5.sp,
+                        fontSize = if (compact) 10.5.sp else 11.5.sp,
                     ),
                 )
             }

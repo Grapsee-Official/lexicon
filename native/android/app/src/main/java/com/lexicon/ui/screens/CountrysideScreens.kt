@@ -1531,6 +1531,7 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
     val muted = if (isDark) DarkMutedForeground else WarmGrey
 
     var draft by remember { mutableStateOf("") }
+    var selectedFilter by remember { mutableStateOf<QuadFilterSpec?>(null) }
 
     LazyColumn(
         modifier = Modifier
@@ -1755,7 +1756,7 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
                                     Column(Modifier.weight(1f).heightIn(min = 65.dp)
                                         .clip(RoundedCornerShape(13.dp)).background(cardBg)
                                         .border(1.dp, border, RoundedCornerShape(13.dp))
-                                        .clickable(role = Role.Button) { viewModel.cycleSearchFilter(f.key) }
+                                        .clickable(role = Role.Button) { selectedFilter = f }
                                         .padding(vertical = 8.dp, horizontal = 3.dp),
                                         horizontalAlignment = Alignment.CenterHorizontally,
                                         verticalArrangement = Arrangement.spacedBy(3.dp, Alignment.CenterVertically)) {
@@ -1782,6 +1783,23 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
         }
+    }
+    selectedFilter?.let { filter ->
+        AlertDialog(
+            onDismissRequest = { selectedFilter = null },
+            title = { Text(filter.title) },
+            text = {
+                Column {
+                    viewModel.searchFilterOptions(filter.key).forEach { option ->
+                        TextButton(onClick = {
+                            viewModel.selectSearchFilter(filter.key, option)
+                            selectedFilter = null
+                        }) { Text(if (option == filter.value) "✓ $option" else option) }
+                    }
+                }
+            },
+            confirmButton = { TextButton(onClick = { selectedFilter = null }) { Text("Done") } },
+        )
     }
 }
 

@@ -209,11 +209,13 @@ struct CountrysideFilterPills: View {
     let onSelect: (String) -> Void
 
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    private var compact: Bool { dynamicTypeSize <= .large }
     private var isDark: Bool { scheme == .dark }
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 7) {
+            HStack(spacing: compact ? 6 : 7) {
                 ForEach(items, id: \.label) { item in
                     let active = item.label == selected
                     let bg: Color = active
@@ -227,16 +229,16 @@ struct CountrysideFilterPills: View {
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
                         onSelect(item.label)
                     } label: {
-                        HStack(spacing: 5) {
+                        HStack(spacing: compact ? 4 : 5) {
                             if let ic = item.systemIcon {
                                 Image(systemName: ic)
                                     .font(.system(size: 11, weight: .regular))
                             }
                             Text(item.label)
-                                .font(.lexiconBody(11.5, weight: active ? .medium : .regular))
+                                .font(.lexiconBody(compact ? 10.5 : 11.5, weight: active ? .medium : .regular))
                         }
                         .foregroundStyle(fg)
-                        .padding(.horizontal, 13)
+                        .padding(.horizontal, compact ? 9 : 13)
                         .padding(.vertical, 6)
                         .background(bg)
                         .clipShape(Capsule())
