@@ -321,7 +321,7 @@ struct MyNotesScreen: View {
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: card.size.width * (dynamicTypeSize.isAccessibilitySize ? 0.32 : 0.42),
-                                           height: card.size.height * 0.86,
+                                           height: card.size.height * 0.76,
                                            alignment: .bottomTrailing)
 
                                 VStack(alignment: .leading, spacing: 0) {
@@ -354,15 +354,17 @@ struct MyNotesScreen: View {
                                     // Keep all paint visible without adding an opaque patch.
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(note.title)
-                                            .font(.lexiconDisplay(13))
+                                            .font(.lexiconDisplay(14))
                                             .foregroundStyle(p.foreground)
                                             .lineLimit(2)
+                                            .frame(width: max(1, card.size.width * 0.88 - 11), alignment: .leading)
                                         Text(note.body)
-                                            .font(.lexiconLong(10.5))
-                                            .foregroundStyle(p.foreground.opacity(0.8))
-                                            .lineLimit(dynamicTypeSize.isAccessibilitySize ? 4 : 3)
+                                            .font(.lexiconLong(11))
+                                            .foregroundStyle(p.foreground.opacity(0.88))
+                                            .lineLimit(dynamicTypeSize >= .xxLarge ? 4 : 3)
+                                            .frame(width: max(1, card.size.width * (dynamicTypeSize >= .xxLarge ? 0.68 : 0.62) - 11), alignment: .leading)
                                     }
-                                    .frame(width: max(1, card.size.width * (dynamicTypeSize.isAccessibilitySize ? 0.68 : 0.58) - 11), alignment: .leading)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
                                     Spacer(minLength: 4)
                                     HStack {
                                         HStack(spacing: 4) {
@@ -987,7 +989,7 @@ struct QuickTemplatesScreen: View {
                                                 .foregroundStyle(p.foreground)
                                                 .lineLimit(2)
                                             Text(tpl.subtitle)
-                                                .font(.lexiconBody(9.5))
+                                                .font(.lexiconBody(11))
                                                 .foregroundStyle(p.mutedForeground)
                                                 .lineLimit(2)
                                                 .multilineTextAlignment(.leading)

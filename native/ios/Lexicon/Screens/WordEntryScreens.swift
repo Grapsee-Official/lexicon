@@ -32,7 +32,7 @@ struct WordDetailProfileScreen: View {
                 CountrysideHeroHeader(title: "Dictionary", subtitle: "", illustrationBase: "ill-hero-cottage",
                     onHistoryClick: { vm.navigate(to: .searchDiscovery) }, onBack: { vm.navigateBack() })
                 VStack(alignment: .leading, spacing: 7) {
-                    let artHeight = min(250, max(120, (pageWidth - 36) * 0.45))
+                    let artHeight = min(260, max(130, (pageWidth - 36) * 0.47))
                     ZStack(alignment: .trailing) {
                         if !enlarged {
                             Image(countrysideImageName("ill-thumb-meadow", isDark: scheme == .dark, scene: "detail-meadow"))
@@ -47,7 +47,7 @@ struct WordDetailProfileScreen: View {
                                 .frame(maxWidth: .infinity, alignment: .leading).allowsHitTesting(false)
                         }
                         VStack(alignment: .leading, spacing: 7) {
-                            Text(word.word).font(.lexiconDisplay(min(49, max(27, (pageWidth - 36) * 0.096))))
+                            Text(word.word).font(.lexiconDisplay(min(54, max(30, (pageWidth - 36) * 0.105))))
                                 .foregroundStyle(ink).fixedSize(horizontal: false, vertical: true)
                             HStack(spacing: 7) {
                                 Text(word.phonetic).font(.lexiconLong(15)).foregroundStyle(ink)
@@ -65,7 +65,7 @@ struct WordDetailProfileScreen: View {
                                 .foregroundStyle(scheme == .dark ? LexiconColors.highlightDark : .white)
                                 .padding(.horizontal, 14).padding(.vertical, 5)
                                 .background(scheme == .dark ? p.card : LexiconColors.primary, in: Capsule())
-                            Text(word.definitions.first ?? "").font(.lexiconLong(15)).foregroundStyle(ink)
+                            Text(word.definitions.first ?? "").font(.lexiconLong(16)).foregroundStyle(ink)
                                 .fixedSize(horizontal: false, vertical: true)
                                 .frame(maxWidth: enlarged ? .infinity : (pageWidth - 36) * 0.56, alignment: .leading)
                             if enlarged {
@@ -93,7 +93,7 @@ struct WordDetailProfileScreen: View {
                     ZStack(alignment: .bottomTrailing) {
                         if !enlarged {
                             Image(countrysideImageName("ill-books-daisies", isDark: scheme == .dark, scene: "study-books"))
-                                .resizable().scaledToFit().frame(width: (pageWidth - 36) * 0.43, height: 126)
+                                .resizable().scaledToFit().frame(width: (pageWidth - 36) * 0.40, height: min(210, max(115, (pageWidth - 36) * 0.39)))
                                 .accessibilityHidden(true)
                         }
                         VStack(spacing: 6) {
@@ -107,11 +107,17 @@ struct WordDetailProfileScreen: View {
                                     .clipShape(RoundedRectangle(cornerRadius: 14))
                                     .overlay(RoundedRectangle(cornerRadius: 14).stroke(rule, lineWidth: 1))
                             }
+                            if enlarged {
+                                Image(countrysideImageName("ill-books-daisies", isDark: scheme == .dark, scene: "study-books"))
+                                    .resizable().scaledToFit().frame(height: 132).accessibilityHidden(true)
+                            }
                         }
-                        .frame(maxWidth: enlarged ? .infinity : (pageWidth - 36) * 0.60)
+                        .frame(maxWidth: enlarged ? .infinity : (pageWidth - 36) * 0.58)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }.padding(.horizontal, 18)
                 }
+                CountrysideQuoteBanner(quote: "Sometimes, the best things in life are found by chance.", illustrationBase: "ill-banner-church")
+                    .padding(.horizontal, 18)
                 Button { vm.openWordExpanded(word) } label: {
                     HStack {
                         Text("Explore translations across 36 languages").font(.lexiconBody(12))
@@ -120,8 +126,6 @@ struct WordDetailProfileScreen: View {
                     }.foregroundStyle(ink).padding(12)
                         .overlay(RoundedRectangle(cornerRadius: 14).stroke(rule, lineWidth: 1))
                 }.buttonStyle(.plain).padding(.horizontal, 18)
-                CountrysideQuoteBanner(quote: "Sometimes, the best things in life are found by chance.", illustrationBase: "ill-banner-church")
-                    .padding(.horizontal, 18)
             }.padding(.bottom, 16)
         }.background { GeometryReader { geo in
             Color.clear.onAppear { pageWidth = geo.size.width }.onChange(of: geo.size.width) { pageWidth = $0 }

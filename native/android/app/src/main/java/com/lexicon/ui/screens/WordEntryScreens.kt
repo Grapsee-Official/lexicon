@@ -140,7 +140,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
             BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = 18.dp)) {
                 val w = maxWidth
                 val enlarged = w < 280.dp || androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f
-                val artHeight = (w * .45f).coerceIn(120.dp, 250.dp)
+                val artHeight = (w * .47f).coerceIn(130.dp, 260.dp)
                 val meadow = rememberCountrysidePainter(resolveCountrysideDrawable("ill_thumb_meadow", dark, "detail-meadow"), w * .56f)
                 Box(Modifier.fillMaxWidth().heightIn(min = artHeight)) {
                     if (!enlarged) {
@@ -154,7 +154,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(7.dp)) {
                         Text(word.word, color = ink,
                             style = TextStyle(fontFamily = DisplayFontFamily,
-                                fontSize = (w.value * .096f).coerceIn(27f, 49f).sp))
+                                fontSize = (w.value * .105f).coerceIn(30f, 54f).sp))
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
                             Text(word.phonetic, color = ink, style = TextStyle(fontFamily = LongFontFamily, fontSize = 15.sp),
                                 modifier = Modifier.weight(1f, fill = false))
@@ -170,7 +170,7 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                             modifier = Modifier.clip(CircleShape).background(if (dark) DarkCard else BrandGreen)
                                 .padding(horizontal = 14.dp, vertical = 5.dp))
                         Text(word.definitions.firstOrNull().orEmpty(), color = ink,
-                            style = TextStyle(fontFamily = LongFontFamily, fontSize = 15.sp, lineHeight = 21.sp),
+                            style = TextStyle(fontFamily = LongFontFamily, fontSize = 16.sp, lineHeight = 22.sp),
                             modifier = Modifier.fillMaxWidth(if (enlarged) 1f else .56f))
                         if (enlarged) Image(meadow, null, Modifier.fillMaxWidth().height(artHeight), contentScale = ContentScale.Fit)
                     }
@@ -204,11 +204,11 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                 BotanicalSectionTitle("Usage Examples", dark, actionLabel = null)
                 BoxWithConstraints(Modifier.fillMaxWidth()) {
                     val large = maxWidth < 280.dp || androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f
-                    val art = rememberCountrysidePainter(resolveCountrysideDrawable("ill_books_daisies", dark, "study-books"), maxWidth * .43f)
+                    val art = rememberCountrysidePainter(resolveCountrysideDrawable("ill_books_daisies", dark, "study-books"), maxWidth * .40f)
                     Box(Modifier.fillMaxWidth()) {
-                        if (!large) Image(art, null, Modifier.align(Alignment.BottomEnd).fillMaxWidth(.43f).height(126.dp),
+                        if (!large) Image(art, null, Modifier.align(Alignment.BottomEnd).fillMaxWidth(.40f).height((maxWidth * .39f).coerceIn(115.dp, 210.dp)),
                             contentScale = ContentScale.Fit, alignment = Alignment.BottomEnd)
-                        Column(Modifier.fillMaxWidth(if (large) 1f else .60f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Column(Modifier.fillMaxWidth(if (large) 1f else .58f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             word.examples.forEach { example ->
                                 Row(Modifier.fillMaxWidth().clip(shape).background(card).border(1.dp, rule, shape).padding(11.dp),
                                     horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -217,10 +217,16 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                                         style = TextStyle(fontFamily = LongFontFamily, fontSize = 13.sp, lineHeight = 18.sp))
                                 }
                             }
+                            if (large) Image(art, null, Modifier.fillMaxWidth().height(132.dp),
+                                contentScale = ContentScale.Fit, alignment = Alignment.BottomEnd)
                         }
                     }
                 }
             }
+        }
+        item(key = "closing") {
+            CountrysideQuoteBanner("Sometimes, the best things in life are found by chance.", "Lexora", "ill_banner_church",
+                dark, Modifier.padding(horizontal = 18.dp))
         }
         item(key = "explore") {
             Row(Modifier.padding(horizontal = 18.dp).fillMaxWidth().clip(shape).border(1.dp, rule, shape)
@@ -228,10 +234,6 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                 Text("Explore translations across 36 languages", color = ink, modifier = Modifier.weight(1f))
                 Icon(Icons.AutoMirrored.Outlined.ArrowForward, null, tint = accent)
             }
-        }
-        item(key = "closing") {
-            CountrysideQuoteBanner("Sometimes, the best things in life are found by chance.", "Lexora", "ill_banner_church",
-                dark, Modifier.padding(horizontal = 18.dp))
         }
     }
 }

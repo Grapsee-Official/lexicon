@@ -220,7 +220,7 @@ fun DictionaryHomeScreen(viewModel: LexiconViewModel) {
                 Image(
                     painter = rememberCountrysidePainter(resolveCountrysideDrawable("ill_banner_church", dark, "dictionary-panorama"), paintingWidth),
                     contentDescription = null,
-                    contentScale = ContentScale.Crop,
+                    contentScale = ContentScale.Fit,
                     modifier = Modifier
                         .width(paintingWidth)
                         .aspectRatio(758f / 132f)

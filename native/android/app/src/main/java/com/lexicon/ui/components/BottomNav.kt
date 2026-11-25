@@ -88,7 +88,7 @@ fun BottomNav(
     val homeNight = isDark && state.route == ScreenRoute.HOME
     val reference = referencePageWidth?.takeIf { homeNight }
     val sealDiameter = reference?.let { (it * (66f / 591f)).coerceIn(36.dp, 66.dp) }
-        ?: if (homeNight) 48.dp else 54.dp
+        ?: if (homeNight) 48.dp else 44.dp
     val sealTarget = maxOf(sealDiameter, 48.dp)
     val capsuleInset = reference?.let { (it * (19f / 591f)).coerceIn(10.dp, 22.dp) }
         ?: if (homeNight) 12.dp else 16.dp
@@ -259,7 +259,7 @@ private fun BottomNavItem(
         Text(
             text = label,
             color = if (isActive) activeColor else inactiveColor,
-            style = if (compact) LexiconTextStyles.NavLabel.copy(fontSize = 8.sp) else LexiconTextStyles.NavLabel,
+            style = if (compact) LexiconTextStyles.NavLabel.copy(fontSize = 9.sp) else LexiconTextStyles.NavLabel,
             maxLines = 2,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
         )

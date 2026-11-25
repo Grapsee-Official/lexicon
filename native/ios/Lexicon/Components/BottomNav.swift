@@ -10,7 +10,7 @@ struct BottomNav: View {
     @EnvironmentObject private var vm: LexiconViewModel
     @Environment(\.colorScheme) private var scheme
     @State private var measuredWidth: CGFloat = 390
-    private var sealDiameter: CGFloat { homeNight ? min(66, max(36, measuredWidth * 66 / 591)) : 54 }
+    private var sealDiameter: CGFloat { homeNight ? min(66, max(36, measuredWidth * 66 / 591)) : 44 }
     private var capsuleInset: CGFloat { homeNight ? min(22, max(10, measuredWidth * 19 / 591)) : 16 }
 
     private var isDark: Bool { scheme == .dark }
@@ -54,7 +54,7 @@ struct BottomNav: View {
                 vm.openSearch()
             } label: {
                 Image(systemName: "magnifyingglass")
-                    .font(.system(size: homeNight ? sealDiameter * 0.44 : 17, weight: .medium))
+                    .font(.system(size: homeNight ? sealDiameter * 0.44 : 23, weight: .medium))
                     .foregroundStyle(isDark ? LexiconColors.highlightDark : LexiconColors.primaryForeground)
                     .frame(width: sealDiameter, height: sealDiameter)
                     .background(homeNight ? Color(hex: "0A131B") : (isDark ? Color(hex: "101620") : LexiconColors.primary))

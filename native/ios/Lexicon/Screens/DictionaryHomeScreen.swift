@@ -133,8 +133,7 @@ struct DictionaryHomeScreen: View {
                 // On iPad it becomes a centred, generously sized bookplate.
                 Image(countrysideImageName("ill-banner-church", isDark: isDark, scene: "dictionary-panorama"))
                     .resizable()
-                    .aspectRatio(758.0 / 132.0, contentMode: .fill)
-                    .clipped()
+                    .aspectRatio(758.0 / 132.0, contentMode: .fit)
                     .frame(maxWidth: 640)
                     .background(p.card)
                     .clipShape(RoundedRectangle(cornerRadius: 15))

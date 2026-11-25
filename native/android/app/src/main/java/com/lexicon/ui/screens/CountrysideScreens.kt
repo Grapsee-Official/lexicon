@@ -550,7 +550,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                             alignment = Alignment.BottomEnd,
                                             modifier = Modifier
                                                 .align(Alignment.BottomEnd)
-                                                 .fillMaxHeight(0.86f)
+                                                 .fillMaxHeight(0.76f)
                                                 // Preserve the complete original watercolor in
                                                 // its own right-hand zone, without a cream mask.
                                                 .fillMaxWidth(if (config.fontScale >= 1.3f) 0.32f else 0.42f),
@@ -590,11 +590,14 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                                 }
                                             }
                                             Column(
-                                                modifier = Modifier.fillMaxWidth(if (config.fontScale >= 1.3f) .68f else .58f),
-                                                verticalArrangement = Arrangement.spacedBy(2.dp),
+                                                modifier = Modifier.fillMaxWidth(),
+                                                verticalArrangement = Arrangement.spacedBy(3.dp),
                                             ) {
-                                                Text(note.title, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 13.sp), maxLines = 2, overflow = TextOverflow.Ellipsis)
-                                                Text(note.body, color = fg.copy(alpha = 0.8f), style = TextStyle(fontFamily = LongFontFamily, fontSize = 10.5.sp, lineHeight = 13.5.sp), maxLines = if (config.fontScale >= 1.3f) 4 else 3, overflow = TextOverflow.Ellipsis)
+                                                Text(note.title, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 14.sp), maxLines = 2, overflow = TextOverflow.Ellipsis,
+                                                    modifier = Modifier.fillMaxWidth(.88f))
+                                                Text(note.body, color = fg.copy(alpha = 0.88f), style = TextStyle(fontFamily = LongFontFamily, fontSize = 11.sp, lineHeight = 14.sp),
+                                                    modifier = Modifier.fillMaxWidth(if (config.fontScale >= 1.3f) .68f else .62f),
+                                                    maxLines = if (config.fontScale >= 1.3f) 4 else 3, overflow = TextOverflow.Ellipsis)
                                             }
                                             Row(
                                                 modifier = Modifier.fillMaxWidth(),
