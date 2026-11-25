@@ -763,6 +763,8 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
     var answerRevealed by remember { mutableStateOf(false) }
     var showCreateList by remember { mutableStateOf(false) }
     var showStudyFilter by remember { mutableStateOf(false) }
+    var showAllLists by remember { mutableStateOf(false) }
+    var readingListId by remember { mutableStateOf<String?>(null) }
     var studyFilter by remember { mutableStateOf("All lists") }
     var newListTitle by remember { mutableStateOf("") }
     var newListWords by remember { mutableStateOf("") }
@@ -929,8 +931,8 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                 BotanicalSectionTitle(
                     title = "Your Study Lists",
                     isDark = isDark,
-                    actionLabel = "New list",
-                    onAction = { listError = false; showCreateList = true },
+                    actionLabel = if (showAllLists) "Show less" else "View all",
+                    onAction = { query = ""; studyFilter = "All lists"; showAllLists = !showAllLists },
                     modifier = Modifier.padding(horizontal = 16.dp),
                 )
                 Column(
@@ -950,7 +952,7 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                             style = TextStyle(fontFamily = BodyFontFamily, fontSize = 13.sp),
                             modifier = Modifier.padding(12.dp))
                     }
-                    visibleStudyLists.forEach { sl ->
+                    (if (showAllLists || query.isNotBlank() || studyFilter != "All lists") visibleStudyLists else visibleStudyLists.take(4)).forEach { sl ->
                             val scene = when (sl.thumbnail) {
                                 "ill_thumb_lavender" -> "study-vocab"
                                 "ill_thumb_cottage" -> "study-exam"
@@ -962,18 +964,14 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                             BoxWithConstraints(Modifier.fillMaxWidth()) {
                             val fontScale = androidx.compose.ui.platform.LocalConfiguration.current.fontScale
                             val narrow = maxWidth < 330.dp || fontScale >= 1.2f
-                            val barWidth = (maxWidth * (210f / 760f)).coerceIn(56.dp, 112.dp)
+                            val barWidth = (maxWidth * .23f).coerceIn(52.dp, 112.dp)
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(14.dp))
                                     .background(cardBg)
                                     .border(1.dp, border, RoundedCornerShape(14.dp))
-                                    .clickable {
-                                        sl.wordIds.firstOrNull()?.let { id ->
-                                            LexiconData.getWordById(id)?.let { viewModel.openWord(it) }
-                                        }
-                                    }
+                                    .clickable(role = Role.Button) { readingListId = sl.id }
                                     .padding(5.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(7.dp),
@@ -989,7 +987,7 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                                 )
                                 Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                                     Text(sl.title, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 13.5.sp), maxLines = if (narrow) 3 else 2, overflow = TextOverflow.Ellipsis)
-                                    Text("${sl.totalWords} words • ${sl.percentComplete}% complete", color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 9.5.sp))
+                                    Text("${sl.totalWords} words • ${sl.percentComplete}% complete", color = muted, style = TextStyle(fontFamily = BodyFontFamily, fontSize = 9.5.sp, lineHeight = 12.sp))
                                     if (narrow) StudyListProgress(sl.percentComplete, border, ringTint = if (isDark) DarkAccent else BrandGreen, modifier = Modifier.fillMaxWidth())
                                 }
                                 if (!narrow) StudyListProgress(sl.percentComplete, border, ringTint = if (isDark) DarkAccent else BrandGreen, modifier = Modifier.width(barWidth))
@@ -1039,6 +1037,62 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                 illustrationBase = "ill_banner_bridge",
                 isDark = isDark,
                 modifier = Modifier.padding(horizontal = 16.dp),
+            )
+        }
+        item(key = "new_study_list") {
+            Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                .clip(RoundedCornerShape(14.dp)).background(cardBg)
+                .border(1.dp, border, RoundedCornerShape(14.dp))
+                .clickable(role = Role.Button) { listError = false; showCreateList = true }
+                .padding(14.dp), verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Icon(Icons.Outlined.Add, null, tint = accent)
+                Text("New study list", color = fg, modifier = Modifier.weight(1f),
+                    style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 16.sp))
+                Icon(Icons.AutoMirrored.Outlined.ArrowForward, null, tint = accent)
+            }
+        }
+    }
+
+    readingListId?.let { id ->
+        val list = state.studyLists.firstOrNull { it.id == id }
+        if (list != null) {
+            AlertDialog(
+                onDismissRequest = { readingListId = null },
+                containerColor = cardBg,
+                title = { Text(list.title, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 22.sp)) },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Text("${list.completedWords} of ${list.totalWords} words studied", color = muted,
+                            style = TextStyle(fontFamily = LongFontFamily, fontSize = 14.sp))
+                        StudyListProgress(list.percentComplete, border, if (isDark) DarkAccent else BrandGreen, Modifier.fillMaxWidth())
+                        LazyColumn(Modifier.heightIn(max = 300.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            list.wordIds.forEachIndexed { index, wordId ->
+                                val entry = LexiconData.getWordById(wordId)
+                                if (entry != null) item(key = wordId) {
+                                    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                                        .border(1.dp, border, RoundedCornerShape(12.dp))
+                                        .clickable(role = Role.Button) { readingListId = null; viewModel.openWord(entry) }
+                                        .padding(10.dp), verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        Icon(if (index < list.completedWords) Icons.Outlined.CheckCircleOutline else Icons.AutoMirrored.Outlined.MenuBook, null, tint = accent)
+                                        Column(Modifier.weight(1f)) {
+                                            Text(entry.word, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 16.sp))
+                                            Text(entry.phonetic, color = muted, style = TextStyle(fontFamily = LongFontFamily, fontSize = 12.sp))
+                                        }
+                                        Icon(Icons.Outlined.ChevronRight, null, tint = accent)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(enabled = list.completedWords < list.wordIds.size, onClick = {
+                        readingListId = null; practicingListId = id; answerRevealed = false
+                    }) { Text("Practice") }
+                },
+                dismissButton = { TextButton(onClick = { readingListId = null }) { Text("Close") } },
             )
         }
     }
@@ -1099,6 +1153,8 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                             newListTitle = ""
                             newListWords = ""
                             query = ""
+                            studyFilter = "All lists"
+                            showAllLists = true
                         } else listError = true
                     },
                 ) { Text("Create") }

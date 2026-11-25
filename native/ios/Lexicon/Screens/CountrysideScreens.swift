@@ -506,6 +506,9 @@ struct StudyListsScreen: View {
     @State private var answerRevealed = false
     @State private var showCreateList = false
     @State private var showStudyFilter = false
+    @State private var showAllLists = false
+    @State private var readingList: StudyListItem? = nil
+    @State private var pageWidth: CGFloat = 390
     @State private var studyFilter = "All lists"
     @State private var newListTitle = ""
     @State private var newListWords = ""
@@ -517,7 +520,7 @@ struct StudyListsScreen: View {
         let totalWords = vm.studyLists.reduce(0) { $0 + $1.totalWords }
         let completedWords = vm.studyLists.reduce(0) { $0 + $1.completedWords }
         let overallPct = totalWords > 0 ? (completedWords * 100) / totalWords : 0
-        let ringProgress = Double(vm.todayStudiedWords) / Double(max(1, vm.todayGoalWords))
+        let ringProgress = min(1, max(0, Double(vm.todayStudiedWords) / Double(max(1, vm.todayGoalWords))))
         let visibleLists = vm.studyLists.filter { list in
             guard query.isEmpty || list.title.localizedCaseInsensitiveContains(query) else { return false }
             switch studyFilter {
@@ -547,7 +550,7 @@ struct StudyListsScreen: View {
                 .padding(.horizontal, 16)
 
                 // 4 Stat Cards
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 7), count: dynamicTypeSize.isAccessibilitySize ? 2 : 4), spacing: 7) {
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 7), count: dynamicTypeSize >= .xxLarge || pageWidth < 302 ? 2 : 4), spacing: 7) {
                     statTile("book", "\(vm.studyLists.count)", "Active Lists", p: p)
                     statTile("checkmark.circle", "\(totalWords)", "Total Words", p: p)
                     statTile("chart.bar", "\(overallPct)%", "Overall Progress", p: p)
@@ -634,8 +637,8 @@ struct StudyListsScreen: View {
                 VStack(spacing: 8) {
                     BotanicalSectionTitle(
                         title: "Your Study Lists",
-                        actionLabel: "New list",
-                        onAction: { listError = false; showCreateList = true }
+                        actionLabel: showAllLists ? "Show less" : "View all",
+                        onAction: { query = ""; studyFilter = "All lists"; showAllLists.toggle() }
                     )
                     VStack(spacing: 7) {
                         if visibleLists.isEmpty {
@@ -644,8 +647,8 @@ struct StudyListsScreen: View {
                                 .foregroundStyle(p.mutedForeground)
                                 .padding(12)
                         }
-                        ForEach(visibleLists) { sl in
-                            let narrow = dynamicTypeSize >= .xLarge
+                        ForEach(showAllLists || !query.isEmpty || studyFilter != "All lists" ? visibleLists : Array(visibleLists.prefix(4))) { sl in
+                            let narrow = pageWidth < 362 || dynamicTypeSize >= .xLarge
                             HStack(spacing: 7) {
                                 Image(countrysideImageName(sl.thumbnail, isDark: isDark, scene: studyScene(sl.thumbnail)))
                                     .resizable()
@@ -654,9 +657,7 @@ struct StudyListsScreen: View {
                                     .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
 
                                 Button {
-                                    if let firstId = sl.wordIds.first, let entry = LexiconData.getWordById(firstId) {
-                                        vm.openWord(entry)
-                                    }
+                                    readingList = sl
                                 } label: {
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(sl.title)
@@ -672,7 +673,7 @@ struct StudyListsScreen: View {
                                 }
                                 .buttonStyle(.plain)
 
-                                if !narrow { studyProgress(sl.percentComplete, p: p).frame(maxWidth: 96) }
+                                if !narrow { studyProgress(sl.percentComplete, p: p).frame(width: min(112, max(52, (pageWidth - 32) * 0.23))) }
 
                                 Button { practicingList = sl; answerRevealed = false } label: {
                                     Image(systemName: "play.fill")
@@ -716,8 +717,27 @@ struct StudyListsScreen: View {
                     illustrationBase: "ill-banner-bridge"
                 )
                 .padding(.horizontal, 16)
+                Button { listError = false; showCreateList = true } label: {
+                    HStack(spacing: 10) {
+                        Image(systemName: "plus").foregroundStyle(p.highlight)
+                        Text("New study list").font(.lexiconDisplay(16)).foregroundStyle(p.foreground)
+                        Spacer()
+                        Image(systemName: "arrow.right").foregroundStyle(p.highlight)
+                    }.padding(14).background(p.card, in: RoundedRectangle(cornerRadius: 14))
+                        .overlay(RoundedRectangle(cornerRadius: 14).stroke(p.border, lineWidth: 1))
+                }.buttonStyle(.plain).padding(.horizontal, 16)
             }
             .padding(.bottom, 16)
+        }
+        .background {
+            GeometryReader { geo in
+                Color.clear.onAppear { pageWidth = geo.size.width }
+                    .onChange(of: geo.size.width) { pageWidth = $0 }
+            }
+        }
+        .sheet(item: $readingList) { list in
+            readingListSheet(list)
+                .presentationDragIndicator(.visible)
         }
         .confirmationDialog("Study lists", isPresented: $showStudyFilter, titleVisibility: .visible) {
             ForEach(["All lists", "In progress", "Completed"], id: \.self) { option in
@@ -757,6 +777,8 @@ struct StudyListsScreen: View {
                                 newListTitle = ""
                                 newListWords = ""
                                 query = ""
+                                studyFilter = "All lists"
+                                showAllLists = true
                             } else {
                                 listError = true
                             }
@@ -768,6 +790,51 @@ struct StudyListsScreen: View {
             .presentationDragIndicator(.visible)
         }
 
+    }
+
+    private func readingListSheet(_ list: StudyListItem) -> some View {
+        let p = lexiconPalette(scheme)
+        let current = vm.studyLists.first(where: { $0.id == list.id }) ?? list
+        return NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    Image(countrysideImageName(current.thumbnail, isDark: isDark, scene: studyScene(current.thumbnail)))
+                        .resizable().scaledToFit().frame(height: 122)
+                        .frame(maxWidth: .infinity).accessibilityHidden(true)
+                    Text(current.title).font(.lexiconDisplay(27)).foregroundStyle(p.foreground)
+                    Text("\(current.completedWords) of \(current.totalWords) words studied")
+                        .font(.lexiconLong(14)).foregroundStyle(p.mutedForeground)
+                    studyProgress(current.percentComplete, p: p)
+                    ForEach(Array(current.wordIds.enumerated()), id: \.offset) { index, id in
+                        if let entry = LexiconData.getWordById(id) {
+                            Button {
+                                readingList = nil
+                                vm.openWord(entry)
+                            } label: {
+                                HStack(spacing: 10) {
+                                    Image(systemName: index < current.completedWords ? "checkmark.circle" : "book")
+                                        .foregroundStyle(p.highlight)
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text(entry.word).font(.lexiconDisplay(16)).foregroundStyle(p.foreground)
+                                        Text(entry.phonetic).font(.lexiconLong(12)).foregroundStyle(p.mutedForeground)
+                                    }
+                                    Spacer()
+                                    Image(systemName: "chevron.right").foregroundStyle(p.primary)
+                                }.padding(12).background(p.card, in: RoundedRectangle(cornerRadius: 12))
+                                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(p.border, lineWidth: 1))
+                            }.buttonStyle(.plain)
+                        }
+                    }
+                }.padding(18)
+            }.background(p.card)
+                .navigationTitle("Study notebook")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Close") { readingList = nil }
+                    }
+                }
+        }
     }
 
     private func studyScene(_ name: String) -> String? {
