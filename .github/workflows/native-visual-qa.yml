@@ -20,6 +20,13 @@ on:
       - 'artwork/vector/countryside-*-material.svg'
       - 'artwork/vector/lexora-*.svg'
       - 'docs/visual-qa/lexora-home-reference-contract.md'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'native/**'
+      - 'artwork/**'
+      - 'scripts/**'
+      - '.github/workflows/native-visual-qa.yml'
   workflow_dispatch:
   # Autonomous debug-only visual QA; scheduling can be delayed by GitHub.
   schedule:
@@ -27,7 +34,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: lexicon-visual-qa
+  group: lexicon-visual-qa-${{ github.ref }}
   # Collapse rapid commits into a single verification of the newest main.
   cancel-in-progress: true
 
