@@ -78,6 +78,7 @@ import com.lexicon.data.LexiconViewModel
 import com.lexicon.data.ScreenRoute
 import com.lexicon.data.WordEntry
 import com.lexicon.ui.components.BotanicalSectionTitle
+import com.lexicon.ui.components.isApprovedCountrysidePainting
 import com.lexicon.ui.components.CountrysideHeroHeader
 import com.lexicon.ui.components.CountrysidePainting
 import com.lexicon.ui.components.CountrysideQuoteBanner
@@ -142,11 +143,14 @@ fun WordDetailProfileScreen(viewModel: LexiconViewModel) {
                 val w = maxWidth
                 val enlarged = w < 280.dp || androidx.compose.ui.platform.LocalConfiguration.current.fontScale >= 1.3f
                 val artHeight = (w * .47f).coerceIn(130.dp, 260.dp)
-                val meadow = rememberCountrysidePainter(resolveCountrysideDrawable("ill_thumb_meadow", dark, "detail-meadow"), w * .56f)
+                val meadowRes = resolveCountrysideDrawable("ill_thumb_meadow", dark, "detail-meadow")
+                val approvedMeadow = isApprovedCountrysidePainting(meadowRes)
+                val meadow = rememberCountrysidePainter(meadowRes, w * .56f)
                 Box(Modifier.fillMaxWidth().heightIn(min = artHeight)) {
                     if (!enlarged) {
                         CountrysidePainting(meadow, Modifier.align(Alignment.BottomEnd).fillMaxWidth(.56f).height(artHeight),
-                            fadeLeft = .13f, fadeBottom = .09f)
+                            fadeLeft = if (approvedMeadow) 0f else .13f,
+                            fadeBottom = if (approvedMeadow) 0f else .09f)
                     }
                     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(7.dp)) {
                         Text(word.word.lowercase(), color = ink,
@@ -257,6 +261,7 @@ private fun IllustratedDailyWordScreen(viewModel: LexiconViewModel) {
     val accent = if (isDark) DarkAccent else OldWoodGold
 
     val bridgeRes = resolveCountrysideDrawable("ill_hero_bridge", isDark, "daily-bridge")
+    val approvedBridge = isApprovedCountrysidePainting(bridgeRes)
     val booksRes = resolveCountrysideDrawable("ill_books_daisies", isDark, "study-books")
     val bayRes = resolveCountrysideDrawable("ill_banner_bay", isDark, "daily-bay")
 
@@ -277,7 +282,8 @@ private fun IllustratedDailyWordScreen(viewModel: LexiconViewModel) {
                 if (!enlarged) CountrysidePainting(
                     rememberCountrysidePainter(bridgeRes, pageWidth * .76f),
                     Modifier.align(Alignment.BottomEnd).fillMaxWidth(.76f).height(artHeight),
-                    fadeLeft = .14f, fadeBottom = .10f,
+                    fadeLeft = if (approvedBridge) 0f else .14f,
+                    fadeBottom = if (approvedBridge) 0f else .10f,
                 )
 
                 Column(

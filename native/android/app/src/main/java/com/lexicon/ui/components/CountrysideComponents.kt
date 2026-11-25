@@ -102,6 +102,10 @@ fun CountrysidePainting(
     fadeLeft: Float = .12f,
     fadeBottom: Float = .08f,
 ) {
+    if (fadeLeft <= 0f && fadeBottom <= 0f) {
+        Image(painter, null, modifier, contentScale = ContentScale.Fit, alignment = Alignment.BottomEnd)
+        return
+    }
     Image(painter, null, modifier.graphicsLayer {
         compositingStrategy = CompositingStrategy.Offscreen
     }.drawWithContent {
@@ -138,6 +142,13 @@ fun CountrysidePainting(
 fun resolveCountrysideDrawable(baseName: String, isDark: Boolean, scene: String? = null): Int {
     val ctx = LocalContext.current
     if (scene != null) {
+        // The approved paintings are independent transparent assets, never
+        // screenshots of the UI. Keep the editable reference vectors as fallback.
+        if (!isDark) {
+            val painting = ctx.resources.getIdentifier(
+                "paint_light_" + scene.replace('-', '_'), "drawable", ctx.packageName)
+            if (painting != 0) return painting
+        }
         // Interior scenes share geometry, but each appearance has its own
         // authored vector pigments. Dark Home retains its dedicated artwork.
         val appearance = if (isDark) "dark" else "light"
@@ -151,6 +162,11 @@ fun resolveCountrysideDrawable(baseName: String, isDark: Boolean, scene: String?
             .takeIf { it != 0 }
         ?: R.drawable.hero_light
 }
+
+/** Approved art already contains organic alpha edges; never mask them again. */
+@Composable
+fun isApprovedCountrysidePainting(resId: Int): Boolean =
+    LocalContext.current.resources.getResourceEntryName(resId).startsWith("paint_light_")
 
 /**
  * CountrysideHeroHeader — Shared top watercolour banner across Pages 1, 2, 4, 5, 6, 7, 8, 9, 10:
@@ -182,6 +198,7 @@ fun CountrysideHeroHeader(
         else -> null
     }
     val resId = resolveCountrysideDrawable(illustrationBase, isDark, scene)
+    val approved = isApprovedCountrysidePainting(resId)
     val fontScale = androidx.compose.ui.platform.LocalConfiguration.current.fontScale
     androidx.compose.foundation.layout.BoxWithConstraints(
         Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars)
@@ -226,7 +243,9 @@ fun CountrysideHeroHeader(
             }
         }
         val painting: @Composable (Modifier) -> Unit = { position ->
-            CountrysidePainting(rememberCountrysidePainter(resId, w * .76f), position, fadeLeft = .14f, fadeBottom = .12f)
+            CountrysidePainting(rememberCountrysidePainter(resId, w * .76f), position,
+                fadeLeft = if (approved) 0f else .14f,
+                fadeBottom = if (approved) 0f else .12f)
         }
         if (stacked) {
             Column(Modifier.fillMaxWidth()) {
@@ -406,7 +425,7 @@ fun CountrysideFilterPills(
                 active && isDark -> DarkAccent
                 active -> BrandGreen
                 isDark -> DarkCard
-                else -> Color(0xFFFFF2DF).copy(alpha = .55f)
+                else -> Color.Transparent
             }
             val fg = when {
                 active && isDark -> Color(0xFF0E131B)
@@ -539,6 +558,7 @@ fun CountrysideQuoteBanner(
         else -> null
     }
     val resId = resolveCountrysideDrawable(illustrationBase, isDark, scene)
+    val approved = isApprovedCountrysidePainting(resId)
     val shape = RoundedCornerShape(16.dp)
     val fontScale = androidx.compose.ui.platform.LocalConfiguration.current.fontScale
     androidx.compose.foundation.layout.BoxWithConstraints(modifier.fillMaxWidth()) {
@@ -553,15 +573,15 @@ fun CountrysideQuoteBanner(
         }
         val bannerHeight = (width * ratio).coerceIn(64.dp, 180.dp)
         val stacked = fontScale >= 1.3f || width.value / fontScale.coerceAtLeast(1f) < 260f
-        val painter = rememberCountrysidePainter(resId, width * if (stacked) 1f else .66f)
+        val painter = rememberCountrysidePainter(resId, width * if (stacked || approved) 1f else .66f)
         val copy: @Composable (Modifier) -> Unit = { position ->
             Column(position, horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterVertically)) {
                 Text("“$quote”", color = quoteColor,
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                     style = TextStyle(fontFamily = LongFontFamily, fontStyle = FontStyle.Italic,
-                        fontSize = (width.value * .037f).coerceIn(12f, 20f).sp,
-                        lineHeight = (width.value * .047f).coerceIn(16f, 26f).sp))
+                        fontSize = (width.value * .041f).coerceIn(12f, 22f).sp,
+                        lineHeight = (width.value * .051f).coerceIn(16f, 28f).sp))
                 Text("— $attribution —", color = attrColor,
                     style = TextStyle(fontFamily = LongFontFamily, fontSize = 11.sp))
             }
@@ -576,10 +596,11 @@ fun CountrysideQuoteBanner(
         } else {
             Box(surface.heightIn(min = bannerHeight)) {
                 Box(Modifier.matchParentSize(), contentAlignment = Alignment.BottomEnd) {
-                    CountrysidePainting(painter, Modifier.fillMaxWidth(.72f).fillMaxHeight(),
-                        fadeLeft = .24f, fadeBottom = 0f)
+                    CountrysidePainting(painter,
+                        Modifier.fillMaxWidth(if (approved) 1f else .72f).fillMaxHeight(),
+                        fadeLeft = if (approved) 0f else .24f, fadeBottom = 0f)
                 }
-                LeafSprig(color = attrColor.copy(alpha = .62f),
+                if (!approved) LeafSprig(color = attrColor.copy(alpha = .62f),
                     modifier = Modifier.align(Alignment.BottomStart).padding(5.dp).size((width * .10f).coerceIn(24.dp, 48.dp)))
                 copy(Modifier.align(Alignment.CenterStart).fillMaxWidth(.55f)
                     .padding(start = 19.dp, end = 5.dp, top = 6.dp, bottom = 6.dp))
