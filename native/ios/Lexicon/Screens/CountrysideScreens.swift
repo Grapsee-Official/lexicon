@@ -207,6 +207,34 @@ struct CollectionsHubScreen: View {
 }
 
 // MARK: - Page 5: My Notes
+/// Width is the actual grid proposal after page gutters, not the device's
+/// screen width. Match Compose's two-column minimums on compact phones and
+/// keep the two-column editorial arrangement when accessible text fits.
+private struct CountrysideEditorialGrid<Content: View>: View {
+    let accessibleMinCardWidth: CGFloat
+    @ViewBuilder let content: () -> Content
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @State private var width: CGFloat = 358
+
+    private var columnCount: Int {
+        let minimum: CGFloat = dynamicTypeSize >= .xxLarge ? accessibleMinCardWidth : 165
+        return width >= minimum * 2 + 8 ? 2 : 1
+    }
+
+    var body: some View {
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: columnCount), spacing: 8) {
+            content()
+        }
+        .background {
+            GeometryReader { proxy in
+                Color.clear
+                    .onAppear { width = proxy.size.width }
+                    .onChange(of: proxy.size.width) { width = $0 }
+            }
+        }
+    }
+}
+
 struct MyNotesScreen: View {
     @EnvironmentObject private var vm: LexiconViewModel
     @EnvironmentObject private var theme: LexiconThemeState
@@ -248,7 +276,7 @@ struct MyNotesScreen: View {
                     title: "Notes",
                     subtitle: "Capture thoughts, meanings and your language journey.",
                     illustrationBase: "ill-hero-notes",
-                    onHistoryClick: { vm.navigate(to: .collections) },
+                    onHistoryClick: { vm.navigate(to: .searchDiscovery) },
                     onLogoToggleTheme: { theme.toggle() },
                     heroHeight: 142
                 )
@@ -281,7 +309,7 @@ struct MyNotesScreen: View {
                         actionLabel: showAllNotes ? "Show less" : "View all",
                         onAction: { selectedCat = "All"; query = ""; showAllNotes.toggle() }
                     )
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: dynamicTypeSize.isAccessibilitySize ? 1 : 2), spacing: 8) {
+                    CountrysideEditorialGrid(accessibleMinCardWidth: 260) {
                         if filtered.isEmpty {
                             Text("No notes match your search. Choose a Quick Template to start.")
                                 .font(.lexiconBody(13))
@@ -494,7 +522,7 @@ struct StudyListsScreen: View {
                     title: "Study List",
                     subtitle: "Learn, practice and grow one word at a time.",
                     illustrationBase: "ill-hero-cottage",
-                    onHistoryClick: { vm.navigate(to: .quickTemplates) },
+                    onHistoryClick: { vm.navigate(to: .searchDiscovery) },
                     onLogoToggleTheme: { theme.toggle() },
                     heroHeight: 140
                 )
@@ -866,7 +894,7 @@ struct QuickTemplatesScreen: View {
                     title: "Quick Templates",
                     subtitle: "Start with a template, or create your own.",
                     illustrationBase: "ill-hero-cottage",
-                    onHistoryClick: { vm.navigate(to: .myNotes) },
+                    onHistoryClick: { vm.navigate(to: .searchDiscovery) },
                     onLogoToggleTheme: { theme.toggle() },
                     heroHeight: 140
                 )
@@ -898,7 +926,7 @@ struct QuickTemplatesScreen: View {
                         actionLabel: showAllTemplates ? "Show less" : "View all",
                         onAction: { filter = "All"; query = ""; showAllTemplates.toggle() }
                     )
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: dynamicTypeSize.isAccessibilitySize ? 1 : 2), spacing: 8) {
+                    CountrysideEditorialGrid(accessibleMinCardWidth: 270) {
                         if filtered.isEmpty {
                             Text("No templates match your search or category.")
                                 .font(.lexiconBody(13))

@@ -23,7 +23,7 @@ enum LexiconData {
             "A fortunate accident; a happy chance.",
             "A pleasant and unexpected discovery.",
         ],
-        etymology: "Coined in the 18th century, from the fairy tale “The Three Princes of Serendip”, where the princes made fortunate discoveries by chance.",
+        etymology: "Coined by Horace Walpole in 1754, from the fairy tale “The Three Princes of Serendip”, whose princes made fortunate discoveries by chance.",
         synonyms: ["luck", "happy chance", "fortuitous event", "coincidence"],
         antonyms: ["misfortune", "bad luck", "unfortunate event"],
         examples: [
@@ -34,7 +34,7 @@ enum LexiconData {
         ],
         language: "English",
         illustration: "ill-hero-bridge",
-        originPeriod: "Late 18th c.",
+        originPeriod: "1754",
         frequency: "High",
         level: "Intermediate",
         relatedWords: ["serendipitous", "serendipitously", "serendipitousness"],
@@ -418,7 +418,7 @@ enum LexiconData {
 
     static let defaultNotes: [NoteItem] = [
         NoteItem(id: "n1", category: .wordNote, title: "Serendipity", body: "“The occurrence of something good or useful by chance.”", dateLabel: "Sep 16, 2026", bookmarked: false, illustration: "ill-note-flowers"),
-        NoteItem(id: "n2", category: .study, title: "Etymology", body: "From Latin 'serendipitas' and the Persian tale of Serendip...", dateLabel: "Sep 15, 2026", bookmarked: true, illustration: "ill-col-bookmarks"),
+        NoteItem(id: "n2", category: .study, title: "Etymology", body: "Coined in 1754 from the tale of the Three Princes of Serendip.", dateLabel: "Sep 15, 2026", bookmarked: true, illustration: "ill-col-bookmarks"),
         NoteItem(id: "n3", category: .personal, title: "Favourite Quote", body: "“Words are bridges between minds.”", dateLabel: "Sep 14, 2026", bookmarked: false, illustration: "ill-col-notes"),
         NoteItem(id: "n4", category: .idea, title: "App Feature", body: "Add a daily word notification at morning tea.", dateLabel: "Sep 13, 2026", bookmarked: true, illustration: "ill-note-lantern"),
     ]
