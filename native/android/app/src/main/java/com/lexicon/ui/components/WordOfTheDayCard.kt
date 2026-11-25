@@ -232,22 +232,10 @@ fun WordOfTheDayCard(
                     .background(rightBg),
             ) {
                 if (!isDark) {
-                    Image(
-                        painter = rememberCountrysidePainter(resolveCountrysideDrawable("wotd_bg_light", false, "home-daily")),
-                        contentDescription = null,
-                        modifier = Modifier.align(Alignment.CenterEnd)
-                            .fillMaxHeight().fillMaxWidth(0.96f),
-                        contentScale = ContentScale.Fit,
-                        alignment = Alignment.BottomEnd,
-                    )
-                    Box(
-                        modifier = Modifier.fillMaxSize().background(
-                            Brush.horizontalGradient(
-                                0.0f to rightBg.copy(alpha = 0.96f),
-                                0.38f to rightBg.copy(alpha = 0.72f),
-                                0.83f to Color.Transparent,
-                            )
-                        ),
+                    CountrysidePainting(
+                        rememberCountrysidePainter(resolveCountrysideDrawable("wotd_bg_light", false, "home-daily")),
+                        Modifier.align(Alignment.BottomEnd).fillMaxHeight().fillMaxWidth(.96f),
+                        fadeLeft = .25f, fadeBottom = 0f
                     )
                 }
 

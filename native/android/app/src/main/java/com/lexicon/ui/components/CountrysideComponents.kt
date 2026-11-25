@@ -52,6 +52,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -106,6 +107,9 @@ fun CountrysidePainting(
     }.drawWithContent {
         drawContent()
         val intrinsic = painter.intrinsicSize
+        // Asynchronous vector preparation starts with a transparent ColorPainter.
+        // Size.Unspecified has no readable width or height.
+        if (intrinsic == Size.Unspecified || size.width <= 0f || size.height <= 0f) return@drawWithContent
         val scale = if (intrinsic.width.isFinite() && intrinsic.height.isFinite() &&
             intrinsic.width > 0f && intrinsic.height > 0f) {
             minOf(size.width / intrinsic.width, size.height / intrinsic.height)

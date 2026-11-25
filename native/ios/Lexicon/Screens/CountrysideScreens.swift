@@ -144,7 +144,7 @@ struct CollectionsHubScreen: View {
                                         .foregroundStyle(p.mutedForeground)
                                 }
                                 .padding(7)
-                                .background(p.card)
+                                .background(isDark ? p.card : Color(hex: "FFF8EA").opacity(0.17))
                                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                                 .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(p.border, lineWidth: 1))
                             }
@@ -324,12 +324,10 @@ struct MyNotesScreen: View {
                         ForEach(showAllNotes ? filtered : Array(filtered.prefix(4))) { note in
                             GeometryReader { card in
                                 ZStack(alignment: .bottomTrailing) {
-                                Image(countrysideImageName(note.illustration ?? "ill-note-flowers", isDark: isDark, scene: noteScene(note.category)))
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: card.size.width * (dynamicTypeSize.isAccessibilitySize ? 0.32 : 0.42),
-                                           height: card.size.height * 0.76,
-                                           alignment: .bottomTrailing)
+                                CountrysidePainting(name: countrysideImageName(note.illustration ?? "ill-note-flowers", isDark: isDark, scene: noteScene(note.category)),
+                                    fadeLeft: 0.10, fadeBottom: 0.06)
+                                    .frame(width: card.size.width * (dynamicTypeSize.isAccessibilitySize ? 0.32 : 0.48),
+                                           height: card.size.height * 0.88)
 
                                 VStack(alignment: .leading, spacing: 0) {
                                     HStack {
@@ -396,7 +394,7 @@ struct MyNotesScreen: View {
                                 }
                             }
                             .aspectRatio(dynamicTypeSize.isAccessibilitySize ? 1.45 : 368.0 / 249.0, contentMode: .fit)
-                            .background(p.card)
+                            .background(isDark ? p.card : Color(hex: "FFF8EA").opacity(0.17))
                             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                             .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(p.border, lineWidth: 1))
                             .onTapGesture {
@@ -447,7 +445,7 @@ struct MyNotesScreen: View {
                                 }
                                 .frame(maxWidth: .infinity)
                                 .frame(minHeight: 49)
-                                .background(p.card)
+                                .background(isDark ? p.card : Color(hex: "FFF8EA").opacity(0.17))
                                 .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
                                 .overlay(RoundedRectangle(cornerRadius: 13, style: .continuous).stroke(p.border, lineWidth: 1))
                             }
@@ -635,17 +633,16 @@ struct StudyListsScreen: View {
                         .frame(maxWidth: .infinity)
 
                         if !dynamicTypeSize.isAccessibilitySize {
-                            Image(countrysideImageName("ill-books-daisies", isDark: isDark, scene: "study-books"))
-                                .resizable().scaledToFit()
-                                .frame(width: 112, height: 88, alignment: .bottomTrailing)
-                                .accessibilityHidden(true)
+                            CountrysidePainting(name: countrysideImageName("ill-books-daisies", isDark: isDark, scene: "study-books"),
+                                fadeLeft: 0.10, fadeBottom: 0.04)
+                                .frame(width: 112, height: 88)
                         }
                     }
                     .padding(.horizontal, 14)
                     .padding(.bottom, 4)
                 }
                 .padding(.vertical, 12)
-                .background(p.card)
+                .background(isDark ? p.card : Color(hex: "FFF8EA").opacity(0.17))
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                 .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(p.border, lineWidth: 1))
                 .padding(.horizontal, 16)
@@ -720,7 +717,7 @@ struct StudyListsScreen: View {
                                 .accessibilityLabel("Manage \(sl.title)")
                             }
                             .padding(5)
-                            .background(p.card)
+                            .background(isDark ? p.card : Color(hex: "FFF8EA").opacity(0.17))
                             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                             .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(p.border, lineWidth: 1))
                         }
@@ -948,7 +945,7 @@ struct StudyListsScreen: View {
         }
         .frame(maxWidth: .infinity, minHeight: 65)
         .padding(.vertical, 3)
-        .background(p.card)
+        .background(isDark ? p.card : Color(hex: "FFF8EA").opacity(0.17))
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(p.border, lineWidth: 1))
     }
@@ -1090,7 +1087,7 @@ struct QuickTemplatesScreen: View {
                                 }
                                 .buttonStyle(.plain)
                             }
-                            .background(p.card)
+                            .background(isDark ? p.card : Color(hex: "FFF8EA").opacity(0.17))
                             .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                             .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(p.border, lineWidth: 1))
                         }
@@ -1132,7 +1129,7 @@ struct QuickTemplatesScreen: View {
                             .padding(.horizontal, 14)
                         }
                         .frame(height: 74)
-                        .background(p.card)
+                        .background(isDark ? p.card : Color(hex: "FFF8EA").opacity(0.17))
                         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                         .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(p.border, lineWidth: 1))
                     }
@@ -1305,7 +1302,7 @@ struct SearchDiscoveryScreen: View {
                                 .buttonStyle(.plain)
                             }
                         }
-                        .background(p.card)
+                        .background(isDark ? p.card : Color(hex: "FFF8EA").opacity(0.17))
                         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                         .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(p.border, lineWidth: 1))
                         .padding(.horizontal, 16)
@@ -1345,7 +1342,7 @@ struct SearchDiscoveryScreen: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             }
                         }
-                        .background(p.card)
+                        .background(isDark ? p.card : Color(hex: "FFF8EA").opacity(0.17))
                         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                         .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(p.border, lineWidth: 1))
                         .padding(.horizontal, 16)
@@ -1393,7 +1390,7 @@ struct SearchDiscoveryScreen: View {
                                 }
                             }
                         }
-                        .background(p.card)
+                        .background(isDark ? p.card : Color(hex: "FFF8EA").opacity(0.17))
                         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                         .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(p.border, lineWidth: 1))
                         .padding(.horizontal, 16)
@@ -1451,7 +1448,7 @@ struct SearchDiscoveryScreen: View {
             }
             .frame(maxWidth: .infinity, minHeight: 65)
             .padding(.vertical, 3)
-            .background(p.card)
+            .background(isDark ? p.card : Color(hex: "FFF8EA").opacity(0.17))
             .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 13, style: .continuous).stroke(p.border, lineWidth: 1))
         }

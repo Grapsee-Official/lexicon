@@ -118,28 +118,10 @@ fun Hero(
                     HomeNightScene(Modifier.matchParentSize(), stackedLayout = largeText)
                 }
             } else if (!largeText) {
-                Image(
-                    painter = rememberCountrysidePainter(resolveCountrysideDrawable("hero_light", false, "home-hero"), referenceWidth * .70f),
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit,
-                    alignment = Alignment.BottomEnd,
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                         .fillMaxWidth(if (largeText) 0.85f else 0.70f)
-                        .height(if (largeText) 180.dp else heroHeight),
-                )
-                if (!largeText) Box(
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .fillMaxWidth(0.49f)
-                        .height(heroHeight)
-                        .background(
-                            Brush.horizontalGradient(
-                                0.00f to WarmCream.copy(alpha = 0.94f),
-                                0.42f to WarmCream.copy(alpha = 0.60f),
-                                1.00f to Color.Transparent,
-                            ),
-                        ),
+                CountrysidePainting(
+                    rememberCountrysidePainter(resolveCountrysideDrawable("hero_light", false, "home-hero"), referenceWidth * .72f),
+                    Modifier.align(Alignment.BottomEnd).fillMaxWidth(.72f).height(heroHeight),
+                    fadeLeft = .14f, fadeBottom = .06f
                 )
             }
 

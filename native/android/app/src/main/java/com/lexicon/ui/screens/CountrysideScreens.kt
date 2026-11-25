@@ -88,6 +88,7 @@ import com.lexicon.data.TemplateCategory
 import com.lexicon.ui.components.BotanicalSectionTitle
 import com.lexicon.ui.components.CountrysideFilterPills
 import com.lexicon.ui.components.CountrysideHeroHeader
+import com.lexicon.ui.components.CountrysidePainting
 import com.lexicon.ui.components.rememberCountrysidePainter
 import com.lexicon.ui.components.CountrysideQuoteBanner
 import com.lexicon.ui.components.CountrysideSearchPill
@@ -135,7 +136,7 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
     val bg = if (isDark) DarkBackground else WarmCream
-    val cardBg = if (isDark) DarkCard else Color(0xFFFFF2DF).copy(alpha = .72f)
+    val cardBg = if (isDark) DarkCard else Color(0xFFFFF8EA).copy(alpha = .17f)
     val border = if (isDark) DarkChipBorder else OldWoodGold.copy(alpha = .28f)
     val fg = if (isDark) DarkForeground else DeepForest
     val muted = if (isDark) DarkMutedForeground else WarmGrey
@@ -390,7 +391,7 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
     if (showCategoryPicker) {
         AlertDialog(
             onDismissRequest = { showCategoryPicker = false },
-            containerColor = cardBg,
+            containerColor = if (isDark) DarkCard else CardSurface,
             title = { Text("Collection filter", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 20.sp)) },
             text = {
                 Column {
@@ -423,7 +424,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
     val bg = if (isDark) DarkBackground else WarmCream
-    val cardBg = if (isDark) DarkCard else Color(0xFFFFF2DF).copy(alpha = .72f)
+    val cardBg = if (isDark) DarkCard else Color(0xFFFFF8EA).copy(alpha = .17f)
     val border = if (isDark) DarkChipBorder else OldWoodGold.copy(alpha = .28f)
     val fg = if (isDark) DarkForeground else DeepForest
     val muted = if (isDark) DarkMutedForeground else WarmGrey
@@ -555,18 +556,14 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                                                 editingNote = note
                                             },
                                     ) {
-                                        Image(
-                                            painter = rememberCountrysidePainter(artRes, 112.dp),
-                                            contentDescription = null,
-                                            contentScale = ContentScale.Fit,
-                                            alignment = Alignment.BottomEnd,
-                                            modifier = Modifier
-                                                .align(Alignment.BottomEnd)
-                                                 .fillMaxHeight(0.76f)
-                                                // Preserve the complete original watercolor in
-                                                // its own right-hand zone, without a cream mask.
-                                                .fillMaxWidth(if (config.fontScale >= 1.3f) 0.32f else 0.42f),
+                                        CountrysidePainting(
+                                            rememberCountrysidePainter(artRes, 112.dp),
+                                            Modifier.align(Alignment.BottomEnd)
+                                                .fillMaxHeight(.88f)
+                                                .fillMaxWidth(if (config.fontScale >= 1.3f) .32f else .48f),
+                                            fadeLeft = .10f, fadeBottom = .06f,
                                         )
+
                                         Column(
                                             modifier = Modifier
                                                 .fillMaxSize()
@@ -713,7 +710,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
     if (showCategoryPicker) {
         AlertDialog(
             onDismissRequest = { showCategoryPicker = false },
-            containerColor = cardBg,
+            containerColor = if (isDark) DarkCard else CardSurface,
             title = { Text("Note category", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 20.sp)) },
             text = {
                 Column {
@@ -768,7 +765,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                     TextButton(onClick = { editingNote = null }) { Text("Cancel") }
                 }
             },
-            containerColor = cardBg,
+            containerColor = if (isDark) DarkCard else CardSurface,
         )
     }
 }
@@ -781,7 +778,7 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
     val bg = if (isDark) DarkBackground else WarmCream
-    val cardBg = if (isDark) DarkCard else Color(0xFFFFF2DF).copy(alpha = .72f)
+    val cardBg = if (isDark) DarkCard else Color(0xFFFFF8EA).copy(alpha = .17f)
     val border = if (isDark) DarkChipBorder else OldWoodGold.copy(alpha = .28f)
     val fg = if (isDark) DarkForeground else DeepForest
     val muted = if (isDark) DarkMutedForeground else WarmGrey
@@ -942,12 +939,9 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                         )
                     }
 
-                    if (!enlarged) Image(
-                        painter = rememberCountrysidePainter(booksRes, 112.dp),
-                        contentDescription = null,
-                        contentScale = ContentScale.Fit,
-                        alignment = Alignment.BottomEnd,
-                        modifier = Modifier.width(112.dp).height(88.dp),
+                    if (!enlarged) CountrysidePainting(
+                        rememberCountrysidePainter(booksRes, 112.dp),
+                        Modifier.width(112.dp).height(88.dp), fadeLeft = .10f, fadeBottom = .04f,
                     )
                 }
             }
@@ -1087,7 +1081,7 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
         if (list != null) {
             AlertDialog(
                 onDismissRequest = { readingListId = null },
-                containerColor = cardBg,
+                containerColor = if (isDark) DarkCard else CardSurface,
                 title = { Text(list.title, color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 22.sp)) },
                 text = {
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -1190,7 +1184,7 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
             dismissButton = {
                 TextButton(onClick = { showCreateList = false; listError = false }) { Text("Cancel") }
             },
-            containerColor = cardBg,
+            containerColor = if (isDark) DarkCard else CardSurface,
         )
     }
 
@@ -1233,7 +1227,7 @@ fun StudyListsScreen(viewModel: LexiconViewModel) {
                 }) { Text(if (entry == null) "Done" else if (answerRevealed) "Mark learned" else "Reveal meaning") }
             },
             dismissButton = { TextButton(onClick = { practicingListId = null; answerRevealed = false }) { Text("Close") } },
-            containerColor = cardBg,
+            containerColor = if (isDark) DarkCard else CardSurface,
         )
     }
 }
@@ -1254,7 +1248,7 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
     val bg = if (isDark) DarkBackground else WarmCream
-    val cardBg = if (isDark) DarkCard else Color(0xFFFFF2DF).copy(alpha = .72f)
+    val cardBg = if (isDark) DarkCard else Color(0xFFFFF8EA).copy(alpha = .17f)
     val border = if (isDark) DarkChipBorder else OldWoodGold.copy(alpha = .28f)
     val fg = if (isDark) DarkForeground else DeepForest
     val muted = if (isDark) DarkMutedForeground else WarmGrey
@@ -1510,7 +1504,7 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
     if (showCategoryPicker) {
         AlertDialog(
             onDismissRequest = { showCategoryPicker = false },
-            containerColor = cardBg,
+            containerColor = if (isDark) DarkCard else CardSurface,
             title = { Text("Template category", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 20.sp)) },
             text = {
                 Column {
@@ -1571,7 +1565,7 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
             dismissButton = {
                 TextButton(onClick = { showCreateTemplate = false }) { Text("Cancel") }
             },
-            containerColor = cardBg,
+            containerColor = if (isDark) DarkCard else CardSurface,
         )
     }
 
@@ -1613,7 +1607,7 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
             dismissButton = {
                 TextButton(onClick = { templateForNote = null }) { Text("Cancel") }
             },
-            containerColor = cardBg,
+            containerColor = if (isDark) DarkCard else CardSurface,
         )
     }
 }
@@ -1626,7 +1620,7 @@ fun SearchDiscoveryScreen(viewModel: LexiconViewModel) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
     val bg = if (isDark) DarkBackground else WarmCream
-    val cardBg = if (isDark) DarkCard else Color(0xFFFFF2DF).copy(alpha = .72f)
+    val cardBg = if (isDark) DarkCard else Color(0xFFFFF8EA).copy(alpha = .17f)
     val border = if (isDark) DarkChipBorder else OldWoodGold.copy(alpha = .28f)
     val fg = if (isDark) DarkForeground else DeepForest
     val muted = if (isDark) DarkMutedForeground else WarmGrey

@@ -138,23 +138,10 @@ struct WordOfTheDayCard: View {
                         rightBg
 
                         if !isDark {
-                            HStack(spacing: 0) {
-                                Spacer(minLength: 0)
-                                Image(countrysideImageName("wotd-bg-light", isDark: false, scene: "home-daily"))
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: rightW * 0.96, height: height, alignment: .bottomTrailing)
-                                    .accessibilityHidden(true)
-                            }
-                            LinearGradient(
-                                stops: [
-                                    .init(color: rightBg.opacity(0.96), location: 0),
-                                    .init(color: rightBg.opacity(0.72), location: 0.38),
-                                    .init(color: .clear, location: 0.83)
-                                ], startPoint: .leading, endPoint: .trailing
-                            )
-                            .frame(width: rightW, height: height)
-                            .allowsHitTesting(false)
+                            CountrysidePainting(name: countrysideImageName("wotd-bg-light", isDark: false, scene: "home-daily"),
+                                fadeLeft: 0.25, fadeBottom: 0)
+                                .frame(width: rightW * 0.96, height: height)
+                                .frame(maxWidth: .infinity, alignment: .trailing)
                         }
 
                         VStack(alignment: .leading, spacing: shortDefinition ? 10 : 0) {

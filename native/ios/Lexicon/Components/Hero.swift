@@ -117,18 +117,10 @@ struct Hero: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background {
             GeometryReader { geo in
-                ZStack(alignment: .bottomTrailing) {
-                    Image(countrysideImageName("hero-light", isDark: false, scene: "home-hero"))
-                        .resizable().scaledToFit()
-                        .frame(width: geo.size.width * 0.70, height: geo.size.height, alignment: .bottomTrailing)
-                    LinearGradient(stops: [
-                        .init(color: LexiconColors.background.opacity(0.94), location: 0),
-                        .init(color: LexiconColors.background.opacity(0.60), location: 0.42),
-                        .init(color: .clear, location: 1)
-                    ], startPoint: .leading, endPoint: .trailing)
-                    .frame(width: geo.size.width * 0.49, height: geo.size.height)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
+                CountrysidePainting(name: countrysideImageName("hero-light", isDark: false, scene: "home-hero"),
+                    fadeLeft: 0.14, fadeBottom: 0.06)
+                    .frame(width: geo.size.width * 0.72, height: geo.size.height)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
             }.accessibilityHidden(true).allowsHitTesting(false)
         }
     }
