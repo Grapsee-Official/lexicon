@@ -26,8 +26,8 @@ struct CategoryCard: View {
     }
     private var artHeight: CGFloat { shelfArtworkHeight ?? (largeText ? 100 : 74) }
     @ScaledMetric(relativeTo: .caption) private var captionHeight: CGFloat = 28
-    private var referenceTitle: CGFloat? { referenceShelfWidth.map { min(14, max(9.5, $0 * 14 / 117)) } }
-    private var referenceSubtitle: CGFloat? { referenceShelfWidth.map { min(11, max(7.5, $0 * 10 / 117)) } }
+    private var referenceTitle: CGFloat? { referenceShelfWidth.map { min(14.5, max(9.5, $0 * 14.5 / 117)) } }
+    private var referenceSubtitle: CGFloat? { referenceShelfWidth.map { min(11, max(8, $0 * 10.5 / 117)) } }
     private var minimumHeight: CGFloat {
         let content = artHeight + captionHeight + (shelfArtworkHeight != nil && !largeText ? 5 : 10)
         if !largeText, let width = referenceShelfWidth { return max(content, width * 147 / 117) }
@@ -38,7 +38,7 @@ struct CategoryCard: View {
         let p = lexiconPalette(scheme)
         let surface = isDark ? Color(hex: "101B23").opacity(0.32) : LexiconColors.card
         let lowerSurface = isDark ? Color(hex: "101B23").opacity(0.12) : Color(hex: "F8F1E6")
-        let border = isDark ? Color(hex: "B6A486").opacity(0.10) : LexiconColors.foreground.opacity(0.10)
+        let border = isDark ? Color(hex: "B6A486").opacity(0.10) : LexiconColors.highlight.opacity(0.15)
         Button {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
             vm.openCategory(category.id)

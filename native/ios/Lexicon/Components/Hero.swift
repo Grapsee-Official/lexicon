@@ -27,7 +27,7 @@ struct Hero: View {
     private var isDark: Bool { scheme == .dark }
 
     private var headlineMain: Color {
-        isDark ? LexiconColors.foregroundDark : LexiconColors.foreground
+        isDark ? Color(hex: "E9D6B9") : Color(hex: "202521")
     }
 
     private var headlineWords: Color {
@@ -123,7 +123,7 @@ struct Hero: View {
                         .frame(width: geo.size.width * 0.70, height: geo.size.height, alignment: .bottomTrailing)
                     LinearGradient(stops: [
                         .init(color: LexiconColors.background.opacity(0.94), location: 0),
-                        .init(color: LexiconColors.background.opacity(0.72), location: 0.42),
+                        .init(color: LexiconColors.background.opacity(0.60), location: 0.42),
                         .init(color: .clear, location: 1)
                     ], startPoint: .leading, endPoint: .trailing)
                     .frame(width: geo.size.width * 0.49, height: geo.size.height)

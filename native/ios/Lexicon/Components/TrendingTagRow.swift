@@ -14,7 +14,7 @@ struct TrendingTagRow: View {
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     private var isDark: Bool { scheme == .dark }
-    private var compact: Bool { isDark && sceneIntegrated && !dynamicTypeSize.isAccessibilitySize }
+    private var compact: Bool { referencePageWidth != nil && !dynamicTypeSize.isAccessibilitySize }
 
     private var chipBg: Color {
         isDark && sceneIntegrated ? Color(hex: "0B151D").opacity(0.88)
@@ -27,12 +27,12 @@ struct TrendingTagRow: View {
     }
 
     private var chipText: Color {
-        isDark && sceneIntegrated ? Color(hex: "D8C7A8")
+        isDark && sceneIntegrated ? Color(hex: "F0C879")
             : (isDark ? LexiconColors.foregroundDark.opacity(0.88) : LexiconColors.foreground.opacity(0.84))
     }
 
     var body: some View {
-        let reference = isDark && sceneIntegrated ? referencePageWidth : nil
+        let reference = referencePageWidth
         let gap = reference.map { min(10, max(5, $0 * 9 / 591)) } ?? (compact ? 6 : 9)
         let gridWidth = reference.map { min(54, max(32, $0 * 50 / 591)) } ?? 34
         let chipHeight = reference.map { min(44, max(26, $0 * 40 / 591)) } ?? 34
@@ -73,15 +73,15 @@ struct TrendingTagRow: View {
 
             Button {
                 UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                vm.setActiveTab(.dictionary)
+                vm.navigate(to: .categoryDirectory)
             } label: {
                 Image(systemName: "square.grid.2x2")
                     .font(.system(size: 12, weight: .regular))
                     .foregroundStyle(isDark && sceneIntegrated ? Color(hex: "D0AD75") : (isDark ? LexiconColors.accentDark : LexiconColors.foreground.opacity(0.68)))
                     .frame(width: gridWidth, height: dynamicTypeSize.isAccessibilitySize ? max(44, chipHeight) : chipHeight)
                     .background(chipBg)
-                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                    .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(chipBorder, lineWidth: 1))
+                    .clipShape(Capsule())
+                    .overlay(Capsule().stroke(chipBorder, lineWidth: 1))
             }
             .buttonStyle(.plain)
             .accessibilityLabel(Text(LexiconAccessibilityLabels.grid))

@@ -61,8 +61,8 @@ fun CategoryCard(
     val fontScale = LocalConfiguration.current.fontScale
     val largeText = fontScale >= 1.5f
     val artHeight = shelfArtworkHeight ?: if (largeText) 100.dp else 74.dp
-    val referenceTitle = referenceShelfWidth?.value?.let { (it * 14f / 117f).coerceIn(9.5f, 14f) }
-    val referenceSubtitle = referenceShelfWidth?.value?.let { (it * 10f / 117f).coerceIn(7.5f, 11f) }
+    val referenceTitle = referenceShelfWidth?.value?.let { (it * 14.5f / 117f).coerceIn(9.5f, 14.5f) }
+    val referenceSubtitle = referenceShelfWidth?.value?.let { (it * 10.5f / 117f).coerceIn(8f, 11f) }
     val ctx = LocalContext.current
     // All ten known categories have separate light and dark native vectors.
     // Keep the original artwork only as a fallback for future categories.
@@ -90,7 +90,7 @@ fun CategoryCard(
     val lowerSurface = if (isDark) Color(0xFF101B23).copy(alpha = 0.12f) else Color(0xFFF8F1E6)
     val ink = if (isDark) DarkForeground else DeepForest
     val muted = if (isDark) Color(0xFFB4AD9E) else WarmGrey
-    val border = if (isDark) Color(0xFFB6A486).copy(alpha = 0.10f) else DeepForest.copy(alpha = 0.10f)
+    val border = if (isDark) Color(0xFFB6A486).copy(alpha = 0.10f) else Color(0xFFA58A61).copy(alpha = 0.15f)
     val shape = RoundedCornerShape(if (isDark) 10.dp else 12.dp)
 
     Column(

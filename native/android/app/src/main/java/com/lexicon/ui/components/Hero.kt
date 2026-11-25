@@ -81,7 +81,7 @@ fun Hero(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val isDark = state.isDark
 
-    val headlineMain = if (isDark) DarkForeground else DeepForest
+    val headlineMain = if (isDark) Color(0xFFE9D6B9) else Color(0xFF202521)
     val headlineWords = if (isDark) DarkSage else BrandGreen
     val sprigColor = if (isDark) DarkAccent else OldWoodGold
     val subtextColor = if (isDark) Color(0xFFD3C6B2) else DeepForest.copy(alpha = 0.90f)
@@ -135,8 +135,8 @@ fun Hero(
                         .height(heroHeight)
                         .background(
                             Brush.horizontalGradient(
-                                0.00f to WarmCream.copy(alpha = 0.98f),
-                                0.55f to WarmCream.copy(alpha = 0.85f),
+                                0.00f to WarmCream.copy(alpha = 0.94f),
+                                0.42f to WarmCream.copy(alpha = 0.60f),
                                 1.00f to Color.Transparent,
                             ),
                         ),

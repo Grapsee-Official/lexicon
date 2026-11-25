@@ -38,7 +38,7 @@ struct HomeScreen: View {
                             }
                         }
                     TrendingTagRow(tags: LexiconData.trendingTags, sceneIntegrated: scheme == .dark,
-                                   referencePageWidth: scheme == .dark ? pageWidth : nil)
+                                   referencePageWidth: pageWidth)
                         .padding(.horizontal, pageInset)
                 }
                 .background {

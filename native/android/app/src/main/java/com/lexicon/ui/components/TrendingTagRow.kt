@@ -35,7 +35,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lexicon.data.LexiconData
 import com.lexicon.data.LexiconViewModel
-import com.lexicon.data.TabKey
 import com.lexicon.data.TrendingTag
 import com.lexicon.ui.AccessibilityAudit
 import com.lexicon.ui.iconButton
@@ -59,16 +58,16 @@ fun TrendingTagRow(
     val isDark = state.isDark
 
     val integrated = isDark && sceneIntegrated
-    val compact = integrated && LocalConfiguration.current.fontScale < 1.5f
+    val compact = referencePageWidth != null && LocalConfiguration.current.fontScale < 1.5f
     val chipBg = if (integrated) Color(0xFF0B151D).copy(alpha = 0.88f)
         else if (isDark) DarkCard else CardSurface.copy(alpha = 0.78f)
     val chipBorder = if (integrated) Color(0xFFB6A486).copy(alpha = 0.12f)
         else if (isDark) DarkChipBorder else DeepForest.copy(alpha = 0.12f)
-    val chipText = if (integrated) Color(0xFFD8C7A8) else if (isDark) DarkForeground.copy(alpha = 0.88f) else DeepForest.copy(alpha = 0.84f)
+    val chipText = if (integrated) Color(0xFFF0C879) else if (isDark) DarkForeground.copy(alpha = 0.88f) else DeepForest.copy(alpha = 0.84f)
     val gridTint = if (integrated) Color(0xFFD0AD75) else if (isDark) DarkAccent else DeepForest.copy(alpha = 0.68f)
 
     val scrollState = rememberScrollState()
-    val reference = referencePageWidth?.takeIf { integrated }
+    val reference = referencePageWidth
     val gap = if (reference != null) (reference * (9f / 591f)).coerceIn(5.dp, 10.dp)
         else if (compact) 6.dp else 9.dp
     val gridWidth = if (reference != null) (reference * (50f / 591f)).coerceIn(32.dp, 54.dp)
@@ -125,11 +124,11 @@ fun TrendingTagRow(
             Box(
                 modifier = Modifier
                     .size(width = gridWidth, height = if (fontScale >= 1.5f) maxOf(chipHeight, 44.dp) else chipHeight)
-                    .clip(RoundedCornerShape(10.dp))
+                    .clip(CircleShape)
                     .background(chipBg)
-                    .border(1.dp, chipBorder, RoundedCornerShape(10.dp))
+                    .border(1.dp, chipBorder, CircleShape)
                     .iconButton(AccessibilityAudit.Descriptions.Grid)
-                    .clickable(role = Role.Button) { viewModel.setActiveTab(TabKey.DICTIONARY) },
+                    .clickable(role = Role.Button) { viewModel.navigate(com.lexicon.data.ScreenRoute.CATEGORY_DIRECTORY) },
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
