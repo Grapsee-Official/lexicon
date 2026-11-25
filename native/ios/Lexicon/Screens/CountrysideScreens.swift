@@ -22,6 +22,7 @@ struct CollectionsHubScreen: View {
     @State private var query: String = ""
     @State private var filter: String = "All"
     @State private var showAllRecent = false
+    @State private var showCategoryPicker = false
     private var isDark: Bool { scheme == .dark }
 
     var body: some View {
@@ -42,10 +43,7 @@ struct CollectionsHubScreen: View {
                     text: $query,
                     placeholder: "Search in your collections...",
                     showFilter: true,
-                    onFilterClick: {
-                        let options = ["All", "Favorites", "Bookmarks"]
-                        filter = options[((options.firstIndex(of: filter) ?? 0) + 1) % options.count]
-                    }
+                    onFilterClick: { showCategoryPicker = true }
                 )
                 .padding(.horizontal, 16)
 
@@ -59,9 +57,9 @@ struct CollectionsHubScreen: View {
                     ],
                     selected: filter,
                     onSelect: { sel in
-                        filter = sel
                         if sel == "Notes" { vm.navigate(to: .myNotes) }
-                        if sel == "Study Lists" { vm.navigate(to: .studyLists) }
+                        else if sel == "Study Lists" { vm.navigate(to: .studyLists) }
+                        else { filter = sel }
                     }
                 )
 
@@ -104,9 +102,12 @@ struct CollectionsHubScreen: View {
                     let thumbs = ["ill-thumb-lavender", "ill-thumb-cottage", "ill-thumb-bridge"]
                     let recents: [(String, String)] = ids.enumerated().map { index, id in
                         (id, thumbs[index % thumbs.count])
+                    }.filter { pair in
+                        guard let entry = LexiconData.getWordById(pair.0) else { return false }
+                        return query.isEmpty || entry.word.localizedCaseInsensitiveContains(query)
                     }
                     VStack(spacing: 7) {
-                        ForEach(showAllRecent ? recents : Array(recents.prefix(3)), id: \.0) { (id, thumb) in
+                        ForEach(showAllRecent || !query.isEmpty || filter != "All" ? recents : Array(recents.prefix(3)), id: \.0) { (id, thumb) in
                             if let entry = LexiconData.getWordById(id),
                                query.isEmpty || entry.word.localizedCaseInsensitiveContains(query) {
                                 let fav = vm.isFavorite(entry.id)
@@ -159,6 +160,12 @@ struct CollectionsHubScreen: View {
                 .padding(.horizontal, 16)
             }
             .padding(.bottom, 16)
+        }
+        .confirmationDialog("Collection filter", isPresented: $showCategoryPicker, titleVisibility: .visible) {
+            ForEach(["All", "Favorites", "Bookmarks"], id: \.self) { option in
+                Button(filter == option ? "✓ " + option : option) { filter = option }
+            }
+            Button("Cancel", role: .cancel) {}
         }
         .onAppear { filter = vm.collectionFilter }
     }
@@ -242,6 +249,7 @@ struct MyNotesScreen: View {
     @State private var query: String = ""
     @State private var selectedCat: String = "All"
     @State private var showAllNotes = false
+    @State private var showCategoryPicker = false
     @State private var editingNote: NoteItem? = nil
     @State private var editorTitle = ""
     @State private var editorBody = ""
@@ -281,10 +289,7 @@ struct MyNotesScreen: View {
 
                 CountrysideSearchPill(
                     text: $query, placeholder: "Search your notes...", showFilter: true,
-                    onFilterClick: {
-                        let options = ["All", "Personal", "Word Notes", "Study", "Ideas"]
-                        selectedCat = options[((options.firstIndex(of: selectedCat) ?? 0) + 1) % options.count]
-                    }
+                    onFilterClick: { showCategoryPicker = true }
                 )
                     .padding(.horizontal, 16)
 
@@ -459,6 +464,12 @@ struct MyNotesScreen: View {
             }
             .padding(.bottom, 16)
         }
+        .confirmationDialog("Note category", isPresented: $showCategoryPicker, titleVisibility: .visible) {
+            ForEach(["All", "Personal", "Word Notes", "Study", "Ideas"], id: \.self) { option in
+                Button(selectedCat == option ? "✓ " + option : option) { selectedCat = option }
+            }
+            Button("Cancel", role: .cancel) {}
+        }
         .sheet(item: $editingNote) { note in
             NavigationStack {
                 Form {
@@ -472,6 +483,9 @@ struct MyNotesScreen: View {
                         }
                     }
                 }
+                .font(.lexiconLong(15))
+                .scrollContentBackground(.hidden)
+                .background(lexiconPalette(scheme).card)
                 .navigationTitle(note.id == "__new_note__" ? "Create note" : "Edit note")
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
@@ -947,6 +961,7 @@ struct QuickTemplatesScreen: View {
     @State private var query: String = ""
     @State private var filter: String = "All"
     @State private var showAllTemplates = false
+    @State private var showCategoryPicker = false
     @State private var showCreateTemplate = false
     @State private var templateForNote: VocabTemplate? = nil
     @State private var templateNoteTitle = ""
@@ -986,10 +1001,7 @@ struct QuickTemplatesScreen: View {
 
                 CountrysideSearchPill(
                     text: $query, placeholder: "Search templates...", showFilter: true,
-                    onFilterClick: {
-                        let options = ["All", "Learning", "Writing", "Exam", "Daily Life"]
-                        filter = options[((options.firstIndex(of: filter) ?? 0) + 1) % options.count]
-                    }
+                    onFilterClick: { showCategoryPicker = true }
                 )
                     .padding(.horizontal, 16)
 
@@ -1133,6 +1145,12 @@ struct QuickTemplatesScreen: View {
             }
             .padding(.bottom, 16)
         }
+        .confirmationDialog("Template category", isPresented: $showCategoryPicker, titleVisibility: .visible) {
+            ForEach(["All", "Learning", "Writing", "Exam", "Daily Life"], id: \.self) { option in
+                Button(filter == option ? "✓ " + option : option) { filter = option }
+            }
+            Button("Cancel", role: .cancel) {}
+        }
         .sheet(isPresented: $showCreateTemplate) {
             NavigationStack {
                 Form {
@@ -1144,6 +1162,9 @@ struct QuickTemplatesScreen: View {
                         }
                     }
                 }
+                .font(.lexiconLong(15))
+                .scrollContentBackground(.hidden)
+                .background(lexiconPalette(scheme).card)
                 .navigationTitle("New template")
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
@@ -1173,6 +1194,9 @@ struct QuickTemplatesScreen: View {
                     TextEditor(text: $templateNoteBody)
                         .frame(minHeight: 180)
                 }
+                .font(.lexiconLong(15))
+                .scrollContentBackground(.hidden)
+                .background(lexiconPalette(scheme).card)
                 .navigationTitle("Write from template")
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {

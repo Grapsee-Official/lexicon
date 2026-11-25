@@ -144,6 +144,7 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
     var query by remember { mutableStateOf("") }
     var filter by remember(state.collectionFilter) { mutableStateOf(state.collectionFilter) }
     var showAllRecent by remember { mutableStateOf(false) }
+    var showCategoryPicker by remember { mutableStateOf(false) }
 
     val filterItems = listOf(
         "All" to null,
@@ -179,10 +180,7 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
                 placeholder = "Search in your collections...",
                 isDark = isDark,
                 showFilter = true,
-                onFilterClick = {
-                    val options = listOf("All", "Favorites", "Bookmarks")
-                    filter = options[(options.indexOf(filter) + 1) % options.size]
-                },
+                onFilterClick = { showCategoryPicker = true },
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
         }
@@ -193,10 +191,10 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
                 selected = filter,
                 isDark = isDark,
                 onSelect = { selected ->
-                    filter = selected
                     when (selected) {
                         "Notes" -> viewModel.navigate(ScreenRoute.MY_NOTES)
                         "Study Lists" -> viewModel.navigate(ScreenRoute.STUDY_LISTS)
+                        else -> filter = selected
                     }
                 },
                 modifier = Modifier.padding(horizontal = 16.dp),
@@ -323,7 +321,7 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
                 id to thumbnails[index % thumbnails.size]
             }.filter { (id, _) ->
                 query.isBlank() || id.contains(query.trim(), ignoreCase = true)
-            }.let { if (showAllRecent) it else it.take(3) }
+            }.let { if (showAllRecent || query.isNotBlank() || filter != "All") it else it.take(3) }
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 BotanicalSectionTitle(
@@ -390,6 +388,24 @@ fun CollectionsHubScreen(viewModel: LexiconViewModel) {
             )
         }
     }
+    if (showCategoryPicker) {
+        AlertDialog(
+            onDismissRequest = { showCategoryPicker = false },
+            containerColor = cardBg,
+            title = { Text("Collection filter", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 20.sp)) },
+            text = {
+                Column {
+                    listOf("All", "Favorites", "Bookmarks").forEach { option ->
+                        TextButton(onClick = { filter = option; showCategoryPicker = false }) {
+                            Text(if (filter == option) "✓ $option" else option, color = fg)
+                        }
+                    }
+                }
+            },
+            confirmButton = { TextButton(onClick = { showCategoryPicker = false }) { Text("Done") } },
+        )
+    }
+
 }
 
 private data class QuadCollectionSpec(
@@ -417,6 +433,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
     var query by remember { mutableStateOf("") }
     var selectedCat by remember { mutableStateOf("All") }
     var showAllNotes by remember { mutableStateOf(false) }
+    var showCategoryPicker by remember { mutableStateOf(false) }
     var editingNote by remember { mutableStateOf<com.lexicon.data.NoteItem?>(null) }
     var editorTitle by remember { mutableStateOf("") }
     var editorBody by remember { mutableStateOf("") }
@@ -457,10 +474,7 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                 placeholder = "Search your notes...",
                 isDark = isDark,
                 showFilter = true,
-                onFilterClick = {
-                    val options = listOf("All", "Personal", "Word Notes", "Study", "Ideas")
-                    selectedCat = options[(options.indexOf(selectedCat) + 1) % options.size]
-                },
+                onFilterClick = { showCategoryPicker = true },
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
         }
@@ -697,6 +711,23 @@ fun MyNotesScreen(viewModel: LexiconViewModel) {
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
         }
+    }
+    if (showCategoryPicker) {
+        AlertDialog(
+            onDismissRequest = { showCategoryPicker = false },
+            containerColor = cardBg,
+            title = { Text("Note category", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 20.sp)) },
+            text = {
+                Column {
+                    listOf("All", "Personal", "Word Notes", "Study", "Ideas").forEach { option ->
+                        TextButton(onClick = { selectedCat = option; showCategoryPicker = false }) {
+                            Text(if (selectedCat == option) "✓ $option" else option, color = fg)
+                        }
+                    }
+                }
+            },
+            confirmButton = { TextButton(onClick = { showCategoryPicker = false }) { Text("Done") } },
+        )
     }
     editingNote?.let { note ->
         AlertDialog(
@@ -1235,6 +1266,7 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
     var query by remember { mutableStateOf("") }
     var filter by remember { mutableStateOf("All") }
     var showAllTemplates by remember { mutableStateOf(false) }
+    var showCategoryPicker by remember { mutableStateOf(false) }
     var showCreateTemplate by remember { mutableStateOf(false) }
     var templateForNote by remember { mutableStateOf<com.lexicon.data.VocabTemplate?>(null) }
     var templateNoteTitle by remember { mutableStateOf("") }
@@ -1273,10 +1305,7 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                 placeholder = "Search templates...",
                 isDark = isDark,
                 showFilter = true,
-                onFilterClick = {
-                    val options = listOf("All", "Learning", "Writing", "Exam", "Daily Life")
-                    filter = options[(options.indexOf(filter) + 1) % options.size]
-                },
+                onFilterClick = { showCategoryPicker = true },
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
         }
@@ -1481,6 +1510,23 @@ fun QuickTemplatesScreen(viewModel: LexiconViewModel) {
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
         }
+    }
+    if (showCategoryPicker) {
+        AlertDialog(
+            onDismissRequest = { showCategoryPicker = false },
+            containerColor = cardBg,
+            title = { Text("Template category", color = fg, style = TextStyle(fontFamily = DisplayFontFamily, fontSize = 20.sp)) },
+            text = {
+                Column {
+                    listOf("All", "Learning", "Writing", "Exam", "Daily Life").forEach { option ->
+                        TextButton(onClick = { filter = option; showCategoryPicker = false }) {
+                            Text(if (filter == option) "✓ $option" else option, color = fg)
+                        }
+                    }
+                }
+            },
+            confirmButton = { TextButton(onClick = { showCategoryPicker = false }) { Text("Done") } },
+        )
     }
     if (showCreateTemplate) {
         AlertDialog(
