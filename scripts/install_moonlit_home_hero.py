@@ -59,3 +59,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+# Test APK rebuild requested 2026-11-28; no runtime changes.
